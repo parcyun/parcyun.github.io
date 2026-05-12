@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>하네스 에이전트를 위한 생성형 AI 기본 이해 · parcyun studio</title>
+<meta name="description" content="parcyun studio가 정리한 LLM, Markdown, Skills, API, MCP, Harness, Orchestration 개념 강의 자료">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<style>
+/* === parcyun studio tokens (Cinematic Mode) === */
+:root {
+  --ps-primary:                    #FFB11A;
+  --ps-primary-dark:               #E89500;
+
+  --ps-bg-cinematic:               #000000;
+  --ps-surface-cinematic-1:        #141414;
+  --ps-surface-cinematic-2:        #222222;
+  --ps-surface-cinematic-3:        #333333;
+  --ps-text-cinematic-secondary:   #8C8C8C;
+
+  --ps-font-body: 'Pretendard Variable', 'Pretendard', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  --ps-font-en:   'Montserrat', 'Pretendard Variable', 'Pretendard', sans-serif;
+  --ps-font-signature: 'Covered By Your Grace', cursive;
+
+  --ps-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+}
+
+body {
+  background: var(--ps-bg-cinematic);
+  color: #FFFFFF;
+  font-family: var(--ps-font-body);
+  font-weight: 300;
+  line-height: 1.6;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ===== Slide / Section ===== */
+section.ps-slide {
+  min-height: 100vh;
+  padding: 80px 24px 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  scroll-snap-align: start;
+  max-width: 1108px;
+  margin: 0 auto;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  section.ps-slide { padding: 80px 48px 120px; }
+}
+
+/* ===== Bilingual Section Header ===== */
+.ps-header-bi {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 48px;
+}
+@media (min-width: 768px) {
+  .ps-header-bi { flex-direction: row; align-items: baseline; gap: 16px; }
+}
+.ps-header-bi .ko {
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 300;
+  letter-spacing: -1.2px;
+  line-height: 1.2;
+  margin: 0;
+  color: #FFFFFF;
+}
+.ps-header-bi .en {
+  font-family: var(--ps-font-en);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+}
+
+/* ===== Concept Card (parcyun teaching pattern: definition + metaphor) ===== */
+.concept {
+  margin-bottom: 32px;
+}
+.concept-title {
+  font-size: clamp(32px, 5vw, 64px);
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1.1;
+  margin: 0 0 8px;
+  color: #FFFFFF;
+}
+.concept-title small {
+  display: block;
+  font-family: var(--ps-font-en);
+  font-size: clamp(14px, 1.5vw, 18px);
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  color: var(--ps-text-cinematic-secondary);
+  margin-top: 8px;
+}
+.concept-def {
+  font-size: clamp(16px, 1.4vw, 18px);
+  font-weight: 300;
+  color: #FFFFFF;
+  margin: 16px 0 32px;
+  max-width: 720px;
+}
+
+.metaphor-box {
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 20px;
+  padding: 32px 32px 36px;
+  background: var(--ps-bg-cinematic);
+  max-width: 720px;
+}
+.metaphor-box .label {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+  margin: 0 0 12px;
+}
+.metaphor-box .name {
+  font-size: clamp(20px, 2vw, 24px);
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  margin: 0 0 16px;
+  color: var(--ps-primary);
+}
+.metaphor-box .desc {
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+/* ===== Hero ===== */
+.ps-hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 80px 24px;
+  max-width: 1108px;
+  margin: 0 auto;
+  scroll-snap-align: start;
+}
+@media (min-width: 768px) { .ps-hero { padding: 80px 48px; } }
+
+.ps-hero-eyebrow {
+  font-family: var(--ps-font-en);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--ps-primary);
+  margin-bottom: 24px;
+}
+.ps-hero-title {
+  font-size: clamp(36px, 7vw, 88px);
+  font-weight: 300;
+  letter-spacing: -2.5px;
+  line-height: 1.1;
+  margin: 0 0 24px;
+  color: #FFFFFF;
+}
+.ps-hero-title strong {
+  font-weight: 700;
+  color: var(--ps-primary);
+}
+.ps-hero-sub {
+  font-family: var(--ps-font-en);
+  font-size: clamp(14px, 1.4vw, 18px);
+  font-weight: 300;
+  letter-spacing: 0.3px;
+  color: var(--ps-text-cinematic-secondary);
+  margin: 0 0 48px;
+  max-width: 600px;
+}
+.ps-hero-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ps-text-cinematic-secondary);
+}
+.ps-hero-meta .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--ps-primary);
+}
+
+/* ===== Section Divider (part covers) ===== */
+.ps-divider {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 80px 24px;
+  scroll-snap-align: start;
+}
+.ps-divider .part-tag {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--ps-primary);
+  margin-bottom: 24px;
+}
+.ps-divider .part-title {
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 300;
+  letter-spacing: -2px;
+  line-height: 1.2;
+  margin: 0;
+  color: #FFFFFF;
+}
+.ps-divider .part-title strong { font-weight: 700; }
+
+/* ===== Tag Pills ===== */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  color: #FFFFFF;
+  background: transparent;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 100px;
+  padding: 5px 12px 6px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+.tag-pill.amber {
+  border-color: var(--ps-primary);
+  color: var(--ps-primary);
+}
+
+/* ===== Definition Cards (NLP + LLM dual layout) ===== */
+.def-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  margin-top: 32px;
+}
+@media (min-width: 900px) {
+  .def-grid.two { grid-template-columns: 1fr 1fr; gap: 48px; }
+}
+.def-card .abbr {
+  font-family: var(--ps-font-en);
+  font-size: clamp(40px, 5vw, 56px);
+  font-weight: 700;
+  letter-spacing: -1px;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1;
+}
+.def-card .full {
+  font-family: var(--ps-font-en);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: var(--ps-text-cinematic-secondary);
+  margin: 8px 0 16px;
+}
+.def-card .ko-name {
+  font-size: 22px;
+  font-weight: 500;
+  margin: 0 0 8px;
+  color: #FFFFFF;
+}
+.def-card .ko-desc {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ps-text-cinematic-secondary);
+  margin: 0;
+}
+
+.plus-sign {
+  text-align: center;
+  font-size: 48px;
+  font-weight: 300;
+  color: var(--ps-surface-cinematic-3);
+  margin: 0;
+  padding: 16px 0;
+}
+
+/* ===== 5-step level grid ===== */
+.level-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 32px;
+}
+@media (min-width: 640px) { .level-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .level-grid { grid-template-columns: repeat(5, 1fr); } }
+
+.level-card {
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 16px;
+  padding: 24px 20px;
+  background: var(--ps-bg-cinematic);
+  transition: border-color 240ms var(--ps-ease-out), transform 240ms var(--ps-ease-out);
+}
+.level-card:hover {
+  border-color: var(--ps-primary);
+  transform: translateY(-4px);
+}
+.level-card.highlight {
+  border-color: var(--ps-primary);
+  background: var(--ps-surface-cinematic-1);
+}
+.level-card .lv {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  color: var(--ps-primary);
+  margin: 0 0 12px;
+}
+.level-card .name {
+  font-family: var(--ps-font-en);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  margin: 0 0 12px;
+  color: #FFFFFF;
+}
+.level-card .desc {
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--ps-text-cinematic-secondary);
+  margin: 0;
+}
+
+/* Today-bridge marker — Claude Desktop sits BETWEEN Lv.4 and Lv.5 */
+.today-bridge {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.today-bridge .anchor {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: calc(10% + 8px); /* visual aim: gap between 4th and 5th column on desktop (5-col grid: column boundary at 80%, so center of gap ≈ 80%, anchor at right 20% midpoint) */
+}
+.today-bridge .anchor svg { display: block; }
+.today-bridge .pill {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 20px 24px;
+  border: 1px solid var(--ps-primary);
+  border-radius: 16px;
+  background: var(--ps-surface-cinematic-1);
+}
+.today-bridge .badge {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--ps-primary);
+}
+.today-bridge .pill .title {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  color: #FFFFFF;
+  margin: 0;
+}
+.today-bridge .pill .sub {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ps-text-cinematic-secondary);
+  margin: 0;
+}
+.today-bridge .pill .sub b {
+  color: var(--ps-primary);
+  font-weight: 500;
+}
+@media (max-width: 1023px) {
+  .today-bridge .anchor { display: none; }
+}
+
+/* ===== Concept index (6 key concepts list) ===== */
+.concept-index {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 32px;
+  max-width: 720px;
+}
+@media (min-width: 640px) { .concept-index { grid-template-columns: 1fr 1fr; } }
+
+.concept-index-item {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 20px 24px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 12px;
+  text-decoration: none;
+  color: #FFFFFF;
+  transition: border-color 240ms var(--ps-ease-out), background 240ms var(--ps-ease-out);
+}
+.concept-index-item:hover {
+  border-color: var(--ps-primary);
+  background: var(--ps-surface-cinematic-1);
+}
+.concept-index-item .num {
+  font-family: var(--ps-font-en);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ps-primary);
+  letter-spacing: 1px;
+}
+.concept-index-item .label {
+  font-family: var(--ps-font-en);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+}
+
+/* Concept disclosure (toggle on click — NOT navigation) */
+.concept-index-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.concept-index-item .head {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  width: 100%;
+  position: relative;
+}
+.concept-index-item .head::after {
+  content: '＋';
+  margin-left: auto;
+  font-family: var(--ps-font-en);
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--ps-text-cinematic-secondary);
+  transition: transform 240ms var(--ps-ease-out), color 240ms var(--ps-ease-out);
+}
+.concept-index-item[aria-expanded="true"] .head::after {
+  content: '−';
+  color: var(--ps-primary);
+}
+.concept-index-item .body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 320ms var(--ps-ease-out), margin-top 320ms var(--ps-ease-out);
+  margin-top: 0;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--ps-text-cinematic-secondary);
+}
+.concept-index-item[aria-expanded="true"] .body {
+  max-height: 240px;
+  margin-top: 16px;
+}
+.concept-index-item[aria-expanded="true"] {
+  border-color: var(--ps-primary);
+  background: var(--ps-surface-cinematic-1);
+}
+
+/* ===== Markdown code preview ===== */
+.md-demo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 32px;
+  max-width: 720px;
+}
+@media (min-width: 640px) { .md-demo { grid-template-columns: 1fr 1fr; } }
+
+.md-side {
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 12px;
+  padding: 24px;
+  background: var(--ps-surface-cinematic-1);
+}
+.md-side .head {
+  font-family: var(--ps-font-en);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+  margin: 0 0 16px;
+}
+.md-code {
+  font-family: 'JetBrains Mono', 'D2Coding', monospace;
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--ps-text-cinematic-secondary);
+  white-space: pre-wrap;
+  margin: 0;
+}
+.md-render {
+  font-family: var(--ps-font-body);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.md-render h1 { font-size: 22px; font-weight: 600; margin: 0 0 8px; }
+.md-render h2 { font-size: 18px; font-weight: 500; margin: 12px 0 6px; }
+.md-render h3 { font-size: 15px; font-weight: 500; margin: 10px 0 4px; }
+.md-render strong { font-weight: 600; color: var(--ps-primary); }
+.md-render ul { padding-left: 18px; margin: 6px 0; }
+.md-render blockquote {
+  border-left: 2px solid var(--ps-primary);
+  padding-left: 12px;
+  font-style: italic;
+  color: var(--ps-text-cinematic-secondary);
+  margin: 8px 0;
+}
+
+/* ===== Diagram (Chatbot flow) ===== */
+.flow-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 32px 16px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 16px;
+  background: var(--ps-surface-cinematic-1);
+}
+@media (min-width: 768px) {
+  .flow-diagram { flex-direction: row; justify-content: space-between; gap: 24px; }
+}
+.flow-node {
+  font-family: var(--ps-font-en);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  text-align: center;
+  min-width: 140px;
+}
+.flow-node.user {
+  background: var(--ps-primary);
+  color: #000;
+  font-weight: 600;
+}
+.flow-node.middle {
+  border: 1px solid var(--ps-surface-cinematic-3);
+  color: #FFFFFF;
+}
+.flow-node.server {
+  border: 2px solid var(--ps-primary);
+  color: #FFFFFF;
+}
+.flow-arrow {
+  color: var(--ps-text-cinematic-secondary);
+  font-size: 18px;
+}
+
+/* ===== Pros list (Markdown advantages) ===== */
+.pros-list {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+  max-width: 720px;
+}
+.pros-list li {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--ps-surface-cinematic-3);
+  font-size: 16px;
+  font-weight: 300;
+  color: #FFFFFF;
+}
+.pros-list li::before {
+  content: counter(pros, decimal-leading-zero);
+  counter-increment: pros;
+  font-family: var(--ps-font-en);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ps-primary);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+.pros-list { counter-reset: pros; }
+.pros-list li.tldr {
+  border: 1px solid var(--ps-primary);
+  border-radius: 12px;
+  margin-top: 16px;
+  padding: 20px 24px;
+  color: var(--ps-primary);
+  font-weight: 500;
+}
+.pros-list li.tldr::before { display: none; }
+
+/* ===== Principles list ===== */
+.principles {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 32px;
+  max-width: 720px;
+}
+@media (min-width: 640px) { .principles { grid-template-columns: repeat(2, 1fr); } }
+.principles .p {
+  padding: 24px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+}
+.principles .p::before {
+  content: '·';
+  color: var(--ps-primary);
+  margin-right: 8px;
+  font-size: 24px;
+  vertical-align: middle;
+}
+
+/* ===== Agent equation ===== */
+.equation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: 32px 0;
+  padding: 40px 24px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 16px;
+}
+@media (min-width: 768px) {
+  .equation { flex-direction: row; justify-content: center; gap: 24px; }
+}
+.equation .term {
+  font-family: var(--ps-font-en);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  color: #FFFFFF;
+  text-align: center;
+}
+.equation .term .l {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+  margin-bottom: 6px;
+}
+.equation .op {
+  font-size: 24px;
+  font-weight: 300;
+  color: var(--ps-primary);
+}
+.equation .result .l { color: var(--ps-primary); }
+
+/* ===== Harness diagram (icons row) ===== */
+.harness-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 32px;
+}
+.harness-tools .tool {
+  font-family: var(--ps-font-en);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 10px 18px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 100px;
+  color: #FFFFFF;
+}
+.harness-tools .tool.center {
+  border-color: var(--ps-primary);
+  background: var(--ps-primary);
+  color: #000;
+  font-weight: 600;
+}
+
+/* ===== Single vs Multi Agent (orchestration) ===== */
+.orch-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 32px;
+}
+@media (min-width: 768px) { .orch-grid { grid-template-columns: 1fr 1fr; } }
+.orch-card {
+  padding: 28px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 16px;
+}
+.orch-card .ko {
+  font-family: var(--ps-font-en);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--ps-primary);
+  margin: 0 0 16px;
+}
+.orch-card ul { padding: 0; margin: 16px 0 0; list-style: none; }
+.orch-card li {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ps-text-cinematic-secondary);
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(140, 140, 140, 0.15);
+}
+.orch-card li:last-child { border-bottom: none; }
+.orch-card .body {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+/* ===== Final conclusion ===== */
+.conclude {
+  border: 1px solid var(--ps-primary);
+  border-radius: 24px;
+  padding: 48px 32px;
+  margin-top: 32px;
+  max-width: 800px;
+}
+.conclude h3 {
+  font-family: var(--ps-font-en);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 700;
+  letter-spacing: -1.2px;
+  color: var(--ps-primary);
+  margin: 0 0 20px;
+}
+.conclude p {
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: #FFFFFF;
+  margin: 0 0 16px;
+}
+.conclude .label {
+  display: inline-block;
+  font-family: var(--ps-font-en);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ps-primary);
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 177, 26, 0.3);
+}
+
+/* ===== Top-corner linktree mark ===== */
+.ps-corner {
+  position: fixed;
+  top: 20px;
+  left: 24px;
+  font-family: var(--ps-font-en);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: var(--ps-text-cinematic-secondary);
+  text-decoration: none;
+  z-index: 90;
+}
+.ps-corner:hover { color: var(--ps-primary); }
+
+/* ===== Mandatory parcyun footer (signature) ===== */
+.ps-footer {
+  position: fixed;
+  bottom: 16px;
+  right: 20px;
+  font-family: var(--ps-font-en);
+  font-weight: 300;
+  font-size: 11px;
+  color: var(--ps-text-cinematic-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px 12px;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.ps-signature {
+  font-family: var(--ps-font-signature);
+  font-size: 15px;
+  color: var(--ps-primary);
+  line-height: 1;
+}
+.ps-ig {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: inherit;
+  text-decoration: none;
+  margin-left: 4px;
+}
+.ps-ig:hover { color: var(--ps-primary); }
+.ps-ig-icon { width: 10px; height: 10px; vertical-align: middle; }
+
+/* ===== Entry animation ===== */
+.ps-slide, .ps-hero, .ps-divider {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 800ms var(--ps-ease-out), transform 800ms var(--ps-ease-out);
+}
+.ps-slide.in-view, .ps-hero.in-view, .ps-divider.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== Reduced motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; scroll-snap-type: none; }
+  .ps-slide, .ps-hero, .ps-divider {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<a href="https://linktr.ee/parcyun" class="ps-corner" target="_blank" rel="noopener">linktr.ee/parcyun</a>
+
+<!-- ===== 1. HERO ===== -->
+<section class="ps-hero in-view">
+  <div class="ps-hero-eyebrow">PARCYUN STUDIO LECTURE · 2026.05.10</div>
+  <h1 class="ps-hero-title">
+    하네스 에이전트를 위한<br>
+    <strong>생성형 AI</strong> 기본 이해
+  </h1>
+  <p class="ps-hero-sub">GENERATIVE AI FUNDAMENTALS FOR HARNESS-DRIVEN AGENTS</p>
+  <div class="ps-hero-meta">
+    <span class="dot"></span>
+    <span>For Korean educators · 44p · parcyun studio</span>
+  </div>
+</section>
+
+<!-- ===== 2. PART 1 DIVIDER ===== -->
+<div class="ps-divider">
+  <div class="part-tag">Part 01</div>
+  <h2 class="part-title">
+    프롬프트 <strong>엔지니어링</strong>의<br>모든 것
+  </h2>
+</div>
+
+<!-- ===== 3. NLP + LLM ===== -->
+<section class="ps-slide">
+  <header class="ps-header-bi">
+    <h2 class="ko">언어모델은 무엇으로 이뤄지는가</h2>
+    <span class="en">NLP × LLM</span>
+  </header>
+  <div class="def-grid two">
+    <div class="def-card">
+      <p class="abbr">NLP</p>
+      <p class="full">Natural Language Processing</p>
+      <h3 class="ko-name">자연어 처리 기술</h3>
+      <p class="ko-desc">자연어를 컴퓨터가 이해할 수 있는 언어로 변환하는 과정 — '토큰화(Tokenization)'</p>
+    </div>
+    <div class="def-card">
+      <p class="abbr">LLM</p>
+      <p class="full">Large Language Model</p>
+      <h3 class="ko-name">거대 언어 모델</h3>
+      <p class="ko-desc">토큰화된 정보를 바탕으로 맥락을 추론하고 응답을 생성</p>
+    </div>
+  </div>
+  <div style="margin-top: 32px;">
+    <span class="tag-pill">Gemini</span>
+    <span class="tag-pill">ChatGPT</span>
+    <span class="tag-pill amber">Claude</span>
+    <span class="tag-pill">Llama</span>
+  </div>
+</section>
+
+<!-- ===== 4. Tokenization + Context Learning ===== -->
+<section class="ps-slide">
+  <header class="ps-header-bi">
+    <h2 class="ko">언어모델의 두 기둥</h2>
+    <span class="en">Tokenization · Context Learning</span>
+  </header>
+  <div class="def-grid two">
+    <div class="def-card">
+      <p class="abbr" style="font-size: 36px;">Tokenization</p>
+      <p class="full">자연어를 컴퓨터 언어로 변환</p>
+      <p class="ko-desc" style="margin-top: 24px;">각각의 토큰으로 쪼개는 방식과 토큰 간의 상관관계를 연산하는 방식의 차이로 다양한 모델이 등장.</p>
+    </div>
+    <div class="def-card">
+      <p class="abbr" style="font-size: 36px;">Context<br>Learning</p>
+      <p class="full">맥락 추론 및 활용</p>
+      <p class="ko-desc" style="margin-top: 24px;">언어모델이 토큰으로 변환된 자연어 정보의 누적을 통해 의미있는 맥락을 추론하고 활용함.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 5. Prompt input methods ===== -->
+<section class="ps-slide">
+  <header class="ps-header-bi">
+    <h2 class="ko">자연어 입력으로 추론 결과를 조절한다</h2>
+    <span class="en">Prompting Methods</span>
+  </header>
+  <p class="concept-def" style="margin-bottom: 32px;">
+    Input 자연어를 어떻게 구성하느냐에 따라 LLM의 추론 결과가 달라집니다. 수많은 형태의 프롬프트 작성법이 존재합니다.
+  </p>
+  <div>
+    <span class="tag-pill">Few Shot</span>
+    <span class="tag-pill">In-Context</span>
+    <span class="tag-pill">Role-Play</span>
+    <span class="tag-pill">Chain of Thought</span>
+    <span class="tag-pill">Prompt Chaining</span>
+    <span class="tag-pill">Fukatsu</span>
+    <span class="tag-pill amber">… and more</span>
+  </div>
+</section>
+
+<!-- ===== 6. Prompt Engineering Principles ===== -->
+<section class="ps-slide">
+  <header class="ps-header-bi">
+    <h2 class="ko">프롬프트 엔지니어링 5대 원칙</h2>
+    <span class="en">Prompt Engineering Principles</span>
+  </header>
+  <p class="concept-def">
+    생성형 AI가 아무리 발전해도 기본 원리는 LLM이기에, 다음 원칙은 익혀두면 어떤 모델에서도 통용됩니다.
+  </p>
+  <div class="principles">
+    <div class="p">맥락 제공</div>
+    <div class="p">구체적 지시</div>
+    <div class="p">명확한 표현</div>
+    <div class="p">구조 형식화</div>
+    <div class="p">일관성 유지</div>
+  </div>
+</section>
+
+<!-- ===== 7. Linktr.ee/parcyun reference ===== -->
+<section class="ps-slide">
+  <header class="ps-header-bi">
+    <h2 class="ko">연수자료 & 레퍼런스 모음</h2>
+    <span class="en">linktr.ee/parcyun</span>
+  </header>
+  <p class="concept-def">
+    parcyun studio가 정리한 교사용 AI 활용 자료 패들렛, parcyun classroom 등 연수자료 모음을 한 곳에서 확인할 수 있습니다.
+  </p>
+  <div class="metaphor-box" style="max-width: 720px;">
+    <p class="label">VISIT</p>
+    <p class="name">linktr.ee/parcyun</p>
+    <p class="desc">
+      "손쉬운 에듀테크 사용 TIP" 패들렛에 Gemini, ChatGPT, Claude 활용 사례와 교사용 프롬프트 템플릿이 정리되어 있습니다.
+    </p>
+  </div>
+</section>
+
+<!-- ===== 8. PART 2 DIVIDER ===== -->
+<div class="ps-divider">
+  <div class="part-tag">Part 02</div>
+  <h2 class="part-title">
+    하네스 <strong>에이전트</strong>를 위한<br>기본 용어 이해
+  </h2>
+</div>
+
+<!-- ===== 9. LLM Chat GUI ===== -->
+<section class="ps-slide">
+  <header class="ps-header-bi">
+    <h2 class="ko">우리가 매일 쓰는 그 화면의 정체</h2>
+    <span class="en">LLM Chat GUI</span>
+  </header>
+  <div class="concept">
+    <h2 class="concept-title">
+      LLM Chat GUI
+      <small>Large Language Model · Chat · Graphic User Interface</small>
+    </h2>
+    <p class="concept-def">언어모델과 대화할 수 있는 소통 화면. Gemini, ChatGPT, Claude의 웹/앱 화면이 모두 LLM Chat GUI입니다.</p>
+  </div>
+</section>
+
+<!-- ===== 10. LLM 활용 5단계 ===== -->
+<section class="ps-slide">
+  <header class="ps-header-bi">
+    <h2 class="ko">LLM 활용 5단계</h2>
+    <span class="en">5 Levels of LLM Utilization</span>
+  </header>
+  <p class="concept-def">단순 대화에서 자율형 AI 조직까지, LLM 활용은 5단계로 나뉩니다.</p>
+  <div class="level-grid">
+    <div class="level-card">
+      <p class="lv">LV.1</p>
+      <p class="name">Chatbot</p>
+      <p class="desc">GUI를 통한 단순 대화 및 검색</p>
+    </div>
+    <div class="level-card">
+      <p class="lv">LV.2</p>
+      <p class="name">RAG</p>
+      <p class="desc">특정 데이터(문서, 이미지) 기반 답변 생성</p>
+    </div>
+    <div class="level-card">
+      <p class="lv">LV.3</p>
+      <p class="name">Harness</p>
+      <p class="desc">Plan, Action, Retrieve 과정의 자율형 워크프레임</p>
+    </div>
+    <div class="level-card">
+      <p class="lv">LV.4</p>
+      <p class="name">Agent</p>
+      <p class="desc">외부 도구(API 등) 연동 워크플로우 수행</p>
+    </div>
+    <div class="level-card">
+      <p class="lv">LV.5</p>
+      <p class="name">Organize</p>
+      <p class="desc">멀티 에이전트 협업의 자율형 AI 조직</p>
+    </div>
+  </div>
+
+  <!-- Today-bridge: Claude Desktop sits between Lv.4 Agent and Lv.5 Organize -->
+  <div class="today-bridge">
+    <div class="anchor" aria-hidden="true">
+      <svg width="2" height="24" viewBox="0 0 2 24"><line x1="1" y1="0" x2="1" y2="24" stroke="#FFB11A" stroke-width="1" stroke-dasharray="3 3"/></svg>
+    </div>
+    <div class="pill">
+      <span class="badge">★ Today · 우리가 오늘 배울 것</span>
+      <p class="title">Claude Desktop for Cowork</p>
+      <p class="sub"><b>Lv.4 Agent</b> ↔ <b>Lv.5 Organize</b> 사이에 위치한 고도화된 자율형 Agent를 배웁니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 11. Key concepts to understand ===== -->
+<section class="ps-slide">
+  <header class="ps-header-bi">
+    <h2 class="ko">반드시 이해해야 하는 6가지 개념</h2>
+    <span class="en">Key Concepts</span>
+  </header>
+  <p class="concept-def">Harness Agent를 다루기 전에 알아두어야 할 핵심 개념 6가지를 차례로 살펴봅니다.</p>
+  <div class="concept-index">
+    <button class="concept-index-item" type="button" aria-expanded="false">
+      <span class="head"><span class="num">01</span><span class="label">Markdown</span></span>
+      <span class="body">컴퓨터가 이해할 수 있는 텍스트로만 이루어진 가벼운 설계도면. HTML처럼 문서 구조를 표현하지만 100% 텍스트라 LLM이 처리하기 가장 효율적이다.</span>
+    </button>
+    <button class="concept-index-item" type="button" aria-expanded="false">
+      <span class="head"><span class="num">02</span><span class="label">Skills</span></span>
+      <span class="body">특정 작업을 수행하기 위한 "업무 매뉴얼". Markdown으로 작성한 사전지시서를 LLM에게 학습시켜 두면 동일한 요청에 동일한 품질의 결과가 나온다.</span>
+    </button>
+    <button class="concept-index-item" type="button" aria-expanded="false">
+      <span class="head"><span class="num">03</span><span class="label">API</span></span>
+      <span class="body">외부 프로그램을 사용하기 위한 "연결 통로". 키오스크에서 빅맥을 주문하듯 사용자가 외부 LLM 서버에 작업을 요청하는 인터페이스 규격이다.</span>
+    </button>
+    <button class="concept-index-item" type="button" aria-expanded="false">
+      <span class="head"><span class="num">04</span><span class="label">MCP</span></span>
+      <span class="body">제각각인 API 활용 방식을 통합한 단일 표준 규격. USB-C처럼 LLM과 외부 도구 사이를 깔끔하게 연결한다.</span>
+    </button>
+    <button class="concept-index-item" type="button" aria-expanded="false">
+      <span class="head"><span class="num">05</span><span class="label">Harness</span></span>
+      <span class="body">LLM이 일할 수 있도록 Skills, MCP 등 도구를 갖춰놓은 작업 환경. 똑똑한 직원이 일할 사무실을 차려준 셈이다.</span>
+    </button>
+    <button class="concept-index-item" type="button" aria-expanded="false">
+      <span class="head"><span class="num">06</span><span class="label">Orchestration</span></span>
+      <span class="body">Harness 도구를 활용해 목표 달성을 위한 작업 계획을 세우고 적절한 도구를 호출하는 과정. PM/팀장의 업무 관리에 해당한다.</span>
+    </button>
+  </div>
+</section>
+
+<!-- ===== 12. Markdown ===== -->
+<section class="ps-slide" id="markdown">
+  <header class="ps-header-bi">
+    <h2 class="ko">컴퓨터를 위한 가장 가벼운 설계도면</h2>
+    <span class="en">01 · Markdown</span>
+  </header>
+  <div class="concept">
+    <h2 class="concept-title">
+      Markdown
+      <small>The lightweight design blueprint for machines</small>
+    </h2>
+    <p class="concept-def">
+      컴퓨터가 이해할 수 있는 텍스트로만 이루어진 설계도면.
+      브라우저가 HTML을 보고 웹페이지를 그려내듯, Markdown도 시각화를 위한 컴퓨터용 설계도면입니다.
+    </p>
+  </div>
+
+  <div class="md-demo">
+    <div class="md-side">
+      <p class="head">컴퓨터가 보는 것</p>
+      <pre class="md-code"># 제목
+## 제목
+### 제목
+**강조**
+- 글머리
+> 인용</pre>
+    </div>
+    <div class="md-side">
+      <p class="head">우리가 보는 것</p>
+      <div class="md-render">
+        <h1>제목</h1>
+        <h2>제목</h2>
+        <h3>제목</h3>
+        <p><strong>강조</strong></p>
+        <ul><li>글머리</li></ul>
+        <blockquote>인용</blockquote>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-family: var(--ps-font-en); font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ps-primary); margin-top: 48px;">Markdown의 장점</h3>
+  <ul class="pros-list">
+    <li>100% 텍스트로만 이루어져 가볍고 빠르다</li>
+    <li>전용 뷰어가 필요 없다 (메모장으로도 열리고 수정 가능)</li>
+    <li>명확한 구조화로 맥락 파악이 용이</li>
+    <li>토큰 활용 효율성이 매우 높다</li>
+    <li class="tldr">⇒ LLM을 위한 최적의 데이터 시스템</li>
+  </ul>
+</section>
+
+<!-- ===== 13. Skills ===== -->
+<section class="ps-slide" id="skills">
+  <header class="ps-header-bi">
+    <h2 class="ko">언제 누가 작업해도 같은 결과를 내는 메뉴얼</h2>
+    <span class="en">02 · Skills</span>
+  </header>
+  <div class="concept">
+    <h2 class="concept-title">
+      Skills
+      <small>Task-specific instruction manual for the LLM</small>
+    </h2>
+    <p class="concept-def">특정 작업 수행을 위한 "업무 매뉴얼". 한 번 작성해두면 사용자가 매번 상세 프롬프트를 입력하지 않아도 동일한 결과를 얻을 수 있습니다.</p>
+  </div>
+  <div class="metaphor-box">
+    <p class="label">Metaphor</p>
+    <p class="name">"레시피"</p>
+    <p class="desc">
+      어떤 아르바이트가 오더라도 "빅맥" 레시피는 동일하기 때문에, 사용자가 "빅맥"을 주문하면 동일한 "빅맥" 햄버거가 서빙됩니다.
+      Skills도 마찬가지 — Markdown으로 작성한 업무 매뉴얼을 LLM에게 훈련시켜 두면, 동일한 요청에 동일한 품질의 결과를 보장합니다.
+    </p>
+  </div>
+  <div style="margin-top: 24px; max-width: 720px; font-size: 13px; color: var(--ps-text-cinematic-secondary); line-height: 1.7;">
+    <strong style="color: var(--ps-primary); font-weight: 500;">예시</strong> · 초등학교_6학년_수업자료_제작_Skills.md를 미리 작성해두면, 매번 같은 프롬프트를 쓰지 않아도 일관된 6학년 수준의 수업자료를 생성할 수 있습니다.
+    <div style="margin-top: 16px;">
+      <span class="tag-pill">#레시피</span>
+      <span class="tag-pill">#사전지시서</span>
+      <span class="tag-pill">#업무참고서</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 14. API ===== -->
+<section class="ps-slide" id="api">
+  <header class="ps-header-bi">
+    <h2 class="ko">외부 프로그램을 사용하기 위한 연결 통로</h2>
+    <span class="en">03 · API</span>
+  </header>
+  <div class="concept">
+    <h2 class="concept-title">
+      API
+      <small>Application Programming Interface</small>
+    </h2>
+    <p class="concept-def">외부 프로그램을 사용하기 위한 "연결 통로". API를 통해 수많은 프로그램을 서로 연결할 수 있습니다.</p>
+  </div>
+  <div class="metaphor-box">
+    <p class="label">Metaphor</p>
+    <p class="name">"점원 & 키오스크"</p>
+    <p class="desc">
+      사용자가 맥도날드에서 빅맥을 "주문"할 수 있는 통로 인터페이스 — 혹은 그 규격.
+      LLM Chatbot에서는 사용자가 GUI 앱(Gemini, ChatGPT)을 통해 서버에 접근하지만,
+      내 컴퓨터에서 직접 LLM을 부르려면 <strong style="color: var(--ps-primary);">API Key</strong>(Access Key, Auth Token 등)가 필요합니다.
+    </p>
+  </div>
+
+  <h3 style="font-family: var(--ps-font-en); font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ps-primary); margin-top: 48px;">LLM Chatbot 흐름</h3>
+  <div class="flow-diagram">
+    <div class="flow-node user">USER</div>
+    <span class="flow-arrow">⇄</span>
+    <div class="flow-node middle">Gemini<br>GUI App</div>
+    <span class="flow-arrow">⇄</span>
+    <div class="flow-node server">Google Server<br>Gemini Model</div>
+  </div>
+
+  <p style="font-size: 14px; color: var(--ps-text-cinematic-secondary); margin-top: 32px; line-height: 1.7; max-width: 720px;">
+    하지만 API 구성 방식, 사용 정책, Key 사용 방식, 프로그램 호출 방식은 <strong style="color: #FFF;">프로그램마다 모두 다릅니다</strong> — 이 혼란을 한 방에 통일한 것이 바로 다음 개념입니다.
+  </p>
+</section>
+
+<!-- ===== 15. MCP ===== -->
+<section class="ps-slide" id="mcp">
+  <header class="ps-header-bi">
+    <h2 class="ko">제각각인 API 활용 방식을 통합한 표준</h2>
+    <span class="en">04 · MCP</span>
+  </header>
+  <div class="concept">
+    <h2 class="concept-title">
+      MCP
+      <small>Model Context Protocol</small>
+    </h2>
+    <p class="concept-def">제각각인 API 활용 방식을 통합해주는 "단일 표준 규격". MCP 규격을 따르는 프로그램끼리는 연결이 매우 간단하고, 활용 방식이 규격화되어 오류가 적고 최적화도 잘 되어 있습니다.</p>
+  </div>
+  <div class="metaphor-box">
+    <p class="label">Metaphor</p>
+    <p class="name">"범용 어댑터" or "만능 통역기"</p>
+    <p class="desc">
+      라이트닝 어댑터, USB-A, HDMI, RGB, AUX 등 여러 종류의 단자가 난무할 때 등장한 <strong style="color: var(--ps-primary);">USB-C</strong>처럼,
+      MCP는 LLM ↔ 외부 도구 연결의 USB-C입니다.
+    </p>
+  </div>
+</section>
+
+<!-- ===== 16. Harness ===== -->
+<section class="ps-slide" id="harness">
+  <header class="ps-header-bi">
+    <h2 class="ko">LLM이 일할 수 있도록 도구를 갖춰놓은 상태</h2>
+    <span class="en">05 · Harness</span>
+  </header>
+  <div class="concept">
+    <h2 class="concept-title">
+      Harness
+      <small>The fully-equipped workspace for an LLM</small>
+    </h2>
+    <p class="concept-def">LLM이 일을 할 수 있도록 다양한 Skills, MCP 등 도구를 갖춰놓은 상태.</p>
+  </div>
+  <div class="metaphor-box">
+    <p class="label">Metaphor</p>
+    <p class="name">"대기업 본부 사무실"</p>
+    <p class="desc">
+      똑똑한 직원이 업무를 수행할 수 있도록 책상, 컴퓨터, 필기구, 지류 등을 배치해두고
+      업무 매뉴얼을 정리해서 꽂아둔 업무 공간.
+    </p>
+  </div>
+
+  <h3 style="font-family: var(--ps-font-en); font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ps-primary); margin-top: 48px;">Harness 구성 요소</h3>
+  <div class="harness-tools">
+    <span class="tool center">LLM</span>
+    <span class="tool">Skills</span>
+    <span class="tool">API</span>
+    <span class="tool">MCP</span>
+    <span class="tool">Files</span>
+    <span class="tool">GUI</span>
+    <span class="tool">Authentication</span>
+  </div>
+
+  <div style="margin-top: 48px;">
+    <h3 style="font-family: var(--ps-font-en); font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ps-primary); margin-bottom: 8px;">Agent</h3>
+    <p style="font-size: 16px; color: #FFF; margin: 0 0 24px;">적절한 Harness를 갖춘 인공지능 모델</p>
+    <div class="equation">
+      <div class="term"><span class="l">Performance</span>LLM 성능</div>
+      <div class="op">+</div>
+      <div class="term"><span class="l">Equipment</span>Harness 상태</div>
+      <div class="op">=</div>
+      <div class="term result"><span class="l">Result</span>Agent 성능</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 17. Orchestration ===== -->
+<section class="ps-slide" id="orchestration">
+  <header class="ps-header-bi">
+    <h2 class="ko">도구를 호출하여 목표를 달성하는 과정</h2>
+    <span class="en">06 · Orchestration</span>
+  </header>
+  <div class="concept">
+    <h2 class="concept-title">
+      Orchestration
+      <small>The act of planning and conducting Agent work</small>
+    </h2>
+    <p class="concept-def">Harness 구조를 활용하여 주어진 목표를 달성하기 위해 작업 계획을 작성하고 적절한 도구를 호출하여 작업을 수행하는 과정.</p>
+  </div>
+  <div class="metaphor-box">
+    <p class="label">Metaphor</p>
+    <p class="name">"팀장" or "PM"</p>
+    <p class="desc">
+      여러 직원 혹은 부서를 나누어 업무 계획을 수립하고 보고를 받으며 목표를 달성하기 위해 관리를 수행하는 과정.
+    </p>
+  </div>
+
+  <h3 style="font-family: var(--ps-font-en); font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ps-primary); margin-top: 48px;">Single vs Multi Agent</h3>
+  <div class="orch-grid">
+    <div class="orch-card">
+      <p class="ko">Single Agent</p>
+      <p class="body">Agent 혼자서 Orchestration을 진행</p>
+      <ul>
+        <li>· 가벼운 작업에 적합</li>
+        <li>· 토큰 사용량이 적음</li>
+      </ul>
+    </div>
+    <div class="orch-card">
+      <p class="ko">Multi Agent</p>
+      <p class="body">HQ Agent(Main)가 전체 과정을 지휘하고 적절한 Sub-Agent들을 구성하여 일을 분배</p>
+      <ul>
+        <li>· 복잡한 작업에 적합</li>
+        <li>· 토큰 사용량이 많음</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 18. Conclusion: Claude Desktop for Cowork ===== -->
+<section class="ps-slide">
+  <header class="ps-header-bi">
+    <h2 class="ko">우리가 다루게 될 자율형 에이전트</h2>
+    <span class="en">Claude Desktop · Cowork</span>
+  </header>
+
+  <div class="conclude">
+    <h3>Claude Desktop<br>for Cowork</h3>
+    <p>
+      <strong style="color: var(--ps-primary);">Claude Desktop</strong> — 매우 높은 수준의 Harness를 갖춘 자율형 Agent.
+    </p>
+    <p>
+      <strong style="color: var(--ps-primary);">Claude Cowork</strong> — Claude Desktop의 Skills · MCP 등 다양한 도구와 로컬 디렉토리에 접근할 수 있는 권한을 활용하여,
+      사용자의 입력을 분석하고 적절한 Orchestration을 스스로 수행하며 목표 달성을 위해 자율적으로 동작하는 고도화된 Agent.
+    </p>
+    <span class="label">Next session · 실습</span>
+  </div>
+</section>
+
+<!-- ===== Mandatory parcyun footer ===== -->
+<footer class="ps-footer">
+  Designed by
+  <span class="ps-signature">parcyun studio</span>
+  <a href="https://www.instagram.com/parcyun" class="ps-ig" target="_blank" rel="noopener">
+    <svg class="ps-ig-icon" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4 1 .5.4.8.8 1 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-1 1.4-.4.5-.8.8-1.4 1-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-1-.5-.4-.8-.8-1-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 1-1.4.4-.5.8-.8 1.4-1 .4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.4-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/>
+    </svg>
+    @parcyun
+  </a>
+</footer>
+
+<!-- ===== Entry animation observer + concept disclosure toggle ===== -->
+<script>
+(function(){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.ps-slide, .ps-divider').forEach(function(el){ el.classList.add('in-view'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) {
+          e.target.classList.add('in-view');
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -15% 0px', threshold: 0.1 });
+    document.querySelectorAll('.ps-slide, .ps-divider').forEach(function(el){ io.observe(el); });
+  }
+
+  // Concept disclosure: toggle open/close. No navigation.
+  document.querySelectorAll('.concept-index-item').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

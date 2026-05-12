@@ -642,7 +642,7 @@ section.ps-slide {
 }
 .pros-list li.tldr::before { display: none; }
 
-/* ===== Principles list ===== */
+/* ===== Principles list (with example-prompt disclosure) ===== */
 .principles {
   display: grid;
   grid-template-columns: 1fr;
@@ -651,20 +651,97 @@ section.ps-slide {
   max-width: 720px;
 }
 @media (min-width: 640px) { .principles { grid-template-columns: repeat(2, 1fr); } }
+
 .principles .p {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
   padding: 24px;
   border: 1px solid var(--ps-surface-cinematic-3);
   border-radius: 12px;
+  /* Reset <button> user-agent defaults */
+  background: transparent;
+  color: #FFFFFF;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transition: border-color 240ms var(--ps-ease-out), background 240ms var(--ps-ease-out);
+}
+.principles .p:hover {
+  border-color: var(--ps-primary);
+}
+.principles .p .head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 18px;
   font-weight: 500;
   letter-spacing: -0.3px;
+  width: 100%;
 }
-.principles .p::before {
+.principles .p .head::before {
   content: '·';
   color: var(--ps-primary);
-  margin-right: 8px;
   font-size: 24px;
-  vertical-align: middle;
+  line-height: 1;
+}
+.principles .p .head::after {
+  content: '＋';
+  margin-left: auto;
+  font-family: var(--ps-font-en);
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--ps-text-cinematic-secondary);
+  transition: transform 240ms var(--ps-ease-out), color 240ms var(--ps-ease-out);
+}
+.principles .p[aria-expanded="true"] {
+  border-color: var(--ps-primary);
+  background: var(--ps-surface-cinematic-1);
+}
+.principles .p[aria-expanded="true"] .head::after {
+  content: '−';
+  color: var(--ps-primary);
+}
+.principles .p .body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 320ms var(--ps-ease-out), margin-top 320ms var(--ps-ease-out), padding-top 320ms var(--ps-ease-out);
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0 solid var(--ps-surface-cinematic-3);
+}
+.principles .p[aria-expanded="true"] .body {
+  max-height: 400px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ps-surface-cinematic-3);
+}
+.principles .p .body .lbl {
+  display: block;
+  font-family: var(--ps-font-en);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ps-primary);
+  margin-bottom: 8px;
+}
+.principles .p .body .prompt {
+  font-family: 'JetBrains Mono', 'D2Coding', ui-monospace, monospace;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--ps-text-cinematic-secondary);
+  white-space: pre-wrap;
+  margin: 0;
+  word-break: keep-all;
+}
+.principles .p .body .prompt em {
+  font-style: normal;
+  color: var(--ps-primary);
 }
 
 /* ===== Agent equation ===== */
@@ -898,6 +975,61 @@ section.ps-slide {
   transform: translate(4px, -4px);
 }
 
+/* ===== Chat-screens grid (LLM Chat GUI section) ===== */
+.chat-screens {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 32px;
+  max-width: 960px;
+}
+@media (min-width: 768px) {
+  .chat-screens { grid-template-columns: 1fr 1fr; gap: 24px; }
+}
+.chat-screen {
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--ps-surface-cinematic-1);
+  transition: border-color 240ms var(--ps-ease-out);
+}
+.chat-screen:hover { border-color: var(--ps-primary); }
+.chat-screen .frame {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+.chat-screen .frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+.chat-screen .caption {
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--ps-surface-cinematic-3);
+}
+.chat-screen .caption .nm {
+  font-family: var(--ps-font-en);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  color: #FFFFFF;
+}
+.chat-screen .caption .tag {
+  font-family: var(--ps-font-en);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+}
+
 /* ===== Top-corner linktree mark ===== */
 .ps-corner {
   position: fixed;
@@ -1041,7 +1173,7 @@ section.ps-slide {
       <p class="ko-desc" style="margin-top: 24px;">각각의 토큰으로 쪼개는 방식과 토큰 간의 상관관계를 연산하는 방식의 차이로 다양한 모델이 등장.</p>
     </div>
     <div class="def-card">
-      <p class="abbr" style="font-size: 36px;">Context<br>Learning</p>
+      <p class="abbr" style="font-size: 36px;">Context Learning</p>
       <p class="full">맥락 추론 및 활용</p>
       <p class="ko-desc" style="margin-top: 24px;">언어모델이 토큰으로 변환된 자연어 정보의 누적을 통해 의미있는 맥락을 추론하고 활용함.</p>
     </div>
@@ -1078,29 +1210,51 @@ section.ps-slide {
     생성형 AI가 아무리 발전해도 기본 원리는 LLM이기에, 다음 원칙은 익혀두면 어떤 모델에서도 통용됩니다.
   </p>
   <div class="principles">
-    <div class="p">맥락 제공</div>
-    <div class="p">구체적 지시</div>
-    <div class="p">명확한 표현</div>
-    <div class="p">구조 형식화</div>
-    <div class="p">일관성 유지</div>
-  </div>
-</section>
+    <button class="p" type="button" aria-expanded="false">
+      <span class="head">맥락 제공</span>
+      <span class="body">
+        <span class="lbl">Example Prompt</span>
+        <span class="prompt"><em>"나는 초등학교 6학년 담임 교사야.</em> 다음 주 국어 시간에 시 쓰기 수업을 하려고 해. 학생들의 관심사(밈, 유튜브)를 반영한 시 주제 10가지 추천해줘."</span>
+      </span>
+    </button>
+    <button class="p" type="button" aria-expanded="false">
+      <span class="head">구체적 지시</span>
+      <span class="body">
+        <span class="lbl">Example Prompt</span>
+        <span class="prompt">"수업 자료를 만들어줘."  ← 모호함  
+<em>"40분 분량의 PPT 스크립트로, 슬라이드 8장, 각 슬라이드당 핵심 1문장 + 발문 1개를 포함해서 만들어줘."</em>  ← 구체적</span>
+      </span>
+    </button>
+    <button class="p" type="button" aria-expanded="false">
+      <span class="head">명확한 표현</span>
+      <span class="body">
+        <span class="lbl">Example Prompt</span>
+        <span class="prompt">"잘 만들어줘", "있어 보이게" 같은 모호한 표현 대신 <em>"문장당 25자 이내", "어려운 한자어는 풀어쓰기"</em>처럼 측정 가능한 기준으로 지시한다.</span>
+      </span>
+    </button>
+    <button class="p" type="button" aria-expanded="false">
+      <span class="head">구조 형식화</span>
+      <span class="body">
+        <span class="lbl">Example Prompt</span>
+        <span class="prompt"><em>#할 일</em>
+K-pop 스타일의 노래에 어울리는 가사 작성
 
-<!-- ===== 7. Linktr.ee/parcyun reference ===== -->
-<section class="ps-slide">
-  <header class="ps-header-bi">
-    <h2 class="ko">연수자료 & 레퍼런스 모음</h2>
-    <span class="en">linktr.ee/parcyun</span>
-  </header>
-  <p class="concept-def">
-    parcyun studio가 정리한 교사용 AI 활용 자료 패들렛, parcyun classroom 등 연수자료 모음을 한 곳에서 확인할 수 있습니다.
-  </p>
-  <div class="metaphor-box" style="max-width: 720px;">
-    <p class="label">VISIT</p>
-    <p class="name">linktr.ee/parcyun</p>
-    <p class="desc">
-      "손쉬운 에듀테크 사용 TIP" 패들렛에 Gemini, ChatGPT, Claude 활용 사례와 교사용 프롬프트 템플릿이 정리되어 있습니다.
-    </p>
+<em>#주제</em>
+친구에게 고마운 일, 미안한 일, 친구에게 전하고 싶은 말 등 친구사랑
+
+<em>#반복문구</em>
+나에게 친구란 소중한 존재라는 것을 나타낼 수 있는 내용</span>
+      </span>
+    </button>
+    <button class="p" type="button" aria-expanded="false">
+      <span class="head">일관성 유지</span>
+      <span class="body">
+        <span class="lbl">Example Prompt</span>
+        <span class="prompt">한 대화 안에서 톤·역할·출력 형식을 바꾸지 않는다.  
+<em>"앞으로 모든 답변은 초등학생 눈높이의 친근한 말투로, 한 문단 이내로, 끝에 한 줄 요약을 붙여줘."</em>  
+한 번 설정한 규칙을 다음 대화에서도 일관되게 유지한다.</span>
+      </span>
+    </button>
   </div>
 </section>
 
@@ -1124,6 +1278,27 @@ section.ps-slide {
       <small>Large Language Model · Chat · Graphic User Interface</small>
     </h2>
     <p class="concept-def">언어모델과 대화할 수 있는 소통 화면. Gemini, ChatGPT, Claude의 웹/앱 화면이 모두 LLM Chat GUI입니다.</p>
+  </div>
+
+  <div class="chat-screens">
+    <figure class="chat-screen" style="margin: 0;">
+      <div class="frame">
+        <img src="./img/gemini.jpg" alt="Gemini chat 화면 — 6학년 글쓰기 주제 추천 대화" loading="lazy">
+      </div>
+      <figcaption class="caption">
+        <span class="nm">Gemini</span>
+        <span class="tag">Google</span>
+      </figcaption>
+    </figure>
+    <figure class="chat-screen" style="margin: 0;">
+      <div class="frame">
+        <img src="./img/chatgpt.jpg" alt="ChatGPT 화면 — K-pop 가사 작성 대화" loading="lazy">
+      </div>
+      <figcaption class="caption">
+        <span class="nm">ChatGPT</span>
+        <span class="tag">OpenAI</span>
+      </figcaption>
+    </figure>
   </div>
 </section>
 
@@ -1459,6 +1634,14 @@ section.ps-slide {
   </div>
 </section>
 
+<!-- ===== PART 3 DIVIDER ===== -->
+<div class="ps-divider">
+  <div class="part-tag">Part 03</div>
+  <h2 class="part-title">
+    이제 직접<br><strong>손으로</strong> 만들어 볼 차례
+  </h2>
+</div>
+
 <!-- ===== 19. Next Step (links to Notion hands-on lecture) ===== -->
 <section class="ps-slide" id="next-step">
   <header class="ps-header-bi">
@@ -1526,8 +1709,8 @@ section.ps-slide {
     document.querySelectorAll('.ps-slide, .ps-divider').forEach(function(el){ io.observe(el); });
   }
 
-  // Concept disclosure: toggle open/close. No navigation.
-  document.querySelectorAll('.concept-index-item').forEach(function(btn){
+  // Disclosure pattern: concept cards + principle cards
+  document.querySelectorAll('.concept-index-item, .principles .p').forEach(function(btn){
     btn.addEventListener('click', function(){
       var open = btn.getAttribute('aria-expanded') === 'true';
       btn.setAttribute('aria-expanded', open ? 'false' : 'true');

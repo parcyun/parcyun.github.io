@@ -464,6 +464,12 @@ section.ps-slide {
   text-align: left;
   font: inherit;
   cursor: pointer;
+  /* Reset <button> user-agent defaults that override .concept-index-item base rule */
+  background: transparent;
+  color: #FFFFFF;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 .concept-index-item .head {
   display: flex;

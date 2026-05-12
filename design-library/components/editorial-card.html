@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editorial Card · parcyun studio design library</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<style>
+:root {
+  --ps-primary: #FFB11A;
+  --ps-bg-cinematic: #000000;
+  --ps-surface-cinematic-1: #141414;
+  --ps-surface-cinematic-3: #333333;
+  --ps-text-cinematic-secondary: #8C8C8C;
+  --ps-font-body: 'Pretendard Variable', 'Pretendard', 'Montserrat', sans-serif;
+  --ps-font-en: 'Montserrat', 'Pretendard Variable', sans-serif;
+  --ps-font-signature: 'Covered By Your Grace', cursive;
+  --ps-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--ps-bg-cinematic);
+  color: #FFFFFF;
+  font-family: var(--ps-font-body);
+  font-weight: 300; line-height: 1.6;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  padding: 100px 24px;
+}
+@media (min-width: 768px) { body { padding: 100px 48px; } }
+a { color: inherit; text-decoration: none; }
+
+.demo-header {
+  position: fixed; top: 16px; left: 24px; right: 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; z-index: 90; pointer-events: none;
+}
+.demo-header > * { pointer-events: auto; }
+.demo-back {
+  font-family: var(--ps-font-en); font-size: 12px;
+  letter-spacing: 0.5px; color: var(--ps-text-cinematic-secondary);
+  transition: color 240ms var(--ps-ease-out), transform 240ms var(--ps-ease-out);
+}
+.demo-back:hover { color: var(--ps-primary); transform: translateX(-2px); }
+.demo-label {
+  font-family: var(--ps-font-en); font-size: 10px; font-weight: 500;
+  letter-spacing: 2.5px; text-transform: uppercase; color: var(--ps-primary);
+  border: 1px solid var(--ps-primary); padding: 5px 12px 6px; border-radius: 100px;
+}
+
+.demo-wrap { max-width: 1108px; margin: 0 auto; }
+.demo-grid {
+  display: grid; grid-template-columns: 1fr; gap: 24px;
+}
+@media (min-width: 768px) { .demo-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .demo-grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* ===========================================================
+   ⚡ COMPONENT: Editorial Card
+   타이포그래픽 포스터 + 메타 + 제목 + 태그 카드
+   외부 이미지 없이 텍스트만으로 인상적인 카드 구성
+   =========================================================== */
+.editorial-card {
+  display: block;
+  text-decoration: none;
+  color: #FFFFFF;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 320ms var(--ps-ease-out), transform 320ms var(--ps-ease-out);
+}
+.editorial-card:hover {
+  border-color: var(--ps-primary);
+  transform: translateY(-4px);
+}
+.editorial-card-poster {
+  aspect-ratio: 370 / 220;
+  background: var(--ps-surface-cinematic-1);
+  position: relative;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+.editorial-card-poster::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(at 80% 20%, rgba(255, 177, 26, 0.08) 0%, transparent 50%),
+    radial-gradient(at 20% 80%, rgba(255, 177, 26, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+.editorial-card-poster .lid {
+  position: relative;
+  font-family: var(--ps-font-en);
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ps-primary);
+}
+.editorial-card-poster .ptitle {
+  position: relative;
+  font-size: clamp(18px, 1.8vw, 22px);
+  font-weight: 300;
+  letter-spacing: -0.6px;
+  line-height: 1.25;
+  color: #FFFFFF;
+  margin: 0;
+}
+.editorial-card-poster .ptitle strong {
+  font-weight: 700; color: var(--ps-primary);
+}
+.editorial-card-body {
+  padding: 20px 24px 24px;
+  background: var(--ps-bg-cinematic);
+}
+.editorial-card-meta {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--ps-font-en);
+  font-size: 11px; font-weight: 400; letter-spacing: 1px;
+  color: var(--ps-text-cinematic-secondary);
+  margin-bottom: 12px; flex-wrap: wrap;
+}
+.editorial-card-meta .dot {
+  width: 4px; height: 4px;
+  background: var(--ps-text-cinematic-secondary);
+  border-radius: 50%;
+}
+.editorial-card-title {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.4px;
+  margin: 0 0 12px;
+  color: #FFFFFF;
+  line-height: 1.4;
+}
+.editorial-card-desc {
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--ps-text-cinematic-secondary);
+  margin: 0 0 16px;
+}
+.editorial-card-tags {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+/* Tag pill (dependency) */
+.editorial-card .tag-pill {
+  display: inline-flex; align-items: center;
+  font-family: var(--ps-font-en);
+  font-size: 11px; font-weight: 400; color: #FFFFFF;
+  background: transparent;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 100px; padding: 5px 12px 6px;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+/* === END COMPONENT === */
+
+
+.usage-hint {
+  margin-top: 64px; padding: 32px;
+  border: 1px dashed rgba(255,255,255,0.15);
+  border-radius: 16px;
+}
+.usage-hint h3 {
+  font-family: var(--ps-font-en); font-size: 11px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--ps-primary);
+  margin: 0 0 16px;
+}
+.usage-hint pre {
+  background: #141414; border-radius: 8px; padding: 20px;
+  overflow-x: auto; margin: 0;
+}
+.usage-hint code {
+  font-family: 'JetBrains Mono', 'D2Coding', ui-monospace, monospace;
+  font-size: 12px; line-height: 1.7;
+  color: var(--ps-text-cinematic-secondary);
+}
+</style>
+</head>
+
+<body>
+
+<div class="demo-header">
+  <a class="demo-back" href="../../">← parcyun studio</a>
+  <span class="demo-label">Component Preview</span>
+</div>
+
+<div class="demo-wrap">
+
+<!-- ⚡⚡⚡ COMPONENT MARKUP ⚡⚡⚡ -->
+<div class="demo-grid">
+
+  <a href="#" class="editorial-card">
+    <div class="editorial-card-poster">
+      <div class="lid">Lecture · 001</div>
+      <p class="ptitle">
+        하네스 에이전트를 위한<br>
+        <strong>생성형 AI</strong> 기본 이해
+      </p>
+    </div>
+    <div class="editorial-card-body">
+      <div class="editorial-card-meta">
+        <span>2026.05.10</span>
+        <span class="dot"></span>
+        <span>44 slides</span>
+        <span class="dot"></span>
+        <span>FOR EDUCATORS</span>
+      </div>
+      <h3 class="editorial-card-title">LLM 이해하기 · LLM Fundamentals</h3>
+      <p class="editorial-card-desc">
+        NLP · LLM · Tokenization부터 Markdown · Skills · API · MCP · Harness · Orchestration까지.
+      </p>
+      <div class="editorial-card-tags">
+        <span class="tag-pill">LLM</span>
+        <span class="tag-pill">MCP</span>
+        <span class="tag-pill">Agent</span>
+      </div>
+    </div>
+  </a>
+
+  <a href="#" class="editorial-card">
+    <div class="editorial-card-poster">
+      <div class="lid">Lecture · 002 · Hands-On</div>
+      <p class="ptitle">
+        <strong>Claude Desktop</strong><br>따라하기 실습
+      </p>
+    </div>
+    <div class="editorial-card-body">
+      <div class="editorial-card-meta">
+        <span>2026.05.10</span>
+        <span class="dot"></span>
+        <span>NOTION ↗</span>
+        <span class="dot"></span>
+        <span>HANDS-ON</span>
+      </div>
+      <h3 class="editorial-card-title">Agentic AI with LLM</h3>
+      <p class="editorial-card-desc">
+        Claude Desktop을 자율형 에이전트로 직접 셋업하고 운영해보는 실습 가이드.
+      </p>
+      <div class="editorial-card-tags">
+        <span class="tag-pill">Claude Desktop</span>
+        <span class="tag-pill">실습</span>
+      </div>
+    </div>
+  </a>
+
+</div>
+<!-- ⚡⚡⚡ END COMPONENT MARKUP ⚡⚡⚡ -->
+
+<div class="usage-hint">
+  <h3>Usage</h3>
+  <pre><code>1. .editorial-card 블록 + Tag Pill CSS 복사
+2. poster .lid (라벨) + .ptitle (시리즈 타이틀, strong 강조)
+3. body .meta · .title · .desc · .tags 교체
+
+POSTER (이미지 없이 타이포만으로 시선 잡는 영역):
+- aspect-ratio 370:220
+- 좌상단: 캡스 라벨 (시리즈명·번호·카테고리)
+- 좌하단: 큰 한글 타이틀 + amber strong 한 단어
+- 배경: 미세한 amber radial gradient 2개로 깊이감
+
+BODY:
+- meta: 캡스 + dot 구분자 (날짜·길이·대상)
+- title: 한글 본 제목 + 영문 부제 ("·"로 구분)
+- desc: 1-2 문장
+- tags: TagPill 3개 이내
+
+WHEN TO USE:
+- 강의·작품·콘텐츠 카드 그리드 (1108px max width 기준 3-col)
+- 시리즈물 카탈로그
+- 포트폴리오 작품 카드
+
+WHEN NOT TO USE:
+- 단일 카드 (대신 큰 hero 사용)
+- 이미지가 필수인 콘텐츠 (사진 카드는 별도 패턴)
+- 5개 이상 빈번한 업데이트 (오히려 단순 리스트가 효율적)
+
+VARIANT IDEAS:
+- 호버 시 poster 영역 amber 강조 추가 가능
+- lid을 amber 대신 카테고리별 다른 색상 사용 가능 (Cinematic 토큰 한정)</code></pre>
+</div>
+
+</div>
+
+<footer style="
+  position: fixed; bottom: 16px; right: 20px;
+  font-family: var(--ps-font-en); font-weight: 300; font-size: 11px;
+  color: var(--ps-text-cinematic-secondary);
+  display: flex; align-items: center; gap: 8px; z-index: 9999;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px 12px; border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.08);
+">
+  Designed by
+  <span style="font-family: var(--ps-font-signature); font-size: 15px; color: var(--ps-primary); line-height: 1;">parcyun studio</span>
+  <a href="https://www.instagram.com/parcyun" target="_blank" rel="noopener" style="margin-left: 4px;">@parcyun</a>
+</footer>
+
+</body>
+</html>

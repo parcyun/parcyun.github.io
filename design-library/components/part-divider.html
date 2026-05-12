@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Part Divider · parcyun studio design library</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<style>
+/* parcyun Cinematic Mode tokens */
+:root {
+  --ps-primary: #FFB11A;
+  --ps-bg-cinematic: #000000;
+  --ps-text-cinematic-secondary: #8C8C8C;
+  --ps-surface-cinematic-3: #333333;
+  --ps-font-body: 'Pretendard Variable', 'Pretendard', 'Montserrat', sans-serif;
+  --ps-font-en: 'Montserrat', 'Pretendard Variable', sans-serif;
+  --ps-font-signature: 'Covered By Your Grace', cursive;
+  --ps-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--ps-bg-cinematic);
+  color: #FFFFFF;
+  font-family: var(--ps-font-body);
+  font-weight: 300;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+a { color: inherit; text-decoration: none; }
+
+/* Demo wrapper */
+.demo-header {
+  position: fixed; top: 16px; left: 24px; right: 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; z-index: 90; pointer-events: none;
+}
+.demo-header > * { pointer-events: auto; }
+.demo-back {
+  font-family: var(--ps-font-en); font-size: 12px;
+  letter-spacing: 0.5px; color: var(--ps-text-cinematic-secondary);
+  transition: color 240ms var(--ps-ease-out), transform 240ms var(--ps-ease-out);
+}
+.demo-back:hover { color: var(--ps-primary); transform: translateX(-2px); }
+.demo-label {
+  font-family: var(--ps-font-en); font-size: 10px; font-weight: 500;
+  letter-spacing: 2.5px; text-transform: uppercase; color: var(--ps-primary);
+  border: 1px solid var(--ps-primary); padding: 5px 12px 6px; border-radius: 100px;
+}
+
+/* ===========================================================
+   ⚡ COMPONENT: Part Divider
+   강의·문서·시리즈를 큰 챕터(Part)로 나누는 풀스크린 구분자
+   =========================================================== */
+.ps-divider {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 80px 24px;
+}
+.ps-divider .part-tag {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--ps-primary);
+  margin-bottom: 24px;
+}
+.ps-divider .part-title {
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 300;
+  letter-spacing: -2px;
+  line-height: 1.2;
+  margin: 0;
+  color: #FFFFFF;
+}
+.ps-divider .part-title strong { font-weight: 700; }
+/* === END COMPONENT === */
+
+
+/* Usage hint */
+.usage-hint {
+  max-width: 760px; margin: 0 auto 64px;
+  padding: 32px;
+  border: 1px dashed rgba(255,255,255,0.15);
+  border-radius: 16px;
+}
+.usage-hint h3 {
+  font-family: var(--ps-font-en); font-size: 11px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--ps-primary);
+  margin: 0 0 16px;
+}
+.usage-hint pre {
+  background: #141414; border-radius: 8px; padding: 20px;
+  overflow-x: auto; margin: 0;
+}
+.usage-hint code {
+  font-family: 'JetBrains Mono', 'D2Coding', ui-monospace, monospace;
+  font-size: 12px; font-weight: 400; line-height: 1.7;
+  color: var(--ps-text-cinematic-secondary);
+}
+</style>
+</head>
+
+<body>
+
+<div class="demo-header">
+  <a class="demo-back" href="../../">← parcyun studio</a>
+  <span class="demo-label">Component Preview</span>
+</div>
+
+
+<!-- ⚡⚡⚡ COMPONENT MARKUP ⚡⚡⚡ -->
+<div class="ps-divider">
+  <div class="part-tag">Part 01</div>
+  <h2 class="part-title">
+    프롬프트 <strong>엔지니어링</strong>의<br>모든 것
+  </h2>
+</div>
+
+<div class="ps-divider">
+  <div class="part-tag">Part 02</div>
+  <h2 class="part-title">
+    이제 직접<br><strong>손으로</strong> 만들어 볼 차례
+  </h2>
+</div>
+<!-- ⚡⚡⚡ END COMPONENT MARKUP ⚡⚡⚡ -->
+
+
+<div class="usage-hint">
+  <h3>Usage</h3>
+  <pre><code>1. .ps-divider 블록 전체 CSS 복사
+2. 마크업의 part-tag(영문 캡스 라벨) + part-title(한글, strong으로 강조 단어)만 교체
+
+WHEN TO USE:
+- 강의·문서를 큰 챕터(Part)로 분리할 때
+- 학습자의 인지 리셋이 필요한 자연스러운 휴식 지점
+- "여기서부터 새로운 주제가 시작됨"을 강하게 알리는 시각 단절
+
+WHEN NOT TO USE:
+- 작은 섹션 구분 (대신 Bilingual Section Header 사용)
+- 페이지가 짧을 때(2-3 섹션)는 과함
+- Part 라벨 없이 그냥 큰 헤드라인 필요할 때
+
+NOTES:
+- min-height: 60vh로 풀스크린에 가까운 임팩트
+- part-tag는 amber, letter-spacing 3px (긴장감)
+- part-title의 strong은 brand 강조용 (font-weight 700)</code></pre>
+</div>
+
+
+<footer style="
+  position: fixed; bottom: 16px; right: 20px;
+  font-family: var(--ps-font-en); font-weight: 300; font-size: 11px;
+  color: var(--ps-text-cinematic-secondary);
+  display: flex; align-items: center; gap: 8px; z-index: 9999;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px 12px; border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.08);
+">
+  Designed by
+  <span style="font-family: var(--ps-font-signature); font-size: 15px; color: var(--ps-primary); line-height: 1;">parcyun studio</span>
+  <a href="https://www.instagram.com/parcyun" target="_blank" rel="noopener" style="margin-left: 4px;">@parcyun</a>
+</footer>
+
+</body>
+</html>

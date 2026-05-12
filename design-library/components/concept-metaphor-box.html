@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concept &amp; Metaphor Box · parcyun studio design library</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<style>
+:root {
+  --ps-primary: #FFB11A;
+  --ps-bg-cinematic: #000000;
+  --ps-surface-cinematic-3: #333333;
+  --ps-text-cinematic-secondary: #8C8C8C;
+  --ps-font-body: 'Pretendard Variable', 'Pretendard', 'Montserrat', sans-serif;
+  --ps-font-en: 'Montserrat', 'Pretendard Variable', sans-serif;
+  --ps-font-signature: 'Covered By Your Grace', cursive;
+  --ps-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--ps-bg-cinematic);
+  color: #FFFFFF;
+  font-family: var(--ps-font-body);
+  font-weight: 300; line-height: 1.6;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  padding: 100px 24px;
+}
+@media (min-width: 768px) { body { padding: 100px 48px; } }
+a { color: inherit; text-decoration: none; }
+
+.demo-header {
+  position: fixed; top: 16px; left: 24px; right: 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; z-index: 90; pointer-events: none;
+}
+.demo-header > * { pointer-events: auto; }
+.demo-back {
+  font-family: var(--ps-font-en); font-size: 12px;
+  letter-spacing: 0.5px; color: var(--ps-text-cinematic-secondary);
+  transition: color 240ms var(--ps-ease-out), transform 240ms var(--ps-ease-out);
+}
+.demo-back:hover { color: var(--ps-primary); transform: translateX(-2px); }
+.demo-label {
+  font-family: var(--ps-font-en); font-size: 10px; font-weight: 500;
+  letter-spacing: 2.5px; text-transform: uppercase; color: var(--ps-primary);
+  border: 1px solid var(--ps-primary); padding: 5px 12px 6px; border-radius: 100px;
+}
+
+.demo-wrap { max-width: 800px; margin: 0 auto; }
+
+/* ===========================================================
+   ⚡ COMPONENT: Concept + Metaphor Box
+   parcyun studio 교육 핵심 패턴 — 개념을 정의 + 비유로 설명
+   "복잡한 기술은 일상 사물에 비유한다"는 parcyun 커뮤니케이션 원칙
+   =========================================================== */
+.concept {
+  margin-bottom: 32px;
+}
+.concept-title {
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  margin: 0 0 8px;
+  color: #FFFFFF;
+}
+.concept-title small {
+  display: block;
+  font-family: var(--ps-font-en);
+  font-size: clamp(14px, 1.5vw, 18px);
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  color: var(--ps-text-cinematic-secondary);
+  margin-top: 8px;
+}
+.concept-def {
+  font-size: clamp(15px, 1.3vw, 17px);
+  font-weight: 300;
+  color: #FFFFFF;
+  margin: 16px 0 32px;
+  max-width: 720px;
+  line-height: 1.7;
+}
+
+.metaphor-box {
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 20px;
+  padding: 32px 32px 36px;
+  background: var(--ps-bg-cinematic);
+  max-width: 720px;
+}
+.metaphor-box .label {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+  margin: 0 0 12px;
+}
+.metaphor-box .name {
+  font-size: clamp(20px, 2vw, 24px);
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  margin: 0 0 16px;
+  color: var(--ps-primary);
+}
+.metaphor-box .desc {
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: #FFFFFF;
+  margin: 0;
+}
+/* === END COMPONENT === */
+
+
+.usage-hint {
+  margin-top: 64px; padding: 32px;
+  border: 1px dashed rgba(255,255,255,0.15);
+  border-radius: 16px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.usage-hint h3 {
+  font-family: var(--ps-font-en); font-size: 11px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--ps-primary);
+  margin: 0 0 16px;
+}
+.usage-hint pre {
+  background: #141414; border-radius: 8px; padding: 20px;
+  overflow-x: auto; margin: 0;
+}
+.usage-hint code {
+  font-family: 'JetBrains Mono', 'D2Coding', ui-monospace, monospace;
+  font-size: 12px; line-height: 1.7;
+  color: var(--ps-text-cinematic-secondary);
+}
+</style>
+</head>
+
+<body>
+
+<div class="demo-header">
+  <a class="demo-back" href="../../">← parcyun studio</a>
+  <span class="demo-label">Component Preview</span>
+</div>
+
+<div class="demo-wrap">
+
+<!-- ⚡⚡⚡ COMPONENT MARKUP ⚡⚡⚡ -->
+<div class="concept">
+  <h2 class="concept-title">
+    MCP
+    <small>Model Context Protocol</small>
+  </h2>
+  <p class="concept-def">
+    제각각인 API 활용 방식을 통합해주는 "단일 표준 규격". MCP 규격을 따르는 프로그램끼리는 연결이 매우 간단하고, 활용 방식이 규격화되어 오류가 적고 최적화도 잘 되어 있습니다.
+  </p>
+</div>
+
+<div class="metaphor-box">
+  <p class="label">Metaphor</p>
+  <p class="name">"범용 어댑터" or "만능 통역기"</p>
+  <p class="desc">
+    라이트닝 어댑터, USB-A, HDMI, RGB, AUX 등 여러 종류의 단자가 난무할 때 등장한 <strong style="color: var(--ps-primary);">USB-C</strong>처럼, MCP는 LLM ↔ 외부 도구 연결의 USB-C입니다.
+  </p>
+</div>
+<!-- ⚡⚡⚡ END COMPONENT MARKUP ⚡⚡⚡ -->
+
+<div class="usage-hint">
+  <h3>Usage</h3>
+  <pre><code>1. .concept + .metaphor-box CSS 블록 복사
+2. 두 블록을 함께 사용 (정의 + 비유 = parcyun 교육 핵심 패턴)
+
+STRUCTURE:
+.concept (정의)
+├─ .concept-title       대형 한 단어 또는 영문 약자 (Bold 700)
+│  └─ small             영문 풀네임 또는 부제 (Light 300, secondary 색)
+└─ .concept-def         정의 문장 1-2개
+
+.metaphor-box (비유 — 안정성 원칙: 일상 사물로 비유)
+├─ .label "METAPHOR"    캡스 라벨
+├─ .name                일상 사물 이름 (amber, "따옴표" 안에 표현)
+└─ .desc                왜 비유가 적절한지 설명 (1-3 문장)
+
+PARCYUN 비유 가이드 (이미 사용된 매칭):
+- API     → "점원 & 키오스크"
+- Skills  → "레시피"
+- MCP     → "USB-C 어댑터"
+- Harness → "대기업 본부 사무실"
+- Orch.   → "팀장 / PM"
+원칙: 가전제품, 자동차, 건축, 학교, 도시 구조 등 일상에 빗대기
+
+WHEN TO USE:
+- 추상적 기술 개념 설명
+- 처음 듣는 용어 소개
+- 학습자가 직관적으로 이해해야 하는 핵심 개념
+
+WHEN NOT TO USE:
+- 이미 익숙한 개념 (반복 학습)
+- 단순 정의만 필요한 경우 (.concept만 사용)
+- 비유가 오히려 혼란을 줄 정도로 복잡한 개념</code></pre>
+</div>
+
+</div>
+
+<footer style="
+  position: fixed; bottom: 16px; right: 20px;
+  font-family: var(--ps-font-en); font-weight: 300; font-size: 11px;
+  color: var(--ps-text-cinematic-secondary);
+  display: flex; align-items: center; gap: 8px; z-index: 9999;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px 12px; border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.08);
+">
+  Designed by
+  <span style="font-family: var(--ps-font-signature); font-size: 15px; color: var(--ps-primary); line-height: 1;">parcyun studio</span>
+  <a href="https://www.instagram.com/parcyun" target="_blank" rel="noopener" style="margin-left: 4px;">@parcyun</a>
+</footer>
+
+</body>
+</html>

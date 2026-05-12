@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disclosure Card · parcyun studio design library</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<style>
+:root {
+  --ps-primary: #FFB11A;
+  --ps-bg-cinematic: #000000;
+  --ps-surface-cinematic-1: #141414;
+  --ps-surface-cinematic-3: #333333;
+  --ps-text-cinematic-secondary: #8C8C8C;
+  --ps-font-body: 'Pretendard Variable', 'Pretendard', 'Montserrat', sans-serif;
+  --ps-font-en: 'Montserrat', 'Pretendard Variable', sans-serif;
+  --ps-font-signature: 'Covered By Your Grace', cursive;
+  --ps-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--ps-bg-cinematic);
+  color: #FFFFFF;
+  font-family: var(--ps-font-body);
+  font-weight: 300; line-height: 1.6;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  padding: 100px 24px;
+}
+@media (min-width: 768px) { body { padding: 100px 48px; } }
+a { color: inherit; text-decoration: none; }
+
+.demo-header {
+  position: fixed; top: 16px; left: 24px; right: 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; z-index: 90; pointer-events: none;
+}
+.demo-header > * { pointer-events: auto; }
+.demo-back {
+  font-family: var(--ps-font-en); font-size: 12px;
+  letter-spacing: 0.5px; color: var(--ps-text-cinematic-secondary);
+  transition: color 240ms var(--ps-ease-out), transform 240ms var(--ps-ease-out);
+}
+.demo-back:hover { color: var(--ps-primary); transform: translateX(-2px); }
+.demo-label {
+  font-family: var(--ps-font-en); font-size: 10px; font-weight: 500;
+  letter-spacing: 2.5px; text-transform: uppercase; color: var(--ps-primary);
+  border: 1px solid var(--ps-primary); padding: 5px 12px 6px; border-radius: 100px;
+}
+
+.demo-wrap { max-width: 800px; margin: 0 auto; }
+
+/* ===========================================================
+   ⚡ COMPONENT: Disclosure Card
+   클릭 시 펼침/접힘 카드 — FAQ, 개념 정의, 예시 프롬프트 등
+   <button> + aria-expanded + max-height 트랜지션 사용
+   =========================================================== */
+.disclosure-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 640px) { .disclosure-grid { grid-template-columns: 1fr 1fr; } }
+
+.disclosure-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  padding: 20px 24px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 12px;
+  /* Reset <button> user-agent defaults */
+  background: transparent;
+  color: #FFFFFF;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transition: border-color 240ms var(--ps-ease-out), background 240ms var(--ps-ease-out);
+}
+.disclosure-item:hover { border-color: var(--ps-primary); }
+.disclosure-item .di-head {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  width: 100%;
+  position: relative;
+}
+.disclosure-item .di-num {
+  font-family: var(--ps-font-en);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ps-primary);
+  letter-spacing: 1px;
+}
+.disclosure-item .di-label {
+  font-family: var(--ps-font-en);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+}
+.disclosure-item .di-head::after {
+  content: '＋';
+  margin-left: auto;
+  font-family: var(--ps-font-en);
+  font-size: 16px; font-weight: 300;
+  color: var(--ps-text-cinematic-secondary);
+  transition: transform 240ms var(--ps-ease-out), color 240ms var(--ps-ease-out);
+}
+.disclosure-item[aria-expanded="true"] .di-head::after {
+  content: '−'; color: var(--ps-primary);
+}
+.disclosure-item[aria-expanded="true"] {
+  border-color: var(--ps-primary);
+  background: var(--ps-surface-cinematic-1);
+}
+.disclosure-item .di-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 320ms var(--ps-ease-out), margin-top 320ms var(--ps-ease-out);
+  margin-top: 0;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--ps-text-cinematic-secondary);
+}
+.disclosure-item[aria-expanded="true"] .di-body {
+  max-height: 400px;
+  margin-top: 16px;
+}
+/* === END COMPONENT === */
+
+
+.usage-hint {
+  margin-top: 64px; padding: 32px;
+  border: 1px dashed rgba(255,255,255,0.15);
+  border-radius: 16px;
+}
+.usage-hint h3 {
+  font-family: var(--ps-font-en); font-size: 11px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--ps-primary);
+  margin: 0 0 16px;
+}
+.usage-hint pre {
+  background: #141414; border-radius: 8px; padding: 20px;
+  overflow-x: auto; margin: 0;
+}
+.usage-hint code {
+  font-family: 'JetBrains Mono', 'D2Coding', ui-monospace, monospace;
+  font-size: 12px; line-height: 1.7;
+  color: var(--ps-text-cinematic-secondary);
+}
+</style>
+</head>
+
+<body>
+
+<div class="demo-header">
+  <a class="demo-back" href="../../">← parcyun studio</a>
+  <span class="demo-label">Component Preview</span>
+</div>
+
+<div class="demo-wrap">
+
+<!-- ⚡⚡⚡ COMPONENT MARKUP ⚡⚡⚡ -->
+<div class="disclosure-grid">
+  <button class="disclosure-item" type="button" aria-expanded="false">
+    <span class="di-head">
+      <span class="di-num">01</span>
+      <span class="di-label">Markdown</span>
+    </span>
+    <span class="di-body">컴퓨터가 이해할 수 있는 텍스트로만 이루어진 가벼운 설계도면. HTML처럼 문서 구조를 표현하지만 100% 텍스트라 LLM이 처리하기 가장 효율적이다.</span>
+  </button>
+
+  <button class="disclosure-item" type="button" aria-expanded="false">
+    <span class="di-head">
+      <span class="di-num">02</span>
+      <span class="di-label">Skills</span>
+    </span>
+    <span class="di-body">특정 작업을 수행하기 위한 "업무 매뉴얼". Markdown으로 작성한 사전지시서를 LLM에게 학습시켜 두면 동일한 요청에 동일한 품질의 결과가 나온다.</span>
+  </button>
+
+  <button class="disclosure-item" type="button" aria-expanded="false">
+    <span class="di-head">
+      <span class="di-num">03</span>
+      <span class="di-label">API</span>
+    </span>
+    <span class="di-body">외부 프로그램을 사용하기 위한 "연결 통로". 키오스크에서 빅맥을 주문하듯 사용자가 외부 LLM 서버에 작업을 요청하는 인터페이스 규격이다.</span>
+  </button>
+
+  <button class="disclosure-item" type="button" aria-expanded="false">
+    <span class="di-head">
+      <span class="di-num">04</span>
+      <span class="di-label">MCP</span>
+    </span>
+    <span class="di-body">제각각인 API 활용 방식을 통합한 단일 표준 규격. USB-C처럼 LLM과 외부 도구 사이를 깔끔하게 연결한다.</span>
+  </button>
+</div>
+
+<script>
+document.querySelectorAll('.disclosure-item').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+  });
+});
+</script>
+<!-- ⚡⚡⚡ END COMPONENT MARKUP ⚡⚡⚡ -->
+
+<div class="usage-hint">
+  <h3>Usage</h3>
+  <pre><code>1. .disclosure-grid + .disclosure-item CSS 블록 + 작은 JS 스니펫 복사
+2. 각 카드는 &lt;button type="button" aria-expanded="false"&gt;
+   - .di-num   짧은 번호 또는 카테고리
+   - .di-label 메인 단어 (영문)
+   - .di-body  펼침 시 내용
+
+CRITICAL DETAILS:
+- &lt;button&gt;을 사용해야 키보드 접근성 (Enter/Space로 토글)
+- background: transparent + appearance: none 으로 브라우저 기본 회색 제거
+  (이 reset이 없으면 카드가 밝게 보이는 버그 발생)
+- aria-expanded 속성으로 상태 관리, JS는 토글만 담당
+- max-height 트랜지션으로 펼침/접힘 부드럽게
+
+WHEN TO USE:
+- FAQ (자주 묻는 질문)
+- 개념 인덱스 (학습자가 원하는 것만 펼침)
+- 예시 프롬프트 모음 (5대 원칙 + 예시 패턴)
+- 긴 콘텐츠를 압축 표시할 때
+
+WHEN NOT TO USE:
+- iframe 안에서 anchor 링크처럼 동작해야 할 때
+  (anchor는 claude.ai 등에서 가로채임 — &lt;button&gt;이 안전)
+- 펼침 콘텐츠가 너무 길 때 (별도 페이지로 분리)
+- 사용자가 모든 콘텐츠를 봐야 할 때 (펼친 채 두기)
+
+ACCESSIBILITY:
+- aria-expanded 자동으로 스크린리더가 상태 안내
+- Enter/Space 키 작동 (button 기본 동작)
+- 토글 아이콘은 ::after로 추가하여 마크업 단순 유지</code></pre>
+</div>
+
+</div>
+
+<footer style="
+  position: fixed; bottom: 16px; right: 20px;
+  font-family: var(--ps-font-en); font-weight: 300; font-size: 11px;
+  color: var(--ps-text-cinematic-secondary);
+  display: flex; align-items: center; gap: 8px; z-index: 9999;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px 12px; border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.08);
+">
+  Designed by
+  <span style="font-family: var(--ps-font-signature); font-size: 15px; color: var(--ps-primary); line-height: 1;">parcyun studio</span>
+  <a href="https://www.instagram.com/parcyun" target="_blank" rel="noopener" style="margin-left: 4px;">@parcyun</a>
+</footer>
+
+</body>
+</html>

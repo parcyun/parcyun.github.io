@@ -145,8 +145,8 @@ section {
   font-size: clamp(72px, 14vw, 180px);
   font-weight: 400;
   letter-spacing: -2px;
-  line-height: 0.95;
-  margin: 0 0 8px;
+  line-height: 1.15;
+  margin: 0 0 24px;
   color: var(--ps-primary);
 }
 .hero-name {
@@ -252,6 +252,44 @@ section {
 }
 
 /* ===== Lectures grid ===== */
+.lecture-section {
+  margin-bottom: 80px;
+}
+.lecture-section:last-child {
+  margin-bottom: 0;
+}
+.lecture-subsection-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ps-surface-cinematic-3);
+}
+@media (min-width: 640px) {
+  .lecture-subsection-header {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 14px;
+  }
+}
+.lecture-subsection-header .ko {
+  font-size: clamp(20px, 2vw, 24px);
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  line-height: 1.3;
+  margin: 0;
+  color: #FFFFFF;
+}
+.lecture-subsection-header .en {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+}
+
 .lecture-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -365,22 +403,35 @@ section {
   border-style: dashed;
   border-color: rgba(255, 255, 255, 0.12);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 280px;
-  font-family: var(--ps-font-en);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--ps-text-cinematic-secondary);
   text-align: center;
-  padding: 24px;
+  padding: 32px 24px;
+  gap: 12px;
 }
 .lecture-card.placeholder:hover {
   transform: none;
   border-color: var(--ps-text-cinematic-secondary);
   cursor: default;
+}
+.lecture-card.placeholder .topic {
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: -0.3px;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+.lecture-card.placeholder .cs-label {
+  font-family: var(--ps-font-en);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
 }
 
 /* ===== Connect ===== */
@@ -535,69 +586,120 @@ section.in-view, .hero.in-view {
       <span class="en">Lectures</span>
     </header>
 
-    <div class="lecture-grid">
-      <!-- Lecture 001 -->
-      <a href="./llm-fundamentals/" class="lecture-card">
-        <div class="lecture-card-poster">
-          <div class="lid">Lecture · 001</div>
-          <p class="ptitle">
-            하네스 에이전트를 위한<br>
-            <strong>생성형 AI</strong> 기본 이해
-          </p>
-        </div>
-        <div class="lecture-card-body">
-          <div class="lecture-card-meta">
-            <span>2026.05.10</span>
-            <span class="dot"></span>
-            <span>44 slides</span>
-            <span class="dot"></span>
-            <span>FOR EDUCATORS</span>
+    <!-- ── Sub-section: LLM · Harness Agent ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko">LLM · Harness Agent</h3>
+        <span class="en">LLM &amp; Harness</span>
+      </header>
+      <div class="lecture-grid">
+        <!-- Lecture 001 -->
+        <a href="./llm-fundamentals/" class="lecture-card">
+          <div class="lecture-card-poster">
+            <div class="lid">Lecture · 001</div>
+            <p class="ptitle">
+              하네스 에이전트를 위한<br>
+              <strong>생성형 AI</strong> 기본 이해
+            </p>
           </div>
-          <h3 class="lecture-card-title">LLM 이해하기 · LLM Fundamentals</h3>
-          <p class="lecture-card-desc">
-            NLP · LLM · Tokenization부터 Markdown · Skills · API · MCP · Harness · Orchestration까지 ─ 자율형 AI 에이전트를 다루기 위해 반드시 알아야 할 개념을 17개 풀스크롤 섹션으로 정리.
-          </p>
-          <div class="lecture-card-tags">
-            <span class="tag-pill">LLM</span>
-            <span class="tag-pill">MCP</span>
-            <span class="tag-pill">Agent</span>
+          <div class="lecture-card-body">
+            <div class="lecture-card-meta">
+              <span>2026.05.10</span>
+              <span class="dot"></span>
+              <span>44 slides</span>
+              <span class="dot"></span>
+              <span>FOR EDUCATORS</span>
+            </div>
+            <h3 class="lecture-card-title">LLM 이해하기 · LLM Fundamentals</h3>
+            <p class="lecture-card-desc">
+              NLP · LLM · Tokenization부터 Markdown · Skills · API · MCP · Harness · Orchestration까지 ─ 자율형 AI 에이전트를 다루기 위해 반드시 알아야 할 개념을 17개 풀스크롤 섹션으로 정리.
+            </p>
+            <div class="lecture-card-tags">
+              <span class="tag-pill">LLM</span>
+              <span class="tag-pill">MCP</span>
+              <span class="tag-pill">Agent</span>
+            </div>
           </div>
-        </div>
-      </a>
+        </a>
 
-      <!-- Lecture 002 -->
-      <a href="https://parcyun.notion.site/Agentic-AI-with-LLM-3593f99a82238070ab4be47cefd571d7" class="lecture-card" target="_blank" rel="noopener">
-        <div class="lecture-card-poster">
-          <div class="lid">Lecture · 002 · Hands-On</div>
-          <p class="ptitle">
-            <strong>Claude Desktop</strong><br>
-            따라하기 실습
-          </p>
-        </div>
-        <div class="lecture-card-body">
-          <div class="lecture-card-meta">
-            <span>2026.05.10</span>
-            <span class="dot"></span>
-            <span>NOTION ↗</span>
-            <span class="dot"></span>
-            <span>HANDS-ON</span>
+        <!-- Lecture 002 -->
+        <a href="https://parcyun.notion.site/Agentic-AI-with-LLM-3593f99a82238070ab4be47cefd571d7" class="lecture-card" target="_blank" rel="noopener">
+          <div class="lecture-card-poster">
+            <div class="lid">Lecture · 002 · Hands-On</div>
+            <p class="ptitle">
+              <strong>Claude Desktop</strong><br>
+              따라하기 실습
+            </p>
           </div>
-          <h3 class="lecture-card-title">Agentic AI with LLM</h3>
-          <p class="lecture-card-desc">
-            Claude Desktop을 자율형 에이전트로 직접 셋업하고 운영해보는 실습 가이드. LLM 강의에서 배운 Skills · MCP · Harness · Orchestration 개념을 실제 워크플로우로 구축합니다.
-          </p>
-          <div class="lecture-card-tags">
-            <span class="tag-pill">Claude Desktop</span>
-            <span class="tag-pill">MCP</span>
-            <span class="tag-pill">실습</span>
+          <div class="lecture-card-body">
+            <div class="lecture-card-meta">
+              <span>2026.05.10</span>
+              <span class="dot"></span>
+              <span>NOTION ↗</span>
+              <span class="dot"></span>
+              <span>HANDS-ON</span>
+            </div>
+            <h3 class="lecture-card-title">Agentic AI with LLM</h3>
+            <p class="lecture-card-desc">
+              Claude Desktop을 자율형 에이전트로 직접 셋업하고 운영해보는 실습 가이드. LLM 강의에서 배운 Skills · MCP · Harness · Orchestration 개념을 실제 워크플로우로 구축합니다.
+            </p>
+            <div class="lecture-card-tags">
+              <span class="tag-pill">Claude Desktop</span>
+              <span class="tag-pill">MCP</span>
+              <span class="tag-pill">실습</span>
+            </div>
           </div>
-        </div>
-      </a>
+        </a>
 
-      <!-- Coming soon placeholder -->
-      <div class="lecture-card placeholder">
-        Coming Soon<br>
-        <span style="opacity: 0.6; margin-top: 8px; display: inline-block;">새 강의가 곧 추가됩니다</span>
+        <!-- Coming soon placeholder -->
+        <div class="lecture-card placeholder">
+          <p class="topic">Sub-Agent 오케스트레이션</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sub-section: 이미지 · 영상 생성 ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko">이미지 · 영상 생성</h3>
+        <span class="en">Image &amp; Video Gen</span>
+      </header>
+      <div class="lecture-grid">
+        <div class="lecture-card placeholder">
+          <p class="topic">Midjourney 기초 워크플로우</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+        <div class="lecture-card placeholder">
+          <p class="topic">AI 영상 생성 입문<br>(Nano Banana · Soul)</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+        <div class="lecture-card placeholder">
+          <p class="topic">비주얼 프롬프트 엔지니어링</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sub-section: Notion 활용 ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko">Notion 활용</h3>
+        <span class="en">Notion</span>
+      </header>
+      <div class="lecture-grid">
+        <div class="lecture-card placeholder">
+          <p class="topic">Notion 업무 자동화</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+        <div class="lecture-card placeholder">
+          <p class="topic">교사용 Notion 템플릿</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+        <div class="lecture-card placeholder">
+          <p class="topic">Notion AI 활용법</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
       </div>
     </div>
   </div>

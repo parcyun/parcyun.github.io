@@ -814,8 +814,9 @@ section.ps-slide {
   color: var(--ps-text-cinematic-secondary);
   text-decoration: none;
   z-index: 90;
+  transition: color 240ms var(--ps-ease-out), transform 240ms var(--ps-ease-out);
 }
-.ps-corner:hover { color: var(--ps-primary); }
+.ps-corner:hover { color: var(--ps-primary); transform: translateX(-2px); }
 
 /* ===== Mandatory parcyun footer (signature) ===== */
 .ps-footer {
@@ -879,7 +880,7 @@ section.ps-slide {
 
 <body>
 
-<a href="https://linktr.ee/parcyun" class="ps-corner" target="_blank" rel="noopener">linktr.ee/parcyun</a>
+<a href="../" class="ps-corner">← parcyun studio</a>
 
 <!-- ===== 1. HERO ===== -->
 <section class="ps-hero in-view">

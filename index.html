@@ -434,6 +434,47 @@ section {
   color: var(--ps-text-cinematic-secondary);
 }
 
+/* ===== Career / Timeline ===== */
+.career-list {
+  margin-top: 48px;
+  border-top: 1px solid var(--ps-surface-cinematic-3);
+  padding-top: 8px;
+}
+.career-item {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  align-items: baseline;
+  gap: 0 24px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.career-item:last-child { border-bottom: none; }
+.career-year {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: var(--ps-primary);
+}
+.career-role {
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.3px;
+  color: #FFFFFF;
+}
+.career-org {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  color: var(--ps-text-cinematic-secondary);
+  text-align: right;
+}
+@media (max-width: 639px) {
+  .career-item { grid-template-columns: 64px 1fr; grid-template-rows: auto auto; }
+  .career-org { grid-column: 2; text-align: left; padding-top: 2px; }
+}
+
 /* ===== Connect ===== */
 .connect-grid {
   display: grid;
@@ -441,7 +482,10 @@ section {
   gap: 16px;
 }
 @media (min-width: 640px) {
-  .connect-grid { grid-template-columns: repeat(3, 1fr); }
+  .connect-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .connect-grid { grid-template-columns: repeat(4, 1fr); }
 }
 .connect-link {
   display: flex;
@@ -574,6 +618,29 @@ section.in-view, .hero.in-view {
       <span class="tag-pill">UIUX · WEB 디자인</span>
       <span class="tag-pill">도시공학</span>
     </div>
+    <!-- 경력 항목: year / role / org 형식으로 추가 -->
+    <div class="career-list">
+      <div class="career-item">
+        <span class="career-year">현재</span>
+        <span class="career-role">초등학교 교사</span>
+        <span class="career-org">공립 초등학교</span>
+      </div>
+      <div class="career-item">
+        <span class="career-year">2023</span>
+        <span class="career-role">Google Certified Educator Level 2</span>
+        <span class="career-org">Google</span>
+      </div>
+      <div class="career-item">
+        <span class="career-year">—</span>
+        <span class="career-role">디지털 미디어 교육 연구</span>
+        <span class="career-org">MDBF</span>
+      </div>
+      <div class="career-item">
+        <span class="career-year">학력</span>
+        <span class="career-role">도시공학 전공</span>
+        <span class="career-org">대학교</span>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -584,6 +651,41 @@ section.in-view, .hero.in-view {
       <h2 class="ko">강의 자료</h2>
       <span class="en">Lectures</span>
     </header>
+
+    <!-- ── Featured: 온라인 연수 녹화본 ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko">온라인 연수 녹화본</h3>
+        <span class="en">Training Archive</span>
+      </header>
+      <div class="lecture-grid" style="grid-template-columns: 1fr;">
+        <a href="./academica-parcyun-studio/" class="lecture-card">
+          <div class="lecture-card-poster">
+            <div class="lid">Archive · Site</div>
+            <p class="ptitle">
+              온라인 연수<br>
+              <strong>녹화본 모아보기</strong>
+            </p>
+          </div>
+          <div class="lecture-card-body">
+            <div class="lecture-card-meta">
+              <span>parcyun studio</span>
+              <span class="dot"></span>
+              <span>VIDEO ARCHIVE</span>
+            </div>
+            <h3 class="lecture-card-title">연수 녹화본 아카이브</h3>
+            <p class="lecture-card-desc">
+              온라인 연수 강의 녹화본을 한 곳에서 모아 제공하는 전용 페이지입니다.
+            </p>
+            <div class="lecture-card-tags">
+              <span class="tag-pill">영상</span>
+              <span class="tag-pill">연수</span>
+              <span class="tag-pill">아카이브</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
 
     <!-- ── Sub-section: LLM · Harness Agent ── -->
     <div class="lecture-section">
@@ -788,6 +890,11 @@ section.in-view, .hero.in-view {
         <span class="label">GitHub</span>
         <span class="handle">@parcyun</span>
         <span class="desc">강의 자료 · 코드 · 실험 프로젝트</span>
+      </a>
+      <a href="https://padlet.com/penlayered/parcyun-studio-19rq7rovocsv24vr" class="connect-link" target="_blank" rel="noopener">
+        <span class="label">Padlet</span>
+        <span class="handle">연수 자료</span>
+        <span class="desc">강의 레퍼런스 · 연수 자료 누적 아카이브</span>
       </a>
     </div>
   </div>

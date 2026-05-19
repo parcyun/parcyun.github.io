@@ -111,6 +111,33 @@ section { padding: 96px 0; }
 }
 .section-divider { border: none; border-top: 1px solid var(--ps-surface-cinematic-3); margin: 0; }
 
+/* Real video card */
+.video-card {
+  display: block; border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 16px; overflow: hidden; color: #FFFFFF; text-decoration: none;
+  transition: border-color 320ms var(--ps-ease-out), transform 320ms var(--ps-ease-out);
+}
+.video-card:hover { border-color: var(--ps-primary); transform: translateY(-4px); }
+.video-card-thumb {
+  position: relative; aspect-ratio: 16/9;
+  background: var(--ps-surface-cinematic-1); overflow: hidden;
+}
+.video-card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 400ms var(--ps-ease-out); }
+.video-card:hover .video-card-thumb img { transform: scale(1.03); }
+.video-card-play {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.35); transition: background 240ms var(--ps-ease-out);
+}
+.video-card:hover .video-card-play { background: rgba(0,0,0,0.15); }
+.video-card-play svg { width: 56px; height: 56px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5)); }
+.video-card-body { padding: 20px 24px 24px; background: var(--ps-bg-cinematic); }
+.video-card-meta {
+  font-family: var(--ps-font-en); font-size: 11px; font-weight: 400;
+  letter-spacing: 1px; color: var(--ps-primary); margin-bottom: 10px;
+}
+.video-card-title { font-size: 17px; font-weight: 500; letter-spacing: -0.4px; margin: 0 0 10px; color: #FFFFFF; line-height: 1.4; }
+.video-card-desc { font-size: 13px; font-weight: 300; line-height: 1.6; color: var(--ps-text-cinematic-secondary); margin: 0; }
+
 .ps-footer {
   position: fixed; bottom: 16px; right: 20px;
   font-family: var(--ps-font-en); font-weight: 300; font-size: 11px;
@@ -152,10 +179,22 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
       <span class="en">Recordings</span>
     </header>
     <div class="video-grid">
-      <div class="video-placeholder">
-        <p class="topic">연수 영상 업로드 예정</p>
-        <span class="cs-label">Coming Soon</span>
-      </div>
+      <a href="https://youtu.be/CsOTGDWS88A" class="video-card" target="_blank" rel="noopener">
+        <div class="video-card-thumb">
+          <img src="https://img.youtube.com/vi/CsOTGDWS88A/maxresdefault.jpg" alt="연수 영상 썸네일" loading="lazy">
+          <div class="video-card-play">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="12" fill="rgba(255,177,26,0.92)"/>
+              <polygon points="10,8 17,12 10,16" fill="#000"/>
+            </svg>
+          </div>
+        </div>
+        <div class="video-card-body">
+          <div class="video-card-meta">YouTube · 연수 영상</div>
+          <h3 class="video-card-title">연수 녹화본 · 01</h3>
+          <p class="video-card-desc">YouTube에서 영상 보기 ↗</p>
+        </div>
+      </a>
       <div class="video-placeholder">
         <p class="topic">연수 영상 업로드 예정</p>
         <span class="cs-label">Coming Soon</span>

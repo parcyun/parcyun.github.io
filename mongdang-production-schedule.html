@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>몽당프로덕션 · 8.1 상영회 일정 안내</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --mdbf-primary:#3364D9;--mdbf-primary-dark:#1B4BBE;--mdbf-ink:#0F3AA0;--crit:#FFD43A;
+    --bg-0:#05080F;--bg-1:#0A0F1C;--bg-2:#101934;--bg-3:#16224A;--line:#1E2C52;
+    --txt:#EAF0FF;--txt-2:#9FB0D6;--txt-3:#6B7AA0;--r:18px;
+    --d-file:#FFD43A;--d-edit:#A98BFF;--d-sound:#71DD5F;--d-promoA:#F175A1;
+    --d-promoB:#41C3FA;--d-site:#FF9F45;--d-review:#FF6B6B;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Pretendard',sans-serif;background:var(--bg-0);color:var(--txt);
+    font-weight:300;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+  .num{font-variant-numeric:tabular-nums}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:
+      radial-gradient(680px 520px at 12% 8%, rgba(51,100,217,.22), transparent 60%),
+      radial-gradient(720px 560px at 92% 22%, rgba(27,75,190,.18), transparent 62%),
+      radial-gradient(900px 640px at 50% 108%, rgba(15,58,160,.20), transparent 60%);}
+
+  header{padding:84px 0 40px}
+  .eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--mdbf-primary);font-weight:500;margin-bottom:18px}
+  h1{font-size:clamp(34px,5.2vw,60px);font-weight:700;letter-spacing:-.02em;line-height:1.12}
+  .lede{margin-top:16px;font-size:clamp(17px,2.2vw,21px);color:var(--txt-2)}
+  .lede b{color:var(--crit);font-weight:600}
+  .dday-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+  .dday-chip{display:flex;align-items:baseline;gap:9px;background:var(--bg-2);border:1px solid var(--line);border-radius:999px;padding:9px 18px;font-size:14px;color:var(--txt-2)}
+  .dday-chip b{color:var(--txt);font-weight:600}
+  .dday-chip .v{color:var(--mdbf-primary);font-weight:700}
+
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:72px 0 28px;padding-bottom:18px;border-bottom:1.5px solid var(--mdbf-ink)}
+  .sec-head h2{font-size:clamp(24px,3.4vw,34px);font-weight:700;letter-spacing:-.01em}
+  .sec-head p{color:var(--txt-3);font-size:14px}
+
+  /* timeline */
+  .timeline{background:var(--bg-1);border:1px solid var(--line);border-radius:24px;padding:48px 40px 40px;position:relative;overflow:hidden}
+  .tl-track{position:relative;display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:36px}
+  .tl-track::before{content:"";position:absolute;left:5%;right:5%;top:19px;height:2px;background:linear-gradient(90deg,var(--mdbf-primary),var(--mdbf-primary-dark));border-radius:2px}
+  .tl-node{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center}
+  .tl-dot{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px;color:#fff;position:relative;z-index:2;background:var(--mdbf-primary);border:3px solid var(--bg-1);box-shadow:0 0 0 1px var(--mdbf-primary)}
+  .tl-dot.crit{background:#caa400;box-shadow:0 0 0 1px var(--crit),0 0 18px rgba(255,212,58,.35)}
+  .tl-dot.dday{background:#fff;color:var(--mdbf-primary-dark);box-shadow:0 0 0 1px #fff,0 0 18px rgba(255,255,255,.4)}
+  .tl-date{margin-top:12px;font-size:14px;font-weight:700;color:var(--txt)}
+  .tl-name{font-size:12.5px;color:var(--txt-2);margin-top:2px;word-break:keep-all}
+  .tl-tag{margin-top:7px;font-size:10.5px;font-weight:700;letter-spacing:.02em;padding:2px 8px;border-radius:6px;line-height:1.5}
+  .tag-crit{background:rgba(255,212,58,.14);color:var(--crit);border:1px solid rgba(255,212,58,.3)}
+  .tag-chk{background:rgba(113,221,95,.12);color:#71DD5F;border:1px solid rgba(113,221,95,.28)}
+  .tag-dday{background:rgba(241,117,161,.14);color:#F175A1;border:1px solid rgba(241,117,161,.3)}
+  .tag-test{background:rgba(51,100,217,.16);color:#7BA0F0;border:1px solid rgba(51,100,217,.34)}
+  .tl-flow{margin-top:8px;text-align:center;font-size:clamp(15px,2vw,19px);font-weight:600;color:var(--txt);background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:18px 16px;letter-spacing:.01em;word-break:keep-all}
+  .tl-flow .arr{color:var(--mdbf-primary);margin:0 4px;font-weight:400}
+
+  /* ===== Wiki Tree (branch) + dependency links ===== */
+  .wiki-stage{background:var(--bg-1);border:1px solid var(--line);border-radius:24px;padding:40px clamp(22px,3.5vw,52px)}
+  .tree-wrap{position:relative}
+  @media(min-width:761px){.tree-wrap{padding-right:170px}}
+  .dep-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4;overflow:visible}
+  .tree, .tree ul{list-style:none}
+  .tree{font-size:14px;position:relative;z-index:1}
+  .tree ul{margin:0;padding-left:28px;position:relative}
+  .tree li{position:relative;padding:7px 0 7px 26px}
+  .tree li::before{content:"";position:absolute;left:0;top:0;height:100%;border-left:2px solid var(--line)}
+  .tree li::after{content:"";position:absolute;left:0;top:20px;width:18px;border-top:2px solid var(--line)}
+  .tree li:last-child::before{height:20px}
+  .tree>li.root{padding:0}
+  .tree>li.root::before,.tree>li.root::after{display:none}
+  .tree .branch>ul>li::before,.tree .branch>ul>li::after{border-color:var(--dc);opacity:.55}
+
+  .t-root{display:inline-flex;align-items:center;gap:11px;font-size:19px;font-weight:700;color:#fff;background:linear-gradient(135deg,#3364D9,#1B4BBE);padding:12px 20px;border-radius:13px;box-shadow:0 0 34px rgba(51,100,217,.5);margin-bottom:4px}
+  .t-root .dday{font-size:11px;font-weight:700;letter-spacing:.08em;background:rgba(255,255,255,.22);padding:3px 9px;border-radius:6px}
+  .t-node{display:inline-flex;align-items:center;gap:10px;font-size:16.5px;font-weight:700;color:var(--txt)}
+  .t-node .dot{width:12px;height:12px;border-radius:3px;background:var(--dc);box-shadow:0 0 10px var(--dc)}
+  .t-node .own{font-size:13px;font-weight:400;color:var(--txt-2)}
+  .t-node .own .tbd{color:var(--txt-3)}
+  .t-leaf{display:flex;flex-wrap:wrap;align-items:baseline;gap:9px;font-size:14px;color:var(--txt)}
+  .t-leaf.has-dep>.lbl::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--dc);margin-left:7px;vertical-align:1px;box-shadow:0 0 8px var(--dc)}
+  .t-leaf .dt{font-size:12.5px;font-weight:700;color:var(--dc);font-variant-numeric:tabular-nums;min-width:54px}
+  .t-leaf .crit{font-size:10px;font-weight:700;color:#caa400;background:rgba(255,212,58,.14);border:1px solid rgba(255,212,58,.32);border-radius:5px;padding:1px 6px;letter-spacing:.02em}
+  .t-leaf .to{font-size:12.5px;color:var(--txt-3);flex-basis:100%;padding-left:63px}
+  .t-leaf .to .arr{color:var(--dc);font-weight:700;margin-right:4px}
+  .tree-legend{display:flex;flex-wrap:wrap;gap:14px 18px;margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+  .tree-legend .lg{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--txt-2)}
+  .tree-legend .dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .tree-legend .lk{width:22px;height:0;border-top:2px solid var(--txt-2);border-radius:2px;opacity:.8}
+  .wiki-note{margin-top:14px;font-size:13px;color:var(--txt-3)}
+
+  /* detail cards */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  .card{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r);padding:30px 28px;display:flex;flex-direction:column}
+  .card.span{grid-column:1 / -1}
+  .card.dept-file{border:2px solid var(--d-file)}
+  .card.dept-edit{border:2px solid var(--d-edit)}
+  .card.dept-sound{border:2px solid var(--d-sound)}
+  .card.dept-promoA{border:2px solid var(--d-promoA)}
+  .card.dept-promoB{border:2px solid var(--d-promoB)}
+  .card.dept-site{border:2px solid var(--d-site)}
+  .card.dept-review{border:2px solid var(--d-review)}
+  .c-head{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .c-badge{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:var(--mdbf-primary);padding:4px 11px;border-radius:7px}
+  .c-badge.bg-file{background:#C99700}.c-badge.bg-edit{background:#7C5FD3}.c-badge.bg-sound{background:#3FA850}
+  .c-badge.bg-promoA{background:#D44E83}.c-badge.bg-promoB{background:#2599C7}.c-badge.bg-site{background:#DD8526}.c-badge.bg-review{background:#D1504B}
+  .c-title{font-size:21px;font-weight:700;letter-spacing:-.01em}
+  .c-owner{font-size:14px;color:var(--txt-2);margin:0 0 20px 2px}
+  .c-owner .tbd{color:var(--txt-3)}
+  ul.steps{list-style:none;display:flex;flex-direction:column;gap:14px}
+  ul.steps li{display:flex;gap:14px}
+  .s-date{flex:0 0 64px;font-size:13px;font-weight:700;color:var(--mdbf-primary);padding-top:1px;font-variant-numeric:tabular-nums;text-align:right}
+  .s-body{flex:1;font-size:14.5px;color:var(--txt);line-height:1.55}
+  .s-body .crit-pill{display:inline-block;font-size:10px;font-weight:700;color:#caa400;background:rgba(255,212,58,.14);border:1px solid rgba(255,212,58,.32);border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:1px;letter-spacing:.02em}
+  .s-to{display:block;margin-top:4px;font-size:13px;color:var(--txt-2)}
+  .s-to .arr{color:var(--mdbf-primary);font-weight:600;margin-right:5px}
+  .s-to em{font-style:normal;color:var(--txt)}
+  .checklist{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+  .checklist span{font-size:13px;color:var(--txt);background:var(--bg-3);border:1px solid var(--line);border-radius:8px;padding:7px 14px}
+  .checklist span::before{content:"✓ ";color:#71DD5F;font-weight:700}
+
+  footer{margin-top:80px;border-top:1px solid var(--line);padding:26px 0 60px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--txt-3)}
+  footer .r a{color:var(--txt-3);text-decoration:none}
+  footer .mdbf{color:var(--txt-2)}
+
+  @media (max-width:880px){
+    .grid{grid-template-columns:1fr}
+    .tl-track{grid-template-columns:repeat(4,1fr);row-gap:30px}
+    .tl-track::before{display:none}
+    .timeline{padding:36px 22px 30px}
+    .tl-flow{font-size:14px}
+    .sec-head{flex-direction:column;align-items:flex-start;gap:6px}
+  }
+  @media (max-width:760px){
+    .dep-layer{display:none}
+    .t-leaf.has-dep>.lbl::after{display:none}
+  }
+  @media (max-width:520px){
+    header{padding:56px 0 30px}
+    .wrap{padding:0 16px}
+    .tl-track{grid-template-columns:repeat(2,1fr)}
+    .s-date{flex-basis:50px}
+    .card{padding:24px 20px}
+    .dday-chip{padding:8px 14px;font-size:13px}
+    .wiki-stage{padding:22px 16px}
+    .tree ul{padding-left:18px}
+    .tree li{padding-left:20px}
+    .t-leaf .to{padding-left:0}
+  }
+
+  /* ===== 날짜 선형 업무 그래프 ===== */
+  .gg-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .gg{display:block;width:100%;min-width:940px;height:auto}
+
+  /* ===== 날짜 선형 업무 그래프 v6 ===== */
+  .gg2{position:relative;--gap:clamp(38px,5vw,82px)}
+  .gglay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
+  .ggrows{list-style:none;margin:0;padding:0;position:relative;z-index:1}
+  .ggrow{display:flex;align-items:center;gap:13px;min-height:60px;padding:8px 0 8px 4px}
+  .gdate{flex:0 0 62px;text-align:right;font-size:14px;font-weight:700;color:var(--txt-3)}
+  .gdotwrap{flex:0 0 auto;margin-left:calc(var(--i) * var(--gap));display:flex;align-items:center}
+  .gdot{width:17px;height:17px;border-radius:5px;background:var(--dc);box-shadow:0 0 0 3px var(--bg-1),0 0 10px var(--dc)}
+  .ggrow.crit .gdot{box-shadow:0 0 0 4px rgba(255,212,58,.30),0 0 10px var(--dc)}
+  .gwork{font-size:17px;font-weight:500;color:var(--txt);word-break:keep-all;line-height:1.35}
+  .gtag{font-size:12px;font-weight:700;color:var(--dc);white-space:nowrap}
+  .gcrit{font-size:11px;font-weight:700;color:#FFD43A;border:1px solid rgba(255,212,58,.4);border-radius:5px;padding:1px 7px;white-space:nowrap}
+  @media (max-width:680px){
+    .gg2{--gap:clamp(16px,5vw,34px)}
+    .ggrow{gap:8px;min-height:46px}
+    .gdate{flex-basis:46px;font-size:12px}
+    .gwork{font-size:15px}
+    .gtag{display:none}
+  }
+
+  .ggrow.wkstart{border-top:1px solid rgba(159,176,214,.16);margin-top:6px;padding-top:14px}
+
+  /* ===== 편집 모드 ===== */
+  .gg-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+  .gg-btn{font-family:inherit;font-size:14px;font-weight:600;color:#fff;background:var(--mdbf-primary);border:none;border-radius:9px;padding:9px 17px;cursor:pointer}
+  .gg-btn:hover{background:var(--mdbf-primary-dark)}
+  .gg-btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt-2)}
+  .gg-btn.on{background:#2BB673}
+  .gg-hint{font-size:12.5px;color:var(--txt-3)}
+  .gg-ctrl{display:none;align-items:center;gap:4px;margin-right:2px;flex:0 0 auto}
+  .gg2.editing .gg-ctrl{display:inline-flex}
+  .gg-ctrl .gg-handle{cursor:grab;color:var(--txt-3);font-size:16px;line-height:1;padding:0 2px;user-select:none}
+  .gg-ctrl button{width:25px;height:25px;border-radius:6px;border:1px solid var(--line);background:var(--bg-3);color:var(--txt);cursor:pointer;font-size:11px;line-height:1;padding:0}
+  .gg-ctrl button:hover{border-color:var(--mdbf-primary);color:#fff}
+  .gg2.editing .ggrow{border:1px dashed transparent;border-radius:10px}
+  .gg2.editing .ggrow:hover{background:rgba(255,255,255,.035);border-color:var(--line)}
+  .ggrow.dragging{opacity:.45}
+  .ggrow.dragover{border-color:var(--mdbf-primary)!important;border-style:solid}
+
+  .ggscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .ggsvg{display:block;width:100%;min-width:900px;height:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ HEADER ============ -->
+  <header>
+    <div class="eyebrow">Mongdang Production · Screening Schedule</div>
+    <h1>8월 1일 상영회 기준<br>일정 안내</h1>
+    <p class="lede">우리에게 남은 시간은 <b>한 달 반!</b> · 절대 기한은 반드시 지켜 주세요.</p>
+    <div class="dday-row">
+      <div class="dday-chip"><b>상영회</b><span class="v num">8.1</span></div>
+      <div class="dday-chip"><b>절대 기한</b><span class="v">6.14 · 7.2 · 7.18 · 7.29 · 7.30</span></div>
+    </div>
+  </header>
+
+  <!-- ============ 업무 흐름 그래프 (중앙 수렴) ============ -->
+  <div class="sec-head">
+    <h2>업무 흐름 그래프</h2>
+    <p>중앙 = 최종 목표(상영회) · 목표 상관도 낮을수록 바깥 레인 · 세로 = 날짜</p>
+  </div>
+
+  <div class="wiki-stage">
+    <div class="ggscroll">
+      <svg class="ggsvg" viewBox="0 0 1240 1036" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="중앙 수렴 업무 흐름">
+      <text x="20" y="83" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">6.14</text>
+      <line x1="14" y1="105" x2="1226" y2="105" stroke="rgba(159,176,214,.16)" stroke-width="1"/>
+      <text x="20" y="137" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">6.15</text>
+      <line x1="14" y1="159" x2="1226" y2="159" stroke="rgba(159,176,214,.16)" stroke-width="1"/>
+      <text x="20" y="191" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">6.23</text>
+      <text x="20" y="245" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">6.24</text>
+      <line x1="14" y1="267" x2="1226" y2="267" stroke="rgba(159,176,214,.16)" stroke-width="1"/>
+      <text x="20" y="299" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">6.30</text>
+      <text x="20" y="353" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">7.2</text>
+      <text x="20" y="407" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">7.3~7</text>
+      <line x1="14" y1="429" x2="1226" y2="429" stroke="rgba(159,176,214,.16)" stroke-width="1"/>
+      <text x="20" y="461" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">7.10</text>
+      <line x1="14" y1="483" x2="1226" y2="483" stroke="rgba(159,176,214,.16)" stroke-width="1"/>
+      <text x="20" y="515" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">7.18</text>
+      <text x="20" y="569" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">7.19~25</text>
+      <line x1="14" y1="591" x2="1226" y2="591" stroke="rgba(159,176,214,.16)" stroke-width="1"/>
+      <text x="20" y="623" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">7.20</text>
+      <text x="20" y="677" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">7.25</text>
+      <text x="20" y="731" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">7.26~29</text>
+      <line x1="14" y1="753" x2="1226" y2="753" stroke="rgba(159,176,214,.16)" stroke-width="1"/>
+      <text x="20" y="785" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">7.29</text>
+      <text x="20" y="839" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">7.30</text>
+      <text x="20" y="893" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">7.31</text>
+      <text x="20" y="947" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">8.1</text>
+      <polyline points="408,78" fill="none" stroke="#FFD43A" stroke-width="1" stroke-opacity=".6"/>
+      <path d="M 408 78 C 408 466, 648 553, 648 942" fill="none" stroke="#FFD43A" stroke-width="1" stroke-opacity=".5"/>
+      <polyline points="888,78 888,240 888,510 888,672" fill="none" stroke="#F175A1" stroke-width="1" stroke-opacity=".6"/>
+      <path d="M 888 672 C 888 793, 648 820, 648 942" fill="none" stroke="#F175A1" stroke-width="1" stroke-opacity=".5"/>
+      <polyline points="768,132 768,294 768,402 768,672 768,780" fill="none" stroke="#71DD5F" stroke-width="1" stroke-opacity=".6"/>
+      <path d="M 768 780 C 768 852, 648 869, 648 942" fill="none" stroke="#71DD5F" stroke-width="1" stroke-opacity=".5"/>
+      <polyline points="528,186 528,348 528,510 528,564 528,780 528,834" fill="none" stroke="#A98BFF" stroke-width="1" stroke-opacity=".6"/>
+      <path d="M 528 834 C 528 882, 648 893, 648 942" fill="none" stroke="#A98BFF" stroke-width="1" stroke-opacity=".5"/>
+      <polyline points="288,294 288,456 288,510 288,672 288,834" fill="none" stroke="#41C3FA" stroke-width="1" stroke-opacity=".6"/>
+      <path d="M 288 834 C 288 882, 648 893, 648 942" fill="none" stroke="#41C3FA" stroke-width="1" stroke-opacity=".5"/>
+      <polyline points="1008,456 1008,618 1008,672 1008,888" fill="none" stroke="#FF9F45" stroke-width="1" stroke-opacity=".6"/>
+      <path d="M 1008 888 C 1008 918, 648 912, 648 942" fill="none" stroke="#FF9F45" stroke-width="1" stroke-opacity=".5"/>
+      <polyline points="648,726 648,780 648,834" fill="none" stroke="#FF6B6B" stroke-width="1" stroke-opacity=".6"/>
+      <path d="M 648 834 C 648 882, 648 893, 648 942" fill="none" stroke="#FF6B6B" stroke-width="1" stroke-opacity=".5"/>
+      <path d="M 408 78 C 408 121, 528 142, 528 186" fill="none" stroke="#FFD43A" stroke-width="1" stroke-opacity=".85"/>
+      <path d="M 768 294 C 768 316, 528 326, 528 348" fill="none" stroke="#71DD5F" stroke-width="1" stroke-opacity=".85"/>
+      <path d="M 528 510 C 528 574, 768 607, 768 672" fill="none" stroke="#A98BFF" stroke-width="1" stroke-opacity=".85"/>
+      <path d="M 528 510 C 528 574, 888 607, 888 672" fill="none" stroke="#A98BFF" stroke-width="1" stroke-opacity=".85"/>
+      <path d="M 528 510 C 528 574, 288 607, 288 672" fill="none" stroke="#A98BFF" stroke-width="1" stroke-opacity=".85"/>
+      <path d="M 888 240 C 888 326, 288 369, 288 456" fill="none" stroke="#F175A1" stroke-width="1" stroke-opacity=".85"/>
+      <path d="M 888 672 C 888 694, 288 650, 288 672" fill="none" stroke="#F175A1" stroke-width="1" stroke-opacity=".85"/>
+      <path d="M 768 672 C 768 694, 648 704, 648 726" fill="none" stroke="#71DD5F" stroke-width="1" stroke-opacity=".85"/>
+      <path d="M 528 564 C 528 628, 648 661, 648 726" fill="none" stroke="#A98BFF" stroke-width="1" stroke-opacity=".85"/>
+      <path d="M 648 726 C 648 748, 528 758, 528 780" fill="none" stroke="#FF6B6B" stroke-width="1" stroke-opacity=".85"/>
+      <path d="M 648 726 C 648 748, 768 758, 768 780" fill="none" stroke="#FF6B6B" stroke-width="1" stroke-opacity=".85"/>
+      <path d="M 528 834 C 528 856, 1008 866, 1008 888" fill="none" stroke="#A98BFF" stroke-width="1" stroke-opacity=".85"/>
+      <path d="M 648 834 C 648 856, 1008 866, 1008 888" fill="none" stroke="#FF6B6B" stroke-width="1" stroke-opacity=".85"/>
+      <text x="393" y="63" text-anchor="end" font-family="Pretendard,sans-serif" font-size="12.5" font-weight="800" fill="#FFD43A">파일정리</text>
+      <text x="903" y="63" text-anchor="start" font-family="Pretendard,sans-serif" font-size="12.5" font-weight="800" fill="#F175A1">제작팀장·홍보</text>
+      <text x="783" y="117" text-anchor="start" font-family="Pretendard,sans-serif" font-size="12.5" font-weight="800" fill="#71DD5F">음향</text>
+      <text x="513" y="171" text-anchor="end" font-family="Pretendard,sans-serif" font-size="12.5" font-weight="800" fill="#A98BFF">편집</text>
+      <text x="273" y="279" text-anchor="end" font-family="Pretendard,sans-serif" font-size="12.5" font-weight="800" fill="#41C3FA">홍보서브</text>
+      <text x="1023" y="441" text-anchor="start" font-family="Pretendard,sans-serif" font-size="12.5" font-weight="800" fill="#FF9F45">현장 준비</text>
+      <text x="663" y="711" text-anchor="start" font-family="Pretendard,sans-serif" font-size="12.5" font-weight="800" fill="#FF6B6B">최종 검수</text>
+      <circle cx="408" cy="78" r="9.5" fill="none" stroke="#FFD43A" stroke-width="2"/>
+      <circle cx="408" cy="78" r="6" fill="#FFD43A" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="394" y="83" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#FFD43A">6.14 </tspan>촬영 파일 정리</text>
+      <circle cx="888" cy="78" r="6" fill="#F175A1" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="902" y="83" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#F175A1">6.14 </tspan>서브캠 파일 정리</text>
+      <circle cx="768" cy="132" r="6" fill="#71DD5F" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="782" y="137" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#71DD5F">6.15 </tspan>BGM·MIDI 시작</text>
+      <circle cx="528" cy="186" r="6" fill="#A98BFF" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="514" y="191" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#A98BFF">6.23 </tspan>가편집</text>
+      <circle cx="888" cy="240" r="6" fill="#F175A1" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="902" y="245" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#F175A1">6.24 </tspan>홍보 방향 설정</text>
+      <circle cx="768" cy="294" r="6" fill="#71DD5F" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="782" y="299" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#71DD5F">6.30 </tspan>MIDI 완료</text>
+      <circle cx="288" cy="294" r="6" fill="#41C3FA" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="274" y="299" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#41C3FA">6.30 </tspan>홍보 컷 후보</text>
+      <circle cx="528" cy="348" r="9.5" fill="none" stroke="#FFD43A" stroke-width="2"/>
+      <circle cx="528" cy="348" r="6" fill="#A98BFF" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="514" y="353" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#A98BFF">7.2 </tspan>1차 편집본</text>
+      <circle cx="768" cy="402" r="6" fill="#71DD5F" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="782" y="407" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#71DD5F">7.3~7 </tspan>효과음 논의</text>
+      <circle cx="288" cy="456" r="6" fill="#41C3FA" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="274" y="461" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#41C3FA">7.10 </tspan>포스터·카드뉴스 초안</text>
+      <circle cx="1008" cy="456" r="6" fill="#FF9F45" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="1022" y="461" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#FF9F45">7.10 </tspan>장소·장비 확인</text>
+      <circle cx="528" cy="510" r="9.5" fill="none" stroke="#FFD43A" stroke-width="2"/>
+      <circle cx="528" cy="510" r="6" fill="#A98BFF" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="514" y="515" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#A98BFF">7.18 </tspan>2차 편집본</text>
+      <circle cx="888" cy="510" r="6" fill="#F175A1" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="902" y="515" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#F175A1">7.18 </tspan>메이킹필름 초안</text>
+      <circle cx="288" cy="510" r="6" fill="#41C3FA" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="274" y="515" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#41C3FA">7.18 </tspan>예고편 초안</text>
+      <circle cx="528" cy="564" r="6" fill="#A98BFF" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="514" y="569" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#A98BFF">7.19~25 </tspan>색보정·자막·크레딧</text>
+      <circle cx="1008" cy="618" r="6" fill="#FF9F45" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="1022" y="623" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#FF9F45">7.20 </tspan>행사 인원 확정</text>
+      <circle cx="768" cy="672" r="6" fill="#71DD5F" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="782" y="677" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#71DD5F">7.25 </tspan>최종 음향</text>
+      <circle cx="888" cy="672" r="6" fill="#F175A1" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="902" y="677" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#F175A1">7.25 </tspan>메이킹필름 완료</text>
+      <circle cx="288" cy="672" r="6" fill="#41C3FA" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="274" y="677" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#41C3FA">7.25 </tspan>예고편·홍보물</text>
+      <circle cx="1008" cy="672" r="6" fill="#FF9F45" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="1022" y="677" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#FF9F45">7.25 </tspan>진행 순서 확정</text>
+      <circle cx="648" cy="726" r="9.5" fill="none" stroke="#FFD43A" stroke-width="2"/>
+      <circle cx="648" cy="726" r="6" fill="#FF6B6B" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="662" y="731" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#FF6B6B">7.26~29 </tspan>최종 검수</text>
+      <circle cx="528" cy="780" r="9.5" fill="none" stroke="#FFD43A" stroke-width="2"/>
+      <circle cx="528" cy="780" r="6" fill="#A98BFF" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="514" y="785" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#A98BFF">7.29 </tspan>최종 검수 반영</text>
+      <circle cx="768" cy="780" r="6" fill="#71DD5F" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="782" y="785" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#71DD5F">7.29 </tspan>검수 반영(음향)</text>
+      <circle cx="648" cy="780" r="6" fill="#FF6B6B" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="662" y="785" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#FF6B6B">7.29 </tspan>수정 요청 마감</text>
+      <circle cx="528" cy="834" r="9.5" fill="none" stroke="#FFD43A" stroke-width="2"/>
+      <circle cx="528" cy="834" r="6" fill="#A98BFF" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="514" y="839" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#A98BFF">7.30 </tspan>최종본 업로드</text>
+      <circle cx="288" cy="834" r="6" fill="#41C3FA" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="274" y="839" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#41C3FA">7.30 </tspan>스틸컷·유튜브</text>
+      <circle cx="648" cy="834" r="6" fill="#FF6B6B" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="662" y="839" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#FF6B6B">7.30 </tspan>최종본 출력 확인</text>
+      <circle cx="1008" cy="888" r="6" fill="#FF9F45" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="1022" y="893" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#FF9F45">7.31 </tspan>현장 세팅·테스트</text>
+      <circle cx="648" cy="942" r="13" fill="none" stroke="#5C84F0" stroke-width="2" opacity=".5"/>
+      <circle cx="648" cy="942" r="8" fill="#3364D9" stroke="#0A0F1C" stroke-width="2"/>
+      <text x="648" y="976" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="17" font-weight="700" fill="#ffffff">8.1 상영회</text>
+      <text x="648" y="994" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11.5" font-weight="700" fill="#9FB0D6" letter-spacing="1">FINAL GOAL</text>
+      </svg>
+    </div>
+    <div class="tree-legend">
+      <span class="lg"><span class="dot" style="background:var(--d-review)"></span>최종 검수(중앙)</span>
+      <span class="lg"><span class="dot" style="background:var(--d-edit)"></span>편집</span>
+      <span class="lg"><span class="dot" style="background:var(--d-sound)"></span>음향</span>
+      <span class="lg"><span class="dot" style="background:var(--d-file)"></span>파일정리</span>
+      <span class="lg"><span class="dot" style="background:var(--d-promoA)"></span>제작팀장·홍보</span>
+      <span class="lg"><span class="dot" style="background:var(--d-promoB)"></span>홍보서브</span>
+      <span class="lg"><span class="dot" style="background:var(--d-site)"></span>현장 준비(바깥)</span>
+    </div>
+    <p class="wiki-note">모든 부서 흐름이 중앙의 <b style="color:#9FB0D6">8.1 상영회</b>로 모입니다. 목표와 직접 맞닿는 최종 검수·편집이 중앙, 영상 자체와 거리가 먼 현장 준비가 가장 바깥입니다. 노란 테두리 점은 절대 기한.</p>
+  </div>
+
+  <!-- ============ 흐름도 ============ -->
+  <div class="sec-head">
+    <h2>전체 일정 흐름도</h2>
+    <p>8월 1일 상영회 기준 · 핵심 마감</p>
+  </div>
+
+  <section class="timeline">
+    <div class="tl-track">
+      <div class="tl-node"><div class="tl-dot crit num">1</div><div class="tl-date num">6.14</div><div class="tl-name">파일 정리</div><div class="tl-tag tag-crit">절대 기한</div></div>
+      <div class="tl-node"><div class="tl-dot crit num">2</div><div class="tl-date num">7.2</div><div class="tl-name">1차 편집본</div><div class="tl-tag tag-crit">절대 기한</div></div>
+      <div class="tl-node"><div class="tl-dot crit num">3</div><div class="tl-date num">7.18</div><div class="tl-name">2차 편집본</div><div class="tl-tag tag-crit">절대 기한</div></div>
+      <div class="tl-node"><div class="tl-dot num">4</div><div class="tl-date num">7.25</div><div class="tl-name">음향·메이킹 확인</div><div class="tl-tag tag-chk">확인</div></div>
+      <div class="tl-node"><div class="tl-dot crit num">5</div><div class="tl-date num">7.29</div><div class="tl-name">최종 검수</div><div class="tl-tag tag-crit">절대 기한</div></div>
+      <div class="tl-node"><div class="tl-dot crit num">6</div><div class="tl-date num">7.30</div><div class="tl-name">최종본 업로드</div><div class="tl-tag tag-crit">절대 기한</div></div>
+      <div class="tl-node"><div class="tl-dot num">7</div><div class="tl-date num">7.31</div><div class="tl-name">현장 세팅·테스트</div><div class="tl-tag tag-test">테스트</div></div>
+      <div class="tl-node"><div class="tl-dot dday num">8</div><div class="tl-date num">8.1</div><div class="tl-name">상영회</div><div class="tl-tag tag-dday">D-DAY</div></div>
+    </div>
+    <div class="tl-flow">
+      파일정리<span class="arr">→</span>편집<span class="arr">→</span>음향·홍보<span class="arr">→</span>최종검수<span class="arr">→</span>업로드<span class="arr">→</span>현장세팅<span class="arr">→</span>상영회
+    </div>
+  </section>
+
+  <!-- ============ 담당별 상세 ============ -->
+  <div class="sec-head">
+    <h2>담당 업무별 상세 안내</h2>
+    <p>각 항목의 <span style="color:var(--mdbf-primary);font-weight:600">→</span> 는 전달·확인 대상</p>
+  </div>
+
+  <div class="grid">
+
+    <div class="card dept-file">
+      <div class="c-head"><span class="c-badge bg-file">파일정리</span><span class="c-title">파일정리</span></div>
+      <p class="c-owner">주민환</p>
+      <ul class="steps">
+        <li><span class="s-date num">6.14</span>
+          <span class="s-body">촬영 파일 정리<span class="crit-pill">절대 기한</span>
+            <span class="s-to"><span class="arr">→</span><em>메인 편집(이선학) · 서브 편집(김희경) · 제작팀장(유지연)</em>에게 공유</span></span></li>
+      </ul>
+    </div>
+
+    <div class="card dept-edit">
+      <div class="c-head"><span class="c-badge bg-edit">편집</span><span class="c-title">메인 편집</span></div>
+      <p class="c-owner">이선학 · <span class="tbd">서브 편집 김희경과 협의 분담</span></p>
+      <ul class="steps">
+        <li><span class="s-date num">6.23</span>
+          <span class="s-body">가편집 (흐름에 따라 구조만 빠르게)
+            <span class="s-to"><span class="arr">→</span><em>기획(박주현) · 작가(나효정)</em>에게 확인 요청</span></span></li>
+        <li><span class="s-date num">7.2</span>
+          <span class="s-body">1차 편집본 완성
+            <span class="s-to"><span class="arr">→</span><em>기획(박주현) · 작가(나효정) · 음향(안요한·정두린)</em>에게 공유</span></span></li>
+        <li><span class="s-date num">7.18</span>
+          <span class="s-body">2차 편집본 완성
+            <span class="s-to"><span class="arr">→</span><em>음향 · 서브 편집(김희경) · 제작팀장(유지연)</em>에게 최종 기준본 공유</span></span></li>
+        <li><span class="s-date num">7.19–25</span>
+          <span class="s-body">색보정 · 자막 · 크레딧 등 마지막 수정
+            <span class="s-to"><span class="arr">→</span><em>최종 검수</em> 요청</span></span></li>
+        <li><span class="s-date num">7.29</span>
+          <span class="s-body">최종 검수 반영 완료<span class="crit-pill">절대 기한</span>
+            <span class="s-to"><span class="arr">→</span><em>총괄(박창현)</em>에게 최종 확인 요청</span></span></li>
+        <li><span class="s-date num">7.30</span>
+          <span class="s-body">최종본 출력
+            <span class="s-to"><span class="arr">→</span><em>상영회 현장 준비 담당</em>에게 파일 전달</span></span></li>
+      </ul>
+    </div>
+
+    <div class="card dept-sound">
+      <div class="c-head"><span class="c-badge bg-sound">음향</span><span class="c-title">음향</span></div>
+      <p class="c-owner">안요한 · 정두린</p>
+      <ul class="steps">
+        <li><span class="s-date num">6.15</span>
+          <span class="s-body">BGM MIDI 작업 시작
+            <span class="s-to"><span class="arr">→</span><em>기획(박주현) · 작가(나효정) · 메인 편집(이선학)</em>에게 작업 방향 공유</span></span></li>
+        <li><span class="s-date num">6.30</span>
+          <span class="s-body">MIDI 완료 (7.2 1차 편집본에 삽입)
+            <span class="s-to"><span class="arr">→</span><em>메인 편집(이선학)</em>에게 전달</span></span></li>
+        <li><span class="s-date num">7.3–7</span>
+          <span class="s-body">기획·작가와 효과음 방향 논의
+            <span class="s-to"><span class="arr">→</span><em>메인 편집(이선학)</em>에게 반영 요청</span></span></li>
+        <li><span class="s-date num">7.25</span>
+          <span class="s-body">최종 음향 확인
+            <span class="s-to"><span class="arr">→</span><em>메인 편집(이선학)</em>에게 최종 음향 파일 전달</span></span></li>
+        <li><span class="s-date num">7.29</span>
+          <span class="s-body">최종 검수 반영 완료
+            <span class="s-to"><span class="arr">→</span><em>메인 편집(이선학) · 총괄(박창현)</em>에게 확인 요청</span></span></li>
+      </ul>
+    </div>
+
+    <div class="card dept-promoA">
+      <div class="c-head"><span class="c-badge bg-promoA">제작팀장</span><span class="c-title">홍보메인</span></div>
+      <p class="c-owner">유지연 · <span class="tbd">홍보 기획 · 상영회 행사 추진</span></p>
+      <ul class="steps">
+        <li><span class="s-date num">6.14</span>
+          <span class="s-body">서브캠 파일 정리
+            <span class="s-to"><span class="arr">→</span><em>파일정리(주민환) · 서브 편집(김희경)</em>에게 공유</span></span></li>
+        <li><span class="s-date num">6.24</span>
+          <span class="s-body">소스 전체 확인 및 홍보 방향 설정
+            <span class="s-to"><span class="arr">→</span><em>홍보서브(구인 예정) · 서브 편집(김희경)</em>에게 작업 요청</span></span></li>
+        <li><span class="s-date num">7.18</span>
+          <span class="s-body">메이킹필름 초안
+            <span class="s-to"><span class="arr">→</span><em>총괄(박창현) · 메인 편집(이선학)</em>에게 확인 요청</span></span></li>
+        <li><span class="s-date num">7.25</span>
+          <span class="s-body">메이킹필름 제작 완료
+            <span class="s-to"><span class="arr">→</span><em>홍보서브(구인 예정)</em>에게 홍보물 반영 요청</span></span></li>
+        <li><span class="s-date num">7.26–31</span>
+          <span class="s-body">상영회 안내문 · 포스터 · 카드뉴스 배포
+            <span class="s-to"><span class="arr">→</span><em>전체 팀원</em>에게 공유</span></span></li>
+      </ul>
+    </div>
+
+    <div class="card dept-promoB">
+      <div class="c-head"><span class="c-badge bg-promoB">홍보서브</span><span class="c-title">홍보서브</span></div>
+      <p class="c-owner"><span class="tbd">구인 예정</span></p>
+      <ul class="steps">
+        <li><span class="s-date num">6.30</span>
+          <span class="s-body">메인캠 NG · 홍보용 컷 후보 정리
+            <span class="s-to"><span class="arr">→</span><em>제작팀장(유지연)</em>에게 공유</span></span></li>
+        <li><span class="s-date num">7.10</span>
+          <span class="s-body">홍보 포스터 · 카드뉴스 1차 초안
+            <span class="s-to"><span class="arr">→</span><em>제작팀장(유지연)</em>에게 확인 요청</span></span></li>
+        <li><span class="s-date num">7.18</span>
+          <span class="s-body">30초 예고편 초안
+            <span class="s-to"><span class="arr">→</span><em>제작팀장(유지연) · 메인 편집(이선학)</em>에게 확인 요청</span></span></li>
+        <li><span class="s-date num">7.25</span>
+          <span class="s-body">30초 예고편 제작
+            <span class="s-to"><span class="arr">→</span><em>제작팀장(유지연)</em>에게 전달</span></span></li>
+        <li><span class="s-date num">7.25</span>
+          <span class="s-body">최종 포스터 · 카드뉴스 제작
+            <span class="s-to"><span class="arr">→</span><em>제작팀장(유지연) · 총괄(박창현)</em>에게 확인 요청</span></span></li>
+        <li><span class="s-date num">7.30</span>
+          <span class="s-body">스틸컷 제작
+            <span class="s-to"><span class="arr">→</span><em>포스터·카드뉴스용</em>으로 전달</span></span></li>
+        <li><span class="s-date num">7.30</span>
+          <span class="s-body">유튜브 채널 개설 및 업로드 정보 정리
+            <span class="s-to"><span class="arr">→</span><em>제작팀장(유지연)</em>에게 계정 정보 공유</span></span></li>
+      </ul>
+    </div>
+
+    <div class="card dept-site">
+      <div class="c-head"><span class="c-badge bg-site">현장 준비</span><span class="c-title">상영회 현장 준비</span></div>
+      <p class="c-owner"><span class="tbd">담당 구인 예정</span> · 제작팀장(유지연) 추진</p>
+      <ul class="steps">
+        <li><span class="s-date num">7.10</span>
+          <span class="s-body">상영 장소 예약 / 장비 확인
+            <span class="s-to"><span class="arr">→</span><em>총괄(박창현)</em>에게 예약 결과 공유</span></span></li>
+        <li><span class="s-date num">7.20</span>
+          <span class="s-body">행사 준비 인원 확정 (진행·안내·장비·촬영·현장 정리)
+            <span class="s-to"><span class="arr">→</span><em>전체 팀원</em>에게 역할 공유</span></span></li>
+        <li><span class="s-date num">7.25</span>
+          <span class="s-body">상영회 진행 순서 확정
+            <span class="s-to"><span class="arr">→</span><em>총괄(박창현) · 제작팀장(유지연)</em>에게 공유</span></span></li>
+        <li><span class="s-date num">7.31</span>
+          <span class="s-body">현장 세팅 · 상영 테스트 · 예비 파일 백업
+            <span class="s-to"><span class="arr">→</span><em>총괄(박창현) · 메인 편집(이선학)</em>에게 최종 확인 요청</span></span></li>
+      </ul>
+    </div>
+
+    <div class="card span dept-review">
+      <div class="c-head"><span class="c-badge bg-review">최종 검수</span><span class="c-title">최종 검수</span></div>
+      <p class="c-owner">총괄 박창현 · 기획 박주현 · 작가 나효정 · 메인 편집 이선학 · 음향 안요한·정두린</p>
+      <ul class="steps">
+        <li><span class="s-date num">7.26–29</span>
+          <span class="s-body">최종 검수<span class="crit-pill">절대 기한</span>
+            <div class="checklist">
+              <span>자막 오탈자</span><span>크레딧 누락</span><span>음량 밸런스</span><span>화면 밝기·색감</span><span>파일 재생 이상</span>
+            </div>
+          </span></li>
+        <li><span class="s-date num">7.29</span>
+          <span class="s-body">최종 수정 요청 마감
+            <span class="s-to"><span class="arr">→</span><em>메인 편집(이선학) · 음향(안요한·정두린)</em>에게 최종 반영 요청</span></span></li>
+        <li><span class="s-date num">7.30</span>
+          <span class="s-body">최종본 출력 확인
+            <span class="s-to"><span class="arr">→</span><em>상영회 현장 준비 담당</em>에게 전달</span></span></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="l mdbf">MDBF · Mongdang Production TF</div>
+    <div class="r">Designed by parcyun studio · <a href="https://www.instagram.com/parcyun" target="_blank" rel="noopener">instagram.com/parcyun</a></div>
+  </footer>
+
+</div>
+
+</body>
+</html>

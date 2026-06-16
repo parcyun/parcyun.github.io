@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>parcyun studio — 웹사이트 디자인 & 제작</title>
+<meta name="description" content="parcyun studio는 랜딩 페이지부터 브랜드 사이트까지, 기획·디자인·개발을 한 번에 만듭니다. 감각적인 웹사이트를 합리적으로.">
+<meta property="og:title" content="parcyun studio — 웹사이트 디자인 & 제작">
+<meta property="og:description" content="당신의 브랜드를 닮은 웹사이트를 만듭니다. 기획·디자인·개발 일괄 제작.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://parcyun.github.io/studio/">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<style>
+:root {
+  --ps-primary:        #FFB11A;
+  --ps-primary-dark:   #E89500;
+  --ps-primary-light:  #FFD27A;
+  --ps-primary-50:     #FFF6E5;
+
+  --ps-bg:             #FAFAF7;
+  --ps-bg-pure:        #FFFFFF;
+  --ps-surface-1:      #F2F3F0;
+
+  --ps-text:           #0F1419;
+  --ps-text-secondary: #5A6478;
+  --ps-text-disabled:  #A8B0C0;
+
+  --ps-border:         #E5E8ED;
+  --ps-border-strong:  #CFD3DC;
+
+  --ps-font-body: 'Pretendard Variable', 'Pretendard', 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+  --ps-font-en:   'Montserrat', 'Pretendard Variable', 'Pretendard', sans-serif;
+  --ps-font-signature: 'Covered By Your Grace', cursive;
+  --ps-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --ps-shadow-sm: 0 1px 3px rgba(15,20,25,0.05);
+  --ps-shadow-md: 0 1px 3px rgba(15,20,25,0.05), 0 10px 28px rgba(15,20,25,0.06);
+  --ps-shadow-amber: 0 8px 24px rgba(255,177,26,0.28);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ps-bg);
+  color: var(--ps-text);
+  font-family: var(--ps-font-body);
+  font-weight: 300;
+  font-size: 17px;
+  line-height: 1.7;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+@media (min-width: 768px) { .wrap { padding: 0 40px; } }
+
+.en { font-family: var(--ps-font-en); }
+.eyebrow {
+  font-family: var(--ps-font-en);
+  font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ps-primary-dark);
+}
+
+/* ===== nav ===== */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(250,250,247,0.8);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--ps-border);
+}
+.nav-inner { max-width: 1120px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+@media (min-width: 768px) { .nav-inner { padding: 16px 40px; } }
+.brand { font-family: var(--ps-font-signature); font-size: 24px; color: var(--ps-text); line-height: 1; }
+.nav-links { display: none; gap: 28px; }
+@media (min-width: 820px) { .nav-links { display: flex; } }
+.nav-links a { font-size: 14px; color: var(--ps-text-secondary); transition: color 180ms var(--ps-ease); }
+.nav-links a:hover { color: var(--ps-text); }
+
+/* ===== buttons ===== */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 22px; border-radius: 12px;
+  font-family: var(--ps-font-en); font-size: 15px; font-weight: 500; letter-spacing: 0.2px;
+  border: 1px solid transparent; cursor: pointer;
+  transition: transform 200ms var(--ps-ease), box-shadow 200ms var(--ps-ease), background 200ms var(--ps-ease), border-color 200ms var(--ps-ease);
+}
+.btn.sm { padding: 9px 16px; font-size: 14px; }
+.btn.primary { background: var(--ps-primary); color: #1A1206; box-shadow: var(--ps-shadow-amber); }
+.btn.primary:hover { background: var(--ps-primary-dark); transform: translateY(-2px); }
+.btn.ghost { background: var(--ps-bg-pure); border-color: var(--ps-border-strong); color: var(--ps-text); }
+.btn.ghost:hover { border-color: var(--ps-primary); color: var(--ps-primary-dark); transform: translateY(-2px); }
+
+/* ===== hero ===== */
+.hero { padding: 88px 0 76px; position: relative; }
+@media (min-width: 768px) { .hero { padding: 130px 0 110px; } }
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(60% 50% at 75% 8%, rgba(255,177,26,0.14) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-inner { position: relative; max-width: 880px; }
+.hero h1 {
+  font-family: var(--ps-font-en);
+  font-size: clamp(36px, 6vw, 68px); font-weight: 700; letter-spacing: -1.6px; line-height: 1.12;
+  margin: 22px 0 0; color: var(--ps-text);
+}
+.hero h1 .ko { font-family: var(--ps-font-body); font-weight: 700; }
+.hero h1 .am { color: var(--ps-primary-dark); }
+.hero p.lead {
+  font-size: clamp(17px, 2vw, 21px); font-weight: 300; color: var(--ps-text-secondary);
+  margin: 26px 0 0; max-width: 620px; line-height: 1.6;
+}
+.hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
+.hero-trust { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--ps-text-disabled); font-size: 14px; }
+.hero-trust span::before { content: '— '; }
+
+/* ===== section ===== */
+section { padding: 72px 0; }
+@media (min-width: 768px) { section { padding: 100px 0; } }
+.sec-head { margin-bottom: 44px; }
+.sec-head h2 {
+  font-size: clamp(26px, 3.4vw, 38px); font-weight: 700; letter-spacing: -1px; line-height: 1.25;
+  margin: 12px 0 0; color: var(--ps-text);
+}
+.sec-head p { margin: 12px 0 0; color: var(--ps-text-secondary); max-width: 600px; }
+
+/* ===== services ===== */
+.card-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+@media (min-width: 640px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }
+.svc-card {
+  background: var(--ps-bg-pure); border: 1px solid var(--ps-border); border-radius: 20px;
+  padding: 30px 28px; box-shadow: var(--ps-shadow-sm);
+  transition: transform 240ms var(--ps-ease), box-shadow 240ms var(--ps-ease), border-color 240ms var(--ps-ease);
+}
+.svc-card:hover { transform: translateY(-4px); box-shadow: var(--ps-shadow-md); border-color: var(--ps-primary-light); }
+.svc-card .ico {
+  width: 44px; height: 44px; border-radius: 12px; background: var(--ps-primary-50);
+  display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 18px;
+}
+.svc-card h3 { font-size: 20px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.4px; }
+.svc-card p { margin: 0 0 16px; color: var(--ps-text-secondary); font-size: 15px; }
+.svc-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.svc-tags span { font-family: var(--ps-font-en); font-size: 11px; font-weight: 500; color: var(--ps-text-secondary); background: var(--ps-surface-1); border-radius: 9999px; padding: 4px 11px; }
+
+/* ===== work ===== */
+.work-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+@media (min-width: 700px) { .work-grid { grid-template-columns: repeat(2, 1fr); } }
+.work-card {
+  display: block; background: var(--ps-bg-pure); border: 1px solid var(--ps-border); border-radius: 20px;
+  overflow: hidden; box-shadow: var(--ps-shadow-sm);
+  transition: transform 240ms var(--ps-ease), box-shadow 240ms var(--ps-ease);
+}
+.work-card:hover { transform: translateY(-4px); box-shadow: var(--ps-shadow-md); }
+.work-thumb {
+  aspect-ratio: 16 / 9; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;
+  position: relative; overflow: hidden;
+}
+.work-thumb.t1 { background: #0B0B0B; color: #fff; }
+.work-thumb.t2 { background: #F4F1E9; color: #000; }
+.work-thumb .wm { font-size: 13px; letter-spacing: 1px; font-family: var(--ps-font-en); opacity: 0.6; }
+.work-thumb .wt { font-size: clamp(24px, 3vw, 32px); font-weight: 500; letter-spacing: -0.5px; }
+.work-thumb.t2 .wt { font-family: Georgia, 'Times New Roman', serif; font-style: italic; }
+.work-meta { padding: 18px 22px 22px; display: flex; align-items: center; justify-content: space-between; }
+.work-meta .wname { font-weight: 600; font-size: 16px; }
+.work-meta .wcat { font-size: 13px; color: var(--ps-text-secondary); }
+.work-more { margin-top: 26px; }
+.work-more a { font-family: var(--ps-font-en); font-size: 15px; font-weight: 500; color: var(--ps-primary-dark); }
+.work-more a:hover { text-decoration: underline; }
+
+/* ===== process ===== */
+.proc { background: var(--ps-bg-pure); border-top: 1px solid var(--ps-border); border-bottom: 1px solid var(--ps-border); }
+.proc-grid { display: grid; grid-template-columns: 1fr; gap: 2px; border-radius: 20px; overflow: hidden; }
+@media (min-width: 640px) { .proc-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
+@media (min-width: 1000px) { .proc-grid { grid-template-columns: repeat(3, 1fr); gap: 28px; } }
+.proc-step { padding: 8px 0; }
+.proc-step .n { font-family: var(--ps-font-en); font-size: 14px; font-weight: 700; color: var(--ps-primary-dark); letter-spacing: 1px; }
+.proc-step h4 { font-size: 19px; font-weight: 600; margin: 8px 0 6px; letter-spacing: -0.3px; }
+.proc-step p { margin: 0; color: var(--ps-text-secondary); font-size: 15px; }
+.proc-step .line { height: 1px; background: var(--ps-border); margin-top: 18px; }
+
+/* ===== pricing ===== */
+.price-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+@media (min-width: 820px) { .price-grid { grid-template-columns: repeat(3, 1fr); } }
+.price-card {
+  background: var(--ps-bg-pure); border: 1px solid var(--ps-border); border-radius: 20px; padding: 32px 28px;
+  display: flex; flex-direction: column; box-shadow: var(--ps-shadow-sm);
+}
+.price-card.feat { border-color: var(--ps-primary); box-shadow: var(--ps-shadow-md); position: relative; }
+.price-card.feat::after {
+  content: 'POPULAR'; position: absolute; top: 18px; right: 20px;
+  font-family: var(--ps-font-en); font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  color: #1A1206; background: var(--ps-primary); padding: 4px 10px; border-radius: 9999px;
+}
+.price-card .pname { font-size: 18px; font-weight: 600; }
+.price-card .pprice { font-family: var(--ps-font-en); font-size: 34px; font-weight: 700; letter-spacing: -1px; margin: 12px 0 2px; }
+.price-card .pprice small { font-size: 15px; font-weight: 400; color: var(--ps-text-secondary); }
+.price-card .pnote { font-size: 13px; color: var(--ps-text-disabled); margin-bottom: 20px; }
+.price-card ul { list-style: none; margin: 0 0 26px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.price-card li { font-size: 15px; color: var(--ps-text-secondary); padding-left: 24px; position: relative; }
+.price-card li::before { content: '✓'; position: absolute; left: 0; color: var(--ps-primary-dark); font-weight: 700; }
+.price-card .btn { margin-top: auto; justify-content: center; }
+.price-disclaimer { margin-top: 22px; font-size: 13px; color: var(--ps-text-disabled); text-align: center; }
+
+/* ===== why ===== */
+.why-grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
+@media (min-width: 640px) { .why-grid { grid-template-columns: repeat(2, 1fr); } }
+.why-item { display: flex; gap: 16px; }
+.why-item .b { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 9999px; background: var(--ps-primary); margin-top: 12px; }
+.why-item h4 { font-size: 19px; font-weight: 600; margin: 0 0 6px; letter-spacing: -0.3px; }
+.why-item p { margin: 0; color: var(--ps-text-secondary); font-size: 15px; }
+
+/* ===== CTA / contact ===== */
+.cta {
+  background: var(--ps-text); color: #fff; border-radius: 28px; padding: 64px 32px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.cta::before { content: ''; position: absolute; inset: 0; background: radial-gradient(50% 80% at 50% 0%, rgba(255,177,26,0.25) 0%, transparent 60%); }
+.cta-inner { position: relative; }
+.cta h2 { font-size: clamp(28px, 4vw, 44px); font-weight: 700; letter-spacing: -1.2px; line-height: 1.25; margin: 0; }
+.cta p { color: rgba(255,255,255,0.7); margin: 18px 0 0; font-size: 16px; }
+.cta-ctas { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 36px; }
+.cta-ctas .btn.ghost { background: transparent; border-color: rgba(255,255,255,0.3); color: #fff; }
+.cta-ctas .btn.ghost:hover { border-color: var(--ps-primary); color: var(--ps-primary); }
+.cta .email { display: inline-block; margin-top: 26px; font-family: var(--ps-font-en); font-size: 15px; color: rgba(255,255,255,0.85); border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 3px; }
+.cta .email:hover { color: var(--ps-primary); }
+
+/* ===== site footer ===== */
+.site-foot { padding: 50px 0 90px; border-top: 1px solid var(--ps-border); margin-top: 80px; color: var(--ps-text-secondary); font-size: 14px; }
+.site-foot .row { display: flex; flex-wrap: wrap; gap: 14px 26px; align-items: center; justify-content: space-between; }
+.site-foot a { color: var(--ps-text-secondary); }
+.site-foot a:hover { color: var(--ps-primary-dark); }
+.site-foot .links { display: flex; gap: 20px; flex-wrap: wrap; }
+
+/* ===== mandatory parcyun footer ===== */
+.ps-footer {
+  position: fixed; bottom: 16px; right: 20px;
+  font-family: var(--ps-font-en); font-weight: 300; font-size: 11px; color: var(--ps-text-secondary);
+  display: flex; align-items: center; gap: 8px; z-index: 9999;
+  background: rgba(255,255,255,0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  padding: 6px 12px; border-radius: 9999px; border: 1px solid var(--ps-border);
+}
+.ps-signature { font-family: var(--ps-font-signature); font-size: 15px; color: var(--ps-primary); line-height: 1; }
+.ps-ig { display: inline-flex; align-items: center; gap: 3px; color: inherit; margin-left: 3px; }
+.ps-ig:hover { color: var(--ps-primary-dark); }
+.ps-ig-icon { width: 11px; height: 11px; vertical-align: middle; }
+
+/* ===== reveal ===== */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 700ms var(--ps-ease), transform 700ms var(--ps-ease); }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .reveal { opacity: 1; transform: none; transition: none; } }
+</style>
+</head>
+
+<body>
+
+<!-- ===== NAV ===== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#top" class="brand">parcyun studio</a>
+    <div class="nav-links">
+      <a href="#services">서비스</a>
+      <a href="#work">작업</a>
+      <a href="#process">제작 과정</a>
+      <a href="#pricing">가격</a>
+      <a href="#contact" class="btn primary sm">제작 문의</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero" id="top">
+  <div class="wrap hero-inner">
+    <div class="eyebrow">Web Design &amp; Development Studio</div>
+    <h1>당신의 브랜드를 닮은<br><span class="am">웹사이트</span>를 만듭니다.</h1>
+    <p class="lead">parcyun studio는 랜딩 페이지부터 브랜드·포트폴리오 사이트까지, 기획·디자인·개발을 한 번에 만듭니다. 감각적인 웹사이트를, 합리적인 비용으로.</p>
+    <div class="hero-ctas">
+      <a href="#contact" class="btn primary">제작 문의하기 →</a>
+      <a href="../works/" class="btn ghost">작업 둘러보기</a>
+    </div>
+    <div class="hero-trust">
+      <span>빠른 제작</span><span>합리적 비용</span><span>대표가 직접 소통</span><span>유지비 부담 ↓</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== SERVICES ===== -->
+<section id="services">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">What we make</div>
+      <h2>무엇을 만드나요</h2>
+      <p>작고 빠르게 시작할 수 있는 정적 웹사이트를 중심으로, 목적에 맞는 형태를 제안합니다.</p>
+    </div>
+    <div class="card-grid reveal">
+      <div class="svc-card">
+        <div class="ico">🪧</div>
+        <h3>랜딩 페이지</h3>
+        <p>제품·행사·캠페인을 위한 한 장짜리 페이지. 핵심 메시지와 전환(문의·신청)에 집중합니다.</p>
+        <div class="svc-tags"><span>1 Page</span><span>캠페인</span><span>전환 중심</span></div>
+      </div>
+      <div class="svc-card">
+        <div class="ico">✦</div>
+        <h3>브랜드 · 포트폴리오 사이트</h3>
+        <p>스튜디오·작가·소상공인을 소개하는 사이트. 톤과 무드로 브랜드를 각인시킵니다.</p>
+        <div class="svc-tags"><span>멀티 섹션</span><span>브랜딩</span><span>갤러리</span></div>
+      </div>
+      <div class="svc-card">
+        <div class="ico">🗓</div>
+        <h3>이벤트 · 모집 페이지</h3>
+        <p>강의·클래스·행사 모집과 안내. 일정·신청 링크·FAQ를 한 흐름으로 담습니다.</p>
+        <div class="svc-tags"><span>모집</span><span>안내</span><span>폼 연동</span></div>
+      </div>
+      <div class="svc-card">
+        <div class="ico">🏷</div>
+        <h3>소규모 비즈니스 사이트</h3>
+        <p>매장·클래스·로컬 비즈니스의 기본 홈페이지. 소개·메뉴·위치·문의를 깔끔하게.</p>
+        <div class="svc-tags"><span>로컬</span><span>지도</span><span>문의 연결</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WORK ===== -->
+<section id="work">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Selected work</div>
+      <h2>작업</h2>
+      <p>매주 하나씩 쌓아가는 작업 아카이브에서 결과물의 톤과 완성도를 직접 확인하세요.</p>
+    </div>
+    <div class="work-grid reveal">
+      <a href="../works/002-i-am-serif/" class="work-card">
+        <div class="work-thumb t2">
+          <span class="wm">EDITORIAL · MINIMAL</span>
+          <span class="wt">I am Serif</span>
+        </div>
+        <div class="work-meta">
+          <span class="wname">I am Serif</span>
+          <span class="wcat">스튜디오 포트폴리오</span>
+        </div>
+      </a>
+      <a href="../works/" class="work-card">
+        <div class="work-thumb t1">
+          <span class="wm">CINEMATIC · HUB</span>
+          <span class="wt" style="color:var(--ps-primary)">Works</span>
+        </div>
+        <div class="work-meta">
+          <span class="wname">parcyun studio · Works</span>
+          <span class="wcat">작업 아카이브</span>
+        </div>
+      </a>
+    </div>
+    <div class="work-more reveal"><a href="../works/">전체 작업 보기 →</a></div>
+  </div>
+</section>
+
+<!-- ===== PROCESS ===== -->
+<section class="proc" id="process">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">How it works</div>
+      <h2>제작 과정</h2>
+      <p>문의부터 인수까지, 보통 1~2주 안에 끝납니다. 모든 단계를 투명하게 공유합니다.</p>
+    </div>
+    <div class="proc-grid reveal">
+      <div class="proc-step"><div class="n">01</div><h4>문의 · 상담</h4><p>목적·분량·참고 사이트를 듣고 방향을 함께 잡습니다.</p><div class="line"></div></div>
+      <div class="proc-step"><div class="n">02</div><h4>견적 · 계약</h4><p>범위와 일정, 금액을 확정하고 간단한 계약과 선금으로 시작합니다.</p><div class="line"></div></div>
+      <div class="proc-step"><div class="n">03</div><h4>콘텐츠 준비</h4><p>문구·이미지·로고를 받습니다. 없으면 함께 정리하고 채워 드립니다.</p><div class="line"></div></div>
+      <div class="proc-step"><div class="n">04</div><h4>디자인 · 제작</h4><p>시안을 만들고, AI 기반 제작으로 빠르게 실제 페이지로 구현합니다.</p><div class="line"></div></div>
+      <div class="proc-step"><div class="n">05</div><h4>검수 · 수정</h4><p>모바일·PC를 함께 점검하고, 정해진 횟수만큼 수정합니다.</p><div class="line"></div></div>
+      <div class="proc-step"><div class="n">06</div><h4>배포 · 인수</h4><p>도메인·호스팅에 올리고, 관리 방법까지 안내해 드립니다.</p><div class="line"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRICING ===== -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Pricing</div>
+      <h2>가격 안내</h2>
+      <p>규모에 맞춰 세 가지로 시작합니다. 아래 금액은 예시이며, 실제 견적은 문의 후 확정됩니다.</p>
+    </div>
+    <div class="price-grid reveal">
+      <div class="price-card">
+        <div class="pname">원 페이지</div>
+        <div class="pprice">₩45<small>만~</small></div>
+        <div class="pnote">1페이지 · 약 5일</div>
+        <ul>
+          <li>단일 스크롤 랜딩</li>
+          <li>모바일 반응형</li>
+          <li>문의 버튼 연결</li>
+          <li>수정 2회</li>
+        </ul>
+        <a href="#contact" class="btn ghost">문의하기</a>
+      </div>
+      <div class="price-card feat">
+        <div class="pname">비즈니스</div>
+        <div class="pprice">₩90<small>만~</small></div>
+        <div class="pnote">3~5페이지 · 약 2주</div>
+        <ul>
+          <li>멀티 페이지 구성</li>
+          <li>브랜드 톤 디자인</li>
+          <li>문의 폼 · 지도 연동</li>
+          <li>기본 SEO · 수정 3회</li>
+        </ul>
+        <a href="#contact" class="btn primary">문의하기</a>
+      </div>
+      <div class="price-card">
+        <div class="pname">커스텀</div>
+        <div class="pprice">별도<small> 견적</small></div>
+        <div class="pnote">기능·규모에 따라</div>
+        <ul>
+          <li>맞춤 인터랙션</li>
+          <li>예약 · 결제 등 연동</li>
+          <li>콘텐츠 제작 지원</li>
+          <li>유지보수 협의</li>
+        </ul>
+        <a href="#contact" class="btn ghost">상담하기</a>
+      </div>
+    </div>
+    <p class="price-disclaimer">※ 표시 금액은 예시 기준입니다. 도메인·유료 폰트·콘텐츠 제작 등은 별도이며, 정확한 견적은 상담 후 안내드립니다.</p>
+  </div>
+</section>
+
+<!-- ===== WHY ===== -->
+<section id="why">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Why parcyun studio</div>
+      <h2>왜 parcyun studio 인가요</h2>
+    </div>
+    <div class="why-grid reveal">
+      <div class="why-item"><div class="b"></div><div><h4>빠른 제작</h4><p>AI 기반 워크플로우로 기획부터 배포까지 짧으면 며칠, 보통 1~2주 안에 끝냅니다.</p></div></div>
+      <div class="why-item"><div class="b"></div><div><h4>디자인 감도</h4><p>교육·디자인을 함께 해 온 감각으로, 과하지 않으면서 기억에 남는 화면을 만듭니다.</p></div></div>
+      <div class="why-item"><div class="b"></div><div><h4>가볍고 안전한 구조</h4><p>정적 사이트 중심이라 빠르고 해킹 위험이 낮으며, 유지비 부담이 적습니다.</p></div></div>
+      <div class="why-item"><div class="b"></div><div><h4>대표가 직접 소통</h4><p>중간 전달자 없이 처음부터 끝까지 직접 소통합니다. 의도가 정확히 반영됩니다.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT / CTA ===== -->
+<section id="contact">
+  <div class="wrap">
+    <div class="cta reveal">
+      <div class="cta-inner">
+        <h2>프로젝트를 시작할<br>준비가 되셨나요?</h2>
+        <p>간단히 목적과 분량만 알려주세요. 24시간 안에 방향과 대략 견적으로 답하겠습니다.</p>
+        <div class="cta-ctas">
+          <a href="mailto:pen.layered@gmail.com?subject=%5B%EC%9B%B9%EC%82%AC%EC%9D%B4%ED%8A%B8%20%EC%A0%9C%EC%9E%91%20%EB%AC%B8%EC%9D%98%5D&body=%EB%AA%A9%EC%A0%81%3A%20%0A%EB%B6%84%EB%9F%89(%ED%8E%98%EC%9D%B4%EC%A7%80%20%EC%88%98)%3A%20%0A%ED%9D%AC%EB%A7%9D%20%EC%9D%BC%EC%A0%95%3A%20%0A%EC%B0%B8%EA%B3%A0%20%EC%82%AC%EC%9D%B4%ED%8A%B8%3A%20%0A%EC%98%88%EC%82%B0%3A%20" class="btn primary">이메일로 문의 →</a>
+          <a href="#" class="btn ghost" data-kakao>카카오톡으로 문의</a>
+        </div>
+        <a href="mailto:pen.layered@gmail.com" class="email">pen.layered@gmail.com</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== site footer ===== -->
+<footer class="site-foot">
+  <div class="wrap row">
+    <div>© 2026 parcyun studio. 웹사이트 디자인 &amp; 제작.</div>
+    <div class="links">
+      <a href="../">parcyun studio 허브</a>
+      <a href="../works/">Works</a>
+      <a href="https://www.instagram.com/parcyun" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://github.com/parcyun" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== mandatory parcyun footer ===== -->
+<footer class="ps-footer">
+  Designed by
+  <span class="ps-signature">parcyun studio</span>
+  <a href="https://www.instagram.com/parcyun" class="ps-ig" target="_blank" rel="noopener">
+    <svg class="ps-ig-icon" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4 1 .5.4.8.8 1 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-1 1.4-.4.5-.8.8-1.4 1-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-1-.5-.4-.8-.8-1-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 1-1.4.4-.5.8-.8 1.4-1 .4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.4-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/>
+    </svg>
+    @parcyun
+  </a>
+</footer>
+
+<script>
+(function(){
+  var els = document.querySelectorAll('.reveal');
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    els.forEach(function(el){ el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.06 });
+    els.forEach(function(el){ io.observe(el); });
+  }
+  // Kakao placeholder — replace href with your channel/openchat link
+  document.querySelectorAll('[data-kakao]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      if (a.getAttribute('href') === '#') { e.preventDefault(); alert('카카오톡 채널 링크 연결 예정입니다. 우선 이메일로 문의해 주세요.'); }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

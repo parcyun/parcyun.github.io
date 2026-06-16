@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I am Serif — Independent Type-led Design Studio</title>
+<meta name="description" content="I am Serif. An independent, type-led design studio working in restraint. Brand identity, editorial, and art direction.">
+<meta property="og:title" content="I am Serif">
+<meta property="og:description" content="An independent, type-led design studio working in restraint.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://parcyun.github.io/works/002-i-am-serif/">
+
+<!-- Serif-only typefaces -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  /* Warm ivory = grayscale + a trace of parcyun amber */
+  --paper:      #F4F1E9;
+  --paper-2:    #ECE7DC;
+  --ink:        #000000;          /* the only point colour */
+  --ink-soft:   rgba(0,0,0,0.56);
+  --ink-faint:  rgba(0,0,0,0.40);
+  --line:       rgba(0,0,0,0.16); /* hairline strokes, <=2px */
+  --amber:      #FFB11A;          /* baked into warmth only */
+
+  --serif-display: 'Cormorant Garamond', 'Times New Roman', serif;
+  --serif-text:    'EB Garamond', 'Times New Roman', serif;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif-text);
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 1.75;
+  letter-spacing: 0.1px;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+
+/* ---- layout primitives ---- */
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+@media (min-width: 768px) { .wrap { padding: 0 56px; } }
+.measure { max-width: 60ch; margin-left: auto; margin-right: auto; }
+
+.eyebrow {
+  font-family: var(--serif-text);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.rule { height: 0; border: 0; border-top: 1px solid var(--line); margin: 0; }
+
+/* ---- fixed minimal chrome ---- */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 28px;
+  z-index: 50;
+  mix-blend-mode: multiply;
+  font-size: 14px;
+}
+@media (min-width: 768px) { .topbar { padding: 26px 56px; } }
+.topbar .mark { font-family: var(--serif-display); font-weight: 500; font-size: 18px; letter-spacing: 0.3px; }
+.topbar nav { display: flex; gap: 26px; }
+.topbar nav a {
+  font-size: 12px; letter-spacing: 1.8px; text-transform: uppercase;
+  color: var(--ink-soft); transition: color 200ms var(--ease);
+}
+.topbar nav a:hover { color: var(--ink); }
+@media (max-width: 560px) { .topbar nav { display: none; } }
+
+/* ---- hero ---- */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 140px 28px 90px;
+}
+.hero .eyebrow { margin-bottom: 34px; }
+.hero h1 {
+  font-family: var(--serif-display);
+  font-weight: 300;
+  font-size: clamp(64px, 16vw, 220px);
+  line-height: 0.96;
+  letter-spacing: -3px;
+  margin: 0;
+}
+.hero h1 em { font-style: italic; font-weight: 400; }
+.hero .tagline {
+  margin: 40px auto 0;
+  max-width: 30ch;
+  font-size: clamp(18px, 2.1vw, 23px);
+  font-style: italic;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.hero .scroll {
+  margin-top: 64px;
+  font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-faint);
+}
+.hero .scroll::after { content: ''; display: block; width: 1px; height: 46px; background: var(--line); margin: 16px auto 0; }
+
+/* ---- generic section ---- */
+section { padding: 110px 0; }
+@media (min-width: 768px) { section { padding: 140px 0; } }
+.sec-label {
+  text-align: center;
+  font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--ink-faint);
+  margin: 0 0 56px;
+}
+
+/* ---- statement ---- */
+.statement p {
+  font-family: var(--serif-display);
+  font-weight: 300;
+  font-size: clamp(26px, 3.4vw, 42px);
+  line-height: 1.45;
+  letter-spacing: -0.4px;
+  text-align: center;
+  margin: 0;
+}
+.statement p em { font-style: italic; }
+
+/* ---- full-bleed image band ---- */
+.band { padding: 0; }
+.band .frame { aspect-ratio: 16 / 7; }
+.band figcaption {
+  text-align: center; font-style: italic; font-size: 14px;
+  color: var(--ink-soft); padding: 18px 28px 0;
+}
+
+/* warm grayscale image treatment */
+.frame {
+  position: relative;
+  background: var(--paper-2);
+  overflow: hidden;
+}
+.frame img {
+  width: 100%; height: 100%; object-fit: cover;
+  filter: grayscale(100%) contrast(1.05) brightness(1.02) sepia(0.10);
+  transition: transform 1200ms var(--ease);
+}
+.frame.zoom:hover img { transform: scale(1.03); }
+
+/* ---- selected work ---- */
+.work-item { margin-bottom: 120px; }
+.work-item:last-child { margin-bottom: 0; }
+.work-item .frame { aspect-ratio: 3 / 2; max-width: 860px; margin: 0 auto; }
+.work-cap {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  text-align: center; margin-top: 28px;
+}
+.work-cap .idx { font-size: 12px; letter-spacing: 2px; color: var(--ink-faint); }
+.work-cap h3 {
+  font-family: var(--serif-display); font-weight: 400;
+  font-size: clamp(26px, 3.6vw, 40px); letter-spacing: -0.5px; margin: 0;
+}
+.work-cap .meta { font-style: italic; font-size: 15px; color: var(--ink-soft); }
+
+/* ---- capabilities ---- */
+.caps { display: grid; grid-template-columns: 1fr; gap: 0; max-width: 820px; margin: 0 auto; }
+.cap-row {
+  display: grid; grid-template-columns: 1fr; gap: 6px;
+  padding: 30px 0; border-top: 1px solid var(--line);
+  text-align: center;
+}
+@media (min-width: 700px) {
+  .cap-row { grid-template-columns: 0.9fr 1.6fr; text-align: left; align-items: baseline; gap: 24px; }
+}
+.cap-row:last-child { border-bottom: 1px solid var(--line); }
+.cap-row h4 { font-family: var(--serif-display); font-weight: 500; font-size: 24px; margin: 0; letter-spacing: -0.2px; }
+.cap-row p { margin: 0; font-size: 16px; color: var(--ink-soft); line-height: 1.6; }
+
+/* ---- studio ---- */
+.studio-grid { display: grid; grid-template-columns: 1fr; gap: 48px; align-items: center; }
+@media (min-width: 860px) { .studio-grid { grid-template-columns: 1fr 1fr; gap: 72px; } }
+.studio-grid .frame { aspect-ratio: 4 / 5; }
+.studio-copy p { margin: 0 0 22px; color: var(--ink-soft); }
+.studio-copy p.lead { font-family: var(--serif-display); font-size: clamp(22px,2.6vw,30px); font-weight: 300; line-height: 1.45; color: var(--ink); font-style: italic; }
+.studio-facts { display: flex; flex-wrap: wrap; gap: 36px; margin-top: 36px; }
+.studio-facts .f { display: flex; flex-direction: column; gap: 2px; }
+.studio-facts .f .k { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-faint); }
+.studio-facts .f .v { font-family: var(--serif-display); font-size: 19px; }
+
+/* ---- contact ---- */
+.contact { text-align: center; }
+.contact .big {
+  font-family: var(--serif-display); font-weight: 300;
+  font-size: clamp(40px, 8vw, 104px); line-height: 1.05; letter-spacing: -2px; margin: 0;
+}
+.contact .big em { font-style: italic; }
+.contact .email {
+  display: inline-block; margin-top: 36px;
+  font-size: clamp(20px,2.4vw,28px); border-bottom: 1px solid var(--ink);
+  padding-bottom: 4px; transition: opacity 200ms var(--ease);
+}
+.contact .email:hover { opacity: 0.55; }
+.contact .socials { margin-top: 40px; display: flex; gap: 28px; justify-content: center; }
+.contact .socials a { font-style: italic; font-size: 15px; color: var(--ink-soft); }
+.contact .socials a:hover { color: var(--ink); }
+
+/* ---- back to parcyun + mandatory footer ---- */
+.colophon { text-align: center; padding: 56px 0 96px; }
+.colophon a { font-style: italic; font-size: 14px; color: var(--ink-faint); }
+.colophon a:hover { color: var(--ink); }
+
+.ps-footer {
+  position: fixed; bottom: 16px; right: 20px;
+  font-family: var(--serif-text); font-size: 12px; color: var(--ink-soft);
+  display: flex; align-items: center; gap: 7px; z-index: 9999;
+  background: rgba(244,241,233,0.7);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  padding: 6px 13px; border-radius: 100px; border: 1px solid var(--line);
+}
+.ps-signature { font-family: var(--serif-display); font-style: italic; font-size: 15px; color: var(--amber); line-height: 1; }
+.ps-ig { display: inline-flex; align-items: center; gap: 3px; margin-left: 3px; }
+.ps-ig:hover { color: var(--ink); }
+.ps-ig-icon { width: 11px; height: 11px; vertical-align: middle; }
+
+/* ---- entrance ---- */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 1000ms var(--ease), transform 1000ms var(--ease); }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <a href="#top" class="mark">I am Serif</a>
+  <nav>
+    <a href="#work">Work</a>
+    <a href="#studio">Studio</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="top">
+  <div class="eyebrow">Independent · Type-led Design Studio · Est. 2026</div>
+  <h1>I am <em>Serif</em></h1>
+  <p class="tagline">We design in restraint — letting type, paper, and silence do the work.</p>
+  <div class="scroll">Scroll</div>
+</section>
+
+<div class="wrap"><hr class="rule"></div>
+
+<!-- ===== STATEMENT ===== -->
+<section class="statement reveal">
+  <div class="wrap measure">
+    <p>Most things ask for your attention. We design the few that earn it — work stripped to its <em>essential serif</em>, where every line carries weight and nothing is decoration.</p>
+  </div>
+</section>
+
+<!-- ===== IMAGE BAND ===== -->
+<section class="band reveal">
+  <figure style="margin:0">
+    <div class="frame zoom">
+      <img src="https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=1800&q=80&auto=format&fit=crop" alt="Minimal concrete architecture" loading="lazy" onerror="this.style.opacity=0">
+    </div>
+    <figcaption>Form follows the page. — Studio archive, 2026</figcaption>
+  </figure>
+</section>
+
+<div class="wrap"><hr class="rule"></div>
+
+<!-- ===== SELECTED WORK ===== -->
+<section id="work">
+  <p class="sec-label">Selected Work — Index</p>
+
+  <div class="wrap">
+    <article class="work-item reveal">
+      <div class="frame zoom">
+        <img src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1400&q=80&auto=format&fit=crop" alt="White minimal architecture" loading="lazy" onerror="this.style.opacity=0">
+      </div>
+      <div class="work-cap">
+        <span class="idx">01</span>
+        <h3>Atelier Blanc</h3>
+        <span class="meta">Brand Identity · Architecture &nbsp;—&nbsp; 2026</span>
+      </div>
+    </article>
+
+    <article class="work-item reveal">
+      <div class="frame zoom">
+        <img src="https://images.unsplash.com/photo-1481277542470-605612bd2d61?w=1400&q=80&auto=format&fit=crop" alt="Editorial interior" loading="lazy" onerror="this.style.opacity=0">
+      </div>
+      <div class="work-cap">
+        <span class="idx">02</span>
+        <h3>Quiet Quarterly</h3>
+        <span class="meta">Editorial &amp; Print · Publishing &nbsp;—&nbsp; 2026</span>
+      </div>
+    </article>
+
+    <article class="work-item reveal">
+      <div class="frame zoom">
+        <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1400&q=80&auto=format&fit=crop" alt="Portrait art direction" loading="lazy" onerror="this.style.opacity=0">
+      </div>
+      <div class="work-cap">
+        <span class="idx">03</span>
+        <h3>Maison Noir</h3>
+        <span class="meta">Art Direction · Fashion &nbsp;—&nbsp; 2026</span>
+      </div>
+    </article>
+  </div>
+</section>
+
+<div class="wrap"><hr class="rule"></div>
+
+<!-- ===== CAPABILITIES ===== -->
+<section id="capabilities">
+  <p class="sec-label">Capabilities</p>
+  <div class="wrap">
+    <div class="caps reveal">
+      <div class="cap-row">
+        <h4>Brand Identity</h4>
+        <p>Marks, systems, and the typographic voice that holds them together over time.</p>
+      </div>
+      <div class="cap-row">
+        <h4>Editorial &amp; Print</h4>
+        <p>Books, journals, and catalogues built on grids that breathe.</p>
+      </div>
+      <div class="cap-row">
+        <h4>Art Direction</h4>
+        <p>Image, tone, and restraint — a single point of view across every surface.</p>
+      </div>
+      <div class="cap-row">
+        <h4>Web</h4>
+        <p>Quiet, fast, type-first sites that read as well on screen as on paper.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><hr class="rule"></div>
+
+<!-- ===== STUDIO ===== -->
+<section id="studio">
+  <p class="sec-label">The Studio</p>
+  <div class="wrap">
+    <div class="studio-grid reveal">
+      <div class="frame zoom">
+        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80&auto=format&fit=crop" alt="Studio interior" loading="lazy" onerror="this.style.opacity=0">
+      </div>
+      <div class="studio-copy">
+        <p class="lead">I am Serif is a small studio that believes the most modern thing you can do is leave things out.</p>
+        <p>We work with a handful of clients a year — architects, publishers, and houses who value the long read over the loud one. No trends, no noise: just type set with intent, paper chosen with care, and white space treated as a material.</p>
+        <p>The result is work that ages slowly and says exactly what it means.</p>
+        <div class="studio-facts">
+          <div class="f"><span class="k">Founded</span><span class="v">2026</span></div>
+          <div class="f"><span class="k">Based in</span><span class="v">Seoul</span></div>
+          <div class="f"><span class="k">Focus</span><span class="v">Type &amp; Restraint</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><hr class="rule"></div>
+
+<!-- ===== CONTACT ===== -->
+<section id="contact" class="contact reveal">
+  <div class="wrap">
+    <h2 class="big">Let's set it <em>in type.</em></h2>
+    <a class="email" href="mailto:studio@iamserif.example">studio@iamserif.example</a>
+    <div class="socials">
+      <a href="#top">Instagram</a>
+      <a href="#top">Behance</a>
+      <a href="#top">Are.na</a>
+    </div>
+  </div>
+</section>
+
+<div class="colophon">
+  <a href="../">↩ parcyun studio · Works</a>
+</div>
+
+<!-- ===== Mandatory parcyun footer (serif-restyled) ===== -->
+<footer class="ps-footer">
+  Designed by
+  <span class="ps-signature">parcyun studio</span>
+  <a href="https://www.instagram.com/parcyun" class="ps-ig" target="_blank" rel="noopener">
+    <svg class="ps-ig-icon" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4 1 .5.4.8.8 1 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-1 1.4-.4.5-.8.8-1.4 1-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-1-.5-.4-.8-.8-1-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 1-1.4.4-.5.8-.8 1.4-1 .4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.4-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/>
+    </svg>
+    @parcyun
+  </a>
+</footer>
+
+<script>
+(function(){
+  var els = document.querySelectorAll('.reveal');
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    els.forEach(function(el){ el.classList.add('in'); }); return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+  els.forEach(function(el){ io.observe(el); });
+})();
+</script>
+
+</body>
+</html>

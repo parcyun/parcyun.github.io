@@ -10,6 +10,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://parcyun.github.io/studio/">
 
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='%23FFB11A'/%3E%3Ctext%20x='16'%20y='23'%20font-family='Georgia,serif'%20font-size='20'%20font-weight='700'%20text-anchor='middle'%20fill='%230F1419'%3Ep%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -80,7 +81,8 @@ a { color: inherit; text-decoration: none; }
 .nav-inner { max-width: 1120px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
 @media (min-width: 768px) { .nav-inner { padding: 16px 40px; } }
 .brand { font-family: var(--ps-font-signature); font-size: 24px; color: var(--ps-text); line-height: 1; }
-.nav-links { display: none; gap: 28px; }
+.nav-right { display: flex; align-items: center; gap: 26px; }
+.nav-links { display: none; gap: 26px; }
 @media (min-width: 820px) { .nav-links { display: flex; } }
 .nav-links a { font-size: 14px; color: var(--ps-text-secondary); transition: color 180ms var(--ps-ease); }
 .nav-links a:hover { color: var(--ps-text); }
@@ -120,7 +122,7 @@ a { color: inherit; text-decoration: none; }
   margin: 26px 0 0; max-width: 620px; line-height: 1.6;
 }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
-.hero-trust { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--ps-text-disabled); font-size: 14px; }
+.hero-trust { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 8px 20px; color: #7E8694; font-size: 14px; }
 .hero-trust span::before { content: '— '; }
 
 /* ===== section ===== */
@@ -143,9 +145,11 @@ section { padding: 72px 0; }
 }
 .svc-card:hover { transform: translateY(-4px); box-shadow: var(--ps-shadow-md); border-color: var(--ps-primary-light); }
 .svc-card .ico {
-  width: 44px; height: 44px; border-radius: 12px; background: var(--ps-primary-50);
-  display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 18px;
+  width: 46px; height: 46px; border-radius: 13px; background: var(--ps-primary-50);
+  display: flex; align-items: center; justify-content: center; margin-bottom: 18px;
+  color: var(--ps-primary-dark);
 }
+.svc-card .ico svg { width: 23px; height: 23px; }
 .svc-card h3 { font-size: 20px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.4px; }
 .svc-card p { margin: 0 0 16px; color: var(--ps-text-secondary); font-size: 15px; }
 .svc-tags { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -160,12 +164,15 @@ section { padding: 72px 0; }
   transition: transform 240ms var(--ps-ease), box-shadow 240ms var(--ps-ease);
 }
 .work-card:hover { transform: translateY(-4px); box-shadow: var(--ps-shadow-md); }
-.work-thumb {
-  aspect-ratio: 16 / 9; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;
-  position: relative; overflow: hidden;
-}
+.work-thumb { aspect-ratio: 16 / 9; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+.work-thumb .chrome { flex: 0 0 32px; display: flex; align-items: center; gap: 6px; padding: 0 14px; }
+.work-thumb .chrome b { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.work-thumb .chrome i { font-style: normal; font-family: var(--ps-font-en); font-size: 10.5px; letter-spacing: 0.2px; margin-left: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.5; }
+.work-thumb .shot { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; }
 .work-thumb.t1 { background: #0B0B0B; color: #fff; }
+.work-thumb.t1 .chrome b { background: rgba(255,255,255,0.26); }
 .work-thumb.t2 { background: #F4F1E9; color: #000; }
+.work-thumb.t2 .chrome b { background: rgba(0,0,0,0.16); }
 .work-thumb .wm { font-size: 13px; letter-spacing: 1px; font-family: var(--ps-font-en); opacity: 0.6; }
 .work-thumb .wt { font-size: clamp(24px, 3vw, 32px); font-weight: 500; letter-spacing: -0.5px; }
 .work-thumb.t2 .wt { font-family: Georgia, 'Times New Roman', serif; font-style: italic; }
@@ -203,12 +210,12 @@ section { padding: 72px 0; }
 .price-card .pname { font-size: 18px; font-weight: 600; }
 .price-card .pprice { font-family: var(--ps-font-en); font-size: 34px; font-weight: 700; letter-spacing: -1px; margin: 12px 0 2px; }
 .price-card .pprice small { font-size: 15px; font-weight: 400; color: var(--ps-text-secondary); }
-.price-card .pnote { font-size: 13px; color: var(--ps-text-disabled); margin-bottom: 20px; }
+.price-card .pnote { font-size: 13px; color: #7E8694; margin-bottom: 20px; }
 .price-card ul { list-style: none; margin: 0 0 26px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .price-card li { font-size: 15px; color: var(--ps-text-secondary); padding-left: 24px; position: relative; }
 .price-card li::before { content: '✓'; position: absolute; left: 0; color: var(--ps-primary-dark); font-weight: 700; }
 .price-card .btn { margin-top: auto; justify-content: center; }
-.price-disclaimer { margin-top: 22px; font-size: 13px; color: var(--ps-text-disabled); text-align: center; }
+.price-disclaimer { margin-top: 22px; font-size: 13px; color: #7E8694; text-align: center; }
 
 /* ===== why ===== */
 .why-grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
@@ -266,11 +273,13 @@ section { padding: 72px 0; }
 <nav class="nav">
   <div class="nav-inner">
     <a href="#top" class="brand">parcyun studio</a>
-    <div class="nav-links">
-      <a href="#services">서비스</a>
-      <a href="#work">작업</a>
-      <a href="#process">제작 과정</a>
-      <a href="#pricing">가격</a>
+    <div class="nav-right">
+      <div class="nav-links">
+        <a href="#services">서비스</a>
+        <a href="#work">작업</a>
+        <a href="#process">제작 과정</a>
+        <a href="#pricing">가격</a>
+      </div>
       <a href="#contact" class="btn primary sm">제작 문의</a>
     </div>
   </div>
@@ -302,25 +311,25 @@ section { padding: 72px 0; }
     </div>
     <div class="card-grid reveal">
       <div class="svc-card">
-        <div class="ico">🪧</div>
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3.5"/></svg></div>
         <h3>랜딩 페이지</h3>
         <p>제품·행사·캠페인을 위한 한 장짜리 페이지. 핵심 메시지와 전환(문의·신청)에 집중합니다.</p>
         <div class="svc-tags"><span>1 Page</span><span>캠페인</span><span>전환 중심</span></div>
       </div>
       <div class="svc-card">
-        <div class="ico">✦</div>
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.1 5.6L20 10.6l-5.9 2.1L12 18l-2.1-5.3L4 10.6l5.9-2z"/></svg></div>
         <h3>브랜드 · 포트폴리오 사이트</h3>
         <p>스튜디오·작가·소상공인을 소개하는 사이트. 톤과 무드로 브랜드를 각인시킵니다.</p>
         <div class="svc-tags"><span>멀티 섹션</span><span>브랜딩</span><span>갤러리</span></div>
       </div>
       <div class="svc-card">
-        <div class="ico">🗓</div>
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8.5 3v4M15.5 3v4"/><path d="M8 14h3"/></svg></div>
         <h3>이벤트 · 모집 페이지</h3>
         <p>강의·클래스·행사 모집과 안내. 일정·신청 링크·FAQ를 한 흐름으로 담습니다.</p>
         <div class="svc-tags"><span>모집</span><span>안내</span><span>폼 연동</span></div>
       </div>
       <div class="svc-card">
-        <div class="ico">🏷</div>
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9l1.3-4.2A1 1 0 016.25 4h11.5a1 1 0 01.95.8L20 9"/><path d="M4 9h16v9a1 1 0 01-1 1H5a1 1 0 01-1-1z"/><path d="M4 9a2.5 2.5 0 005 0 2.5 2.5 0 005 0 2.5 2.5 0 005 0"/><path d="M9.5 19v-4.5h5V19"/></svg></div>
         <h3>소규모 비즈니스 사이트</h3>
         <p>매장·클래스·로컬 비즈니스의 기본 홈페이지. 소개·메뉴·위치·문의를 깔끔하게.</p>
         <div class="svc-tags"><span>로컬</span><span>지도</span><span>문의 연결</span></div>
@@ -340,8 +349,11 @@ section { padding: 72px 0; }
     <div class="work-grid reveal">
       <a href="../works/002-i-am-serif/" class="work-card">
         <div class="work-thumb t2">
-          <span class="wm">EDITORIAL · MINIMAL</span>
-          <span class="wt">I am Serif</span>
+          <div class="chrome"><b></b><b></b><b></b><i>parcyun.github.io/works/002-i-am-serif</i></div>
+          <div class="shot">
+            <span class="wm">EDITORIAL · MINIMAL</span>
+            <span class="wt">I am Serif</span>
+          </div>
         </div>
         <div class="work-meta">
           <span class="wname">I am Serif</span>
@@ -350,8 +362,11 @@ section { padding: 72px 0; }
       </a>
       <a href="../works/" class="work-card">
         <div class="work-thumb t1">
-          <span class="wm">CINEMATIC · HUB</span>
-          <span class="wt" style="color:var(--ps-primary)">Works</span>
+          <div class="chrome"><b></b><b></b><b></b><i>parcyun.github.io/works</i></div>
+          <div class="shot">
+            <span class="wm">CINEMATIC · HUB</span>
+            <span class="wt" style="color:var(--ps-primary)">Works</span>
+          </div>
         </div>
         <div class="work-meta">
           <span class="wname">parcyun studio · Works</span>

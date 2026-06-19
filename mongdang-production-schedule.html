@@ -44,7 +44,7 @@
 
   /* timeline */
   .timeline{background:var(--bg-1);border:1px solid var(--line);border-radius:24px;padding:48px 40px 40px;position:relative;overflow:hidden}
-  .tl-track{position:relative;display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:36px}
+  .tl-track{position:relative;display:grid;grid-template-columns:repeat(9,1fr);gap:8px;margin-bottom:36px}
   .tl-track::before{content:"";position:absolute;left:5%;right:5%;top:19px;height:2px;background:linear-gradient(90deg,var(--mdbf-primary),var(--mdbf-primary-dark));border-radius:2px}
   .tl-node{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center}
   .tl-dot{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px;color:#fff;position:relative;z-index:2;background:var(--mdbf-primary);border:3px solid var(--bg-1);box-shadow:0 0 0 1px var(--mdbf-primary)}
@@ -227,7 +227,7 @@
       <line x1="14" y1="105" x2="1226" y2="105" stroke="rgba(159,176,214,.16)" stroke-width="1"/>
       <text x="20" y="137" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">6.15</text>
       <line x1="14" y1="159" x2="1226" y2="159" stroke="rgba(159,176,214,.16)" stroke-width="1"/>
-      <text x="20" y="191" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">6.23</text>
+      <text x="20" y="191" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">6.22</text>
       <text x="20" y="245" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">6.24</text>
       <line x1="14" y1="267" x2="1226" y2="267" stroke="rgba(159,176,214,.16)" stroke-width="1"/>
       <text x="20" y="299" font-family="Pretendard,sans-serif" font-size="13.5" font-weight="700" fill="#9FB0D6">6.30</text>
@@ -253,7 +253,7 @@
       <path d="M 888 672 C 888 793, 648 820, 648 942" fill="none" stroke="#F175A1" stroke-width="1" stroke-opacity=".5"/>
       <polyline points="768,132 768,294 768,402 768,672 768,780" fill="none" stroke="#71DD5F" stroke-width="1" stroke-opacity=".6"/>
       <path d="M 768 780 C 768 852, 648 869, 648 942" fill="none" stroke="#71DD5F" stroke-width="1" stroke-opacity=".5"/>
-      <polyline points="528,186 528,348 528,510 528,564 528,780 528,834" fill="none" stroke="#A98BFF" stroke-width="1" stroke-opacity=".6"/>
+      <polyline points="528,186 528,348 528,456 528,510 528,564 528,780 528,834" fill="none" stroke="#A98BFF" stroke-width="1" stroke-opacity=".6"/>
       <path d="M 528 834 C 528 882, 648 893, 648 942" fill="none" stroke="#A98BFF" stroke-width="1" stroke-opacity=".5"/>
       <polyline points="288,294 288,456 288,510 288,672 288,834" fill="none" stroke="#41C3FA" stroke-width="1" stroke-opacity=".6"/>
       <path d="M 288 834 C 288 882, 648 893, 648 942" fill="none" stroke="#41C3FA" stroke-width="1" stroke-opacity=".5"/>
@@ -289,7 +289,7 @@
       <circle cx="768" cy="132" r="6" fill="#71DD5F" stroke="#0A0F1C" stroke-width="1.5"/>
       <text x="782" y="137" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#71DD5F">6.15 </tspan>BGM·MIDI 시작</text>
       <circle cx="528" cy="186" r="6" fill="#A98BFF" stroke="#0A0F1C" stroke-width="1.5"/>
-      <text x="514" y="191" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#A98BFF">6.23 </tspan>가편집</text>
+      <text x="514" y="191" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#A98BFF">6.22 </tspan>컷편집·트랜지션</text>
       <circle cx="888" cy="240" r="6" fill="#F175A1" stroke="#0A0F1C" stroke-width="1.5"/>
       <text x="902" y="245" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#F175A1">6.24 </tspan>홍보 방향 설정</text>
       <circle cx="768" cy="294" r="6" fill="#71DD5F" stroke="#0A0F1C" stroke-width="1.5"/>
@@ -303,11 +303,13 @@
       <text x="782" y="407" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#71DD5F">7.3~7 </tspan>효과음 논의</text>
       <circle cx="288" cy="456" r="6" fill="#41C3FA" stroke="#0A0F1C" stroke-width="1.5"/>
       <text x="274" y="461" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#41C3FA">7.10 </tspan>포스터·카드뉴스 초안</text>
+      <circle cx="528" cy="456" r="6" fill="#A98BFF" stroke="#0A0F1C" stroke-width="1.5"/>
+      <text x="514" y="461" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#A98BFF">7.10 </tspan>2차 편집본</text>
       <circle cx="1008" cy="456" r="6" fill="#FF9F45" stroke="#0A0F1C" stroke-width="1.5"/>
       <text x="1022" y="461" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#FF9F45">7.10 </tspan>장소·장비 확인</text>
       <circle cx="528" cy="510" r="9.5" fill="none" stroke="#FFD43A" stroke-width="2"/>
       <circle cx="528" cy="510" r="6" fill="#A98BFF" stroke="#0A0F1C" stroke-width="1.5"/>
-      <text x="514" y="515" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#A98BFF">7.18 </tspan>2차 편집본</text>
+      <text x="514" y="515" text-anchor="end" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#A98BFF">7.18 </tspan>3차 편집본</text>
       <circle cx="888" cy="510" r="6" fill="#F175A1" stroke="#0A0F1C" stroke-width="1.5"/>
       <text x="902" y="515" text-anchor="start" font-family="Pretendard,sans-serif" font-size="15" fill="#EAF0FF"><tspan font-size="12.5" font-weight="700" fill="#F175A1">7.18 </tspan>메이킹필름 초안</text>
       <circle cx="288" cy="510" r="6" fill="#41C3FA" stroke="#0A0F1C" stroke-width="1.5"/>
@@ -371,12 +373,13 @@
     <div class="tl-track">
       <div class="tl-node"><div class="tl-dot crit num">1</div><div class="tl-date num">6.14</div><div class="tl-name">파일 정리</div><div class="tl-tag tag-crit">절대 기한</div></div>
       <div class="tl-node"><div class="tl-dot crit num">2</div><div class="tl-date num">7.2</div><div class="tl-name">1차 편집본</div><div class="tl-tag tag-crit">절대 기한</div></div>
-      <div class="tl-node"><div class="tl-dot crit num">3</div><div class="tl-date num">7.18</div><div class="tl-name">2차 편집본</div><div class="tl-tag tag-crit">절대 기한</div></div>
-      <div class="tl-node"><div class="tl-dot num">4</div><div class="tl-date num">7.25</div><div class="tl-name">음향·메이킹 확인</div><div class="tl-tag tag-chk">확인</div></div>
-      <div class="tl-node"><div class="tl-dot crit num">5</div><div class="tl-date num">7.29</div><div class="tl-name">최종 검수</div><div class="tl-tag tag-crit">절대 기한</div></div>
-      <div class="tl-node"><div class="tl-dot crit num">6</div><div class="tl-date num">7.30</div><div class="tl-name">최종본 업로드</div><div class="tl-tag tag-crit">절대 기한</div></div>
-      <div class="tl-node"><div class="tl-dot num">7</div><div class="tl-date num">7.31</div><div class="tl-name">현장 세팅·테스트</div><div class="tl-tag tag-test">테스트</div></div>
-      <div class="tl-node"><div class="tl-dot dday num">8</div><div class="tl-date num">8.1</div><div class="tl-name">상영회</div><div class="tl-tag tag-dday">D-DAY</div></div>
+      <div class="tl-node"><div class="tl-dot num">3</div><div class="tl-date num">7.10</div><div class="tl-name">2차 편집본</div><div class="tl-tag tag-chk">공유</div></div>
+      <div class="tl-node"><div class="tl-dot crit num">4</div><div class="tl-date num">7.18</div><div class="tl-name">3차 편집본</div><div class="tl-tag tag-crit">절대 기한</div></div>
+      <div class="tl-node"><div class="tl-dot num">5</div><div class="tl-date num">7.25</div><div class="tl-name">음향·메이킹 확인</div><div class="tl-tag tag-chk">확인</div></div>
+      <div class="tl-node"><div class="tl-dot crit num">6</div><div class="tl-date num">7.29</div><div class="tl-name">최종 검수</div><div class="tl-tag tag-crit">절대 기한</div></div>
+      <div class="tl-node"><div class="tl-dot crit num">7</div><div class="tl-date num">7.30</div><div class="tl-name">최종본 업로드</div><div class="tl-tag tag-crit">절대 기한</div></div>
+      <div class="tl-node"><div class="tl-dot num">8</div><div class="tl-date num">7.31</div><div class="tl-name">현장 세팅·테스트</div><div class="tl-tag tag-test">테스트</div></div>
+      <div class="tl-node"><div class="tl-dot dday num">9</div><div class="tl-date num">8.1</div><div class="tl-name">상영회</div><div class="tl-tag tag-dday">D-DAY</div></div>
     </div>
     <div class="tl-flow">
       파일정리<span class="arr">→</span>편집<span class="arr">→</span>음향·홍보<span class="arr">→</span>최종검수<span class="arr">→</span>업로드<span class="arr">→</span>현장세팅<span class="arr">→</span>상영회
@@ -405,17 +408,23 @@
       <div class="c-head"><span class="c-badge bg-edit">편집</span><span class="c-title">메인 편집</span></div>
       <p class="c-owner">이선학 · <span class="tbd">서브 편집 김희경과 협의 분담</span></p>
       <ul class="steps">
-        <li><span class="s-date num">6.23</span>
-          <span class="s-body">가편집 (흐름에 따라 구조만 빠르게)
-            <span class="s-to"><span class="arr">→</span><em>기획(박주현) · 작가(나효정)</em>에게 확인 요청</span></span></li>
+        <li><span class="s-date num">6.20–21</span>
+          <span class="s-body">기획(박주현) · 작가(나효정) 편집 디렉션 수신<span class="crit-pill" style="color:#9FB0D6;background:rgba(159,176,214,.12);border-color:rgba(159,176,214,.3)">주말</span></span></li>
+        <li><span class="s-date num">6.22~</span>
+          <span class="s-body">디렉션 · 콘티 · 현장 소통 내용 기반 컷편집 · 트랜지션 작업</span></li>
         <li><span class="s-date num">7.2</span>
-          <span class="s-body">1차 편집본 완성
-            <span class="s-to"><span class="arr">→</span><em>기획(박주현) · 작가(나효정) · 음향(안요한·정두린)</em>에게 공유</span></span></li>
+          <span class="s-body">1차 편집본 완성<span class="crit-pill">절대 기한</span>
+            <span class="s-to"><span class="arr">→</span><em>서브 편집(김희경)</em>에게 전달 (배경음악·효과음 작업 착수) · <em>기획(박주현) · 작가(나효정)</em>에게 공유</span></span></li>
+        <li><span class="s-date num">7.2~</span>
+          <span class="s-body">1차본 검토 후 후시 · 음향조정 · 컷조정 · 화면조정 · 효과 수정 디렉션 수신</span></li>
+        <li><span class="s-date num">7.10</span>
+          <span class="s-body">2차 편집본 완성 (김희경)
+            <span class="s-to"><span class="arr">→</span><em>음향(안요한·정두린) · 서브 편집(김희경) · 홍보메인(유지연)</em>에게 공유</span></span></li>
         <li><span class="s-date num">7.18</span>
-          <span class="s-body">2차 편집본 완성
-            <span class="s-to"><span class="arr">→</span><em>음향 · 서브 편집(김희경) · 제작팀장(유지연)</em>에게 최종 기준본 공유</span></span></li>
+          <span class="s-body">3차본 완성 (후편집 반영)<span class="crit-pill">절대 기한</span>
+            <span class="s-to"><span class="arr">→</span><em>최종 기준본</em> 공유</span></span></li>
         <li><span class="s-date num">7.19–25</span>
-          <span class="s-body">색보정 · 자막 · 크레딧 등 마지막 수정
+          <span class="s-body">색보정 · 자막 · 크레딧 제작 등 마지막 수정
             <span class="s-to"><span class="arr">→</span><em>최종 검수</em> 요청</span></span></li>
         <li><span class="s-date num">7.29</span>
           <span class="s-body">최종 검수 반영 완료<span class="crit-pill">절대 기한</span>

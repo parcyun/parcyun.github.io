@@ -586,6 +586,162 @@ section.in-view, .hero.in-view {
   html { scroll-behavior: auto; }
   section, .hero { opacity: 1; transform: none; transition: none; }
 }
+
+/* ===== Hero CTAs (multi-row) ===== */
+.hero-ctas + .hero-ctas { margin-top: 12px; }
+
+/* ===== Career section · collapsible ===== */
+.career-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  color: var(--ps-text-cinematic-secondary);
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  border-radius: 100px;
+  padding: 8px 16px;
+  cursor: pointer;
+  margin-top: 32px;
+  transition: border-color 240ms var(--ps-ease-out), color 240ms var(--ps-ease-out);
+}
+.career-toggle:hover { border-color: var(--ps-primary); color: var(--ps-primary); }
+.career-toggle .chev {
+  display: inline-block;
+  transition: transform 240ms var(--ps-ease-out);
+  font-size: 12px;
+  line-height: 1;
+}
+.career-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.career-list.collapsed .career-category-header,
+.career-list.collapsed .career-item { display: none; }
+.career-list.collapsed { border-top: none; padding-top: 0; margin-top: 0; }
+
+/* ===== List-style compact lecture card (for featured archive link) ===== */
+.lecture-card.compact {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 24px;
+  border-radius: 12px;
+  background: var(--ps-surface-cinematic-1);
+}
+.lecture-card.compact:hover { transform: none; }
+.lecture-card.compact .lc-id {
+  flex: 0 0 auto;
+  font-family: var(--ps-font-en);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ps-primary);
+  min-width: 92px;
+}
+.lecture-card.compact .lc-title {
+  flex: 1 1 auto;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.3px;
+  color: #FFFFFF;
+  line-height: 1.4;
+}
+.lecture-card.compact .lc-title strong { font-weight: 600; color: var(--ps-primary); }
+.lecture-card.compact .lc-arrow {
+  flex: 0 0 auto;
+  font-family: var(--ps-font-en);
+  font-size: 14px;
+  color: var(--ps-text-cinematic-secondary);
+  transition: color 240ms var(--ps-ease-out), transform 240ms var(--ps-ease-out);
+}
+.lecture-card.compact:hover .lc-arrow { color: var(--ps-primary); transform: translateX(4px); }
+@media (max-width: 639px) {
+  .lecture-card.compact { gap: 14px; padding: 14px 18px; }
+  .lecture-card.compact .lc-id { min-width: 0; }
+}
+
+/* ===== Sub-sub-section header (under a subsection) ===== */
+.lecture-subsubsection-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0 18px;
+}
+@media (min-width: 640px) {
+  .lecture-subsubsection-header { flex-direction: row; align-items: baseline; gap: 12px; }
+}
+.lecture-subsubsection-header .ko {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  color: #FFFFFF;
+  margin: 0;
+}
+.lecture-subsubsection-header .en {
+  font-family: var(--ps-font-en);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+}
+
+/* ===== Floating nav (top / bottom) ===== */
+.float-nav {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 80;
+}
+.float-nav button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  font-family: var(--ps-font-en);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 240ms var(--ps-ease-out), color 240ms var(--ps-ease-out), transform 240ms var(--ps-ease-out);
+}
+.float-nav button:hover {
+  border-color: var(--ps-primary);
+  color: var(--ps-primary);
+  transform: translateY(-2px);
+}
+@media (max-width: 639px) {
+  .float-nav { right: 12px; gap: 6px; }
+  .float-nav button { width: 36px; height: 36px; font-size: 13px; }
+}
+
+/* ===== Footer (ps-footer) · 업무 대시보드 link ===== */
+.ps-footer-link {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  color: var(--ps-text-cinematic-secondary);
+  text-decoration: none;
+  padding-right: 10px;
+  margin-right: 4px;
+  border-right: 1px solid rgba(255, 255, 255, 0.14);
+  transition: color 240ms var(--ps-ease-out);
+}
+.ps-footer-link:hover { color: var(--ps-primary); }
 </style>
 </head>
 
@@ -604,8 +760,10 @@ section.in-view, .hero.in-view {
     </p>
     <div class="hero-ctas">
       <a href="#lectures" class="btn primary">강의 둘러보기 <span class="arrow">↓</span></a>
-      <a href="./works/" class="btn ghost">Works <span class="arrow">↗</span></a>
-      <a href="./dashboard.html" class="btn ghost">업무 대시보드 <span class="arrow">↗</span></a>
+      <a href="#activities" class="btn primary">수업 자료 둘러보기 <span class="arrow">↓</span></a>
+    </div>
+    <div class="hero-ctas">
+      <a href="./works/" class="btn ghost">parcyun studio works <span class="arrow">↗</span></a>
       <a href="https://www.instagram.com/parcyun" class="btn ghost" target="_blank" rel="noopener">@parcyun <span class="arrow">↗</span></a>
     </div>
   </div>
@@ -631,7 +789,11 @@ section.in-view, .hero.in-view {
       <span class="tag-pill">UIUX · WEB 디자인</span>
       <span class="tag-pill">도시공학</span>
     </div>
-    <div class="career-list">
+    <button class="career-toggle" type="button" aria-expanded="false" aria-controls="career-list" onclick="toggleCareer(this)">
+      <span class="label">경력 전체 보기</span>
+      <span class="chev">⌄</span>
+    </button>
+    <div class="career-list collapsed" id="career-list">
 
       <div class="career-category-header">주요 경력</div>
       <div class="career-item">
@@ -730,39 +892,17 @@ section.in-view, .hero.in-view {
       <span class="en">Lectures</span>
     </header>
 
-    <!-- ── Featured: 온라인 연수 녹화본 ── -->
+    <!-- ── Featured: 온라인 연수 녹화본 (compact) ── -->
     <div class="lecture-section">
       <header class="lecture-subsection-header">
         <h3 class="ko">온라인 연수 녹화본</h3>
         <span class="en">Training Archive</span>
       </header>
-      <div class="lecture-grid" style="grid-template-columns: 1fr;">
-        <a href="./academica-parcyun-studio/" class="lecture-card">
-          <div class="lecture-card-poster">
-            <div class="lid">Archive · Site</div>
-            <p class="ptitle">
-              온라인 연수<br>
-              <strong>녹화본 모아보기</strong>
-            </p>
-          </div>
-          <div class="lecture-card-body">
-            <div class="lecture-card-meta">
-              <span>parcyun studio</span>
-              <span class="dot"></span>
-              <span>VIDEO ARCHIVE</span>
-            </div>
-            <h3 class="lecture-card-title">연수 녹화본 아카이브</h3>
-            <p class="lecture-card-desc">
-              온라인 연수 강의 녹화본을 한 곳에서 모아 제공하는 전용 페이지입니다.
-            </p>
-            <div class="lecture-card-tags">
-              <span class="tag-pill">영상</span>
-              <span class="tag-pill">연수</span>
-              <span class="tag-pill">아카이브</span>
-            </div>
-          </div>
-        </a>
-      </div>
+      <a href="./academica-parcyun-studio/" class="lecture-card compact">
+        <span class="lc-id">Archive · Site</span>
+        <span class="lc-title">온라인 연수 <strong>녹화본 모아보기</strong></span>
+        <span class="lc-arrow">→</span>
+      </a>
     </div>
 
     <!-- ── Sub-section: LLM · Harness Agent ── -->
@@ -833,28 +973,6 @@ section.in-view, .hero.in-view {
         <!-- Coming soon placeholder -->
         <div class="lecture-card placeholder">
           <p class="topic">Sub-Agent 오케스트레이션</p>
-          <span class="cs-label">Coming Soon</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Sub-section: 이미지 · 영상 생성 ── -->
-    <div class="lecture-section">
-      <header class="lecture-subsection-header">
-        <h3 class="ko">이미지 · 영상 생성</h3>
-        <span class="en">Image &amp; Video Gen</span>
-      </header>
-      <div class="lecture-grid">
-        <div class="lecture-card placeholder">
-          <p class="topic">Midjourney 기초 워크플로우</p>
-          <span class="cs-label">Coming Soon</span>
-        </div>
-        <div class="lecture-card placeholder">
-          <p class="topic">AI 영상 생성 입문<br>(Nano Banana · Soul)</p>
-          <span class="cs-label">Coming Soon</span>
-        </div>
-        <div class="lecture-card placeholder">
-          <p class="topic">비주얼 프롬프트 엔지니어링</p>
           <span class="cs-label">Coming Soon</span>
         </div>
       </div>
@@ -965,11 +1083,17 @@ section.in-view, .hero.in-view {
       </div>
     </div>
 
-    <!-- ── Sub-section: 수학 · 도형과 기하 ── -->
+    <!-- ── Sub-section: 수학 ── -->
     <div class="lecture-section">
       <header class="lecture-subsection-header">
-        <h3 class="ko">수학 · 도형과 기하</h3>
-        <span class="en">Math · Geometry</span>
+        <h3 class="ko">수학</h3>
+        <span class="en">Math</span>
+      </header>
+
+      <!-- ▸ 도형과 기하 -->
+      <header class="lecture-subsubsection-header">
+        <h4 class="ko">도형과 기하</h4>
+        <span class="en">Geometry</span>
       </header>
       <div class="lecture-grid">
 
@@ -1088,8 +1212,15 @@ section.in-view, .hero.in-view {
   </div>
 </section>
 
+<!-- ===== Floating top/bottom nav ===== -->
+<div class="float-nav" aria-label="페이지 이동">
+  <button type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="맨 위로">↑</button>
+  <button type="button" onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" aria-label="맨 아래로">↓</button>
+</div>
+
 <!-- ===== Mandatory parcyun footer ===== -->
 <footer class="ps-footer">
+  <a href="./dashboard.html" class="ps-footer-link">업무 대시보드 ↗</a>
   Designed by
   <span class="ps-signature">parcyun studio</span>
   <a href="https://www.instagram.com/parcyun" class="ps-ig" target="_blank" rel="noopener">
@@ -1117,6 +1248,14 @@ section.in-view, .hero.in-view {
   }, { rootMargin: '0px 0px -15% 0px', threshold: 0.05 });
   document.querySelectorAll('section').forEach(function(el){ io.observe(el); });
 })();
+
+function toggleCareer(btn){
+  var list = document.getElementById('career-list');
+  var expanded = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', String(!expanded));
+  list.classList.toggle('collapsed', expanded);
+  btn.querySelector('.label').textContent = expanded ? '경력 전체 보기' : '경력 접기';
+}
 </script>
 
 </body>

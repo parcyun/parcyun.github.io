@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>쌓기나무 공장 — 부피 검수 미션 (6학년)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+:root{
+  --amber:#FFB11A; --amber-d:#E89500; --amber-l:#FFD27A; --amber-50:#FFF6E5;
+  --ink:#0F1419; --ink2:#5A6478; --line:#E5E8ED; --line2:#CFD3DC;
+  --paper:#FFFFFF; --warn:#F04452;
+  --font:'Pretendard','Montserrat',sans-serif;
+  --en:'Montserrat','Pretendard',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);color:var(--ink);background:#EDEEF0;line-height:1.55;word-break:keep-all;overflow-wrap:break-word;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.page{
+  width:210mm;min-height:297mm;background:var(--paper);margin:18px auto;
+  padding:16mm 15mm 18mm;position:relative;box-shadow:0 4px 24px rgba(0,0,0,.12);
+}
+/* ── header ── */
+.head{display:flex;justify-content:space-between;align-items:flex-end;
+  border-bottom:3px solid var(--ink);padding-bottom:10px;margin-bottom:16px;}
+.head .t1{font-size:11px;letter-spacing:.18em;color:var(--amber-d);font-family:var(--en);font-weight:600;}
+.head h1{font-size:22px;font-weight:700;margin-top:2px;}
+.head .meta{font-size:11px;color:var(--ink2);text-align:right;line-height:1.7;}
+.head .meta b{color:var(--ink);}
+/* ── mission card ── */
+.mission{display:flex;align-items:center;gap:14px;background:var(--amber-50);
+  border:1px solid var(--amber-l);
+  border-radius:14px;padding:12px 16px;margin:14px 0 16px;}
+.badge{flex:none;width:54px;height:54px;border-radius:14px;background:var(--ink);
+  color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.badge .lv{font-family:var(--en);font-size:9px;letter-spacing:.1em;opacity:.7;}
+.badge .no{font-family:var(--en);font-weight:700;font-size:24px;line-height:1;}
+.mission .mtxt .role{font-family:var(--en);font-size:10px;letter-spacing:.14em;color:var(--amber-d);font-weight:600;}
+.mission .mtxt h2{font-size:17px;font-weight:700;margin:1px 0 2px;}
+.mission .mtxt p{font-size:12.5px;color:var(--ink2);}
+/* ── blocks ── */
+.q{font-size:13.5px;margin:12px 0 8px;}
+.q b{color:var(--amber-d);}
+.figrow{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;margin:6px 0 4px;}
+.figcard{border:1px solid var(--line);border-radius:14px;padding:12px 14px 10px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;min-width:150px;flex:1;}
+.figcard .cap{font-size:12px;font-weight:600;}
+.figcard .cap span{font-family:var(--en);background:var(--ink);color:#fff;
+  border-radius:6px;padding:1px 7px;font-size:11px;margin-right:6px;}
+.figcard svg{display:block;}
+.dims{font-size:11px;color:var(--ink2);}
+.dims b{color:var(--ink);font-family:var(--en);}
+/* ── invoice table ── */
+table.inv{width:100%;border-collapse:collapse;margin:8px 0 6px;font-size:12px;}
+table.inv th,table.inv td{border:1px solid var(--line2);padding:7px 6px;text-align:center;}
+table.inv th{background:var(--amber-50);font-weight:600;font-size:11.5px;}
+table.inv td.fill{background:#fff;height:30px;}
+table.inv .unit{color:var(--ink2);font-size:10px;}
+.stamp{display:inline-block;border:1.5px dashed var(--line2);border-radius:50%;
+  width:30px;height:30px;}
+/* ── fill lines & boxes ── */
+.blank{display:inline-block;min-width:48px;border-bottom:1.5px solid var(--ink);
+  text-align:center;font-family:var(--en);font-weight:600;}
+.write{border:1px solid var(--line2);border-radius:10px;min-height:46px;padding:8px 12px;
+  font-size:12px;color:var(--ink2);}
+.callout{background:var(--amber-50);border:1px solid var(--amber-l);
+  border-radius:10px;padding:10px 14px;font-size:12.5px;margin:8px 0;}
+.callout b{color:var(--ink);}
+/* reject list */
+.reject{display:flex;flex-wrap:wrap;gap:12px;margin:6px 0;}
+.rcard{flex:1;min-width:200px;border:1px solid var(--line2);border-radius:12px;overflow:hidden;}
+.rcard .rh{background:var(--ink);color:#fff;font-family:var(--en);font-size:11px;
+  letter-spacing:.08em;padding:5px 10px;display:flex;justify-content:space-between;}
+.rcard .rb{padding:9px 11px;font-size:12px;}
+.rcard .rb .row{display:flex;justify-content:space-between;padding:1px 0;}
+.rcard .rb .row b{font-family:var(--en);white-space:nowrap;}
+.rcard .judge{display:flex;gap:14px;font-size:12px;margin-top:6px;padding-top:6px;
+  border-top:1px dashed var(--line);}
+.chk{display:inline-block;width:13px;height:13px;border:1.5px solid var(--ink2);
+  border-radius:3px;vertical-align:-2px;margin-right:3px;}
+/* challenge grid */
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px;}
+.cbox{border:1px dashed var(--line2);border-radius:10px;height:54px;
+  display:flex;align-items:center;justify-content:center;font-family:var(--en);
+  font-size:12px;color:var(--line2);}
+/* answer page */
+.ans .head{border-color:var(--warn);}
+.ans .head .t1{color:var(--warn);}
+.ans h3{font-size:14px;font-weight:700;margin:14px 0 4px;color:var(--warn);}
+.ans ul{margin:0 0 8px 18px;font-size:12.5px;}
+.ans li{margin:3px 0;}
+.ans code{font-family:var(--en);background:var(--amber-50);padding:1px 5px;border-radius:5px;}
+/* footer */
+.ps-footer{position:absolute;bottom:10mm;right:15mm;font-family:var(--en);font-weight:300;
+  font-size:8pt;color:var(--ink2);display:flex;align-items:center;gap:7px;}
+.ps-sig{font-family:'Covered By Your Grace',cursive;font-size:11pt;color:var(--amber);}
+.ps-ig{display:inline-flex;align-items:center;gap:3px;color:inherit;text-decoration:none;}
+.tip{font-size:10.5px;color:var(--ink2);margin-top:2px;}
+.toolbar{max-width:210mm;margin:14px auto 0;display:flex;gap:8px;justify-content:flex-end;}
+.toolbar button{font-family:var(--font);font-size:13px;border:none;background:var(--ink);
+  color:#fff;padding:9px 16px;border-radius:10px;cursor:pointer;}
+.toolbar button.alt{background:#fff;color:var(--ink);border:1px solid var(--line2);}
+@media print{
+  body{background:#fff;}
+  .page{margin:0;box-shadow:none;width:auto;min-height:auto;page-break-after:always;
+    padding:0;}
+  .page:last-child{page-break-after:auto;}
+  .toolbar{display:none;}
+  @page{size:A4;margin:14mm;}
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar no-print">
+  <button onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
+  <button class="alt" onclick="document.body.classList.toggle('hideans')">교사용 정답 숨기기</button>
+</div>
+
+<!-- ======================= PAGE 1 : 오리엔테이션 + 1단계 ======================= -->
+<section class="page">
+  <div class="head">
+    <div><div class="t1">CUBE FACTORY · INSPECTION MISSION</div>
+      <h1>쌓기나무 공장 — 부피 검수 미션</h1></div>
+    <div class="meta">6학년 · 직육면체의 부피<br>
+      번호 <b>______</b> &nbsp; 이름 <b>___________</b></div>
+  </div>
+
+  <div class="callout">
+    <b>입사를 환영합니다, 검수원님.</b> 우리 공장은 한 변이 <b>1&nbsp;cm</b>인 쌓기나무로 직육면체 상자를
+    만듭니다. 쌓기나무 1개의 부피는 <b>1&nbsp;cm³</b>. 여러분의 임무는 상자 속 쌓기나무가 몇 개인지,
+    즉 <b>부피가 몇 cm³인지</b> 정확히 검수해 송장에 적는 것입니다. 3단계를 통과하면 <b>공장장</b>으로 승진!
+  </div>
+
+  <div class="mission">
+    <div class="badge"><span class="lv">LV.1</span><span class="no">1</span></div>
+    <div class="mtxt"><div class="role">NEW EMPLOYEE · 신입사원</div>
+      <h2>세어보기 = 곱하기, 정말 같을까?</h2>
+      <p>쌓기나무가 다 보이는 작은 상자입니다. 두 가지 방법으로 검수해 보세요.</p></div>
+  </div>
+
+  <p class="q"><b>①</b> 아래 두 상자를 보고 <b>(가)하나씩 세기</b>와 <b>(나)가로×세로×높이</b>로 각각 구해 송장을 채우세요.</p>
+
+  <div class="figrow">
+    <div class="figcard">
+      <div class="cap"><span>A</span>상자 A</div>
+      <div class="boxfig" data-w="3" data-d="2" data-h="2" data-label="1"></div>
+      <div class="dims">가로 <b>3</b> · 세로 <b>2</b> · 높이 <b>2</b></div>
+    </div>
+    <div class="figcard">
+      <div class="cap"><span>B</span>상자 B</div>
+      <div class="boxfig" data-w="4" data-d="3" data-h="2" data-label="1"></div>
+      <div class="dims">가로 <b>4</b> · 세로 <b>3</b> · 높이 <b>2</b></div>
+    </div>
+  </div>
+
+  <table class="inv">
+    <tr><th>상자</th><th>가로</th><th>세로</th><th>높이</th>
+      <th>(가) 한 층 개수 × 층 수</th><th>(나) 가로×세로×높이</th><th>부피<br><span class="unit">(cm³)</span></th></tr>
+    <tr><td>A</td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+    <tr><td>B</td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td></tr>
+  </table>
+
+  <p class="q"><b>②</b> 두 방법의 결과가 같았나요? <b>“한 층의 개수 × 층 수”</b>가 왜 <b>“가로 × 세로 × 높이”</b>와
+    같은지 한 문장으로 설명해 보세요.</p>
+  <div class="write">　</div>
+  <p class="tip">힌트 — ‘한 층(밑면)의 개수’는 무엇을 곱한 값일까요? 그 위로 층은 몇 번 쌓였나요?</p>
+
+  <footer class="ps-footer">Designed by <span class="ps-sig">parcyun studio</span>
+    <a class="ps-ig" href="https://www.instagram.com/parcyun">@parcyun</a></footer>
+</section>
+
+<!-- ======================= PAGE 2 : 2단계 ======================= -->
+<section class="page">
+  <div class="head">
+    <div><div class="t1">STAGE 2 · SEALED BOX</div>
+      <h1>밀폐 상자 검수</h1></div>
+    <div class="meta">번호 <b>______</b> &nbsp; 이름 <b>___________</b></div>
+  </div>
+
+  <div class="mission">
+    <div class="badge"><span class="lv">LV.2</span><span class="no">2</span></div>
+    <div class="mtxt"><div class="role">INSPECTOR · 검수원</div>
+      <h2>속이 안 보이는 상자, 어떻게 셀까?</h2>
+      <p>포장이 끝나 <b>안쪽 쌓기나무를 셀 수 없습니다.</b> 겉면의 수치만 보고 부피를 구하세요.</p></div>
+  </div>
+
+  <p class="q"><b>①</b> 아래 상자는 이미 밀봉되어 하나씩 셀 수 없습니다. 그래도 부피를 구할 수 있을까요?</p>
+
+  <div class="figrow">
+    <div class="figcard">
+      <div class="cap"><span>C</span>밀폐 상자 C</div>
+      <div class="boxfig" data-w="6" data-d="5" data-h="4" data-sealed="1" data-label="1"></div>
+      <div class="dims">가로 <b>6</b> · 세로 <b>5</b> · 높이 <b>4</b></div>
+    </div>
+    <div class="figcard">
+      <div class="cap"><span>D</span>밀폐 상자 D</div>
+      <div class="boxfig" data-w="8" data-d="6" data-h="5" data-sealed="1" data-label="1"></div>
+      <div class="dims">가로 <b>8</b> · 세로 <b>6</b> · 높이 <b>5</b></div>
+    </div>
+  </div>
+
+  <table class="inv">
+    <tr><th>상자</th><th>가로</th><th>세로</th><th>높이</th><th>식 (가로×세로×높이)</th>
+      <th>부피<br><span class="unit">(cm³)</span></th><th>검수<br>도장</th></tr>
+    <tr><td>C</td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td><span class="stamp"></span></td></tr>
+    <tr><td>D</td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td class="fill"></td><td><span class="stamp"></span></td></tr>
+  </table>
+
+  <div class="callout">
+    <b>검수원의 발견</b> — 1단계처럼 하나씩 세는 방법은 상자가 커지거나 속이 안 보이면 쓸 수 없습니다.
+    하지만 <b>가로 × 세로 × 높이</b>는 겉면 길이만 알면 언제나 통합니다. 그래서 부피 공식은
+    ‘세기’의 <u>대체 도구</u>가 아니라 더 강력한 <u>구원투수</u>예요.
+  </div>
+
+  <p class="q"><b>②</b> 친구가 “세어보지도 않고 어떻게 개수를 알아?”라고 묻습니다. 검수원으로서 한 문장으로 답해 주세요.</p>
+  <div class="write">　</div>
+
+  <footer class="ps-footer">Designed by <span class="ps-sig">parcyun studio</span>
+    <a class="ps-ig" href="https://www.instagram.com/parcyun">@parcyun</a></footer>
+</section>
+
+<!-- ======================= PAGE 3 : 3단계 ======================= -->
+<section class="page">
+  <div class="head">
+    <div><div class="t1">STAGE 3 · FACTORY MANAGER</div>
+      <h1>공장장 승진 시험</h1></div>
+    <div class="meta">번호 <b>______</b> &nbsp; 이름 <b>___________</b></div>
+  </div>
+
+  <div class="mission">
+    <div class="badge"><span class="lv">LV.3</span><span class="no">3</span></div>
+    <div class="mtxt"><div class="role">MANAGER · 공장장</div>
+      <h2>거꾸로 추리하고, 불량을 잡아내라</h2>
+      <p>부피를 알 때 빠진 길이를 찾고, 잘못된 송장을 가려내면 승진입니다.</p></div>
+  </div>
+
+  <p class="q"><b>① 빈칸 추리</b> — 송장 일부가 찢어졌습니다. 빠진 길이를 구해 □에 쓰세요. <span class="tip">(부피 ÷ 두 변)</span></p>
+  <table class="inv">
+    <tr><th>송장</th><th>가로</th><th>세로</th><th>높이</th><th>부피 (cm³)</th><th>구한 식</th></tr>
+    <tr><td>#01</td><td>4</td><td><span class="blank">□</span></td><td>3</td><td>48</td><td class="fill"></td></tr>
+    <tr><td>#02</td><td>5</td><td>6</td><td><span class="blank">□</span></td><td>180</td><td class="fill"></td></tr>
+    <tr><td>#03</td><td><span class="blank">□</span></td><td>3</td><td>4</td><td>60</td><td class="fill"></td></tr>
+  </table>
+
+  <p class="q"><b>② 불량 송장 검수</b> — <b>‘세어 적은 개수’와 ‘가로×세로×높이’가 다른</b> 송장은 불량입니다.
+    네 장 중 불량을 모두 찾아 ✔하고, 반려 사유를 적으세요.</p>
+  <div class="reject">
+    <div class="rcard"><div class="rh"><span>송장 #11</span><span>검수요망</span></div>
+      <div class="rb"><div class="row"><span>가로×세로×높이</span><b>5 × 4 × 3</b></div>
+        <div class="row"><span>적어 낸 총 개수</span><b>60&nbsp;개</b></div>
+        <div class="judge"><span><span class="chk"></span>정상</span><span><span class="chk"></span>불량</span></div></div></div>
+    <div class="rcard"><div class="rh"><span>송장 #12</span><span>검수요망</span></div>
+      <div class="rb"><div class="row"><span>가로×세로×높이</span><b>6 × 3 × 2</b></div>
+        <div class="row"><span>적어 낸 총 개수</span><b>32&nbsp;개</b></div>
+        <div class="judge"><span><span class="chk"></span>정상</span><span><span class="chk"></span>불량</span></div></div></div>
+  </div>
+  <div class="reject">
+    <div class="rcard"><div class="rh"><span>송장 #13</span><span>검수요망</span></div>
+      <div class="rb"><div class="row"><span>가로×세로×높이</span><b>7 × 2 × 5</b></div>
+        <div class="row"><span>적어 낸 총 개수</span><b>70&nbsp;개</b></div>
+        <div class="judge"><span><span class="chk"></span>정상</span><span><span class="chk"></span>불량</span></div></div></div>
+    <div class="rcard"><div class="rh"><span>송장 #14</span><span>검수요망</span></div>
+      <div class="rb"><div class="row"><span>가로×세로×높이</span><b>4 × 4 × 4</b></div>
+        <div class="row"><span>적어 낸 총 개수</span><b>60&nbsp;개</b></div>
+        <div class="judge"><span><span class="chk"></span>정상</span><span><span class="chk"></span>불량</span></div></div></div>
+  </div>
+  <div class="write" style="margin-top:8px">반려 사유: 　</div>
+
+  <p class="q"><b>③ 공장장 도전</b> — 부피가 <b>똑같이 24&nbsp;cm³</b>인 직육면체를 모양이 다르게 <b>4가지 이상</b>
+    만들어 (가로×세로×높이)로 쓰세요. <span class="tip">모양은 달라도 부피는 같다!</span></p>
+  <div class="cgrid">
+    <div class="cbox">_ × _ × _</div><div class="cbox">_ × _ × _</div>
+    <div class="cbox">_ × _ × _</div><div class="cbox">_ × _ × _</div>
+  </div>
+
+  <footer class="ps-footer">Designed by <span class="ps-sig">parcyun studio</span>
+    <a class="ps-ig" href="https://www.instagram.com/parcyun">@parcyun</a></footer>
+</section>
+
+<!-- ======================= PAGE 4 : 교사용 정답 ======================= -->
+<section class="page ans" id="answer">
+  <div class="head">
+    <div><div class="t1">TEACHER KEY · 교사용 정답 & 지도 노트</div>
+      <h1>공장 게임 — 정답 및 운영 가이드</h1></div>
+    <div class="meta">6학년 · 직육면체의 부피<br>※ 학생 배부본에서 제외</div>
+  </div>
+
+  <h3>1단계 · 신입사원</h3>
+  <ul>
+    <li>상자 A (3·2·2): 한 층 <code>3×2=6</code>개 × <code>2</code>층 = <b>12</b> / 가로×세로×높이 <code>3×2×2=12</code> → <b>12&nbsp;cm³</b></li>
+    <li>상자 B (4·3·2): 한 층 <code>4×3=12</code>개 × <code>2</code>층 = <b>24</b> / <code>4×3×2=24</code> → <b>24&nbsp;cm³</b></li>
+    <li>②핵심 설명(예시): “한 층의 개수는 <b>가로×세로</b>이고, 그 층이 <b>높이</b>만큼 쌓이므로 결국 가로×세로×높이와 같다.”</li>
+  </ul>
+
+  <h3>2단계 · 검수원</h3>
+  <ul>
+    <li>상자 C (6·5·4): <code>6×5×4 = 120</code> → <b>120&nbsp;cm³</b></li>
+    <li>상자 D (8·6·5): <code>8×6×5 = 240</code> → <b>240&nbsp;cm³</b></li>
+    <li>②답변(예시): “겉면의 가로·세로·높이만 곱하면 안을 세지 않아도 전체 개수를 알 수 있어.”</li>
+    <li>지도 포인트 — 셀 수 없게 ‘밀폐’시킨 것이 의도된 장치. 곱셈의 <b>필요성</b>을 체감시키는 단계.</li>
+  </ul>
+
+  <h3>3단계 · 공장장</h3>
+  <ul>
+    <li>① 빈칸 추리: #01 세로 = <code>48÷(4×3)=</code><b>4</b> · #02 높이 = <code>180÷(5×6)=</code><b>6</b> · #03 가로 = <code>60÷(3×4)=</code><b>5</b></li>
+    <li>② 불량 송장: <b>#12</b>(6×3×2=<b>36</b>≠32) · <b>#14</b>(4×4×4=<b>64</b>≠60) → 반려. (#11·#13은 정상)</li>
+    <li>③ 24&nbsp;cm³ 예시: <code>1×2×12</code> · <code>2×3×4</code> · <code>2×2×6</code> · <code>1×4×6</code> · <code>1×3×8</code> · <code>1×1×24</code> 등 (모양 달라도 부피 동일)</li>
+  </ul>
+
+  <h3>평가 루브릭 (3수준)</h3>
+  <ul>
+    <li><b>잘함(상)</b> — 3단계의 역연산·불량 검수까지 정확히 해결하고, 부피가 같은 여러 모양을 4가지 이상 제시</li>
+    <li><b>보통(중)</b> — 가로×세로×높이로 부피를 구하고, 세기 결과와 같음을 자기 말로 설명(1~2단계)</li>
+    <li><b>노력요함(하)</b> — 쌓기나무를 직접 세어 개수를 구함(1단계)</li>
+  </ul>
+
+  <h3>운영 팁</h3>
+  <ul>
+    <li>실물 쌓기나무가 있으면 1단계는 손으로 쌓아 ‘세기=곱하기’를 몸으로 확인시킨 뒤 학습지로 정리.</li>
+    <li>모둠별 ‘검수 도장’을 나눠 주면 몰입도가 올라갑니다. 2단계 통과 시 도장, 3단계 통과 시 ‘공장장 임명장’.</li>
+    <li>빠른 형성평가가 필요하면 ②불량 검수만 떼어 쪽지시험으로 활용 가능.</li>
+  </ul>
+
+  <footer class="ps-footer">Designed by <span class="ps-sig">parcyun studio</span>
+    <a class="ps-ig" href="https://www.instagram.com/parcyun">@parcyun</a></footer>
+</section>
+
+<script>
+// ── 아이소메트릭 쌓기나무 직육면체 생성기 ──
+function isoBox(w,d,h,opt){
+  opt=opt||{};
+  const s=opt.s||22, doff=opt.doff||11, p=18, sealed=!!opt.sealed, label=!!opt.label;
+  const Ox=p, Oy=p + d*doff + h*s;
+  const vbW=w*s + d*doff + 2*p, vbH=d*doff + h*s + 2*p + (label?14:0);
+  const P=(a,b,c)=>[Ox+a*s+b*doff, Oy - b*doff - c*s];
+  const poly=(pts,fill)=>`<polygon points="${pts.map(q=>q.join(',')).join(' ')}" fill="${fill}" stroke="${edge}" stroke-width="1.6" stroke-linejoin="round"/>`;
+  const line=(a,b)=>`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${grid}" stroke-width="1"/>`;
+  // colors
+  const fF = sealed?'#E7C98F':'#FFE3A8';
+  const fT = sealed?'#F2DCAE':'#FFF3D6';
+  const fR = sealed?'#D9B673':'#FFD27A';
+  const edge = sealed?'#9C7B3A':'#C98A12';
+  const grid = sealed?'#9C7B3A':'#D9A93E';
+  let svg=`<svg viewBox="0 0 ${vbW} ${vbH}" width="${Math.min(vbW,260)}" xmlns="http://www.w3.org/2000/svg">`;
+  // faces (back-to-front: top, then right, then front)
+  svg+=poly([P(0,0,h),P(w,0,h),P(w,d,h),P(0,d,h)],fT);   // top
+  svg+=poly([P(w,0,0),P(w,d,0),P(w,d,h),P(w,0,h)],fR);   // right
+  svg+=poly([P(0,0,0),P(w,0,0),P(w,0,h),P(0,0,h)],fF);   // front
+  if(!sealed){
+    // front grid
+    for(let a=1;a<w;a++) svg+=line(P(a,0,0),P(a,0,h));
+    for(let c=1;c<h;c++) svg+=line(P(0,0,c),P(w,0,c));
+    // top grid
+    for(let a=1;a<w;a++) svg+=line(P(a,0,h),P(a,d,h));
+    for(let b=1;b<d;b++) svg+=line(P(0,b,h),P(w,b,h));
+    // right grid
+    for(let b=1;b<d;b++) svg+=line(P(w,b,0),P(w,b,h));
+    for(let c=1;c<h;c++) svg+=line(P(w,0,c),P(w,d,c));
+  } else {
+    // sealed: packing tape across top + front
+    const t1=P(w/2,0,h), t2=P(w/2,d,h);
+    svg+=`<line x1="${t1[0]}" y1="${t1[1]}" x2="${t2[0]}" y2="${t2[1]}" stroke="${edge}" stroke-width="3" opacity=".5"/>`;
+    const f1=P(w/2,0,0), f2=P(w/2,0,h);
+    svg+=`<line x1="${f1[0]}" y1="${f1[1]}" x2="${f2[0]}" y2="${f2[1]}" stroke="${edge}" stroke-width="3" opacity=".5"/>`;
+  }
+  if(label){
+    const tx=(t,x,y,anc)=>`<text x="${x}" y="${y}" font-size="11" font-family="Montserrat,sans-serif" font-weight="600" fill="#5A6478" text-anchor="${anc}">${t}</text>`;
+    const gw=P(w/2,0,0); svg+=tx(w, gw[0], Oy+13, 'middle');          // 가로
+    const gh=P(0,0,h/2); svg+=tx(h, gh[0]-7, gh[1]+4, 'end');         // 높이
+    const gd=P(w,d/2,0); svg+=tx(d, gd[0]+7, gd[1]+4, 'start');       // 세로
+  }
+  return svg+'</svg>';
+}
+document.querySelectorAll('.boxfig').forEach(el=>{
+  el.innerHTML=isoBox(+el.dataset.w,+el.dataset.d,+el.dataset.h,
+    {sealed:el.dataset.sealed==='1',label:el.dataset.label==='1'});
+});
+// 정답 숨김 토글
+const style=document.createElement('style');
+style.textContent='.hideans #answer{display:none}';
+document.head.appendChild(style);
+</script>
+</body>
+</html>

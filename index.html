@@ -590,6 +590,57 @@ section.in-view, .hero.in-view {
 /* ===== Hero CTAs (multi-row) ===== */
 .hero-ctas + .hero-ctas { margin-top: 12px; }
 
+/* ===== Arcade CTA (below activities) ===== */
+.arcade-cta {
+  margin-top: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 28px 32px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 16px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 6px, rgba(255,177,26,.03) 6px 7px),
+    var(--ps-surface-cinematic-1);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 320ms var(--ps-ease-out), transform 320ms var(--ps-ease-out);
+}
+.arcade-cta::before {
+  content: '';
+  position: absolute; left: 0; top: 0; height: 3px; width: 100%;
+  background: repeating-linear-gradient(90deg, var(--ps-primary) 0 12px, transparent 12px 20px);
+  opacity: .5;
+}
+.arcade-cta:hover { border-color: var(--ps-primary); transform: translateY(-3px); }
+.arcade-cta-inner { display: flex; flex-direction: column; gap: 8px; }
+.arcade-cta-eyebrow {
+  font-family: 'JetBrains Mono', var(--ps-font-en), monospace;
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  color: var(--ps-primary);
+  animation: arcadeBlink 1.6s steps(1) infinite;
+}
+@keyframes arcadeBlink { 0%,60%{opacity:1} 61%,100%{opacity:.35} }
+.arcade-cta-title {
+  font-family: 'JetBrains Mono', var(--ps-font-en), monospace;
+  font-size: clamp(22px, 3vw, 30px); font-weight: 400; letter-spacing: -0.5px; color: #FFFFFF;
+}
+.arcade-cta-title strong { color: var(--ps-primary); font-weight: 700; }
+.arcade-cta-desc { font-size: 13px; font-weight: 300; color: var(--ps-text-cinematic-secondary); max-width: 520px; }
+.arcade-cta-play {
+  font-family: 'JetBrains Mono', var(--ps-font-en), monospace;
+  font-size: 14px; font-weight: 700; letter-spacing: 1px;
+  color: #000; background: var(--ps-primary);
+  padding: 14px 24px; border-radius: 100px; white-space: nowrap;
+  transition: background 240ms var(--ps-ease-out);
+}
+.arcade-cta:hover .arcade-cta-play { background: var(--ps-primary-dark); }
+@media (prefers-reduced-motion: reduce) {
+  .arcade-cta-eyebrow { animation: none; }
+}
+
 /* ===== Career section · collapsible ===== */
 .career-toggle {
   display: inline-flex;
@@ -1175,6 +1226,16 @@ section.in-view, .hero.in-view {
         </a>
       </div>
     </div>
+
+    <!-- ── Arcade CTA ── -->
+    <a href="./arcade/" class="arcade-cta">
+      <div class="arcade-cta-inner">
+        <span class="arcade-cta-eyebrow">// INSERT COIN</span>
+        <span class="arcade-cta-title">parcyun <strong>arcade</strong></span>
+        <span class="arcade-cta-desc">교실에서 바로 쓰는 학습 게임 모음 ─ 오락실처럼 즐기는 자료 전용 공간.</span>
+      </div>
+      <span class="arcade-cta-play">▶ PLAY</span>
+    </a>
 
   </div>
 </section>

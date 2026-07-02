@@ -793,6 +793,60 @@ section.in-view, .hero.in-view {
   transition: color 240ms var(--ps-ease-out);
 }
 .ps-footer-link:hover { color: var(--ps-primary); }
+.ps-footer-coffee {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  color: var(--ps-primary);
+  background: transparent;
+  border: 0;
+  padding: 0 10px 0 0;
+  margin-right: 4px;
+  border-right: 1px solid rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  transition: color 240ms var(--ps-ease-out);
+}
+.ps-footer-coffee:hover { color: var(--ps-primary-dark); }
+
+/* ===== 커피 후원 QR 팝업 ===== */
+.coffee-modal {
+  position: fixed; inset: 0; z-index: 10000;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.coffee-modal[hidden] { display: none; }
+.coffee-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  animation: coffeeFade 0.2s var(--ps-ease-out);
+}
+@keyframes coffeeFade { from { opacity: 0; } to { opacity: 1; } }
+.coffee-card {
+  position: relative; z-index: 1;
+  background: var(--ps-surface-cinematic-1);
+  border: 1px solid var(--ps-primary);
+  border-radius: 18px;
+  padding: 32px 32px 26px;
+  text-align: center; max-width: 340px; width: 100%;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(255, 177, 26, 0.12);
+  animation: coffeePop 0.28s var(--ps-ease-out);
+}
+@keyframes coffeePop { from { opacity: 0; transform: translateY(16px) scale(0.96); } to { opacity: 1; transform: none; } }
+.coffee-close {
+  position: absolute; top: 12px; right: 16px;
+  background: transparent; border: 0;
+  color: var(--ps-text-cinematic-secondary);
+  font-size: 24px; line-height: 1; cursor: pointer;
+  transition: color 150ms var(--ps-ease-out);
+}
+.coffee-close:hover { color: var(--ps-primary); }
+.coffee-emoji { font-size: 40px; line-height: 1; margin-bottom: 10px; }
+.coffee-title { margin: 0 0 6px; font-size: 19px; font-weight: 500; color: #FFFFFF; }
+.coffee-sub { margin: 0 0 20px; font-size: 13px; font-weight: 300; color: var(--ps-text-cinematic-secondary); line-height: 1.6; }
+.coffee-qr { display: block; width: 220px; height: 220px; margin: 0 auto 14px; border-radius: 12px; background: #fff; padding: 10px; object-fit: contain; }
+.coffee-qr-fallback { display: none; margin: 0 auto 14px; padding: 40px 16px; border: 1px dashed var(--ps-surface-cinematic-3); border-radius: 12px; font-family: var(--ps-font-en); font-size: 12px; color: var(--ps-text-cinematic-secondary); }
+.coffee-label { font-family: var(--ps-font-signature); font-size: 20px; color: var(--ps-primary); }
 </style>
 </head>
 
@@ -1190,6 +1244,28 @@ section.in-view, .hero.in-view {
       </div>
     </div>
 
+    <!-- ── Sub-section: 사회 ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko">사회</h3>
+        <span class="en">Social Studies</span>
+      </header>
+      <div class="lecture-grid">
+        <div class="lecture-card placeholder">
+          <p class="topic">세계 지리 시뮬레이터</p>
+          <span class="cs-label">개발중 · 곧 공개</span>
+        </div>
+        <div class="lecture-card placeholder">
+          <p class="topic">사회 활동 자료 추가 예정</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+        <div class="lecture-card placeholder">
+          <p class="topic">사회 활동 자료 추가 예정</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
     <!-- ── Sub-section: AI 활용 수업 ── -->
     <div class="lecture-section">
       <header class="lecture-subsection-header">
@@ -1281,6 +1357,7 @@ section.in-view, .hero.in-view {
 
 <!-- ===== Mandatory parcyun footer ===== -->
 <footer class="ps-footer">
+  <button type="button" class="ps-footer-coffee" id="ps-coffee">☕ 커피 사주기</button>
   <a href="./dashboard.html" class="ps-footer-link">업무 대시보드 ↗</a>
   Designed by
   <span class="ps-signature">parcyun studio</span>
@@ -1291,6 +1368,21 @@ section.in-view, .hero.in-view {
     @parcyun
   </a>
 </footer>
+
+<!-- ===== 커피 후원 QR 팝업 ===== -->
+<div class="coffee-modal" id="coffee-modal" hidden>
+  <div class="coffee-backdrop" data-coffee-close></div>
+  <div class="coffee-card" role="dialog" aria-modal="true" aria-labelledby="coffee-title">
+    <button class="coffee-close" id="coffee-close" type="button" aria-label="닫기">×</button>
+    <div class="coffee-emoji">☕</div>
+    <h3 class="coffee-title" id="coffee-title">개발자에게 커피 한 잔</h3>
+    <p class="coffee-sub">QR을 스캔해 후원할 수 있어요. 감사합니다!</p>
+    <img class="coffee-qr" src="./images/coffee-qr.png" alt="parcyun studio 후원 QR"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <div class="coffee-qr-fallback">QR 이미지를 불러올 수 없습니다.</div>
+    <div class="coffee-label">parcyun studio</div>
+  </div>
+</div>
 
 <!-- ===== Entry animation ===== -->
 <script>
@@ -1317,6 +1409,17 @@ function toggleCareer(btn){
   list.classList.toggle('collapsed', expanded);
   btn.querySelector('.label').textContent = expanded ? '경력 전체 보기' : '경력 접기';
 }
+
+/* ===== 커피 후원 QR 팝업 ===== */
+(function(){
+  var modal = document.getElementById('coffee-modal');
+  function open(){ modal.hidden = false; }
+  function close(){ modal.hidden = true; }
+  document.getElementById('ps-coffee').addEventListener('click', open);
+  document.getElementById('coffee-close').addEventListener('click', close);
+  modal.addEventListener('click', function(e){ if(e.target.hasAttribute('data-coffee-close')) close(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && !modal.hidden) close(); });
+})();
 </script>
 
 </body>

@@ -28,6 +28,9 @@
     + '.ps-share-toast.show{opacity:1;transform:translateY(0);}'
     + '@media (max-width:520px){.ps-share-fab{right:14px;bottom:14px;padding:11px 15px;font-size:12px;}'
     + '.ps-share-toast{right:14px;bottom:64px;}}'
+    // 아주 좁은 화면: 아이콘만 남긴 원형 FAB — 주요 버튼을 덜 가림
+    + '@media (max-width:430px){.ps-share-fab{padding:0;width:48px;height:48px;border-radius:50%;justify-content:center;gap:0;}'
+    + '.ps-share-fab span{display:none;}.ps-share-fab svg{width:20px;height:20px;}}'
     + '@media (prefers-reduced-motion:reduce){.ps-share-fab,.ps-share-toast{transition:none;}}';
 
   var shareIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '

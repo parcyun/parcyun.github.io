@@ -6,8 +6,8 @@
    설정(SUPABASE_URL / ANON_KEY)이 비어 있으면 아무 동작도 하지 않음(오류·요청 없음). */
 (function () {
   // ===== CONFIG — 값이 채워지면 활성화됨 =====
-  var SUPABASE_URL = '';        // 예: https://xxxxxxxx.supabase.co
-  var SUPABASE_ANON_KEY = '';   // 프로젝트 Settings → API → anon public key
+  var SUPABASE_URL = 'https://myeouecgpjxcddemexcg.supabase.co';
+  var SUPABASE_ANON_KEY = 'sb_publishable_qHxQM-Z6vVAk9YKMluyFSw_0_fo9sKY';
   // ==========================================
 
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;   // 미설정 시 완전 무동작

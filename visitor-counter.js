@@ -44,10 +44,16 @@
       host.id = 'visitor-stats';
       host.className = 'ps-visits ps-visits-float';
       document.body.appendChild(host);
-      // 우측 하단에 고정 푸터(.ps-footer)가 있으면 그 위로 띄워 겹침 방지
+      // 고정 푸터(.ps-footer)가 좌하단 카운터 위치를 덮을 때만(모바일 전폭 푸터) 위로 띄움.
+      // 데스크톱은 푸터가 우하단 pill이라 좌하단 코너 그대로 둠 → 히어로 버튼과 덜 겹침.
       var footer = document.querySelector('.ps-footer');
       if (footer) {
-        try { host.style.bottom = (footer.getBoundingClientRect().height + 26) + 'px'; } catch (e) {}
+        try {
+          var fr = footer.getBoundingClientRect();
+          var hr = host.getBoundingClientRect();
+          var overlaps = !(hr.right < fr.left || hr.left > fr.right || hr.bottom < fr.top || hr.top > fr.bottom);
+          if (overlaps) host.style.bottom = (fr.height + 26) + 'px';
+        } catch (e) {}
       }
     }
     var labelToday = isMain ? '오늘' : '오늘';   // (동일 — 향후 분기 여지)

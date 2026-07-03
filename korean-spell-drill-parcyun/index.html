@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>맞춤법 고치기 — Arcade Bold v2.0.8 · parcyun studio</title>
+<title>맞춤법 고치기 — Arcade Bold v2.0.9 · parcyun studio</title>
 <meta name="description" content="틀린 문장을 바르게 고쳐 타이핑하는 콤보형 맞춤법·문법 드릴 게임. 한국어·영어(북미) 모드. Designed by parcyun studio.">
 <!-- 공유 미리보기 (게임 첫 화면 커버) -->
 <meta property="og:type" content="website">
@@ -190,6 +190,13 @@
   .hint{margin:14px 0 0 18px;padding:12px 16px;background:rgba(255,177,26,.06);border:1px dashed var(--amber);color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.5;display:none}
   .hint.show{display:block;animation:slamIn .25s cubic-bezier(.2,1.4,.4,1)}
   .hint::before{content:"HINT // ";color:var(--amber-bright);font-weight:700}
+  /* 무료 맥락 배너 — 헷갈리는 표현의 상황 설명(점수 차감 없음). 점선 힌트와 구분되는 실선 스타일 */
+  .q-note{margin:16px 0 0 18px;padding:12px 16px;background:rgba(255,255,255,.045);border-left:3px solid var(--amber);
+    border-radius:0 8px 8px 0;color:rgba(255,255,255,.86);font-family:Pretendard,sans-serif;font-size:13.5px;
+    line-height:1.62;word-break:keep-all}
+  .q-note[hidden]{display:none}
+  .q-note::before{content:"맥락 · ";font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+    letter-spacing:.06em;color:var(--amber);text-transform:uppercase}
 
   .actions{margin-top:18px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px}
   @media (max-width:680px){.actions{grid-template-columns:1fr 1fr}}
@@ -329,10 +336,10 @@
 <div class="lightning-flash" id="flash"></div>
 <div class="float-tag" id="float-tag"></div>
 <div id="version-tip">
-  <b id="version-tip-title">v2.0.8 업데이트</b>
+  <b id="version-tip-title">v2.0.9 업데이트</b>
   <ul id="version-tip-list">
-    <li>방문자 수(오늘·누적) 카운터 추가</li>
-    <li>헷갈리기 쉬운 표현에 상황 예시 설명 추가 (가리키다/가르치다 등)</li>
+    <li>헷갈리는 표현의 상황 설명을 상단 '맥락'으로 무료 표시 (힌트와 분리, 점수 차감 없음)</li>
+    <li>방문자 수(오늘·전체) 카운터 추가</li>
     <li>'쌤 동료에게 공유하기' 플로팅 버튼 추가</li>
     <li>콤보 유지 점수 배수: 5+ ×2, 10+ ×3, 15+ ×4</li>
   </ul>
@@ -342,7 +349,7 @@
   <div class="topbar">
     <div class="left">
       <div class="logo">
-        <span class="dot"></span> SPELL DRILL // v2.0.8
+        <span class="dot"></span> SPELL DRILL // v2.0.9
         <span class="version-note" tabindex="0">
           <span class="vq">i</span>
         </span>
@@ -422,6 +429,7 @@
         <div class="q-row">
           <div class="q-label"><span id="q-label-wrong-text">고쳐야 하는 문장</span> <span class="badge">WRONG</span></div>
           <div class="q-prompt" id="q-prompt"></div>
+          <div class="q-note" id="q-note" hidden></div>
         </div>
 
         <div class="q-row">
@@ -538,25 +546,25 @@ const SENTENCES = {
     { wrong: "이번 주에 몇일 쉬어?", correct: "이번 주에 며칠 쉬어?", hint: "'며칠'이 표준어. '몇일'은 비표준." },
     { wrong: "방을 깨끗히 청소했어.", correct: "방을 깨끗이 청소했어.", hint: "부사 끝은 대부분 '-이'." },
     { wrong: "마음이 설레여요.", correct: "마음이 설레요.", hint: "기본형은 '설레다'. '설레이다'는 비표준." },
-    { wrong: "건강하길 바래.", correct: "건강하길 바라.", hint: "무언가를 '소망'하는 상황이면 '바라'(기본형 바라다). '바래다'는 색이 옅어지거나 누구를 배웅하는 것이라 뜻이 다름. (예: 합격하길 바라 / 청바지가 바래다)" },
-    { wrong: "감기가 빨리 낳아라.", correct: "감기가 빨리 나아라.", hint: "병·상처가 회복되는 상황이면 '낫다'(→나아라). '낳다'는 아이를 출산하는 상황이라 뜻이 완전히 다름. (예: 감기가 낫다 / 아기를 낳다)" },
+    { wrong: "건강하길 바래.", correct: "건강하길 바라.", note: "이 문장은 '소망하다'라는 뜻(기본형 바라다). 색이 옅어지거나 배웅하는 '바래다'와는 다른 말이에요. (예: 합격하길 바라 / 청바지가 바래다)", hint: "기본형 '바라다' → '바라'." },
+    { wrong: "감기가 빨리 낳아라.", correct: "감기가 빨리 나아라.", note: "이 문장은 '병이 회복되다'라는 뜻. 아이를 낳는 '낳다'와는 완전히 다른 말이에요. (예: 감기가 낫다 / 아기를 낳다)", hint: "어간 '낫-'+'-아라' → '나아라'." },
     { wrong: "이건 어떻해 풀어?", correct: "이건 어떻게 풀어?", hint: "방법을 물을 땐 '어떻게'." },
     { wrong: "공부를 일일히 가르쳤어.", correct: "공부를 일일이 가르쳤어.", hint: "부사형은 '-이'." },
     { wrong: "약속을 안 지키면 안되.", correct: "약속을 안 지키면 안 돼.", hint: "문장 끝은 '돼'." },
     { wrong: "쓰래기 좀 버려줘.", correct: "쓰레기 좀 버려줘.", hint: "'쓰레기'가 표준어." },
     { wrong: "오랫만에 만났네.", correct: "오랜만에 만났네.", hint: "'오랜만'이 표준어." },
     { wrong: "내 역활이 뭐였지?", correct: "내 역할이 뭐였지?", hint: "'役割'은 '역할'." },
-    { wrong: "정말 어의가 없다.", correct: "정말 어이가 없다.", hint: "황당함을 나타내는 관용구는 '어이(가) 없다'. '어의'는 임금의 옷/궁중 의사라 뜻이 전혀 다름. (예: 어이없는 실수)" },
+    { wrong: "정말 어의가 없다.", correct: "정말 어이가 없다.", note: "'어이(가) 없다'는 황당하다는 뜻의 관용구. '어의'(임금의 옷/궁중 의사)와는 전혀 다른 말이에요. (예: 어이없는 실수)", hint: "'어이'로 고쳐요." },
     { wrong: "맛있는 떡뽁이 먹자.", correct: "맛있는 떡볶이 먹자.", hint: "'볶다'의 '볶이'." },
     { wrong: "내일 뵈요.", correct: "내일 봬요.", hint: "'보아요'의 준말은 '봬요'." },
-    { wrong: "그러던지 말던지.", correct: "그러든지 말든지.", hint: "둘 중 무엇을 골라도 상관없는 '선택' 상황이면 '-든지'. 과거를 '회상'하는 상황이면 '-던지'. (예: 가든지 말든지 / 얼마나 춥던지)" },
+    { wrong: "그러던지 말던지.", correct: "그러든지 말든지.", note: "이 문장은 '무엇을 골라도 상관없다'는 선택의 뜻. 과거를 회상하는 '-던지'와는 다른 말이에요. (예: 가든지 말든지 / 얼마나 춥던지)", hint: "선택은 '-든지'." },
     { wrong: "김치찌게가 맛있어.", correct: "김치찌개가 맛있어.", hint: "'찌개'가 표준어." },
     { wrong: "오랜만에 잘 지냇어.", correct: "오랜만에 잘 지냈어.", hint: "'지내'+'었'+'어' = '지냈어'." },
     { wrong: "웬지 기분이 이상해.", correct: "왠지 기분이 이상해.", hint: "'왜인지'의 줄임은 '왠지'." },
     { wrong: "내가 도와 줄께.", correct: "내가 도와줄게.", hint: "'도와주다' 한 단어, 어미는 '-ㄹ게'." },
     { wrong: "옳바른 자세로 앉아.", correct: "올바른 자세로 앉아.", hint: "'올바르다' 한 단어." },
     { wrong: "햇볓이 너무 좋아.", correct: "햇볕이 너무 좋아.", hint: "'볕'은 ㅂ받침." },
-    { wrong: "겉잡을 수 없이 번졌어.", correct: "걷잡을 수 없이 번졌어.", hint: "커진 기세를 붙잡아 막지 못하는 상황이면 '걷잡을 수 없다'. '겉잡다'는 겉으로 대강 어림잡는 것이라 뜻이 다름. (예: 불길이 걷잡을 수 없이 번지다)" },
+    { wrong: "겉잡을 수 없이 번졌어.", correct: "걷잡을 수 없이 번졌어.", note: "'걷잡을 수 없다'는 커진 기세를 막지 못한다는 뜻. 겉으로 대강 어림잡는 '겉잡다'와는 다른 말이에요. (예: 불길이 걷잡을 수 없이 번지다)", hint: "'걷잡을'로 고쳐요." },
     { wrong: "다시는 안 그럴께.", correct: "다시는 안 그럴게.", hint: "약속의 어미는 '-ㄹ게'." },
     { wrong: "내가 어떻해야 돼?", correct: "내가 어떡해야 돼?", hint: "'어떻게 해'의 줄임은 '어떡해'." },
     { wrong: "초콜렛 좋아해.", correct: "초콜릿 좋아해.", hint: "외래어 표기는 '초콜릿'." },
@@ -570,16 +578,16 @@ const SENTENCES = {
     { wrong: "공부할 꺼야.", correct: "공부할 거야.", hint: "의존명사 '거', 어미 '-ㄹ'." },
     { wrong: "이 책 정말 재밋다.", correct: "이 책 정말 재밌다.", hint: "'재미있다'의 준말은 '재밌다'." },
     { wrong: "병이 빨리 나앗어.", correct: "병이 빨리 나았어.", hint: "어간 '낫-' + '-았어' = '나았어'." },
-    { wrong: "결재해 주세요.", correct: "결제해 주세요.", hint: "돈을 지불하는 상황이면 '결제'. 상급자가 서류를 승인하는 상황이면 '결재'. (예: 카드 결제 / 서류 결재)" },
-    { wrong: "출석을 가름한다.", correct: "출석을 갈음한다.", hint: "무언가를 '대신하는' 상황이면 '갈음'. '가름'은 나누거나 구별하는 것이라 뜻이 다름. (예: 인사말로 갈음하다 / 승부를 가름하다)" },
+    { wrong: "결재해 주세요.", correct: "결제해 주세요.", note: "이 문장은 '돈을 지불하다'라는 뜻. 상급자가 서류를 승인하는 '결재'와는 다른 말이에요. (예: 카드 결제 / 서류 결재)", hint: "돈 지불은 '결제'." },
+    { wrong: "출석을 가름한다.", correct: "출석을 갈음한다.", note: "이 문장은 '무언가를 대신하다'라는 뜻. 나누거나 구별하는 '가름'과는 다른 말이에요. (예: 인사말로 갈음하다 / 승부를 가름하다)", hint: "대신함은 '갈음'." },
     { wrong: "비스켓 먹을래?", correct: "비스킷 먹을래?", hint: "'biscuit'은 '비스킷'." },
     { wrong: "쇼파에 누웠어.", correct: "소파에 누웠어.", hint: "'sofa'는 '소파'." },
     { wrong: "악세사리가 예뻐.", correct: "액세서리가 예뻐.", hint: "'accessory'는 '액세서리'." },
     { wrong: "엄마가 문 잠궈 둬.", correct: "엄마가 문 잠가 둬.", hint: "어간 '잠그-' + '-아' = '잠가'." },
     { wrong: "기쁨에 들떳어.", correct: "기쁨에 들떴어.", hint: "어간 '들뜨-' + '-었어' = '들떴어'." },
     { wrong: "이번 시험은 잘 봣어.", correct: "이번 시험은 잘 봤어.", hint: "'보-' + '-았어' = '봤어'." },
-    { wrong: "내가 그를 가르켰다.", correct: "내가 그를 가리켰다.", hint: "손으로 방향·대상을 짚는 상황이면 '가리키다'. 지식을 알려주는 상황이면 '가르치다'로 뜻이 완전히 다름. (예: 지도를 가리키다 / 학생을 가르치다)" },
-    { wrong: "맞춤법을 마쳤어.", correct: "맞춤법을 맞혔어.", hint: "정답을 알아맞히는 상황이면 '맞히다'. '마치다'=일을 끝내다, '맞추다'=서로 맞대어 비교·조립. (예: 퀴즈를 맞히다 / 숙제를 마치다 / 답을 맞춰 보다)" },
+    { wrong: "내가 그를 가르켰다.", correct: "내가 그를 가리켰다.", note: "이 문장은 '손으로 방향·대상을 짚다'라는 뜻. 지식을 알려주는 '가르치다'와는 완전히 다른 말이에요. (예: 지도를 가리키다 / 학생을 가르치다)", hint: "'가리키다'로 고쳐요." },
+    { wrong: "맞춤법을 마쳤어.", correct: "맞춤법을 맞혔어.", note: "이 문장은 '정답을 알아맞히다'라는 뜻. '마치다(끝내다)'·'맞추다(맞대어 비교)'와는 다른 말이에요. (예: 퀴즈를 맞히다 / 숙제를 마치다 / 답을 맞춰 보다)", hint: "'맞히다'로 고쳐요." },
     { wrong: "넌 정말 알아맞쳤다.", correct: "넌 정말 알아맞혔다.", hint: "'맞히다'가 표준." },
     { wrong: "그닥 어렵지 않아.", correct: "그다지 어렵지 않아.", hint: "표준어는 '그다지'." },
     { wrong: "벌써 9시 됬어.", correct: "벌써 9시 됐어.", hint: "'되었다'의 줄임은 '됐다'." },
@@ -596,7 +604,7 @@ const SENTENCES = {
     { wrong: "그 동안 잘 지냈어?", correct: "그동안 잘 지냈어?", hint: "'그동안'은 한 단어." },
     { wrong: "마음의 설레임을 안고.", correct: "마음의 설렘을 안고.", hint: "'설렘'이 명사형." },
     { wrong: "꿈을 향한 바램.", correct: "꿈을 향한 바람.", hint: "기본형 '바라다' → 명사 '바람'." },
-    { wrong: "선생님으로써 책임지자.", correct: "선생님으로서 책임지자.", hint: "'자격·신분'을 나타내는 상황이면 '-로서'. '수단·도구·방법'을 나타내는 상황이면 '-로써'. (예: 교사로서 / 대화로써 해결)" },
+    { wrong: "선생님으로써 책임지자.", correct: "선생님으로서 책임지자.", note: "이 문장은 '자격·신분'을 나타내요. 수단·도구·방법을 나타내는 '-로써'와는 다른 조사예요. (예: 교사로서 / 대화로써 해결)", hint: "자격·신분은 '-로서'." },
     { wrong: "두번째 줄을 보세요.", correct: "두 번째 줄을 보세요.", hint: "수와 단위는 띄어요." },
     { wrong: "며칠전부터 비가 와.", correct: "며칠 전부터 비가 와.", hint: "'전'은 의존명사 — 띄움." },
     { wrong: "운동으로 살을빼자.", correct: "운동으로 살을 빼자.", hint: "조사 뒤 동사는 띄움." },
@@ -636,7 +644,7 @@ const SENTENCES = {
     { wrong: "공부 하지 않아.", correct: "공부하지 않아.", hint: "'-하다' 동사는 붙임." },
     { wrong: "옷이 깨끗 합니다.", correct: "옷이 깨끗합니다.", hint: "'-하다' 형용사는 붙임." },
     { wrong: "교실은 조용 한 편이에요.", correct: "교실은 조용한 편이에요.", hint: "관형사형 '-한'은 붙임." },
-    { wrong: "곤혹을 당했다.", correct: "곤욕을 당했다.", hint: "심한 모욕·고통을 '당하는' 상황이면 '곤욕'. 곤란해서 '당황하는' 상황이면 '곤혹'(곤혹스럽다). (예: 곤욕을 치르다 / 질문에 곤혹스럽다)" },
+    { wrong: "곤혹을 당했다.", correct: "곤욕을 당했다.", note: "이 문장은 '심한 모욕·고통을 당하다'라는 뜻. 곤란해서 당황하는 '곤혹(곤혹스럽다)'과는 다른 말이에요. (예: 곤욕을 치르다 / 질문에 곤혹스럽다)", hint: "당하는 건 '곤욕'." },
     { wrong: "친구간에 의리는 중요해.", correct: "친구 간에 의리는 중요해.", hint: "사이를 뜻하는 '간'은 의존명사 — 띄움." },
     { wrong: "그건 너 답지 않다.", correct: "그건 너답지 않다.", hint: "접미사 '-답다'는 붙임." },
     { wrong: "노력 한 만큼 결과가 나와.", correct: "노력한 만큼 결과가 나와.", hint: "'-하다' 동사는 붙임." },
@@ -657,7 +665,7 @@ const SENTENCES = {
     { wrong: "그는 박사 답게 행동했다.", correct: "그는 박사답게 행동했다.", hint: "접미사 '-답게'는 붙임." },
     { wrong: "오늘 따라 기분이 좋아.", correct: "오늘따라 기분이 좋아.", hint: "조사 '따라'는 붙임." },
     { wrong: "고난을 격었다.", correct: "고난을 겪었다.", hint: "기본형은 '겪다'." },
-    { wrong: "어른들의 뜻을 쫒았다.", correct: "어른들의 뜻을 좇았다.", hint: "뜻·이상·목표를 추구하는 상황이면 '좇다'. 사람·동물을 물리적으로 뒤쫓거나 내모는 상황이면 '쫓다'. (예: 꿈을 좇다 / 도둑을 쫓다)" },
+    { wrong: "어른들의 뜻을 쫒았다.", correct: "어른들의 뜻을 좇았다.", note: "이 문장은 '뜻·이상·목표를 추구하다'라는 뜻. 사람·동물을 물리적으로 뒤쫓는 '쫓다'와는 다른 말이에요. (예: 꿈을 좇다 / 도둑을 쫓다)", hint: "뜻을 따르면 '좇다'." },
     { wrong: "큰 일 났다.", correct: "큰일 났다.", hint: "'큰일'은 한 단어." },
     { wrong: "한가지 더 묻고 싶어.", correct: "한 가지 더 묻고 싶어.", hint: "수 + 단위는 띄어쓰기." },
     { wrong: "그가 입원한 지 얼마 안돼.", correct: "그가 입원한 지 얼마 안 돼.", hint: "부정의 '안'은 띄움." },
@@ -945,6 +953,10 @@ function loadQuestion(){
   $('#q-prompt').textContent = q.wrong;
   $('#q-input').value = '';
   $('#hint').textContent='';$('#hint').classList.remove('show');
+  // 헷갈리는 표현의 상황 설명은 상단에 무료로(점수 차감 없음) 항상 표시
+  const noteEl = $('#q-note');
+  if(q.note){ noteEl.textContent = q.note; noteEl.hidden = false; }
+  else { noteEl.textContent = ''; noteEl.hidden = true; }
   // 문제 번호는 항상 qIdx 기반 — qIdx는 정답을 맞히거나(next()) 패스했을 때만 증가하므로
   // 오답 재시도로는 절대 올라가지 않는다 (totalCount는 정오답 통계용으로 별도 유지).
   const display = state.qIdx + 1;
@@ -1211,7 +1223,7 @@ document.addEventListener('keydown',e=>{
 /* ────────────────────────── i18n ────────────────────────── */
 const I18N = {
   ko: {
-    docTitle: '맞춤법 고치기 — Arcade Bold v2.0.8 · parcyun studio',
+    docTitle: '맞춤법 고치기 — Arcade Bold v2.0.9 · parcyun studio',
     marqueePill: '★ Korean Orthography',
     heroY: '맞춤법', heroStroke: '고치기',
     heroSub: '› 위에 틀린 문장이 뜨면, 아래에 정확한 문장을 처음부터 타이핑해서 ENTER. 콤보를 쌓아 최고기록을 부숴라.',
@@ -1232,16 +1244,16 @@ const I18N = {
     resultLabels: { correct:'맞힌 개수', attempts:'시도', combo:'최고 콤보', time:'클리어 시간' },
     bestLabels: { easy:'초급 best', med:'중급 best', hard:'고급 best', solved:'누적 정답' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
-    versionTitle: 'v2.0.8 업데이트',
+    versionTitle: 'v2.0.9 업데이트',
     versionItems: [
-      '방문자 수(오늘·누적) 카운터 추가',
-      '헷갈리기 쉬운 표현에 상황 예시 설명 추가 (가리키다/가르치다 등)',
+      "헷갈리는 표현의 상황 설명을 상단 '맥락'으로 무료 표시 (힌트와 분리, 점수 차감 없음)",
+      '방문자 수(오늘·전체) 카운터 추가',
       "'쌤 동료에게 공유하기' 플로팅 버튼 추가",
       '콤보 유지 점수 배수: 5+ ×2, 10+ ×3, 15+ ×4'
     ]
   },
   en: {
-    docTitle: 'Grammar Fixer — Arcade Bold v2.0.8 · parcyun studio',
+    docTitle: 'Grammar Fixer — Arcade Bold v2.0.9 · parcyun studio',
     marqueePill: '★ American English',
     heroY: 'Grammar', heroStroke: 'Fixer',
     heroSub: '› When the wrong sentence appears above, type the correct sentence from scratch below and hit ENTER. Chain combos to smash your high score.',
@@ -1262,10 +1274,10 @@ const I18N = {
     resultLabels: { correct:'Correct', attempts:'Attempts', combo:'Max Combo', time:'Clear Time' },
     bestLabels: { easy:'Beginner Best', med:'Intermediate Best', hard:'Advanced Best', solved:'Total Solved' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
-    versionTitle: 'v2.0.8 Update',
+    versionTitle: 'v2.0.9 Update',
     versionItems: [
+      "Confusable-word context now shown free up top ('맥락'), split from the point-costing hint",
       'Added a visitor counter (today / total)',
-      'Added situational examples to tricky/confusable hints',
       "Added a 'share with a colleague' floating button",
       'Combo score multiplier: 5+ ×2, 10+ ×3, 15+ ×4'
     ]

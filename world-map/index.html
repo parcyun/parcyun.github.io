@@ -364,7 +364,7 @@ stage.addEventListener('pointermove',e=>{
     const degPerPx=180/(Math.PI*scale);
     lambda+=dx*degPerPx; panY+=dy;
   }else{                                   // 구·렌즈: [λ,φ] 회전
-    const k=0.28; lambda+=dx*k; phi=Math.max(-90,Math.min(90,phi-dy*k));
+    const k=0.28; lambda+=dx*k; phi=Math.max(-89,Math.min(89,phi-dy*k));
   }
   lambda=((lambda+180)%360+360)%360-180;
   schedule();
@@ -420,16 +420,18 @@ stage.addEventListener('pointercancel',endDrag);
 // macOS/브라우저는 핀치를 ctrlKey=true인 wheel로 보낸다 → ctrlKey로 분기.
 stage.addEventListener('wheel',e=>{
   e.preventDefault(); hideHint();
-  const f=Math.exp(-e.deltaY*0.01);
-  if(e.ctrlKey){                                   // 핀치 줌(또는 Ctrl+휠) — 모드별
-    if(projMode==='flat'){ scale*=f; clampScale(); }
-    else { globeZoom*=f; clampGlobeZoom(); }
+  // 줌 조건: 핀치(ctrlKey) 또는 PC 마우스 휠(가로성분 0 + 큰 수직 델타). 트랙패드 두 손가락
+  // 스크롤(작은 델타/가로성분 있음)은 이동/회전으로 분기.
+  const isPinch=e.ctrlKey, isWheel=!isPinch&&e.deltaX===0&&Math.abs(e.deltaY)>=30;
+  if(isPinch||isWheel){
+    const f=isPinch?Math.exp(-e.deltaY*0.01):(e.deltaY<0?1.2:1/1.2);
+    if(projMode==='flat'){ scale*=f; clampScale(); } else { globeZoom*=f; clampGlobeZoom(); }
     schedule();
-  }else{                                           // 두 손가락 드래그 = 이동
+  }else{                                           // 트랙패드 두 손가락 스크롤 = 이동/회전
     if(projMode==='flat'){
       const degPerPx=180/(Math.PI*scale); lambda-=e.deltaX*degPerPx; panY-=e.deltaY;
-    }else{                                         // 구·렌즈: 회전
-      const k=0.28; lambda-=e.deltaX*k; phi=Math.max(-90,Math.min(90,phi+e.deltaY*k));
+    }else{
+      const k=0.28; lambda-=e.deltaX*k; phi=Math.max(-89,Math.min(89,phi+e.deltaY*k));
     }
     lambda=((lambda+180)%360+360)%360-180;
     schedule();

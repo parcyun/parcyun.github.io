@@ -54,7 +54,12 @@
   .app{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column}
 
   .topbar{padding:18px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);background:rgba(0,0,0,.6);backdrop-filter:blur(8px);flex-wrap:wrap;gap:10px}
-  .topbar .left{display:flex;gap:14px;align-items:center}
+  .topbar .left{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .topnav{display:flex;gap:6px;flex-wrap:wrap}
+  .topnav a{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:11px;
+    font-weight:700;letter-spacing:.04em;color:var(--muted);border:1px solid var(--line-hot);padding:6px 12px;
+    border-radius:100px;text-decoration:none;white-space:nowrap;transition:border-color .15s linear,color .15s linear}
+  .topnav a:hover{border-color:var(--amber);color:var(--amber)}
   .topbar .left .logo{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
   .topbar .left .logo .dot{width:10px;height:10px;background:var(--amber);box-shadow:0 0 12px var(--amber);animation:dotPulse 1.4s ease-in-out infinite}
   .version-note{position:relative;display:inline-flex;align-items:center;margin-left:2px}
@@ -354,6 +359,10 @@
           <span class="vq">i</span>
         </span>
       </div>
+      <nav class="topnav" aria-label="돌아가기">
+        <a href="/arcade/">← parcyun arcade</a>
+        <a href="/">← parcyun studio</a>
+      </nav>
     </div>
     <div class="right">
       <a class="topbar-link" href="https://tt.hancomtaja.com/ko" target="_blank" rel="noopener">한컴타자연습 ↗</a>

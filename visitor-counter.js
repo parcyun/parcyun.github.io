@@ -1,7 +1,7 @@
 /* parcyun studio · 방문자 카운터 (Supabase)
    페이지 로드마다 bump_visit RPC를 호출해 방문을 집계하고,
-   - 모든 페이지에서 사이트 전역 수치를 동일하게 표시:
-     오늘 = 오늘 전체 방문 수, 전체 = 전 기간 누적 방문 수
+   - 메인 페이지(/)  : 사이트 전역 토탈 표시 (오늘=오늘 전역, 전체=전 기간 전역)
+   - 그 외 페이지     : 해당 페이지의 방문만 표시 (오늘=그 페이지 오늘, 전체=그 페이지 전 기간)
    표시 대상: #visitor-stats 요소가 있으면 그곳에, 없으면 좌측 하단에 자동 주입.
    설정(SUPABASE_URL / ANON_KEY)이 비어 있으면 아무 동작도 하지 않음(오류·요청 없음). */
 (function () {
@@ -15,7 +15,8 @@
   window.__psVisitorCounter = true;
 
   var path = (location.pathname || '/').replace(/index\.html$/, '');
-  if (path === '') path = '/';   // 페이지별 DB 기록용 경로 (표시는 항상 사이트 전역 수치)
+  if (path === '') path = '/';
+  var isMain = (path === '/');   // 메인만 전역 토탈, 나머지는 각 페이지 카운트
 
   function fmt(n) { try { return Number(n).toLocaleString('en-US'); } catch (e) { return String(n); } }
 
@@ -75,10 +76,9 @@
       .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
       .then(function (d) {
         if (!d) return;
-        // 모든 페이지에서 사이트 전역 수치를 동일하게 표시:
-        //   오늘 = 오늘 전체 방문, 전체 = 전 기간 누적 방문 (페이지별 구분 없음)
-        var today = d.all_today;
-        var total = d.all_total;
+        // 메인(/)은 사이트 전역 토탈, 그 외 페이지는 해당 페이지 카운트
+        var today = isMain ? d.all_today : d.page_today;
+        var total = isMain ? d.all_total : d.page_total;
         render(today, total);
       })
       .catch(function () { /* 네트워크/설정 오류는 조용히 무시 — 사이트에 영향 없음 */ });

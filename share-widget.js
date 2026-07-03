@@ -13,7 +13,6 @@
   // Supabase (공유 횟수 집계용) — 값이 비면 공유 카운트만 비활성, 공유 버튼은 정상 동작
   var SUPABASE_URL = 'https://myeouecgpjxcddemexcg.supabase.co';
   var SUPABASE_ANON_KEY = 'sb_publishable_qHxQM-Z6vVAk9YKMluyFSw_0_fo9sKY';
-  var SHARE_KEY = 'share';
 
   var css = ''
     + '.ps-share-wrap{position:fixed;right:20px;bottom:20px;z-index:9990;display:flex;'
@@ -109,8 +108,11 @@
       count.innerHTML = '누적 공유 <b>' + fmt(n) + '</b>회';
       count.hidden = false;
     }
-    // 초기 누적 공유 횟수 로드 (실패 시 조용히 숨김 유지 — 공유 버튼엔 영향 없음)
-    rpc('get_counter', { p_name: SHARE_KEY }).then(showCount).catch(function () {});
+    // 초기 누적 공유 수: visitor-counter가 페이지 로드 시 호출한 bump_visit 응답을
+    // 재사용(share_total). 별도 호출 없음 → 신규 함수 노출 이슈 무관.
+    function initFromVisit(d) { if (d && typeof d.share_total === 'number') showCount(d.share_total); }
+    if (window.__psVisit) initFromVisit(window.__psVisit);
+    else document.addEventListener('ps:visit', function (e) { initFromVisit(e.detail); }, { once: true });
 
     var toastTimer;
     function showToast(msg) {
@@ -120,8 +122,12 @@
       toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2200);
     }
 
+    // 공유 시 집계: 이미 노출·동작 중인 bump_visit에 센티넬 경로('__share__')로 +1.
+    // 방문자 집계에선 제외되고 share_total만 올라간다 (스키마 리로드 불필요).
     function bumpShare() {
-      rpc('bump_counter', { p_name: SHARE_KEY }).then(showCount).catch(function () {});
+      rpc('bump_visit', { p_path: '__share__' })
+        .then(function (d) { if (d && typeof d.share_total === 'number') showCount(d.share_total); })
+        .catch(function () {});
     }
 
     btn.addEventListener('click', async function () {

@@ -313,6 +313,12 @@
   /* 커피 후원 QR 팝업 */
   .coffee-modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px}
   .coffee-modal[hidden]{display:none}
+  /* 연타 반복 시 화면 전체 블랙아웃 (5초) — 모든 것 위에 덮음 */
+  #spam-blackout{position:fixed;inset:0;z-index:120;background:#000;display:flex;align-items:center;justify-content:center;cursor:not-allowed}
+  #spam-blackout[hidden]{display:none}
+  .spam-blackout-text{font-family:'JetBrains Mono',monospace;font-size:clamp(13px,3.4vw,20px);letter-spacing:.06em;color:#5a5a5a;animation:spamBlackoutPulse 2s ease-in-out infinite}
+  @keyframes spamBlackoutPulse{0%,100%{opacity:.32}50%{opacity:.68}}
+  @media (prefers-reduced-motion: reduce){ .spam-blackout-text{animation:none;opacity:.5} }
   .coffee-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);animation:coffeeFade .2s ease-out}
   @keyframes coffeeFade{from{opacity:0}to{opacity:1}}
   .coffee-card{position:relative;z-index:1;background:var(--panel);border:1px solid var(--amber);border-radius:16px;
@@ -547,6 +553,22 @@
     <div class="report-email" id="report-email">pen.layered@gmail.com</div>
     <button class="report-copy" id="report-copy" type="button">메일 주소 복사</button>
   </div>
+</div>
+
+<!-- 연타 경고 팝업 (제출·패스 과다 연타 1차) -->
+<div class="coffee-modal" id="spam-modal" hidden>
+  <div class="coffee-backdrop" data-spam-close></div>
+  <div class="coffee-card" role="dialog" aria-modal="true" aria-labelledby="spam-title">
+    <button class="coffee-close" id="spam-close" type="button" aria-label="닫기">×</button>
+    <div class="coffee-emoji">✋</div>
+    <h3 class="coffee-title" id="spam-title">너무 빨라요!</h3>
+    <p class="coffee-sub" id="spam-sub">제출·패스를 너무 빠르게 연타하고 있어요. 문장을 읽고 천천히 진행해 주세요.</p>
+  </div>
+</div>
+
+<!-- 연타 반복 시 5초 블랙아웃 (2차) -->
+<div id="spam-blackout" hidden>
+  <div class="spam-blackout-text" id="spam-blackout-text">잠시 멈춰 주세요</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -4469,7 +4491,7 @@ function startGame(){
   }
   let qList = shuffle(buildPool(state.diff));
   if(limit && limit < qList.length){ qList = qList.slice(0, limit); }
-  Object.assign(state,{score:0,combo:0,bestCombo:0,correctCount:0,totalCount:0,qList,qIdx:0,hintUsed:false,locked:false,totalLimit:limit,gameStartTs:performance.now()});
+  Object.assign(state,{score:0,combo:0,bestCombo:0,correctCount:0,totalCount:0,qList,qIdx:0,seq:1,hintUsed:false,locked:false,totalLimit:limit,gameStartTs:performance.now()});
   $('#score').textContent='0';$('#combo-n').textContent='0';updateComboVisual();
   $('#q-idx').textContent='1';
   $('#q-total').textContent = limit ?? '∞';
@@ -4492,9 +4514,10 @@ function loadQuestion(){
   const noteEl = $('#q-note');
   if(q.note){ noteEl.textContent = q.note; noteEl.hidden = false; }
   else { noteEl.textContent = ''; noteEl.hidden = true; }
-  // 문제 번호는 항상 qIdx 기반 — qIdx는 정답을 맞히거나(next()) 패스했을 때만 증가하므로
-  // 오답 재시도로는 절대 올라가지 않는다 (totalCount는 정오답 통계용으로 별도 유지).
-  const display = state.qIdx + 1;
+  // 문제 번호는 누적 seq 기반 — 정답(next())/패스 때만 증가하고 오답 재시도로는 안 올라간다.
+  // 무제한 모드에서 풀을 다 돌아 reshuffle해도 1로 리셋되지 않고 계속 이어진다
+  // (totalCount는 정오답 통계용으로 별도 유지).
+  const display = state.seq;
   $('#q-idx').textContent = display;
   $('#q-mark-n').textContent = String(display).padStart(2,'0');
   if(state.totalLimit === null){
@@ -4508,6 +4531,7 @@ function loadQuestion(){
 
 function submit(){
   if(!state.current) return;
+  if(registerRapid()) return; // 연타 방지 — 과다 연타 시 경고/블랙아웃 후 이번 제출 무효
   if(state.locked) return; // 정답 처리중 — 엔터 연타 가드
   const user = normalize($('#q-input').value);
   if(!user){ // 빈 입력은 무효 — beep도 없음
@@ -4567,9 +4591,10 @@ function submit(){
   }
 }
 function showHint(){ if(state.locked || state.hintUsed) return; state.hintUsed=true; $('#hint').textContent = state.current.hint; $('#hint').classList.add('show'); }
-function skip(){ if(state.locked) return; state.combo=0; $('#combo-n').textContent=0; updateComboVisual(); state.totalCount++; setTimeout(next,160); }
+function skip(){ if(registerRapid()) return; if(state.locked) return; state.combo=0; $('#combo-n').textContent=0; updateComboVisual(); state.totalCount++; setTimeout(next,160); }
 function next(){
   state.qIdx++;
+  state.seq++;   // 표시용 누적 문제 번호 — 무제한 모드 reshuffle로도 리셋되지 않음
   if(state.qIdx >= state.qList.length){
     if(state.totalLimit === null){
       // 무제한 — reshuffle 후 처음부터
@@ -4707,6 +4732,53 @@ function closeReport(){ reportModal.hidden = true; }
 $('#foot-report').addEventListener('click', openReport);
 $('#report-close').addEventListener('click', closeReport);
 reportModal.addEventListener('click', e=>{ if(e.target.hasAttribute('data-report-close')) closeReport(); });
+
+/* ── 연타 방지: 짧은 시간에 제출·패스를 과다 연타하면 1차 경고 모달, 재반복 시 5초 블랙아웃 ──
+   submit()·skip() 진입 시 registerRapid() 호출. SPAM_WINDOW 창 안에 SPAM_LIMIT회 이상이면
+   연타로 판정하고 해당 액션을 무효화한다. 정상 플레이(문장을 다 타이핑)는 초당 몇 회가 불가능하므로
+   걸리지 않는다. */
+const spam = { times: [], strikes: 0, blocked: false, timer: null };
+const SPAM_WINDOW = 1600;   // ms 관찰 창
+const SPAM_LIMIT  = 9;      // 이 창 안에 이 횟수 이상이면 연타
+const spamModal = $('#spam-modal');
+const spamBlackoutEl = $('#spam-blackout');
+function spamText(){ return I18N[state.lang] || I18N.ko; }
+function registerRapid(){
+  if(spam.blocked) return true;                 // 블랙아웃 중엔 모든 입력 차단
+  const now = performance.now();
+  spam.times.push(now);
+  while(spam.times.length && now - spam.times[0] > SPAM_WINDOW) spam.times.shift();
+  if(spam.times.length >= SPAM_LIMIT){
+    spam.times.length = 0;                       // 즉시 재트리거 방지
+    spam.strikes++;
+    if(spam.strikes >= 2) spamBlackout(); else spamWarn();
+    return true;                                 // 이번 액션 무효
+  }
+  return false;
+}
+function spamWarn(){
+  const t = spamText();
+  $('#spam-title').textContent = t.spamTitle;
+  $('#spam-sub').textContent = t.spamSub;
+  spamModal.hidden = false;
+}
+function closeSpam(){ spamModal.hidden = true; }
+$('#spam-close').addEventListener('click', closeSpam);
+spamModal.addEventListener('click', e=>{ if(e.target.hasAttribute('data-spam-close')) closeSpam(); });
+function spamBlackout(){
+  closeSpam();
+  spam.blocked = true;
+  $('#spam-blackout-text').textContent = spamText().spamBlackout;
+  spamBlackoutEl.hidden = false;
+  if(spam.timer) clearTimeout(spam.timer);
+  spam.timer = setTimeout(()=>{
+    spamBlackoutEl.hidden = true;
+    spam.blocked = false;
+    spam.strikes = 0;                            // 벌칙 후 초기화
+    spam.times.length = 0;
+    if($('#play').classList.contains('active')) $('#q-input').focus();
+  }, 5000);
+}
 $('#report-copy').addEventListener('click', async ()=>{
   const btn = $('#report-copy');
   const email = $('#report-email').textContent.trim();
@@ -4749,6 +4821,8 @@ $('#share-result').addEventListener('click', shareResult);
 
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
+    if(spam.blocked) return;                       // 블랙아웃(벌칙) 중엔 ESC 무시
+    if(!spamModal.hidden){ closeSpam(); return; }
     if(!coffeeModal.hidden){ closeCoffee(); return; }
     if(!reportModal.hidden){ closeReport(); return; }
     const onPlay = $('#play').classList.contains('active'); if(onPlay){stopTimer();endGame()}
@@ -4770,6 +4844,7 @@ const I18N = {
     submitBtn: '제출', hintBtn: '힌트 (−50%)', skipBtn: '패스', quitBtn: '종료',
     homeBtn: '홈', clearRecordsBtn: '기록 초기화', backHomeBtn: '홈으로',
     confirmClear: '모든 기록을 지울까요?',
+    spamTitle: '너무 빨라요!', spamSub: '제출·패스를 너무 빠르게 연타하고 있어요. 문장을 읽고 천천히 진행해 주세요.', spamBlackout: '잠시 멈춰 주세요',
     footMore: '더 많은 자료 보러가기 ↗', footReport: '버그 · 개선 아이디어 제보 ✉',
     footCoffee: '☕ 개발자에게 커피 사주기', shareResultBtn: '결과 이미지 저장',
     coffeeTitle: '개발자에게 커피 한 잔', coffeeSub: 'QR을 스캔해 후원할 수 있어요. 감사합니다!',
@@ -4799,6 +4874,7 @@ const I18N = {
     submitBtn: 'Submit', hintBtn: 'Hint (−50%)', skipBtn: 'Skip', quitBtn: 'Quit',
     homeBtn: 'Home', clearRecordsBtn: 'Clear Records', backHomeBtn: 'Back Home',
     confirmClear: 'Clear all records?',
+    spamTitle: 'Too fast!', spamSub: "You're hitting Submit/Skip way too fast. Read the sentence and slow down.", spamBlackout: 'Take a short break',
     footMore: 'Explore More Resources ↗', footReport: 'Report a Bug · Idea ✉',
     footCoffee: '☕ Buy the dev a coffee', shareResultBtn: 'Save Result Image',
     coffeeTitle: 'Buy the dev a coffee', coffeeSub: 'Scan the QR to send your support. Thank you!',

@@ -227,6 +227,9 @@
   .float-tag.go{animation:floatTag 1s cubic-bezier(.2,1.4,.4,1)}
   @keyframes floatTag{0%{opacity:0;transform:translate(-50%,-50%) scale(2) rotate(-6deg)}25%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}80%{opacity:1;transform:translate(-50%,-60%) scale(1) rotate(0)}100%{opacity:0;transform:translate(-50%,-100%) scale(.8) rotate(2deg)}}
 
+  /* COMBO (GREAT/AMAZING/PERFECT) — calm azure blue; off the amber palette but softer than LIGHTNING */
+  .float-tag.combo{color:#7FC0FF;text-shadow:0 0 26px rgba(96,164,255,.65),0 0 56px rgba(72,132,255,.35)}
+
   /* LIGHTNING — electric blue-white text, violent shake on entry */
   .float-tag.lightning{color:#EAF2FF;text-shadow:0 0 20px #9FC4FF,0 0 48px #4D7FFF,0 0 90px rgba(120,160,255,.6)}
   .float-tag.lightning.go{animation:floatLightning .9s cubic-bezier(.2,1.2,.4,1)}
@@ -4548,9 +4551,9 @@ function submit(){
     if(speedTag==='LIGHTNING'){ floatTag('LIGHTNING +'+speedBonus, 'lightning'); flashScreen(); playLightning(); }
     else if(speedTag==='FAST'){ floatTag('FAST +'+speedBonus, 'fast'); spawnAfterimages('FAST +'+speedBonus); playFast(); }
     else if(speedTag==='QUICK'){ floatTag('QUICK +'+speedBonus, 'quick'); }
-    else if(state.combo===3) floatTag('GREAT!');
-    else if(state.combo===5) floatTag('AMAZING!');
-    else if(state.combo>=8) floatTag('PERFECT!');
+    else if(state.combo===3) floatTag('GREAT!', 'combo');
+    else if(state.combo===5) floatTag('AMAZING!', 'combo');
+    else if(state.combo>=8) floatTag('PERFECT!', 'combo');
     $('#q-input').value=''; // 정답 입력 즉시 비움 — 시각적으로도 잠금 확인
     setTimeout(next,650);
   } else {

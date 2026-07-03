@@ -193,6 +193,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <button data-mode="flat" class="on">평면</button>
     <button data-mode="lens">Focus Lens</button>
     <button data-mode="globe">지구본</button>
+    <button data-mode="daynight">낮과 밤</button>
   </div>
 
   <div class="controls">
@@ -277,7 +278,7 @@ const stage=document.getElementById('stage');
 const svg=d3.select('#map');
 // #P2/v19 도법 3종 모핑: 평면(메르카토르)/렌즈(스테레오그래픽)/지구본(정사도법).
 let projMode='flat',alpha=0,phi=0,proj,path,projMutate,targetRaw=d3.geoOrthographicRaw;
-const TARGET_RAW={lens:d3.geoStereographicRaw,globe:d3.geoOrthographicRaw};
+const TARGET_RAW={lens:d3.geoStereographicRaw,globe:d3.geoOrthographicRaw,daynight:d3.geoOrthographicRaw};
 function buildProj(){
   projMutate=d3.geoProjectionMutator(t=>(x,y)=>{
     const a=d3.geoMercatorRaw(x,y),b=targetRaw(x,y);
@@ -292,7 +293,7 @@ function applyProj(){
   const effScale=scale*(1-alpha)+tScale*alpha;
   proj.scale(effScale).rotate([lambda,phi*alpha]).translate([W/2,H/2+panY*(1-alpha)])
       .clipExtent([[-2,-2],[W+2,H+2]])
-      .clipAngle(alpha>=0.999?(projMode==='globe'?90:(projMode==='lens'?150:null)):null);
+      .clipAngle(alpha>=0.999?((projMode==='globe'||projMode==='daynight')?90:(projMode==='lens'?150:null)):null);
 }
 const grat=d3.geoGraticule().step([20,20]);
 const equatorLine={type:'LineString',coordinates:Array.from({length:73},(_,i)=>[-180+i*5,0])};
@@ -320,6 +321,12 @@ const gLand=svg.append('g');
 const gGrat=svg.append('path').attr('class','grat');
 const gEq=svg.append('path').attr('class','equator');
 const gPrime=svg.append('path').attr('class','prime');
+svg.select('defs').empty()&&svg.append('defs');
+d3.select(document.querySelector('#map defs')||svg.append('defs').node()).append('filter').attr('id','nightBlur')
+  .attr('x','-20%').attr('y','-20%').attr('width','140%').attr('height','140%')
+  .html('<feGaussianBlur stdDeviation="7"/>');
+const gNight=svg.append('path').attr('class','night').attr('pointer-events','none')
+  .attr('fill','#050915').attr('filter','url(#nightBlur)');  // #낮밤/v23 밤 반구 그림자
 const gOcLbl=svg.append('g');
 const gCoLbl=svg.append('g');
 
@@ -391,7 +398,7 @@ function featureAt(lon,lat){ for(const f of WORLD.features){ if(d3.geoContains(f
 function hitProj(){
   const fit=Math.min(W,H)*0.46;
   let b;
-  if(projMode==='globe') b=d3.geoOrthographic().clipAngle(90).scale(fit*globeZoom);
+  if(projMode==='globe'||projMode==='daynight') b=d3.geoOrthographic().clipAngle(90).scale(fit*globeZoom);
   else if(projMode==='lens') b=d3.geoStereographic().clipAngle(150).scale(fit*0.62*globeZoom);
   else b=d3.geoMercator().scale(scale);
   return b.rotate([lambda, projMode==='flat'?0:phi]).translate([W/2, H/2+(projMode==='flat'?panY:0)]);
@@ -452,11 +459,23 @@ function animateAlpha(to,done){
     if(k<1)animRAF=requestAnimationFrame(step);else{animRAF=null;alpha=to;render();if(done)done();}
   })(performance.now());
 }
+// #낮밤/v23: 태양은 화면에 고정, 지구가 자전 → 밤 반구(반태양점)를 뷰 좌표에 고정하고
+// 회전 역변환으로 지리좌표를 구한다. 자전(lambda↑)해도 밤은 화면에 머물고 대륙이 통과한다.
+const SUN_VIEW=[-72,-12];  // 뷰상 밤 반구 중심(좌·약간아래) — 태양은 우상단에서 비춤
+function nightGeo(){ const anti=d3.geoRotation(proj.rotate()).invert(SUN_VIEW);
+  return d3.geoCircle().center(anti).radius(90)(); }
+let spinRAF=null,spinPrev=0;
+function startSpin(){ if(spinRAF)return; spinPrev=performance.now(); spinRAF=requestAnimationFrame(spinTick); }
+function stopSpin(){ if(spinRAF){cancelAnimationFrame(spinRAF); spinRAF=null;} }
+function spinTick(now){ const dt=Math.min(60,now-spinPrev); spinPrev=now;
+  if(!dragging){ lambda=((lambda+8*dt/1000+180)%360+360)%360-180; }  // 8°/s 천천히 자전
+  render(); spinRAF = projMode==='daynight' ? requestAnimationFrame(spinTick) : null; }
 function setMode(m){
   document.getElementById('projseg').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
-  const _wm=document.getElementById('watermark'); if(_wm)_wm.textContent={flat:'Mercator Projection',lens:'Focus Lens View',globe:'Orthographic Globe'}[m];  // 워터마크=현재 도법
+  const _wm=document.getElementById('watermark'); if(_wm)_wm.textContent={flat:'Mercator Projection',lens:'Focus Lens View',globe:'Orthographic Globe',daynight:'Day & Night · Rotating'}[m];
+  if(projMode==='daynight'&&m!=='daynight') stopSpin();  // 낮밤 벗어나면 자전 정지
   if(m==='flat'){ if(alpha===0){projMode='flat';return;} animateAlpha(0,()=>{projMode='flat';}); return; }
-  const go=()=>{ targetRaw=TARGET_RAW[m]; buildProj(); projMode=m; animateAlpha(1); };
+  const go=()=>{ targetRaw=TARGET_RAW[m]; buildProj(); projMode=m; animateAlpha(1, m==='daynight'?startSpin:null); };
   if(alpha>0.001) animateAlpha(0,go); else go();
 }
 document.getElementById('projseg').querySelectorAll('button').forEach(b=>{ b.onclick=()=>setMode(b.dataset.mode); });
@@ -530,6 +549,7 @@ function render(){
   gGrat.attr('d',showGrat?path(grat()):null);
   gEq.attr('d',showEq?path(equatorLine):null);
   gPrime.attr('d',showPrime?path(primeLine):null);
+  gNight.attr('d', (projMode==='daynight'&&alpha>0.5)?path(nightGeo()):null).style('opacity',(projMode==='daynight'?0.6:0)*alpha);
 
   // labels
   const rot=proj.rotate(), center=[-rot[0],-rot[1]];

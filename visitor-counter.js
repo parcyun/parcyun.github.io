@@ -1,7 +1,7 @@
 /* parcyun studio · 방문자 카운터 (Supabase)
    페이지 로드마다 bump_visit RPC를 호출해 방문을 집계하고,
-   - 메인 페이지(/)  : 전체 페이지 합산(오늘·누적)을 표시
-   - 그 외 페이지     : 해당 페이지의 방문 수(오늘·누적)를 표시
+   - 모든 페이지에서 사이트 전역 수치를 동일하게 표시:
+     오늘 = 오늘 전체 방문 수, 전체 = 전 기간 누적 방문 수
    표시 대상: #visitor-stats 요소가 있으면 그곳에, 없으면 좌측 하단에 자동 주입.
    설정(SUPABASE_URL / ANON_KEY)이 비어 있으면 아무 동작도 하지 않음(오류·요청 없음). */
 (function () {
@@ -15,8 +15,7 @@
   window.__psVisitorCounter = true;
 
   var path = (location.pathname || '/').replace(/index\.html$/, '');
-  if (path === '') path = '/';
-  var isMain = (path === '/');
+  if (path === '') path = '/';   // 페이지별 DB 기록용 경로 (표시는 항상 사이트 전역 수치)
 
   function fmt(n) { try { return Number(n).toLocaleString('en-US'); } catch (e) { return String(n); } }
 
@@ -56,10 +55,9 @@
         } catch (e) {}
       }
     }
-    var labelToday = isMain ? '오늘' : '오늘';   // (동일 — 향후 분기 여지)
     host.innerHTML =
-      '<span class="ps-visits-item">' + labelToday + ' <b>' + fmt(today) + '</b></span>'
-      + '<span class="ps-visits-item">누적 <b>' + fmt(total) + '</b></span>';
+      '<span class="ps-visits-item">오늘 <b>' + fmt(today) + '</b></span>'
+      + '<span class="ps-visits-item">전체 <b>' + fmt(total) + '</b></span>';
     host.hidden = false;
   }
 
@@ -77,8 +75,10 @@
       .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
       .then(function (d) {
         if (!d) return;
-        var today = isMain ? d.all_today : d.page_today;
-        var total = isMain ? d.all_total : d.page_total;
+        // 모든 페이지에서 사이트 전역 수치를 동일하게 표시:
+        //   오늘 = 오늘 전체 방문, 전체 = 전 기간 누적 방문 (페이지별 구분 없음)
+        var today = d.all_today;
+        var total = d.all_total;
         render(today, total);
       })
       .catch(function () { /* 네트워크/설정 오류는 조용히 무시 — 사이트에 영향 없음 */ });

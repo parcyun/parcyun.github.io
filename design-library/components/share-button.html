@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Share Button + Count · parcyun studio design library</title>
+<title>Share Button · parcyun studio design library</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,21 +42,14 @@ a { color: inherit; text-decoration: none; }
 .demo-stage { position: relative; height: 160px; border: 1px solid var(--ps-surface-cinematic-3); border-radius: 16px; background: #0A0A0A; }
 
 /* ===========================================================
-   ⚡ COMPONENT: Share Button (+ 누적 공유 count)
+   ⚡ COMPONENT: Share Button
    우측 하단 고정 FAB. 클릭 시 기기 네이티브 공유 시트(Web Share).
-   미지원 시 링크 복사 폴백. 버튼 위에 누적 공유 횟수 표시.
+   미지원 시 링크 복사 폴백.
    =========================================================== */
 .ps-share-wrap {
   position: absolute; right: 20px; bottom: 20px; z-index: 80;
   display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
 }
-.ps-share-count {
-  display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 100px;
-  background: rgba(0, 0, 0, .6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, .1); color: var(--ps-text-cinematic-secondary);
-  font-size: 11px; letter-spacing: .02em; font-family: 'JetBrains Mono', 'Montserrat', ui-monospace, monospace; white-space: nowrap;
-}
-.ps-share-count b { color: var(--ps-primary); font-weight: 700; }
 .ps-share-fab {
   display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border: 0;
   border-radius: 100px; cursor: pointer; background: var(--ps-primary); color: #000; font-weight: 700;
@@ -85,11 +78,10 @@ a { color: inherit; text-decoration: none; }
 <div class="demo-wrap">
 
 <div class="demo-block">
-  <p class="variant-label">Fixed bottom-right · 카운트 + FAB</p>
+  <p class="variant-label">Fixed bottom-right · FAB</p>
   <div class="demo-stage">
     <!-- ⚡⚡⚡ COMPONENT MARKUP ⚡⚡⚡ -->
     <div class="ps-share-wrap">
-      <div class="ps-share-count">누적 공유 <b>128</b>회</div>
       <button class="ps-share-fab" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
@@ -106,7 +98,7 @@ a { color: inherit; text-decoration: none; }
   <h3>Usage</h3>
   <pre><code>&lt;!-- 자동 주입: 페이지에 아래 한 줄만 추가 --&gt;
 &lt;script src="/share-widget.js" defer&gt;&lt;/script&gt;</code></pre>
-  <p>클릭 시 <code>navigator.share()</code>(모바일) 또는 링크 복사(데스크톱). 실제 공유가 이뤄지면 Supabase에 누적 공유 횟수를 집계해 버튼 위에 표시. ≤430px에선 아이콘만 남긴 원형 FAB로 축소. 고정 푸터가 있으면 자동으로 위로 오프셋.</p>
+  <p>클릭 시 <code>navigator.share()</code>(모바일) 또는 링크 복사(데스크톱). ≤430px에선 아이콘만 남긴 원형 FAB로 축소. 고정 푸터가 있으면 자동으로 위로 오프셋.</p>
 </div>
 
 </div>

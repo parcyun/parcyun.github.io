@@ -80,11 +80,6 @@
         var today = isMain ? d.all_today : d.page_today;
         var total = isMain ? d.all_total : d.page_total;
         render(today, total);
-        // 공유 위젯이 초기 누적 공유 수를 이 응답에서 읽도록 전달 (별도 호출 없이)
-        try {
-          window.__psVisit = d;
-          document.dispatchEvent(new CustomEvent('ps:visit', { detail: d }));
-        } catch (e) {}
       })
       .catch(function () { /* 네트워크/설정 오류는 조용히 무시 — 사이트에 영향 없음 */ });
   }

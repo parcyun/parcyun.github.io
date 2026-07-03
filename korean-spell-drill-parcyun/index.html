@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>맞춤법 고치기 — Arcade Bold v2.0.9 · parcyun studio</title>
+<title>맞춤법 고치기 — Arcade Bold v2.1.0 · parcyun studio</title>
 <meta name="description" content="틀린 문장을 바르게 고쳐 타이핑하는 콤보형 맞춤법·문법 드릴 게임. 한국어·영어(북미) 모드. Designed by parcyun studio.">
 <!-- 공유 미리보기 (게임 첫 화면 커버) -->
 <meta property="og:type" content="website">
@@ -248,8 +248,11 @@
   .lightning-flash.strike{animation:flashStrike .55s ease-out}
   @keyframes flashStrike{0%{opacity:0}6%{opacity:.9}14%{opacity:.12}24%{opacity:.72}38%{opacity:.05}55%{opacity:.3}100%{opacity:0}}
 
-  /* FAST — slides in from left with skew; afterimage ghosts spawned in JS */
+  /* FAST — white core with violent red neon; distinct from amber base objects behind */
+  .float-tag.fast{color:#FFFFFF;text-shadow:0 0 20px #FF3B3B,0 0 46px #FF2020,0 0 92px rgba(255,45,45,.6)}
   .float-tag.fast.go{animation:floatFast .8s cubic-bezier(.15,.9,.3,1)}
+  /* QUICK — soft red on white, calmer than FAST but still off the amber palette */
+  .float-tag.quick{color:#FFECEC;text-shadow:0 0 20px #FF5A5A,0 0 50px rgba(255,64,64,.72),0 0 96px rgba(255,40,40,.42)}
   @keyframes floatFast{
     0%{opacity:0;transform:translate(-280%,-50%) skewX(-18deg)}
     42%{opacity:1;transform:translate(-50%,-50%) skewX(-5deg)}
@@ -258,7 +261,7 @@
     100%{opacity:0;transform:translate(30%,-50%)}
   }
   .ghost-tag{position:fixed;left:50%;top:50%;font-family:Montserrat,sans-serif;font-weight:900;
-    font-size:clamp(80px,18vw,180px);letter-spacing:-.05em;text-transform:uppercase;color:var(--amber);
+    font-size:clamp(80px,18vw,180px);letter-spacing:-.05em;text-transform:uppercase;color:#FF3B3B;
     pointer-events:none;z-index:4;opacity:0;white-space:nowrap}
   /* 광과민 안전: 모션 최소화 설정 시 화면 번쩍임 억제 */
   @media (prefers-reduced-motion: reduce){
@@ -341,12 +344,11 @@
 <div class="lightning-flash" id="flash"></div>
 <div class="float-tag" id="float-tag"></div>
 <div id="version-tip">
-  <b id="version-tip-title">v2.0.9 업데이트</b>
+  <b id="version-tip-title">v2.1.0 업데이트</b>
   <ul id="version-tip-list">
-    <li>헷갈리는 표현의 상황 설명을 상단 '맥락'으로 무료 표시 (힌트와 분리, 점수 차감 없음)</li>
-    <li>방문자 수(오늘·전체) 카운터 추가</li>
-    <li>'쌤 동료에게 공유하기' 플로팅 버튼 추가</li>
-    <li>콤보 유지 점수 배수: 5+ ×2, 10+ ×3, 15+ ×4</li>
+    <li>문항 대폭 확충 — 한국어·영어 425문항 신규 추가 (총 599문항)</li>
+    <li>초급·중급·고급 전 난이도 보강: 맞춤법·띄어쓰기·문법 오류 유형 확대</li>
+    <li>모든 신규 문항 맞춤법·문법 교차 검증 완료</li>
   </ul>
 </div>
 
@@ -354,7 +356,7 @@
   <div class="topbar">
     <div class="left">
       <div class="logo">
-        <span class="dot"></span> SPELL DRILL // v2.0.9
+        <span class="dot"></span> SPELL DRILL // v2.1.0
         <span class="version-note" tabindex="0">
           <span class="vq">i</span>
         </span>
@@ -548,198 +550,3029 @@
 <script>
 /* ────────────────────────── corpus ────────────────────────── */
 const SENTENCES = {
- ko: {
-  easy: [
-    { wrong: "오늘 학교에 안 되요.", correct: "오늘 학교에 안 돼요.", hint: "'되어'로 풀어볼 수 있으면 '돼'." },
-    { wrong: "왠일로 일찍 일어났니?", correct: "웬일로 일찍 일어났니?", hint: "'어찌 된 일'이라는 뜻이면 '웬'." },
-    { wrong: "이번 주에 몇일 쉬어?", correct: "이번 주에 며칠 쉬어?", hint: "'며칠'이 표준어. '몇일'은 비표준." },
-    { wrong: "방을 깨끗히 청소했어.", correct: "방을 깨끗이 청소했어.", hint: "부사 끝은 대부분 '-이'." },
-    { wrong: "마음이 설레여요.", correct: "마음이 설레요.", hint: "기본형은 '설레다'. '설레이다'는 비표준." },
-    { wrong: "건강하길 바래.", correct: "건강하길 바라.", note: "이 문장은 '소망하다'라는 뜻(기본형 바라다). 색이 옅어지거나 배웅하는 '바래다'와는 다른 말이에요. (예: 합격하길 바라 / 청바지가 바래다)", hint: "기본형 '바라다' → '바라'." },
-    { wrong: "감기가 빨리 낳아라.", correct: "감기가 빨리 나아라.", note: "이 문장은 '병이 회복되다'라는 뜻. 아이를 낳는 '낳다'와는 완전히 다른 말이에요. (예: 감기가 낫다 / 아기를 낳다)", hint: "어간 '낫-'+'-아라' → '나아라'." },
-    { wrong: "이건 어떻해 풀어?", correct: "이건 어떻게 풀어?", hint: "방법을 물을 땐 '어떻게'." },
-    { wrong: "공부를 일일히 가르쳤어.", correct: "공부를 일일이 가르쳤어.", hint: "부사형은 '-이'." },
-    { wrong: "약속을 안 지키면 안되.", correct: "약속을 안 지키면 안 돼.", hint: "문장 끝은 '돼'." },
-    { wrong: "쓰래기 좀 버려줘.", correct: "쓰레기 좀 버려줘.", hint: "'쓰레기'가 표준어." },
-    { wrong: "오랫만에 만났네.", correct: "오랜만에 만났네.", hint: "'오랜만'이 표준어." },
-    { wrong: "내 역활이 뭐였지?", correct: "내 역할이 뭐였지?", hint: "'役割'은 '역할'." },
-    { wrong: "정말 어의가 없다.", correct: "정말 어이가 없다.", note: "'어이(가) 없다'는 황당하다는 뜻의 관용구. '어의'(임금의 옷/궁중 의사)와는 전혀 다른 말이에요. (예: 어이없는 실수)", hint: "'어이'로 고쳐요." },
-    { wrong: "맛있는 떡뽁이 먹자.", correct: "맛있는 떡볶이 먹자.", hint: "'볶다'의 '볶이'." },
-    { wrong: "내일 뵈요.", correct: "내일 봬요.", hint: "'보아요'의 준말은 '봬요'." },
-    { wrong: "그러던지 말던지.", correct: "그러든지 말든지.", note: "이 문장은 '무엇을 골라도 상관없다'는 선택의 뜻. 과거를 회상하는 '-던지'와는 다른 말이에요. (예: 가든지 말든지 / 얼마나 춥던지)", hint: "선택은 '-든지'." },
-    { wrong: "김치찌게가 맛있어.", correct: "김치찌개가 맛있어.", hint: "'찌개'가 표준어." },
-    { wrong: "오랜만에 잘 지냇어.", correct: "오랜만에 잘 지냈어.", hint: "'지내'+'었'+'어' = '지냈어'." },
-    { wrong: "웬지 기분이 이상해.", correct: "왠지 기분이 이상해.", hint: "'왜인지'의 줄임은 '왠지'." },
-    { wrong: "내가 도와 줄께.", correct: "내가 도와줄게.", hint: "'도와주다' 한 단어, 어미는 '-ㄹ게'." },
-    { wrong: "옳바른 자세로 앉아.", correct: "올바른 자세로 앉아.", hint: "'올바르다' 한 단어." },
-    { wrong: "햇볓이 너무 좋아.", correct: "햇볕이 너무 좋아.", hint: "'볕'은 ㅂ받침." },
-    { wrong: "겉잡을 수 없이 번졌어.", correct: "걷잡을 수 없이 번졌어.", note: "'걷잡을 수 없다'는 커진 기세를 막지 못한다는 뜻. 겉으로 대강 어림잡는 '겉잡다'와는 다른 말이에요. (예: 불길이 걷잡을 수 없이 번지다)", hint: "'걷잡을'로 고쳐요." },
-    { wrong: "다시는 안 그럴께.", correct: "다시는 안 그럴게.", hint: "약속의 어미는 '-ㄹ게'." },
-    { wrong: "내가 어떻해야 돼?", correct: "내가 어떡해야 돼?", hint: "'어떻게 해'의 줄임은 '어떡해'." },
-    { wrong: "초콜렛 좋아해.", correct: "초콜릿 좋아해.", hint: "외래어 표기는 '초콜릿'." },
-    { wrong: "케익 한 조각 줘.", correct: "케이크 한 조각 줘.", hint: "'cake'는 '케이크'." },
-    { wrong: "컨텐츠가 풍부해.", correct: "콘텐츠가 풍부해.", hint: "'content'는 '콘텐츠'." },
-    { wrong: "친구를 사겼어.", correct: "친구를 사귀었어.", hint: "기본형은 '사귀다' → '사귀었다'." },
-    { wrong: "내가 일찌기 갔어.", correct: "내가 일찍이 갔어.", hint: "표준어는 '일찍이'." },
-    { wrong: "문을 잠궜어.", correct: "문을 잠갔어.", hint: "기본형 '잠그다' → '잠갔다'." },
-    { wrong: "김치를 담궜어.", correct: "김치를 담갔어.", hint: "기본형 '담그다' → '담갔다'." },
-    { wrong: "맛있게 먹을께.", correct: "맛있게 먹을게.", hint: "약속의 어미는 '-ㄹ게'." },
-    { wrong: "공부할 꺼야.", correct: "공부할 거야.", hint: "의존명사 '거', 어미 '-ㄹ'." },
-    { wrong: "이 책 정말 재밋다.", correct: "이 책 정말 재밌다.", hint: "'재미있다'의 준말은 '재밌다'." },
-    { wrong: "병이 빨리 나앗어.", correct: "병이 빨리 나았어.", hint: "어간 '낫-' + '-았어' = '나았어'." },
-    { wrong: "결재해 주세요.", correct: "결제해 주세요.", note: "이 문장은 '돈을 지불하다'라는 뜻. 상급자가 서류를 승인하는 '결재'와는 다른 말이에요. (예: 카드 결제 / 서류 결재)", hint: "돈 지불은 '결제'." },
-    { wrong: "출석을 가름한다.", correct: "출석을 갈음한다.", note: "이 문장은 '무언가를 대신하다'라는 뜻. 나누거나 구별하는 '가름'과는 다른 말이에요. (예: 인사말로 갈음하다 / 승부를 가름하다)", hint: "대신함은 '갈음'." },
-    { wrong: "비스켓 먹을래?", correct: "비스킷 먹을래?", hint: "'biscuit'은 '비스킷'." },
-    { wrong: "쇼파에 누웠어.", correct: "소파에 누웠어.", hint: "'sofa'는 '소파'." },
-    { wrong: "악세사리가 예뻐.", correct: "액세서리가 예뻐.", hint: "'accessory'는 '액세서리'." },
-    { wrong: "엄마가 문 잠궈 둬.", correct: "엄마가 문 잠가 둬.", hint: "어간 '잠그-' + '-아' = '잠가'." },
-    { wrong: "기쁨에 들떳어.", correct: "기쁨에 들떴어.", hint: "어간 '들뜨-' + '-었어' = '들떴어'." },
-    { wrong: "이번 시험은 잘 봣어.", correct: "이번 시험은 잘 봤어.", hint: "'보-' + '-았어' = '봤어'." },
-    { wrong: "내가 그를 가르켰다.", correct: "내가 그를 가리켰다.", note: "이 문장은 '손으로 방향·대상을 짚다'라는 뜻. 지식을 알려주는 '가르치다'와는 완전히 다른 말이에요. (예: 지도를 가리키다 / 학생을 가르치다)", hint: "'가리키다'로 고쳐요." },
-    { wrong: "맞춤법을 마쳤어.", correct: "맞춤법을 맞혔어.", note: "이 문장은 '정답을 알아맞히다'라는 뜻. '마치다(끝내다)'·'맞추다(맞대어 비교)'와는 다른 말이에요. (예: 퀴즈를 맞히다 / 숙제를 마치다 / 답을 맞춰 보다)", hint: "'맞히다'로 고쳐요." },
-    { wrong: "넌 정말 알아맞쳤다.", correct: "넌 정말 알아맞혔다.", hint: "'맞히다'가 표준." },
-    { wrong: "그닥 어렵지 않아.", correct: "그다지 어렵지 않아.", hint: "표준어는 '그다지'." },
-    { wrong: "벌써 9시 됬어.", correct: "벌써 9시 됐어.", hint: "'되었다'의 줄임은 '됐다'." },
-    { wrong: "동생이 거 짓말했어.", correct: "동생이 거짓말했어.", hint: "'거짓말'은 한 단어." },
-    { wrong: "이번 일 사과할께.", correct: "이번 일 사과할게.", hint: "약속의 어미는 '-ㄹ게'." },
-    { wrong: "다리에 멍이 들엇어.", correct: "다리에 멍이 들었어.", hint: "어간 '들-' + '-었어'." },
-    { wrong: "약을 잘 못 먹어서 아팠어.", correct: "약을 잘못 먹어서 아팠어.", hint: "실수의 '잘못'은 한 단어." },
-    { wrong: "친구한테 부탁할께.", correct: "친구한테 부탁할게.", hint: "약속의 어미는 '-ㄹ게'." }
-  ],
-  med: [
-    { wrong: "이건 할수있어.", correct: "이건 할 수 있어.", hint: "'수'는 의존명사 — 띄어 써요." },
-    { wrong: "한번 더 해볼래?", correct: "한 번 더 해볼래?", hint: "횟수의 '한 번'은 띄어요." },
-    { wrong: "수학을 잘 하는 친구.", correct: "수학을 잘하는 친구.", hint: "능숙함의 '잘하다'는 한 단어." },
-    { wrong: "그 동안 잘 지냈어?", correct: "그동안 잘 지냈어?", hint: "'그동안'은 한 단어." },
-    { wrong: "마음의 설레임을 안고.", correct: "마음의 설렘을 안고.", hint: "'설렘'이 명사형." },
-    { wrong: "꿈을 향한 바램.", correct: "꿈을 향한 바람.", hint: "기본형 '바라다' → 명사 '바람'." },
-    { wrong: "선생님으로써 책임지자.", correct: "선생님으로서 책임지자.", note: "이 문장은 '자격·신분'을 나타내요. 수단·도구·방법을 나타내는 '-로써'와는 다른 조사예요. (예: 교사로서 / 대화로써 해결)", hint: "자격·신분은 '-로서'." },
-    { wrong: "두번째 줄을 보세요.", correct: "두 번째 줄을 보세요.", hint: "수와 단위는 띄어요." },
-    { wrong: "며칠전부터 비가 와.", correct: "며칠 전부터 비가 와.", hint: "'전'은 의존명사 — 띄움." },
-    { wrong: "운동으로 살을빼자.", correct: "운동으로 살을 빼자.", hint: "조사 뒤 동사는 띄움." },
-    { wrong: "잘 못했다고 사과해.", correct: "잘못했다고 사과해.", hint: "사과의 '잘못하다'는 한 단어." },
-    { wrong: "그렇게 하면 안되.", correct: "그렇게 하면 안 돼.", hint: "'안 되다'는 띄움, 종결은 '돼'." },
-    { wrong: "그가 도와 줄 거야.", correct: "그가 도와줄 거야.", hint: "'도와주다' 한 단어, '거야'는 띄움." },
-    { wrong: "친구 만난지 한참 됐어.", correct: "친구 만난 지 한참 됐어.", hint: "시간 경과의 '-지'는 띄움." },
-    { wrong: "선물 받은적 있어요.", correct: "선물 받은 적 있어요.", hint: "'적'은 의존명사." },
-    { wrong: "공부 하기 싫다.", correct: "공부하기 싫다.", hint: "'-하다' 동사는 붙임." },
-    { wrong: "약속을 안지키면 곤란해.", correct: "약속을 안 지키면 곤란해.", hint: "부정의 '안'은 띄움." },
-    { wrong: "비행기를 탄지 5년.", correct: "비행기를 탄 지 5년.", hint: "시간 경과의 '-지'." },
-    { wrong: "여기서 부터 시작.", correct: "여기서부터 시작.", hint: "조사는 붙임." },
-    { wrong: "친구네 집에 갔다왔어.", correct: "친구네 집에 갔다 왔어.", hint: "'갔다 오다' 띄움." },
-    { wrong: "다시는 그런일 없어.", correct: "다시는 그런 일 없어.", hint: "관형어와 명사는 띄움." },
-    { wrong: "이번 한해도 고마웠어.", correct: "이번 한 해도 고마웠어.", hint: "수+단위는 띄움." },
-    { wrong: "공부 한지 한 시간 됐다.", correct: "공부한 지 한 시간 됐다.", hint: "시간 경과 '-(으)ㄴ 지'." },
-    { wrong: "이게 잘 한 일인지 모르겠다.", correct: "이게 잘한 일인지 모르겠다.", hint: "능숙의 '잘하다'는 한 단어." },
-    { wrong: "그 일은 한 두 번이 아니야.", correct: "그 일은 한두 번이 아니야.", hint: "'한두'는 합성수사 — 붙임." },
-    { wrong: "두세번 만났어.", correct: "두세 번 만났어.", hint: "수 + 단위는 띄어쓰기." },
-    { wrong: "별 일 없지?", correct: "별일 없지?", hint: "'별일'은 한 단어." },
-    { wrong: "이건 또다른 문제야.", correct: "이건 또 다른 문제야.", hint: "관형어 '또'는 띄움." },
-    { wrong: "오늘 일찍 일어났음으로 피곤해.", correct: "오늘 일찍 일어났으므로 피곤해.", hint: "원인의 어미는 '-(으)므로'." },
-    { wrong: "이게 답이요.", correct: "이게 답이오.", hint: "종결어미는 '-오'. '-요'는 보조사." },
-    { wrong: "내가 너에게 인사하요.", correct: "내가 너에게 인사해요.", hint: "'하-' + '-아요/여요' → '해요'." },
-    { wrong: "꽃이 피였다.", correct: "꽃이 피었다.", hint: "어간 '피-' + '-었다' = '피었다'." },
-    { wrong: "강아지가 뛰여간다.", correct: "강아지가 뛰어간다.", hint: "'뛰-' + '-어가다' = '뛰어가다'." },
-    { wrong: "치과에 가야겟다.", correct: "치과에 가야겠다.", hint: "어미 '-겠-'." },
-    { wrong: "그 일은 그가 한데.", correct: "그 일은 그가 한대.", hint: "인용 줄임은 '-한대'." },
-    { wrong: "내가 잘못한건 아니야.", correct: "내가 잘못한 건 아니야.", hint: "의존명사 '건'은 띄움." },
-    { wrong: "비가 옴으로 우산을 가져가.", correct: "비가 오므로 우산을 가져가.", hint: "이유의 어미는 '-(으)므로'." },
-    { wrong: "주문하신지 30분 됐어.", correct: "주문하신 지 30분 됐어.", hint: "시간 경과 '-(으)ㄴ 지'." },
-    { wrong: "이 일을 어떡 해.", correct: "이 일을 어떡해.", hint: "'어떡해'는 한 단어." },
-    { wrong: "공부할 수 밖에 없어.", correct: "공부할 수밖에 없어.", hint: "'수밖에'는 붙임." },
-    { wrong: "내가 갈 수 있을 까?", correct: "내가 갈 수 있을까?", hint: "어미 '-(으)ㄹ까'는 붙임." },
-    { wrong: "비가 오는대로 떠나자.", correct: "비가 오는 대로 떠나자.", hint: "의존명사 '대로'는 띄움." },
-    { wrong: "전화가 오자 마자 받았어.", correct: "전화가 오자마자 받았어.", hint: "'-자마자'는 어미 — 붙임." },
-    { wrong: "공부 하지 않아.", correct: "공부하지 않아.", hint: "'-하다' 동사는 붙임." },
-    { wrong: "옷이 깨끗 합니다.", correct: "옷이 깨끗합니다.", hint: "'-하다' 형용사는 붙임." },
-    { wrong: "교실은 조용 한 편이에요.", correct: "교실은 조용한 편이에요.", hint: "관형사형 '-한'은 붙임." },
-    { wrong: "곤혹을 당했다.", correct: "곤욕을 당했다.", note: "이 문장은 '심한 모욕·고통을 당하다'라는 뜻. 곤란해서 당황하는 '곤혹(곤혹스럽다)'과는 다른 말이에요. (예: 곤욕을 치르다 / 질문에 곤혹스럽다)", hint: "당하는 건 '곤욕'." },
-    { wrong: "친구간에 의리는 중요해.", correct: "친구 간에 의리는 중요해.", hint: "사이를 뜻하는 '간'은 의존명사 — 띄움." },
-    { wrong: "그건 너 답지 않다.", correct: "그건 너답지 않다.", hint: "접미사 '-답다'는 붙임." },
-    { wrong: "노력 한 만큼 결과가 나와.", correct: "노력한 만큼 결과가 나와.", hint: "'-하다' 동사는 붙임." },
-    { wrong: "이건 그 사람 만의 비밀이야.", correct: "이건 그 사람만의 비밀이야.", hint: "보조사 '만'은 붙임." },
-    { wrong: "어쩌면 좋을 지 모르겠어.", correct: "어쩌면 좋을지 모르겠어.", hint: "어미 '-(으)ㄹ지'는 붙임." }
-  ],
-  hard: [
-    { wrong: "이 일은 너 만의 일이 아니다.", correct: "이 일은 너만의 일이 아니다.", hint: "보조사 '만'은 붙임." },
-    { wrong: "그 사람 만큼은 믿는다.", correct: "그 사람만큼은 믿는다.", hint: "조사 '만큼'은 붙임." },
-    { wrong: "내일 부터는 운동한다.", correct: "내일부터는 운동한다.", hint: "조사 '부터'는 붙임." },
-    { wrong: "갈등을 표률로 해결해야.", correct: "갈등을 표결로 해결해야.", hint: "표준어는 '표결'." },
-    { wrong: "촛점이 흐려졌어.", correct: "초점이 흐려졌어.", hint: "한자어 '초점(焦點)' — 사이시옷 X." },
-    { wrong: "댓가를 지불해야지.", correct: "대가를 지불해야지.", hint: "한자어 '대가(代價)' — 사이시옷 X." },
-    { wrong: "갯수가 모자라.", correct: "개수가 모자라.", hint: "한자어 '개수(個數)' — 사이시옷 X." },
-    { wrong: "햇님이 떴다.", correct: "해님이 떴다.", hint: "'해+님' — 사이시옷 X." },
-    { wrong: "찬바람이 부는 갯펄.", correct: "찬바람이 부는 갯벌.", hint: "표준어는 '갯벌'." },
-    { wrong: "이 일을 어찌 한단 말이오.", correct: "이 일을 어찌한단 말이오.", hint: "'어찌하다'는 한 단어." },
-    { wrong: "그는 박사 답게 행동했다.", correct: "그는 박사답게 행동했다.", hint: "접미사 '-답게'는 붙임." },
-    { wrong: "오늘 따라 기분이 좋아.", correct: "오늘따라 기분이 좋아.", hint: "조사 '따라'는 붙임." },
-    { wrong: "고난을 격었다.", correct: "고난을 겪었다.", hint: "기본형은 '겪다'." },
-    { wrong: "어른들의 뜻을 쫒았다.", correct: "어른들의 뜻을 좇았다.", note: "이 문장은 '뜻·이상·목표를 추구하다'라는 뜻. 사람·동물을 물리적으로 뒤쫓는 '쫓다'와는 다른 말이에요. (예: 꿈을 좇다 / 도둑을 쫓다)", hint: "뜻을 따르면 '좇다'." },
-    { wrong: "큰 일 났다.", correct: "큰일 났다.", hint: "'큰일'은 한 단어." },
-    { wrong: "한가지 더 묻고 싶어.", correct: "한 가지 더 묻고 싶어.", hint: "수 + 단위는 띄어쓰기." },
-    { wrong: "그가 입원한 지 얼마 안돼.", correct: "그가 입원한 지 얼마 안 돼.", hint: "부정의 '안'은 띄움." },
-    { wrong: "이게 마지막 일줄 알았어.", correct: "이게 마지막일 줄 알았어.", hint: "서술격 조사 + '-(으)ㄹ 줄'." },
-    { wrong: "이 옷은 비싼 듯 하다.", correct: "이 옷은 비싼 듯하다.", hint: "보조형용사 '-듯하다'는 붙임." },
-    { wrong: "그는 화 났을 텐데.", correct: "그는 화났을 텐데.", hint: "'화나다' 한 단어 + '-(으)ㄹ 텐데'." },
-    { wrong: "그 외에 더 알아 볼 게 없어.", correct: "그 외에 더 알아볼 게 없어.", hint: "'알아보다'는 한 단어." },
-    { wrong: "정확이 적어라.", correct: "정확히 적어라.", hint: "부사는 '정확히'." },
-    { wrong: "솔직이 말해 봐.", correct: "솔직히 말해 봐.", hint: "부사는 '솔직히'." },
-    { wrong: "꼼꼼이 살펴 봐.", correct: "꼼꼼히 살펴봐.", hint: "부사 '꼼꼼히' + '살펴보다' 한 단어." },
-    { wrong: "다음 부터는 잘 할 게.", correct: "다음부터는 잘할게.", hint: "조사 '부터' + '잘하다' + '-ㄹ게'." }
-  ]
- },
- en: {
-  /* North-American-English usage/spelling drill — every pair below was hand-verified for
-     grammatical/orthographic correctness (see /tmp validate.js structural check) before adding. */
-  easy: [
-    { wrong: "I recieved your letter yesterday.", correct: "I received your letter yesterday.", hint: "'i' before 'e' except after 'c' → received." },
-    { wrong: "Its a beautiful day outside.", correct: "It's a beautiful day outside.", hint: "'It's' = it is; 'its' shows possession." },
-    { wrong: "Your going to love this movie.", correct: "You're going to love this movie.", hint: "'You're' = you are; 'your' shows possession." },
-    { wrong: "There going to the park later.", correct: "They're going to the park later.", hint: "'They're' = they are." },
-    { wrong: "I have less friends than before.", correct: "I have fewer friends than before.", hint: "Use 'fewer' for countable nouns, 'less' for uncountable." },
-    { wrong: "She definately finished her homework.", correct: "She definitely finished her homework.", hint: "Watch the spelling: definitely, not definately." },
-    { wrong: "We should of called first.", correct: "We should have called first.", hint: "'Should've' sounds like 'should of', but it's 'should have'." },
-    { wrong: "The two friends seperated at the corner.", correct: "The two friends separated at the corner.", hint: "Remember: sep-A-rate, not sep-E-rate." },
-    { wrong: "He excepted the invitation happily.", correct: "He accepted the invitation happily.", hint: "'Accept' means to agree to; 'except' means excluding." },
-    { wrong: "Whose coming to the party tonight?", correct: "Who's coming to the party tonight?", hint: "'Who's' = who is; 'whose' shows possession." },
-    { wrong: "The weather effected our travel plans.", correct: "The weather affected our travel plans.", hint: "'Affect' is usually a verb; 'effect' is usually a noun." },
-    { wrong: "Try not to loose your keys again.", correct: "Try not to lose your keys again.", hint: "'Lose' means to misplace; 'loose' means not tight." },
-    { wrong: "I can't beleive how fast she runs.", correct: "I can't believe how fast she runs.", hint: "Remember: believe, not beleive." },
-    { wrong: "We had a great time at they're house.", correct: "We had a great time at their house.", hint: "'Their' shows possession; 'they're' = they are." },
-    { wrong: "This is the best restaurant in the neighbourhood.", correct: "This is the best restaurant in the neighborhood.", hint: "American English drops the 'u': neighbor, not neighbour." },
-    { wrong: "The color of the walls is a light shade of grey.", correct: "The color of the walls is a light shade of gray.", hint: "American English generally prefers 'gray' over 'grey'." },
-    { wrong: "I finaly finished the marathon.", correct: "I finally finished the marathon.", hint: "Double 'l': finally, not finaly." },
-    { wrong: "The accident occured on Main Street.", correct: "The accident occurred on Main Street.", hint: "Double the 'r': occurred, not occured." }
-  ],
-  med: [
-    { wrong: "Neither of the answers were correct.", correct: "Neither of the answers was correct.", hint: "'Neither' takes a singular verb: was, not were." },
-    { wrong: "She is more taller than her brother.", correct: "She is taller than her brother.", hint: "Don't combine 'more' with an '-er' comparative." },
-    { wrong: "He don't like coffee in the morning.", correct: "He doesn't like coffee in the morning.", hint: "Third-person singular needs 'doesn't', not 'don't'." },
-    { wrong: "I seen that movie last week.", correct: "I saw that movie last week.", hint: "Simple past of 'see' is 'saw'; 'seen' needs a helping verb." },
-    { wrong: "Can you borrow me some money until Friday?", correct: "Can you lend me some money until Friday?", hint: "'Lend' means to give temporarily; 'borrow' means to receive temporarily." },
-    { wrong: "Lay down and rest for a while.", correct: "Lie down and rest for a while.", hint: "'Lie' (no object) means to recline; 'lay' needs an object." },
-    { wrong: "The dog wagged it's tail happily.", correct: "The dog wagged its tail happily.", hint: "Possessive 'its' has no apostrophe." },
-    { wrong: "There are less students in class today.", correct: "There are fewer students in class today.", hint: "'Students' is countable, so use 'fewer'." },
-    { wrong: "Me and him went to the store.", correct: "He and I went to the store.", hint: "Use subject pronouns (I, he) as the sentence subject, and put yourself last." },
-    { wrong: "The company have decided to expand.", correct: "The company has decided to expand.", hint: "Collective nouns like 'company' usually take a singular verb in American English." },
-    { wrong: "I could care less about the results.", correct: "I couldn't care less about the results.", hint: "The idiom is 'couldn't care less' — meaning zero care." },
-    { wrong: "This tastes badly.", correct: "This tastes bad.", hint: "'Taste' is a linking verb — use the adjective 'bad', not the adverb 'badly'." },
-    { wrong: "Between you and I, the plan will fail.", correct: "Between you and me, the plan will fail.", hint: "After a preposition like 'between', use the object pronoun 'me'." },
-    { wrong: "If I was you, I would apologize.", correct: "If I were you, I would apologize.", hint: "Hypothetical 'if' clauses use 'were', not 'was'." }
-  ],
-  hard: [
-    { wrong: "The jury have reached their verdict.", correct: "The jury has reached its verdict.", hint: "American English treats collective nouns like 'jury' as singular: has, its." },
-    { wrong: "He is one of the students who is always late.", correct: "He is one of the students who are always late.", hint: "'Who' refers to 'students' (plural), so the verb is 'are'." },
-    { wrong: "I wish I was taller.", correct: "I wish I were taller.", hint: "Wishes about the present use the subjunctive 'were'." },
-    { wrong: "Its important to proofread you're work before submitting it.", correct: "It's important to proofread your work before submitting it.", hint: "'It's' = it is; 'your' shows possession before 'work'." },
-    { wrong: "Their are many reasons to celebrate today.", correct: "There are many reasons to celebrate today.", hint: "'There' introduces existence; 'their' shows possession." },
-    { wrong: "The principle of the school gave a speech.", correct: "The principal of the school gave a speech.", hint: "A school leader is the 'principal'; a 'principle' is a rule or belief." },
-    { wrong: "Please except my apology for the delay.", correct: "Please accept my apology for the delay.", hint: "'Accept' means to receive willingly; 'except' means excluding." },
-    { wrong: "The stationary store sells beautiful notebooks.", correct: "The stationery store sells beautiful notebooks.", hint: "Paper goods are 'stationery' (with an e); 'stationary' means not moving." },
-    { wrong: "The colors compliment each other perfectly.", correct: "The colors complement each other perfectly.", hint: "'Complement' means to complete or go well with; 'compliment' means praise." },
-    { wrong: "The two teams operate as discreet units.", correct: "The two teams operate as discrete units.", hint: "'Discrete' means separate/distinct; 'discreet' means careful or private." }
-  ]
- }
+  "ko": {
+    "easy": [
+      {
+        "wrong": "오늘 학교에 안 되요.",
+        "correct": "오늘 학교에 안 돼요.",
+        "hint": "'되어'로 풀어볼 수 있으면 '돼'."
+      },
+      {
+        "wrong": "왠일로 일찍 일어났니?",
+        "correct": "웬일로 일찍 일어났니?",
+        "hint": "'어찌 된 일'이라는 뜻이면 '웬'."
+      },
+      {
+        "wrong": "이번 주에 몇일 쉬어?",
+        "correct": "이번 주에 며칠 쉬어?",
+        "hint": "'며칠'이 표준어. '몇일'은 비표준."
+      },
+      {
+        "wrong": "방을 깨끗히 청소했어.",
+        "correct": "방을 깨끗이 청소했어.",
+        "hint": "부사 끝은 대부분 '-이'."
+      },
+      {
+        "wrong": "마음이 설레여요.",
+        "correct": "마음이 설레요.",
+        "hint": "기본형은 '설레다'. '설레이다'는 비표준."
+      },
+      {
+        "wrong": "건강하길 바래.",
+        "correct": "건강하길 바라.",
+        "note": "이 문장은 '소망하다'라는 뜻(기본형 바라다). 색이 옅어지거나 배웅하는 '바래다'와는 다른 말이에요. (예: 합격하길 바라 / 청바지가 바래다)",
+        "hint": "기본형 '바라다' → '바라'."
+      },
+      {
+        "wrong": "감기가 빨리 낳아라.",
+        "correct": "감기가 빨리 나아라.",
+        "note": "이 문장은 '병이 회복되다'라는 뜻. 아이를 낳는 '낳다'와는 완전히 다른 말이에요. (예: 감기가 낫다 / 아기를 낳다)",
+        "hint": "어간 '낫-'+'-아라' → '나아라'."
+      },
+      {
+        "wrong": "이건 어떻해 풀어?",
+        "correct": "이건 어떻게 풀어?",
+        "hint": "방법을 물을 땐 '어떻게'."
+      },
+      {
+        "wrong": "공부를 일일히 가르쳤어.",
+        "correct": "공부를 일일이 가르쳤어.",
+        "hint": "부사형은 '-이'."
+      },
+      {
+        "wrong": "약속을 안 지키면 안되.",
+        "correct": "약속을 안 지키면 안 돼.",
+        "hint": "문장 끝은 '돼'."
+      },
+      {
+        "wrong": "쓰래기 좀 버려줘.",
+        "correct": "쓰레기 좀 버려줘.",
+        "hint": "'쓰레기'가 표준어."
+      },
+      {
+        "wrong": "오랫만에 만났네.",
+        "correct": "오랜만에 만났네.",
+        "hint": "'오랜만'이 표준어."
+      },
+      {
+        "wrong": "내 역활이 뭐였지?",
+        "correct": "내 역할이 뭐였지?",
+        "hint": "'役割'은 '역할'."
+      },
+      {
+        "wrong": "정말 어의가 없다.",
+        "correct": "정말 어이가 없다.",
+        "note": "'어이(가) 없다'는 황당하다는 뜻의 관용구. '어의'(임금의 옷/궁중 의사)와는 전혀 다른 말이에요. (예: 어이없는 실수)",
+        "hint": "'어이'로 고쳐요."
+      },
+      {
+        "wrong": "맛있는 떡뽁이 먹자.",
+        "correct": "맛있는 떡볶이 먹자.",
+        "hint": "'볶다'의 '볶이'."
+      },
+      {
+        "wrong": "내일 뵈요.",
+        "correct": "내일 봬요.",
+        "hint": "'보아요'의 준말은 '봬요'."
+      },
+      {
+        "wrong": "그러던지 말던지.",
+        "correct": "그러든지 말든지.",
+        "note": "이 문장은 '무엇을 골라도 상관없다'는 선택의 뜻. 과거를 회상하는 '-던지'와는 다른 말이에요. (예: 가든지 말든지 / 얼마나 춥던지)",
+        "hint": "선택은 '-든지'."
+      },
+      {
+        "wrong": "김치찌게가 맛있어.",
+        "correct": "김치찌개가 맛있어.",
+        "hint": "'찌개'가 표준어."
+      },
+      {
+        "wrong": "오랜만에 잘 지냇어.",
+        "correct": "오랜만에 잘 지냈어.",
+        "hint": "'지내'+'었'+'어' = '지냈어'."
+      },
+      {
+        "wrong": "웬지 기분이 이상해.",
+        "correct": "왠지 기분이 이상해.",
+        "hint": "'왜인지'의 줄임은 '왠지'."
+      },
+      {
+        "wrong": "내가 도와 줄께.",
+        "correct": "내가 도와줄게.",
+        "hint": "'도와주다' 한 단어, 어미는 '-ㄹ게'."
+      },
+      {
+        "wrong": "옳바른 자세로 앉아.",
+        "correct": "올바른 자세로 앉아.",
+        "hint": "'올바르다' 한 단어."
+      },
+      {
+        "wrong": "햇볓이 너무 좋아.",
+        "correct": "햇볕이 너무 좋아.",
+        "hint": "'볕'은 ㅂ받침."
+      },
+      {
+        "wrong": "겉잡을 수 없이 번졌어.",
+        "correct": "걷잡을 수 없이 번졌어.",
+        "note": "'걷잡을 수 없다'는 커진 기세를 막지 못한다는 뜻. 겉으로 대강 어림잡는 '겉잡다'와는 다른 말이에요. (예: 불길이 걷잡을 수 없이 번지다)",
+        "hint": "'걷잡을'로 고쳐요."
+      },
+      {
+        "wrong": "다시는 안 그럴께.",
+        "correct": "다시는 안 그럴게.",
+        "hint": "약속의 어미는 '-ㄹ게'."
+      },
+      {
+        "wrong": "내가 어떻해야 돼?",
+        "correct": "내가 어떡해야 돼?",
+        "hint": "'어떻게 해'의 줄임은 '어떡해'."
+      },
+      {
+        "wrong": "초콜렛 좋아해.",
+        "correct": "초콜릿 좋아해.",
+        "hint": "외래어 표기는 '초콜릿'."
+      },
+      {
+        "wrong": "케익 한 조각 줘.",
+        "correct": "케이크 한 조각 줘.",
+        "hint": "'cake'는 '케이크'."
+      },
+      {
+        "wrong": "컨텐츠가 풍부해.",
+        "correct": "콘텐츠가 풍부해.",
+        "hint": "'content'는 '콘텐츠'."
+      },
+      {
+        "wrong": "친구를 사겼어.",
+        "correct": "친구를 사귀었어.",
+        "hint": "기본형은 '사귀다' → '사귀었다'."
+      },
+      {
+        "wrong": "내가 일찌기 갔어.",
+        "correct": "내가 일찍이 갔어.",
+        "hint": "표준어는 '일찍이'."
+      },
+      {
+        "wrong": "문을 잠궜어.",
+        "correct": "문을 잠갔어.",
+        "hint": "기본형 '잠그다' → '잠갔다'."
+      },
+      {
+        "wrong": "김치를 담궜어.",
+        "correct": "김치를 담갔어.",
+        "hint": "기본형 '담그다' → '담갔다'."
+      },
+      {
+        "wrong": "맛있게 먹을께.",
+        "correct": "맛있게 먹을게.",
+        "hint": "약속의 어미는 '-ㄹ게'."
+      },
+      {
+        "wrong": "공부할 꺼야.",
+        "correct": "공부할 거야.",
+        "hint": "의존명사 '거', 어미 '-ㄹ'."
+      },
+      {
+        "wrong": "이 책 정말 재밋다.",
+        "correct": "이 책 정말 재밌다.",
+        "hint": "'재미있다'의 준말은 '재밌다'."
+      },
+      {
+        "wrong": "병이 빨리 나앗어.",
+        "correct": "병이 빨리 나았어.",
+        "hint": "어간 '낫-' + '-았어' = '나았어'."
+      },
+      {
+        "wrong": "결재해 주세요.",
+        "correct": "결제해 주세요.",
+        "note": "이 문장은 '돈을 지불하다'라는 뜻. 상급자가 서류를 승인하는 '결재'와는 다른 말이에요. (예: 카드 결제 / 서류 결재)",
+        "hint": "돈 지불은 '결제'."
+      },
+      {
+        "wrong": "출석을 가름한다.",
+        "correct": "출석을 갈음한다.",
+        "note": "이 문장은 '무언가를 대신하다'라는 뜻. 나누거나 구별하는 '가름'과는 다른 말이에요. (예: 인사말로 갈음하다 / 승부를 가름하다)",
+        "hint": "대신함은 '갈음'."
+      },
+      {
+        "wrong": "비스켓 먹을래?",
+        "correct": "비스킷 먹을래?",
+        "hint": "'biscuit'은 '비스킷'."
+      },
+      {
+        "wrong": "쇼파에 누웠어.",
+        "correct": "소파에 누웠어.",
+        "hint": "'sofa'는 '소파'."
+      },
+      {
+        "wrong": "악세사리가 예뻐.",
+        "correct": "액세서리가 예뻐.",
+        "hint": "'accessory'는 '액세서리'."
+      },
+      {
+        "wrong": "엄마가 문 잠궈 둬.",
+        "correct": "엄마가 문 잠가 둬.",
+        "hint": "어간 '잠그-' + '-아' = '잠가'."
+      },
+      {
+        "wrong": "기쁨에 들떳어.",
+        "correct": "기쁨에 들떴어.",
+        "hint": "어간 '들뜨-' + '-었어' = '들떴어'."
+      },
+      {
+        "wrong": "이번 시험은 잘 봣어.",
+        "correct": "이번 시험은 잘 봤어.",
+        "hint": "'보-' + '-았어' = '봤어'."
+      },
+      {
+        "wrong": "내가 그를 가르켰다.",
+        "correct": "내가 그를 가리켰다.",
+        "note": "이 문장은 '손으로 방향·대상을 짚다'라는 뜻. 지식을 알려주는 '가르치다'와는 완전히 다른 말이에요. (예: 지도를 가리키다 / 학생을 가르치다)",
+        "hint": "'가리키다'로 고쳐요."
+      },
+      {
+        "wrong": "맞춤법을 마쳤어.",
+        "correct": "맞춤법을 맞혔어.",
+        "note": "이 문장은 '정답을 알아맞히다'라는 뜻. '마치다(끝내다)'·'맞추다(맞대어 비교)'와는 다른 말이에요. (예: 퀴즈를 맞히다 / 숙제를 마치다 / 답을 맞춰 보다)",
+        "hint": "'맞히다'로 고쳐요."
+      },
+      {
+        "wrong": "넌 정말 알아맞쳤다.",
+        "correct": "넌 정말 알아맞혔다.",
+        "hint": "'맞히다'가 표준."
+      },
+      {
+        "wrong": "그닥 어렵지 않아.",
+        "correct": "그다지 어렵지 않아.",
+        "hint": "표준어는 '그다지'."
+      },
+      {
+        "wrong": "벌써 9시 됬어.",
+        "correct": "벌써 9시 됐어.",
+        "hint": "'되었다'의 줄임은 '됐다'."
+      },
+      {
+        "wrong": "동생이 거 짓말했어.",
+        "correct": "동생이 거짓말했어.",
+        "hint": "'거짓말'은 한 단어."
+      },
+      {
+        "wrong": "이번 일 사과할께.",
+        "correct": "이번 일 사과할게.",
+        "hint": "약속의 어미는 '-ㄹ게'."
+      },
+      {
+        "wrong": "다리에 멍이 들엇어.",
+        "correct": "다리에 멍이 들었어.",
+        "hint": "어간 '들-' + '-었어'."
+      },
+      {
+        "wrong": "약을 잘 못 먹어서 아팠어.",
+        "correct": "약을 잘못 먹어서 아팠어.",
+        "hint": "실수의 '잘못'은 한 단어."
+      },
+      {
+        "wrong": "친구한테 부탁할께.",
+        "correct": "친구한테 부탁할게.",
+        "hint": "약속의 어미는 '-ㄹ게'."
+      },
+      {
+        "wrong": "이번 시험 잘 봤으면 좋겠다고 간절히 바래.",
+        "correct": "이번 시험 잘 봤으면 좋겠다고 간절히 바라.",
+        "hint": "'바라다'의 명령형은 '바라'"
+      },
+      {
+        "wrong": "그 일은 나 혼자서도 할 수 있는데 안 되요?",
+        "correct": "그 일은 나 혼자서도 할 수 있는데 안 돼요?",
+        "hint": "'되어요'의 준말은 '돼요'"
+      },
+      {
+        "wrong": "오늘 안에 이 대금을 꼭 결재해 주세요.",
+        "correct": "오늘 안에 이 대금을 꼭 결제해 주세요.",
+        "hint": "돈 지불은 '결제', 승인은 '결재'"
+      },
+      {
+        "wrong": "친구랑 오랫만에 만나서 정말 반가웠어.",
+        "correct": "친구랑 오랜만에 만나서 정말 반가웠어.",
+        "hint": "'오래간만'의 준말은 '오랜만'"
+      },
+      {
+        "wrong": "청소를 깨끗히 했더니 방이 새것 같아.",
+        "correct": "청소를 깨끗이 했더니 방이 새것 같아.",
+        "hint": "'깨끗-'은 부사 '이'로 적음"
+      },
+      {
+        "wrong": "왼지 오늘은 좋은 일이 생길 것 같아.",
+        "correct": "왠지 오늘은 좋은 일이 생길 것 같아.",
+        "hint": "'왜인지'의 준말은 '왠지'"
+      },
+      {
+        "wrong": "왠만하면 오늘 안으로 답장을 보내 줘.",
+        "correct": "웬만하면 오늘 안으로 답장을 보내 줘.",
+        "hint": "'웬만하면'이 맞고 '왠만하면'은 틀림"
+      },
+      {
+        "wrong": "이번 프로젝트에서 네 역활이 정말 컸어.",
+        "correct": "이번 프로젝트에서 네 역할이 정말 컸어.",
+        "hint": "'역할'이 맞고 '역활'은 틀림"
+      },
+      {
+        "wrong": "바닥에 쓰래기를 함부로 버리면 안 돼.",
+        "correct": "바닥에 쓰레기를 함부로 버리면 안 돼.",
+        "hint": "'쓰레기'가 맞고 '쓰래기'는 틀림"
+      },
+      {
+        "wrong": "설레이는 마음으로 첫 출근 날을 기다렸어.",
+        "correct": "설레는 마음으로 첫 출근 날을 기다렸어.",
+        "hint": "기본형은 '설레다', '설레이다'는 틀림"
+      },
+      {
+        "wrong": "몇일 동안 푹 쉬었더니 컨디션이 좋아졌어.",
+        "correct": "며칠 동안 푹 쉬었더니 컨디션이 좋아졌어.",
+        "hint": "'며칠'이 맞고 '몇일'은 틀림"
+      },
+      {
+        "wrong": "그렇게 화만 내지 말고 어떻해 좀 해 봐.",
+        "correct": "그렇게 화만 내지 말고 어떻게 좀 해 봐.",
+        "hint": "'어떻게'가 맞고 '어떻해'는 틀림"
+      },
+      {
+        "wrong": "약속 시간에 늦어서 정말 어떻게!",
+        "correct": "약속 시간에 늦어서 정말 어떡해!",
+        "hint": "'어떻게 해'의 준말은 '어떡해'"
+      },
+      {
+        "wrong": "내일 아침에 꼭 전화할께.",
+        "correct": "내일 아침에 꼭 전화할게.",
+        "hint": "약속의 어미는 '-ㄹ게'"
+      },
+      {
+        "wrong": "무거운 짐은 내가 도와줄께.",
+        "correct": "무거운 짐은 내가 도와줄게.",
+        "hint": "'-줄게'가 맞고 '-줄께'는 틀림"
+      },
+      {
+        "wrong": "숙제를 다 끝냈으니 이제 놀아도 되.",
+        "correct": "숙제를 다 끝냈으니 이제 놀아도 돼.",
+        "hint": "문장 끝의 '되'는 '돼'"
+      },
+      {
+        "wrong": "어제 시킨 일은 벌써 다 됬어.",
+        "correct": "어제 시킨 일은 벌써 다 됐어.",
+        "hint": "'되었어'의 준말은 '됐어'"
+      },
+      {
+        "wrong": "그 친구랑은 작년부터 사겼어.",
+        "correct": "그 친구랑은 작년부터 사귀었어.",
+        "hint": "'사귀었어'가 맞고 '사겼어'는 틀림"
+      },
+      {
+        "wrong": "떡뽁이가 매워서 물을 계속 마셨어.",
+        "correct": "떡볶이가 매워서 물을 계속 마셨어.",
+        "hint": "'볶다'에서 온 '떡볶이'가 맞음"
+      },
+      {
+        "wrong": "찌게가 보글보글 맛있게 끓고 있어.",
+        "correct": "찌개가 보글보글 맛있게 끓고 있어.",
+        "hint": "'찌개'가 맞고 '찌게'는 틀림"
+      },
+      {
+        "wrong": "이 문제의 옳바른 답은 무엇일까?",
+        "correct": "이 문제의 올바른 답은 무엇일까?",
+        "hint": "'올바른'이 맞고 '옳바른'은 틀림"
+      },
+      {
+        "wrong": "햇볓이 따뜻해서 산책하기 좋은 날이야.",
+        "correct": "햇볕이 따뜻해서 산책하기 좋은 날이야.",
+        "hint": "'햇볕'이 맞고 '햇볓'은 틀림"
+      },
+      {
+        "wrong": "소문이 겉잡을 수 없이 퍼져 나갔어.",
+        "correct": "소문이 걷잡을 수 없이 퍼져 나갔어.",
+        "hint": "'걷잡을'이 맞고 '겉잡을'은 틀림"
+      },
+      {
+        "wrong": "내일 선생님을 학교에서 뵈요.",
+        "correct": "내일 선생님을 학교에서 봬요.",
+        "hint": "'뵈어요'의 준말은 '봬요'"
+      },
+      {
+        "wrong": "감기가 얼른 낳기를 바랄게.",
+        "correct": "감기가 얼른 낫기를 바랄게.",
+        "hint": "병이 '낫다', 출산은 '낳다'"
+      },
+      {
+        "wrong": "며칠 앓더니 이제 다 나앗어.",
+        "correct": "며칠 앓더니 이제 다 나았어.",
+        "hint": "'낫다'의 활용은 '나았어'"
+      },
+      {
+        "wrong": "생일 케익에 초를 꽂고 불을 붙였어.",
+        "correct": "생일 케이크에 초를 꽂고 불을 붙였어.",
+        "hint": "'케이크'가 표준, '케익'은 틀림"
+      },
+      {
+        "wrong": "달콤한 초콜렛을 한 조각 먹었어.",
+        "correct": "달콤한 초콜릿을 한 조각 먹었어.",
+        "hint": "'초콜릿'이 표준, '초콜렛'은 틀림"
+      },
+      {
+        "wrong": "요즘은 볼 만한 컨텐츠가 정말 많아.",
+        "correct": "요즘은 볼 만한 콘텐츠가 정말 많아.",
+        "hint": "'콘텐츠'가 표준, '컨텐츠'는 틀림"
+      },
+      {
+        "wrong": "새로 산 쇼파가 정말 푹신푹신해.",
+        "correct": "새로 산 소파가 정말 푹신푹신해.",
+        "hint": "'소파'가 표준, '쇼파'는 틀림"
+      },
+      {
+        "wrong": "악세사리를 너무 많이 하면 촌스러워.",
+        "correct": "액세서리를 너무 많이 하면 촌스러워.",
+        "hint": "'액세서리'가 표준, '악세사리'는 틀림"
+      },
+      {
+        "wrong": "간식으로 비스켓 몇 개를 챙겼어.",
+        "correct": "간식으로 비스킷 몇 개를 챙겼어.",
+        "hint": "'비스킷'이 표준, '비스켓'은 틀림"
+      },
+      {
+        "wrong": "어제 그 영화 정말 재밌게 봣어.",
+        "correct": "어제 그 영화 정말 재밌게 봤어.",
+        "hint": "'보았어'의 준말은 '봤어'"
+      },
+      {
+        "wrong": "선물을 받고 너무 들떳어.",
+        "correct": "선물을 받고 너무 들떴어.",
+        "hint": "'들뜨다'의 과거는 '들떴어'"
+      },
+      {
+        "wrong": "이 영화 정말 재밋다, 너도 꼭 봐.",
+        "correct": "이 영화 정말 재밌다, 너도 꼭 봐.",
+        "hint": "'재미있다'의 준말은 '재밌다'"
+      },
+      {
+        "wrong": "선생님이 칠판의 글자를 가르켰어.",
+        "correct": "선생님이 칠판의 글자를 가리켰어.",
+        "hint": "방향은 '가리키다', 지식은 '가르치다'"
+      },
+      {
+        "wrong": "그 문제의 정답을 정확히 마쳤어.",
+        "correct": "그 문제의 정답을 정확히 맞혔어.",
+        "hint": "정답은 '맞히다', 끝냄은 '마치다'"
+      },
+      {
+        "wrong": "밥을 먹던지 빵을 먹던지 얼른 골라.",
+        "correct": "밥을 먹든지 빵을 먹든지 얼른 골라.",
+        "hint": "선택은 '-든지', 회상은 '-던지'"
+      },
+      {
+        "wrong": "문을 안 잠궜더니 밤새 걱정했어.",
+        "correct": "문을 안 잠갔더니 밤새 걱정했어.",
+        "hint": "기본형은 '잠그다', '잠가'로 활용"
+      },
+      {
+        "wrong": "김치를 담궜는데 아주 맛있게 익었어.",
+        "correct": "김치를 담갔는데 아주 맛있게 익었어.",
+        "hint": "기본형은 '담그다', '담가'로 활용"
+      },
+      {
+        "wrong": "곰곰히 생각해 봐도 답이 안 나와.",
+        "correct": "곰곰이 생각해 봐도 답이 안 나와.",
+        "hint": "'곰곰이'가 맞고 '곰곰히'는 틀림"
+      },
+      {
+        "wrong": "틈틈히 공부해서 시험에 합격했어.",
+        "correct": "틈틈이 공부해서 시험에 합격했어.",
+        "hint": "'틈틈이'가 맞고 '틈틈히'는 틀림"
+      },
+      {
+        "wrong": "그는 번번히 약속에 늦곤 했어.",
+        "correct": "그는 번번이 약속에 늦곤 했어.",
+        "hint": "'번번이'가 맞고 '번번히'는 틀림"
+      },
+      {
+        "wrong": "명단을 일일히 확인하느라 시간이 걸렸어.",
+        "correct": "명단을 일일이 확인하느라 시간이 걸렸어.",
+        "hint": "'일일이'가 맞고 '일일히'는 틀림"
+      },
+      {
+        "wrong": "물이 금새 끓어서 라면을 넣었어.",
+        "correct": "물이 금세 끓어서 라면을 넣었어.",
+        "hint": "'금세'가 맞고 '금새'는 틀림"
+      },
+      {
+        "wrong": "정말 희안한 일이 오늘 하나 있었어.",
+        "correct": "정말 희한한 일이 오늘 하나 있었어.",
+        "hint": "'희한하다'가 맞고 '희안하다'는 틀림"
+      },
+      {
+        "wrong": "구지 그렇게까지 할 필요는 없었어.",
+        "correct": "굳이 그렇게까지 할 필요는 없었어.",
+        "hint": "'굳이'가 맞고 '구지'는 틀림"
+      },
+      {
+        "wrong": "너 도와주려고 일찍 온 거야, 그럴려고.",
+        "correct": "너 도와주려고 일찍 온 거야, 그러려고.",
+        "hint": "'그러려고'가 맞고 '그럴려고'는 틀림"
+      },
+      {
+        "wrong": "지금 밥을 먹을려고 자리에 앉았어.",
+        "correct": "지금 밥을 먹으려고 자리에 앉았어.",
+        "hint": "'-으려고'가 맞고 '-을려고'는 틀림"
+      },
+      {
+        "wrong": "설겆이는 밥 먹고 내가 바로 할게.",
+        "correct": "설거지는 밥 먹고 내가 바로 할게.",
+        "hint": "'설거지'가 맞고 '설겆이'는 틀림"
+      },
+      {
+        "wrong": "추운 날에는 뜨끈한 육계장이 최고야.",
+        "correct": "추운 날에는 뜨끈한 육개장이 최고야.",
+        "hint": "'육개장'이 맞고 '육계장'은 틀림"
+      },
+      {
+        "wrong": "엄마가 방 치우라고 어찌나 닥달하시던지.",
+        "correct": "엄마가 방 치우라고 어찌나 닦달하시던지.",
+        "hint": "'닦달'이 맞고 '닥달'은 틀림"
+      },
+      {
+        "wrong": "옛날 사진을 짜집기해서 영상을 만들었어.",
+        "correct": "옛날 사진을 짜깁기해서 영상을 만들었어.",
+        "hint": "'짜깁기'가 맞고 '짜집기'는 틀림"
+      },
+      {
+        "wrong": "형편이 넉넉치 않아 아껴 쓰고 있어.",
+        "correct": "형편이 넉넉지 않아 아껴 쓰고 있어.",
+        "hint": "'넉넉지'가 맞고 '넉넉치'는 틀림"
+      },
+      {
+        "wrong": "내가 생각컨대 이 방법이 제일 나아.",
+        "correct": "내가 생각건대 이 방법이 제일 나아.",
+        "hint": "'생각건대'가 맞고 '생각컨대'는 틀림"
+      },
+      {
+        "wrong": "지나친 음주는 삼가하시기 바랍니다.",
+        "correct": "지나친 음주는 삼가시기 바랍니다.",
+        "hint": "기본형은 '삼가다', '삼가하다'는 틀림"
+      },
+      {
+        "wrong": "그는 나를 지긋이 바라보며 웃었어.",
+        "correct": "그는 나를 지그시 바라보며 웃었어.",
+        "hint": "살며시는 '지그시', 나이는 '지긋이'"
+      },
+      {
+        "wrong": "아침에 일어나니 눈꼽이 잔뜩 꼈어.",
+        "correct": "아침에 일어나니 눈곱이 잔뜩 꼈어.",
+        "hint": "'눈곱'이 맞고 '눈꼽'은 틀림"
+      },
+      {
+        "wrong": "위험을 무릎쓰고 아이를 구해 냈어.",
+        "correct": "위험을 무릅쓰고 아이를 구해 냈어.",
+        "hint": "'무릅쓰다'가 맞고 '무릎쓰다'는 틀림"
+      },
+      {
+        "wrong": "빨래를 통채로 세탁기에 넣어 버렸어.",
+        "correct": "빨래를 통째로 세탁기에 넣어 버렸어.",
+        "hint": "'통째로'가 맞고 '통채로'는 틀림"
+      },
+      {
+        "wrong": "버스를 미쳐 타지 못하고 놓쳐 버렸어.",
+        "correct": "버스를 미처 타지 못하고 놓쳐 버렸어.",
+        "hint": "'미처'가 맞고 '미쳐'는 틀림"
+      },
+      {
+        "wrong": "자고 일어났더니 머리가 부시시했어.",
+        "correct": "자고 일어났더니 머리가 부스스했어.",
+        "hint": "'부스스'가 맞고 '부시시'는 틀림"
+      },
+      {
+        "wrong": "동생이 자꾸 궁시렁궁시렁 불평을 했어.",
+        "correct": "동생이 자꾸 구시렁구시렁 불평을 했어.",
+        "hint": "'구시렁'이 맞고 '궁시렁'은 틀림"
+      },
+      {
+        "wrong": "추워서 어깨를 잔뜩 움추리고 걸었어.",
+        "correct": "추워서 어깨를 잔뜩 움츠리고 걸었어.",
+        "hint": "'움츠리다'가 맞고 '움추리다'는 틀림"
+      },
+      {
+        "wrong": "조카가 어느새 애띤 소녀가 되었어.",
+        "correct": "조카가 어느새 앳된 소녀가 되었어.",
+        "hint": "'앳되다'가 맞고 '애띠다'는 틀림"
+      },
+      {
+        "wrong": "그는 서슴치 않고 도움의 손길을 내밀었어.",
+        "correct": "그는 서슴지 않고 도움의 손길을 내밀었어.",
+        "hint": "'서슴지'가 맞고 '서슴치'는 틀림"
+      },
+      {
+        "wrong": "화가 나서 입에 개거품을 물고 따졌어.",
+        "correct": "화가 나서 입에 게거품을 물고 따졌어.",
+        "hint": "'게거품'이 맞고 '개거품'은 틀림"
+      },
+      {
+        "wrong": "며칠 밤을 새웠더니 얼굴이 핼쓱해졌어.",
+        "correct": "며칠 밤을 새웠더니 얼굴이 핼쑥해졌어.",
+        "hint": "'핼쑥'이 맞고 '핼쓱'은 틀림"
+      },
+      {
+        "wrong": "그 말을 듣고 눈쌀을 살짝 찌푸렸어.",
+        "correct": "그 말을 듣고 눈살을 살짝 찌푸렸어.",
+        "hint": "'눈살'이 맞고 '눈쌀'은 틀림"
+      },
+      {
+        "wrong": "돈이 얼만큼 필요한지 미리 알려 줘.",
+        "correct": "돈이 얼마큼 필요한지 미리 알려 줘.",
+        "hint": "'얼마큼'이 맞고 '얼만큼'은 틀림"
+      },
+      {
+        "wrong": "바닥에 옷가지가 널부러져 있었어.",
+        "correct": "바닥에 옷가지가 널브러져 있었어.",
+        "hint": "'널브러지다'가 맞고 '널부러지다'는 틀림"
+      },
+      {
+        "wrong": "일찌기 이런 광경은 본 적이 없었어.",
+        "correct": "일찍이 이런 광경은 본 적이 없었어.",
+        "hint": "'일찍이'가 맞고 '일찌기'는 틀림"
+      },
+      {
+        "wrong": "너 지금 어따대고 반말이야?",
+        "correct": "너 지금 얻다대고 반말이야?",
+        "hint": "'어디에다'의 준말은 '얻다'"
+      },
+      {
+        "wrong": "아이 뒤치닥거리하느라 하루가 다 갔어.",
+        "correct": "아이 뒤치다꺼리하느라 하루가 다 갔어.",
+        "hint": "'뒤치다꺼리'가 맞음"
+      },
+      {
+        "wrong": "오랜동안 연락이 없어서 많이 걱정했어.",
+        "correct": "오랫동안 연락이 없어서 많이 걱정했어.",
+        "hint": "'오랫동안'이 맞고 '오랜동안'은 틀림"
+      },
+      {
+        "wrong": "그동안 어의없는 일들이 참 많았어.",
+        "correct": "그동안 어이없는 일들이 참 많았어.",
+        "hint": "'어이없다'가 맞고 '어의없다'는 틀림"
+      },
+      {
+        "wrong": "쌀을 깨끗이 씻어 밥을 앉혔어.",
+        "correct": "쌀을 깨끗이 씻어 밥을 안쳤어.",
+        "hint": "밥은 '안치다', 사람은 '앉히다'"
+      },
+      {
+        "wrong": "그 사람은 약속을 잘 않 지켜서 얄미워.",
+        "correct": "그 사람은 약속을 잘 안 지켜서 얄미워.",
+        "hint": "부정 부사는 '안', '않'과 구별"
+      },
+      {
+        "wrong": "발을 헛디뎌서 넘어질 뻔 했어.",
+        "correct": "발을 헛디뎌서 넘어질 뻔했어.",
+        "hint": "'뻔하다'는 붙여 씀"
+      },
+      {
+        "wrong": "이따가 다시 전화할테니 조금만 기다려.",
+        "correct": "이따가 다시 전화할 테니 조금만 기다려.",
+        "hint": "'-ㄹ 테니'는 띄어 씀"
+      },
+      {
+        "wrong": "내노라하는 전문가들이 다 모였어.",
+        "correct": "내로라하는 전문가들이 다 모였어.",
+        "hint": "'내로라하다'가 맞고 '내노라하다'는 틀림"
+      },
+      {
+        "wrong": "동생을 의자에 앉치고 신발을 신겼어.",
+        "correct": "동생을 의자에 앉히고 신발을 신겼어.",
+        "hint": "'앉히다'가 맞고 '앉치다'는 틀림"
+      },
+      {
+        "wrong": "우유를 오랫동안 뒀더니 상해서 냄세가 났어.",
+        "correct": "우유를 오랫동안 뒀더니 상해서 냄새가 났어.",
+        "hint": "'냄새'가 맞고 '냄세'는 틀림"
+      },
+      {
+        "wrong": "어제부터 왠지 몸이 으실으실 춥더라.",
+        "correct": "어제부터 왠지 몸이 으슬으슬 춥더라.",
+        "hint": "'으슬으슬'이 맞고 '으실으실'은 틀림"
+      },
+      {
+        "wrong": "그는 눈을 지긋이 감고 음악을 감상했어.",
+        "correct": "그는 눈을 지그시 감고 음악을 감상했어.",
+        "hint": "살며시 감는 것은 '지그시'"
+      },
+      {
+        "wrong": "동생이 방문을 살며시 닫치고 나갔어.",
+        "correct": "동생이 방문을 살며시 닫고 나갔어.",
+        "hint": "'닫다'가 맞고 '닫치다'는 틀림"
+      },
+      {
+        "wrong": "찬물을 한 컵 벌컥벌컥 드리켰어.",
+        "correct": "찬물을 한 컵 벌컥벌컥 들이켰어.",
+        "hint": "'들이켜다'가 맞고 '드리키다'는 틀림"
+      },
+      {
+        "wrong": "그는 나를 보고 넌즈시 눈짓을 했어.",
+        "correct": "그는 나를 보고 넌지시 눈짓을 했어.",
+        "hint": "'넌지시'가 맞고 '넌즈시'는 틀림"
+      },
+      {
+        "wrong": "커피에 설탕을 넣고 숟가락으로 젖었어.",
+        "correct": "커피에 설탕을 넣고 숟가락으로 저었어.",
+        "hint": "휘젓는 것은 '젓다', 활용은 '저었어'"
+      },
+      {
+        "wrong": "화분에 물을 안 줘서 꽃이 시드러 버렸어.",
+        "correct": "화분에 물을 안 줘서 꽃이 시들어 버렸어.",
+        "hint": "'시들다'의 활용은 '시들어'"
+      }
+    ],
+    "med": [
+      {
+        "wrong": "이건 할수있어.",
+        "correct": "이건 할 수 있어.",
+        "hint": "'수'는 의존명사 — 띄어 써요."
+      },
+      {
+        "wrong": "한번 더 해볼래?",
+        "correct": "한 번 더 해볼래?",
+        "hint": "횟수의 '한 번'은 띄어요."
+      },
+      {
+        "wrong": "수학을 잘 하는 친구.",
+        "correct": "수학을 잘하는 친구.",
+        "hint": "능숙함의 '잘하다'는 한 단어."
+      },
+      {
+        "wrong": "그 동안 잘 지냈어?",
+        "correct": "그동안 잘 지냈어?",
+        "hint": "'그동안'은 한 단어."
+      },
+      {
+        "wrong": "마음의 설레임을 안고.",
+        "correct": "마음의 설렘을 안고.",
+        "hint": "'설렘'이 명사형."
+      },
+      {
+        "wrong": "꿈을 향한 바램.",
+        "correct": "꿈을 향한 바람.",
+        "hint": "기본형 '바라다' → 명사 '바람'."
+      },
+      {
+        "wrong": "선생님으로써 책임지자.",
+        "correct": "선생님으로서 책임지자.",
+        "note": "이 문장은 '자격·신분'을 나타내요. 수단·도구·방법을 나타내는 '-로써'와는 다른 조사예요. (예: 교사로서 / 대화로써 해결)",
+        "hint": "자격·신분은 '-로서'."
+      },
+      {
+        "wrong": "두번째 줄을 보세요.",
+        "correct": "두 번째 줄을 보세요.",
+        "hint": "수와 단위는 띄어요."
+      },
+      {
+        "wrong": "며칠전부터 비가 와.",
+        "correct": "며칠 전부터 비가 와.",
+        "hint": "'전'은 의존명사 — 띄움."
+      },
+      {
+        "wrong": "운동으로 살을빼자.",
+        "correct": "운동으로 살을 빼자.",
+        "hint": "조사 뒤 동사는 띄움."
+      },
+      {
+        "wrong": "잘 못했다고 사과해.",
+        "correct": "잘못했다고 사과해.",
+        "hint": "사과의 '잘못하다'는 한 단어."
+      },
+      {
+        "wrong": "그렇게 하면 안되.",
+        "correct": "그렇게 하면 안 돼.",
+        "hint": "'안 되다'는 띄움, 종결은 '돼'."
+      },
+      {
+        "wrong": "그가 도와 줄 거야.",
+        "correct": "그가 도와줄 거야.",
+        "hint": "'도와주다' 한 단어, '거야'는 띄움."
+      },
+      {
+        "wrong": "친구 만난지 한참 됐어.",
+        "correct": "친구 만난 지 한참 됐어.",
+        "hint": "시간 경과의 '-지'는 띄움."
+      },
+      {
+        "wrong": "선물 받은적 있어요.",
+        "correct": "선물 받은 적 있어요.",
+        "hint": "'적'은 의존명사."
+      },
+      {
+        "wrong": "공부 하기 싫다.",
+        "correct": "공부하기 싫다.",
+        "hint": "'-하다' 동사는 붙임."
+      },
+      {
+        "wrong": "약속을 안지키면 곤란해.",
+        "correct": "약속을 안 지키면 곤란해.",
+        "hint": "부정의 '안'은 띄움."
+      },
+      {
+        "wrong": "비행기를 탄지 5년.",
+        "correct": "비행기를 탄 지 5년.",
+        "hint": "시간 경과의 '-지'."
+      },
+      {
+        "wrong": "여기서 부터 시작.",
+        "correct": "여기서부터 시작.",
+        "hint": "조사는 붙임."
+      },
+      {
+        "wrong": "친구네 집에 갔다왔어.",
+        "correct": "친구네 집에 갔다 왔어.",
+        "hint": "'갔다 오다' 띄움."
+      },
+      {
+        "wrong": "다시는 그런일 없어.",
+        "correct": "다시는 그런 일 없어.",
+        "hint": "관형어와 명사는 띄움."
+      },
+      {
+        "wrong": "이번 한해도 고마웠어.",
+        "correct": "이번 한 해도 고마웠어.",
+        "hint": "수+단위는 띄움."
+      },
+      {
+        "wrong": "공부 한지 한 시간 됐다.",
+        "correct": "공부한 지 한 시간 됐다.",
+        "hint": "시간 경과 '-(으)ㄴ 지'."
+      },
+      {
+        "wrong": "이게 잘 한 일인지 모르겠다.",
+        "correct": "이게 잘한 일인지 모르겠다.",
+        "hint": "능숙의 '잘하다'는 한 단어."
+      },
+      {
+        "wrong": "그 일은 한 두 번이 아니야.",
+        "correct": "그 일은 한두 번이 아니야.",
+        "hint": "'한두'는 합성수사 — 붙임."
+      },
+      {
+        "wrong": "두세번 만났어.",
+        "correct": "두세 번 만났어.",
+        "hint": "수 + 단위는 띄어쓰기."
+      },
+      {
+        "wrong": "별 일 없지?",
+        "correct": "별일 없지?",
+        "hint": "'별일'은 한 단어."
+      },
+      {
+        "wrong": "이건 또다른 문제야.",
+        "correct": "이건 또 다른 문제야.",
+        "hint": "관형어 '또'는 띄움."
+      },
+      {
+        "wrong": "오늘 일찍 일어났음으로 피곤해.",
+        "correct": "오늘 일찍 일어났으므로 피곤해.",
+        "hint": "원인의 어미는 '-(으)므로'."
+      },
+      {
+        "wrong": "이게 답이요.",
+        "correct": "이게 답이오.",
+        "hint": "종결어미는 '-오'. '-요'는 보조사."
+      },
+      {
+        "wrong": "내가 너에게 인사하요.",
+        "correct": "내가 너에게 인사해요.",
+        "hint": "'하-' + '-아요/여요' → '해요'."
+      },
+      {
+        "wrong": "꽃이 피였다.",
+        "correct": "꽃이 피었다.",
+        "hint": "어간 '피-' + '-었다' = '피었다'."
+      },
+      {
+        "wrong": "강아지가 뛰여간다.",
+        "correct": "강아지가 뛰어간다.",
+        "hint": "'뛰-' + '-어가다' = '뛰어가다'."
+      },
+      {
+        "wrong": "치과에 가야겟다.",
+        "correct": "치과에 가야겠다.",
+        "hint": "어미 '-겠-'."
+      },
+      {
+        "wrong": "그 일은 그가 한데.",
+        "correct": "그 일은 그가 한대.",
+        "hint": "인용 줄임은 '-한대'."
+      },
+      {
+        "wrong": "내가 잘못한건 아니야.",
+        "correct": "내가 잘못한 건 아니야.",
+        "hint": "의존명사 '건'은 띄움."
+      },
+      {
+        "wrong": "비가 옴으로 우산을 가져가.",
+        "correct": "비가 오므로 우산을 가져가.",
+        "hint": "이유의 어미는 '-(으)므로'."
+      },
+      {
+        "wrong": "주문하신지 30분 됐어.",
+        "correct": "주문하신 지 30분 됐어.",
+        "hint": "시간 경과 '-(으)ㄴ 지'."
+      },
+      {
+        "wrong": "이 일을 어떡 해.",
+        "correct": "이 일을 어떡해.",
+        "hint": "'어떡해'는 한 단어."
+      },
+      {
+        "wrong": "공부할 수 밖에 없어.",
+        "correct": "공부할 수밖에 없어.",
+        "hint": "'수밖에'는 붙임."
+      },
+      {
+        "wrong": "내가 갈 수 있을 까?",
+        "correct": "내가 갈 수 있을까?",
+        "hint": "어미 '-(으)ㄹ까'는 붙임."
+      },
+      {
+        "wrong": "비가 오는대로 떠나자.",
+        "correct": "비가 오는 대로 떠나자.",
+        "hint": "의존명사 '대로'는 띄움."
+      },
+      {
+        "wrong": "전화가 오자 마자 받았어.",
+        "correct": "전화가 오자마자 받았어.",
+        "hint": "'-자마자'는 어미 — 붙임."
+      },
+      {
+        "wrong": "공부 하지 않아.",
+        "correct": "공부하지 않아.",
+        "hint": "'-하다' 동사는 붙임."
+      },
+      {
+        "wrong": "옷이 깨끗 합니다.",
+        "correct": "옷이 깨끗합니다.",
+        "hint": "'-하다' 형용사는 붙임."
+      },
+      {
+        "wrong": "교실은 조용 한 편이에요.",
+        "correct": "교실은 조용한 편이에요.",
+        "hint": "관형사형 '-한'은 붙임."
+      },
+      {
+        "wrong": "곤혹을 당했다.",
+        "correct": "곤욕을 당했다.",
+        "note": "이 문장은 '심한 모욕·고통을 당하다'라는 뜻. 곤란해서 당황하는 '곤혹(곤혹스럽다)'과는 다른 말이에요. (예: 곤욕을 치르다 / 질문에 곤혹스럽다)",
+        "hint": "당하는 건 '곤욕'."
+      },
+      {
+        "wrong": "친구간에 의리는 중요해.",
+        "correct": "친구 간에 의리는 중요해.",
+        "hint": "사이를 뜻하는 '간'은 의존명사 — 띄움."
+      },
+      {
+        "wrong": "그건 너 답지 않다.",
+        "correct": "그건 너답지 않다.",
+        "hint": "접미사 '-답다'는 붙임."
+      },
+      {
+        "wrong": "노력 한 만큼 결과가 나와.",
+        "correct": "노력한 만큼 결과가 나와.",
+        "hint": "'-하다' 동사는 붙임."
+      },
+      {
+        "wrong": "이건 그 사람 만의 비밀이야.",
+        "correct": "이건 그 사람만의 비밀이야.",
+        "hint": "보조사 '만'은 붙임."
+      },
+      {
+        "wrong": "어쩌면 좋을 지 모르겠어.",
+        "correct": "어쩌면 좋을지 모르겠어.",
+        "hint": "어미 '-(으)ㄹ지'는 붙임."
+      },
+      {
+        "wrong": "나도 이 정도는 할수있어.",
+        "correct": "나도 이 정도는 할 수 있어.",
+        "hint": "의존명사 '수'는 앞말과 띄어 써요."
+      },
+      {
+        "wrong": "딱 한번만 더 도전해 볼게.",
+        "correct": "딱 한 번만 더 도전해 볼게.",
+        "hint": "횟수를 뜻하는 '번'은 '한 번'으로 띄어요."
+      },
+      {
+        "wrong": "그 동안 정말 고마웠어.",
+        "correct": "그동안 정말 고마웠어.",
+        "hint": "'그동안'은 한 단어로 붙여 써요."
+      },
+      {
+        "wrong": "우리가 만난지 벌써 삼 년이야.",
+        "correct": "우리가 만난 지 벌써 삼 년이야.",
+        "hint": "시간 경과의 '지'는 띄어 써요."
+      },
+      {
+        "wrong": "그런 말은 들어본적이 없어.",
+        "correct": "그런 말은 들어본 적이 없어.",
+        "hint": "'적'은 의존명사라 띄어 써요."
+      },
+      {
+        "wrong": "그 사람은 한 두번 본 게 다야.",
+        "correct": "그 사람은 한두 번 본 게 다야.",
+        "hint": "'한두'는 붙이고 '번'은 띄어요."
+      },
+      {
+        "wrong": "두 세번쯤 물어봤던 것 같아.",
+        "correct": "두세 번쯤 물어봤던 것 같아.",
+        "hint": "'두세'는 붙이고 '번'은 띄어요."
+      },
+      {
+        "wrong": "오늘은 별 일 없이 조용했어.",
+        "correct": "오늘은 별일 없이 조용했어.",
+        "hint": "'별일'은 한 단어로 붙여 써요."
+      },
+      {
+        "wrong": "그건 또다른 문제인 것 같은데.",
+        "correct": "그건 또 다른 문제인 것 같은데.",
+        "hint": "'또'와 '다른'은 띄어 써요."
+      },
+      {
+        "wrong": "어떻게 그런일이 생길 수 있지?",
+        "correct": "어떻게 그런 일이 생길 수 있지?",
+        "hint": "'그런'과 '일'은 띄어 써요."
+      },
+      {
+        "wrong": "노력 한 만큼 결과가 나올 거야.",
+        "correct": "노력한 만큼 결과가 나올 거야.",
+        "hint": "'노력한'은 붙이고 '만큼'은 띄어요."
+      },
+      {
+        "wrong": "이제는 갈 수 밖에 없는 상황이야.",
+        "correct": "이제는 갈 수밖에 없는 상황이야.",
+        "hint": "조사 '밖에'는 앞말에 붙여 써요."
+      },
+      {
+        "wrong": "그 사람이 아직 회사에 있을 까?",
+        "correct": "그 사람이 아직 회사에 있을까?",
+        "hint": "'-을까'는 어미라 붙여 써요."
+      },
+      {
+        "wrong": "연락 오는대로 바로 알려 줄게.",
+        "correct": "연락 오는 대로 바로 알려 줄게.",
+        "hint": "의존명사 '대로'는 띄어 써요."
+      },
+      {
+        "wrong": "집에 오자 마자 잠들어 버렸어.",
+        "correct": "집에 오자마자 잠들어 버렸어.",
+        "hint": "'-자마자'는 어미라 붙여 써요."
+      },
+      {
+        "wrong": "이 색이 어울릴지 좋을 지 모르겠어.",
+        "correct": "이 색이 어울릴지 좋을지 모르겠어.",
+        "hint": "'-을지'는 어미라 붙여 써요."
+      },
+      {
+        "wrong": "그 친구는 노래를 정말 잘 한다.",
+        "correct": "그 친구는 노래를 정말 잘한다.",
+        "hint": "능숙함의 '잘하다'는 붙여 써요."
+      },
+      {
+        "wrong": "내가 계산을 잘 못해서 미안해.",
+        "correct": "내가 계산을 잘못해서 미안해.",
+        "hint": "실수의 '잘못하다'는 붙여 써요."
+      },
+      {
+        "wrong": "요즘은 뭘 해도 잘안돼서 힘들어.",
+        "correct": "요즘은 뭘 해도 잘 안돼서 힘들어.",
+        "hint": "'잘'과 '안돼서'는 띄어 써요."
+      },
+      {
+        "wrong": "짐 좀 옮기게 도와 줄 수 있어?",
+        "correct": "짐 좀 옮기게 도와줄 수 있어?",
+        "hint": "'도와주다'는 한 단어로 붙여 써요."
+      },
+      {
+        "wrong": "요즘 통 운동을 하지않아 몸이 무거워.",
+        "correct": "요즘 통 운동을 하지 않아 몸이 무거워.",
+        "hint": "보조용언 '않다'는 띄어 써요."
+      },
+      {
+        "wrong": "방을 아주 깨끗 하게 치웠어.",
+        "correct": "방을 아주 깨끗하게 치웠어.",
+        "hint": "'깨끗하게'는 한 단어로 붙여 써요."
+      },
+      {
+        "wrong": "그건 정말 너 답지 않은 행동이야.",
+        "correct": "그건 정말 너답지 않은 행동이야.",
+        "hint": "접미사 '-답다'는 붙여 써요."
+      },
+      {
+        "wrong": "그 사람 만의 특별한 매력이 있어.",
+        "correct": "그 사람만의 특별한 매력이 있어.",
+        "hint": "조사 '만'은 앞말에 붙여 써요."
+      },
+      {
+        "wrong": "여기서 부터는 내가 안내할게.",
+        "correct": "여기서부터는 내가 안내할게.",
+        "hint": "조사 '부터'는 붙여 써요."
+      },
+      {
+        "wrong": "비가 왔음으로 소풍이 취소됐다.",
+        "correct": "비가 왔으므로 소풍이 취소됐다.",
+        "hint": "까닭을 나타낼 땐 '-으므로'를 써요."
+      },
+      {
+        "wrong": "책을 읽음으로 마음을 다스린다.",
+        "correct": "책을 읽음으로써 마음을 다스린다.",
+        "hint": "수단은 '-ㅁ으로써'로 써요."
+      },
+      {
+        "wrong": "이것은 책이오, 저것은 공책이다.",
+        "correct": "이것은 책이요, 저것은 공책이다.",
+        "hint": "열거의 연결형은 '-요'로 써요."
+      },
+      {
+        "wrong": "이것은 제 잘못이 아니요.",
+        "correct": "이것은 제 잘못이 아니오.",
+        "hint": "문장 끝 종결은 '-이오'로 써요."
+      },
+      {
+        "wrong": "봄이 되니 꽃이 활짝 피였다.",
+        "correct": "봄이 되니 꽃이 활짝 피었다.",
+        "hint": "'피다'의 과거는 '피었다'예요."
+      },
+      {
+        "wrong": "아이가 신나서 펄쩍 뛰여올랐다.",
+        "correct": "아이가 신나서 펄쩍 뛰어올랐다.",
+        "hint": "'뛰다'는 '뛰어'로 활용해요."
+      },
+      {
+        "wrong": "이제 슬슬 가야겟다.",
+        "correct": "이제 슬슬 가야겠다.",
+        "hint": "의도의 어미는 '-겠-'으로 써요."
+      },
+      {
+        "wrong": "민수도 내일 같이 간데.",
+        "correct": "민수도 내일 같이 간대.",
+        "hint": "전해 들은 말은 '-ㄴ대'로 써요."
+      },
+      {
+        "wrong": "괜한 참견으로 곤혹을 치렀다.",
+        "correct": "괜한 참견으로 곤욕을 치렀다.",
+        "hint": "심한 모욕은 '곤욕'이에요."
+      },
+      {
+        "wrong": "친구간에 그런 계산은 하지 말자.",
+        "correct": "친구 간에 그런 계산은 하지 말자.",
+        "hint": "'사이'를 뜻하는 '간'은 띄어요."
+      },
+      {
+        "wrong": "교사로써 학생을 아끼는 마음이 크다.",
+        "correct": "교사로서 학생을 아끼는 마음이 크다.",
+        "hint": "자격·신분은 '로서'로 써요."
+      },
+      {
+        "wrong": "대화로서 오해를 풀어 나가자.",
+        "correct": "대화로써 오해를 풀어 나가자.",
+        "hint": "수단·도구는 '로써'로 써요."
+      },
+      {
+        "wrong": "첫 만남이라 설레임이 가시질 않아.",
+        "correct": "첫 만남이라 설렘이 가시질 않아.",
+        "hint": "명사형은 '설렘'이 맞아요."
+      },
+      {
+        "wrong": "그건 오래된 나의 작은 바램이야.",
+        "correct": "그건 오래된 나의 작은 바람이야.",
+        "hint": "'바라다'의 명사형은 '바람'이에요."
+      },
+      {
+        "wrong": "네가 몇번째로 도착했는지 궁금해.",
+        "correct": "네가 몇 번째로 도착했는지 궁금해.",
+        "hint": "'몇'과 '번째'는 띄어 써요."
+      },
+      {
+        "wrong": "지난 번에 못한 이야기를 하고 싶어.",
+        "correct": "지난번에 못한 이야기를 하고 싶어.",
+        "hint": "'지난번'은 한 단어로 붙여요."
+      },
+      {
+        "wrong": "이 곳은 예전에 자주 오던 데야.",
+        "correct": "이곳은 예전에 자주 오던 데야.",
+        "hint": "'이곳'은 한 단어로 붙여 써요."
+      },
+      {
+        "wrong": "그 중에서 하나만 골라도 괜찮아.",
+        "correct": "그중에서 하나만 골라도 괜찮아.",
+        "hint": "'그중'은 한 단어로 붙여 써요."
+      },
+      {
+        "wrong": "딱 한가지만 부탁해도 될까?",
+        "correct": "딱 한 가지만 부탁해도 될까?",
+        "hint": "'한'과 '가지'는 띄어 써요."
+      },
+      {
+        "wrong": "어제 부탁한 서류는 안 됫어?",
+        "correct": "어제 부탁한 서류는 안 됐어?",
+        "hint": "'되었어'의 준말은 '됐어'예요."
+      },
+      {
+        "wrong": "그게 될 지 안 될지 지금은 몰라.",
+        "correct": "그게 될지 안 될지 지금은 몰라.",
+        "hint": "'-을지'는 어미라 붙여 써요."
+      },
+      {
+        "wrong": "지금 냉장고엔 물 밖에 없더라.",
+        "correct": "지금 냉장고엔 물밖에 없더라.",
+        "hint": "'뿐'의 뜻 조사 '밖에'는 붙여요."
+      },
+      {
+        "wrong": "그 팀은 사과, 배, 감등을 재배한다.",
+        "correct": "그 팀은 사과, 배, 감 등을 재배한다.",
+        "hint": "'등'은 앞말과 띄어 써요."
+      },
+      {
+        "wrong": "이번 회의는 기획겸 점검 자리였다.",
+        "correct": "이번 회의는 기획 겸 점검 자리였다.",
+        "hint": "'겸'은 앞뒤를 띄어 써요."
+      },
+      {
+        "wrong": "한국대 일본 경기가 곧 시작한다.",
+        "correct": "한국 대 일본 경기가 곧 시작한다.",
+        "hint": "'대'는 앞뒤를 띄어 써요."
+      },
+      {
+        "wrong": "사과및 배는 냉장 보관해 주세요.",
+        "correct": "사과 및 배는 냉장 보관해 주세요.",
+        "hint": "'및'은 앞뒤를 띄어 써요."
+      },
+      {
+        "wrong": "정해진 기한내에 서류를 내야 해.",
+        "correct": "정해진 기한 내에 서류를 내야 해.",
+        "hint": "'내(안)'는 앞말과 띄어 써요."
+      },
+      {
+        "wrong": "비상 시에는 이 문으로 대피하세요.",
+        "correct": "비상시에는 이 문으로 대피하세요.",
+        "hint": "'비상시'는 한 단어로 붙여 써요."
+      },
+      {
+        "wrong": "조용한데를 찾아 잠깐 쉬고 싶어.",
+        "correct": "조용한 데를 찾아 잠깐 쉬고 싶어.",
+        "hint": "장소의 '데'는 띄어 써요."
+      },
+      {
+        "wrong": "밥을 먹는데 한 시간이나 걸렸어.",
+        "correct": "밥을 먹는 데 한 시간이나 걸렸어.",
+        "hint": "'-는 데(경우)'는 띄어 써요."
+      },
+      {
+        "wrong": "지금 출발하는 데 도착하면 연락할게.",
+        "correct": "지금 출발하는데 도착하면 연락할게.",
+        "hint": "어미 '-는데'는 붙여 써요."
+      },
+      {
+        "wrong": "이 일은 나 혼자서 할만한 일이야.",
+        "correct": "이 일은 나 혼자서 할 만한 일이야.",
+        "hint": "의존명사 '만하다'는 띄어 써요."
+      },
+      {
+        "wrong": "너 뿐만 아니라 나도 실수했어.",
+        "correct": "너뿐만 아니라 나도 실수했어.",
+        "hint": "조사 '뿐'은 앞말에 붙여 써요."
+      },
+      {
+        "wrong": "합격 소식에 기쁜나머지 울어 버렸다.",
+        "correct": "합격 소식에 기쁜 나머지 울어 버렸다.",
+        "hint": "의존명사 '나머지'는 띄어 써요."
+      },
+      {
+        "wrong": "그 문제는 아는만큼 보이는 법이야.",
+        "correct": "그 문제는 아는 만큼 보이는 법이야.",
+        "hint": "의존명사 '만큼'은 띄어 써요."
+      },
+      {
+        "wrong": "너는 너 대로 나는 나 대로 준비하자.",
+        "correct": "너는 너대로 나는 나대로 준비하자.",
+        "hint": "조사 '대로'는 앞말에 붙여요."
+      },
+      {
+        "wrong": "약속한대로 오늘 안에 끝낼게.",
+        "correct": "약속한 대로 오늘 안에 끝낼게.",
+        "hint": "의존명사 '대로'는 띄어 써요."
+      },
+      {
+        "wrong": "일이 이렇게 된데는 이유가 있어.",
+        "correct": "일이 이렇게 된 데는 이유가 있어.",
+        "hint": "의존명사 '데'는 띄어 써요."
+      },
+      {
+        "wrong": "화가 난나머지 말을 잃고 말았다.",
+        "correct": "화가 난 나머지 말을 잃고 말았다.",
+        "hint": "'나머지'는 의존명사라 띄어요."
+      },
+      {
+        "wrong": "이 문제는 풀 수 있을만큼 쉬워.",
+        "correct": "이 문제는 풀 수 있을 만큼 쉬워.",
+        "hint": "의존명사 '만큼'은 띄어 써요."
+      },
+      {
+        "wrong": "그는 화가로써 이름을 널리 알렸다.",
+        "correct": "그는 화가로서 이름을 널리 알렸다.",
+        "hint": "자격·신분은 '로서'로 써요."
+      },
+      {
+        "wrong": "말로서 천 냥 빚을 갚는다고 하잖아.",
+        "correct": "말로써 천 냥 빚을 갚는다고 하잖아.",
+        "hint": "수단·방법은 '로써'로 써요."
+      },
+      {
+        "wrong": "오랫만에 옛 친구를 만나 반가웠어.",
+        "correct": "오랜만에 옛 친구를 만나 반가웠어.",
+        "hint": "'오래간만'의 준말은 '오랜만'이에요."
+      },
+      {
+        "wrong": "우리는 오랜동안 연락이 끊겼었다.",
+        "correct": "우리는 오랫동안 연락이 끊겼었다.",
+        "hint": "긴 시간은 '오랫동안'으로 써요."
+      },
+      {
+        "wrong": "그는 며칠동안 아무 말이 없었다.",
+        "correct": "그는 며칠 동안 아무 말이 없었다.",
+        "hint": "'며칠'과 '동안'은 띄어 써요."
+      },
+      {
+        "wrong": "이 정도 실력이면 충분이 해낼 만해.",
+        "correct": "이 정도 실력이면 충분히 해낼 만해.",
+        "hint": "부사는 '충분히'로 적어요."
+      },
+      {
+        "wrong": "네가 도와준 덕분에 무사이 끝냈어.",
+        "correct": "네가 도와준 덕분에 무사히 끝냈어.",
+        "hint": "부사는 '무사히'로 적어요."
+      },
+      {
+        "wrong": "그 사람과는 웬지 말이 잘 통해.",
+        "correct": "그 사람과는 왠지 말이 잘 통해.",
+        "hint": "'왜인지'의 준말은 '왠지'예요."
+      },
+      {
+        "wrong": "왠만하면 오늘 안에 마무리하자.",
+        "correct": "웬만하면 오늘 안에 마무리하자.",
+        "hint": "'웬만하다'는 '웬'으로 적어요."
+      },
+      {
+        "wrong": "회의가 끝나는대로 결과를 공유할게.",
+        "correct": "회의가 끝나는 대로 결과를 공유할게.",
+        "hint": "의존명사 '대로'는 띄어 써요."
+      }
+    ],
+    "hard": [
+      {
+        "wrong": "이 일은 너 만의 일이 아니다.",
+        "correct": "이 일은 너만의 일이 아니다.",
+        "hint": "보조사 '만'은 붙임."
+      },
+      {
+        "wrong": "그 사람 만큼은 믿는다.",
+        "correct": "그 사람만큼은 믿는다.",
+        "hint": "조사 '만큼'은 붙임."
+      },
+      {
+        "wrong": "내일 부터는 운동한다.",
+        "correct": "내일부터는 운동한다.",
+        "hint": "조사 '부터'는 붙임."
+      },
+      {
+        "wrong": "갈등을 표률로 해결해야.",
+        "correct": "갈등을 표결로 해결해야.",
+        "hint": "표준어는 '표결'."
+      },
+      {
+        "wrong": "촛점이 흐려졌어.",
+        "correct": "초점이 흐려졌어.",
+        "hint": "한자어 '초점(焦點)' — 사이시옷 X."
+      },
+      {
+        "wrong": "댓가를 지불해야지.",
+        "correct": "대가를 지불해야지.",
+        "hint": "한자어 '대가(代價)' — 사이시옷 X."
+      },
+      {
+        "wrong": "갯수가 모자라.",
+        "correct": "개수가 모자라.",
+        "hint": "한자어 '개수(個數)' — 사이시옷 X."
+      },
+      {
+        "wrong": "햇님이 떴다.",
+        "correct": "해님이 떴다.",
+        "hint": "'해+님' — 사이시옷 X."
+      },
+      {
+        "wrong": "찬바람이 부는 갯펄.",
+        "correct": "찬바람이 부는 갯벌.",
+        "hint": "표준어는 '갯벌'."
+      },
+      {
+        "wrong": "이 일을 어찌 한단 말이오.",
+        "correct": "이 일을 어찌한단 말이오.",
+        "hint": "'어찌하다'는 한 단어."
+      },
+      {
+        "wrong": "그는 박사 답게 행동했다.",
+        "correct": "그는 박사답게 행동했다.",
+        "hint": "접미사 '-답게'는 붙임."
+      },
+      {
+        "wrong": "오늘 따라 기분이 좋아.",
+        "correct": "오늘따라 기분이 좋아.",
+        "hint": "조사 '따라'는 붙임."
+      },
+      {
+        "wrong": "고난을 격었다.",
+        "correct": "고난을 겪었다.",
+        "hint": "기본형은 '겪다'."
+      },
+      {
+        "wrong": "어른들의 뜻을 쫒았다.",
+        "correct": "어른들의 뜻을 좇았다.",
+        "note": "이 문장은 '뜻·이상·목표를 추구하다'라는 뜻. 사람·동물을 물리적으로 뒤쫓는 '쫓다'와는 다른 말이에요. (예: 꿈을 좇다 / 도둑을 쫓다)",
+        "hint": "뜻을 따르면 '좇다'."
+      },
+      {
+        "wrong": "큰 일 났다.",
+        "correct": "큰일 났다.",
+        "hint": "'큰일'은 한 단어."
+      },
+      {
+        "wrong": "한가지 더 묻고 싶어.",
+        "correct": "한 가지 더 묻고 싶어.",
+        "hint": "수 + 단위는 띄어쓰기."
+      },
+      {
+        "wrong": "그가 입원한 지 얼마 안돼.",
+        "correct": "그가 입원한 지 얼마 안 돼.",
+        "hint": "부정의 '안'은 띄움."
+      },
+      {
+        "wrong": "이게 마지막 일줄 알았어.",
+        "correct": "이게 마지막일 줄 알았어.",
+        "hint": "서술격 조사 + '-(으)ㄹ 줄'."
+      },
+      {
+        "wrong": "이 옷은 비싼 듯 하다.",
+        "correct": "이 옷은 비싼 듯하다.",
+        "hint": "보조형용사 '-듯하다'는 붙임."
+      },
+      {
+        "wrong": "그는 화 났을 텐데.",
+        "correct": "그는 화났을 텐데.",
+        "hint": "'화나다' 한 단어 + '-(으)ㄹ 텐데'."
+      },
+      {
+        "wrong": "그 외에 더 알아 볼 게 없어.",
+        "correct": "그 외에 더 알아볼 게 없어.",
+        "hint": "'알아보다'는 한 단어."
+      },
+      {
+        "wrong": "정확이 적어라.",
+        "correct": "정확히 적어라.",
+        "hint": "부사는 '정확히'."
+      },
+      {
+        "wrong": "솔직이 말해 봐.",
+        "correct": "솔직히 말해 봐.",
+        "hint": "부사는 '솔직히'."
+      },
+      {
+        "wrong": "꼼꼼이 살펴 봐.",
+        "correct": "꼼꼼히 살펴봐.",
+        "hint": "부사 '꼼꼼히' + '살펴보다' 한 단어."
+      },
+      {
+        "wrong": "다음 부터는 잘 할 게.",
+        "correct": "다음부터는 잘할게.",
+        "hint": "조사 '부터' + '잘하다' + '-ㄹ게'."
+      },
+      {
+        "wrong": "이번 계약의 촛점은 납품 기한을 명확히 하는 데 있다.",
+        "correct": "이번 계약의 초점은 납품 기한을 명확히 하는 데 있다.",
+        "hint": "초점은 한자어(焦點)라 사이시옷 안 붙어요"
+      },
+      {
+        "wrong": "그 정도 수고에 대한 댓가로는 너무 적은 금액이다.",
+        "correct": "그 정도 수고에 대한 대가로는 너무 적은 금액이다.",
+        "hint": "대가(代價)는 한자어라 사이시옷 없어요"
+      },
+      {
+        "wrong": "참석자 갯수를 미리 알려 주셔야 자리를 준비합니다.",
+        "correct": "참석자 개수를 미리 알려 주셔야 자리를 준비합니다.",
+        "hint": "개수(個數)는 한자어, 사이시옷 안 붙어요"
+      },
+      {
+        "wrong": "아이들이 햇님을 그리며 노래를 불렀다.",
+        "correct": "아이들이 해님을 그리며 노래를 불렀다.",
+        "hint": "'해+님'은 사이시옷 대상이 아니에요"
+      },
+      {
+        "wrong": "비 온 뒤라 등교길이 온통 진흙탕이 되었다.",
+        "correct": "비 온 뒤라 등굣길이 온통 진흙탕이 되었다.",
+        "hint": "등교+길, 사잇소리 나서 '등굣길'"
+      },
+      {
+        "wrong": "이번 분기 최대값을 기준으로 목표치를 다시 잡았다.",
+        "correct": "이번 분기 최댓값을 기준으로 목표치를 다시 잡았다.",
+        "hint": "최대+값, 사이시옷 넣어 '최댓값'"
+      },
+      {
+        "wrong": "추운 날엔 뜨끈한 순대국 한 그릇이 제일이다.",
+        "correct": "추운 날엔 뜨끈한 순댓국 한 그릇이 제일이다.",
+        "hint": "순대+국, 사잇소리 나서 '순댓국'"
+      },
+      {
+        "wrong": "할머니는 손주에게도 꼬박꼬박 존대말을 쓰셨다.",
+        "correct": "할머니는 손주에게도 꼬박꼬박 존댓말을 쓰셨다.",
+        "hint": "존대+말, 사이시옷 넣어 '존댓말'"
+      },
+      {
+        "wrong": "카드가 정지돼서 결재가 계속 반려됩니다.",
+        "correct": "카드가 정지돼서 결제가 계속 반려됩니다.",
+        "hint": "돈 지불은 '결제', 승인 도장은 '결재'"
+      },
+      {
+        "wrong": "품질을 재고하기 위해 공정을 전면 개편했다.",
+        "correct": "품질을 제고하기 위해 공정을 전면 개편했다.",
+        "hint": "높인다는 '제고(提高)', 남은 물건은 '재고'"
+      },
+      {
+        "wrong": "우리 회사는 불필요한 야근을 지향하는 문화를 만들고 있다.",
+        "correct": "우리 회사는 불필요한 야근을 지양하는 문화를 만들고 있다.",
+        "hint": "피하자는 '지양', 향해 가자는 '지향'"
+      },
+      {
+        "wrong": "그는 오랜 자기 개발 끝에 강연자로 나섰다.",
+        "correct": "그는 오랜 자기 계발 끝에 강연자로 나섰다.",
+        "hint": "재능을 키우면 '계발', 새로 만들면 '개발'"
+      },
+      {
+        "wrong": "예상치 못한 질문에 곤욕스러운 표정을 지었다.",
+        "correct": "예상치 못한 질문에 곤혹스러운 표정을 지었다.",
+        "hint": "난처함은 '곤혹', 겪는 수모는 '곤욕'"
+      },
+      {
+        "wrong": "회비는 참석자끼리 각출해서 마련하기로 했다.",
+        "correct": "회비는 참석자끼리 갹출해서 마련하기로 했다.",
+        "hint": "나눠 냄은 '갹출', '각출'은 잘못된 표기"
+      },
+      {
+        "wrong": "이 문장으로 인사말을 가름하고자 합니다.",
+        "correct": "이 문장으로 인사말을 갈음하고자 합니다.",
+        "hint": "대신함은 '갈음', 나누는 건 '가름'"
+      },
+      {
+        "wrong": "사냥개가 산토끼를 좇아 숲속으로 사라졌다.",
+        "correct": "사냥개가 산토끼를 쫓아 숲속으로 사라졌다.",
+        "hint": "물리적으로 뒤따르면 '쫓다'"
+      },
+      {
+        "wrong": "그는 어릴 적부터 큰 꿈을 쫓으며 살아왔다.",
+        "correct": "그는 어릴 적부터 큰 꿈을 좇으며 살아왔다.",
+        "hint": "추상적 목표를 따르면 '좇다'"
+      },
+      {
+        "wrong": "친구들과 판을 벌린 지 세 시간이 지났다.",
+        "correct": "친구들과 판을 벌인 지 세 시간이 지났다.",
+        "hint": "일을 시작·전개하면 '벌이다'"
+      },
+      {
+        "wrong": "고무줄을 너무 늘려서 그만 끊어지고 말았다.",
+        "correct": "고무줄을 너무 늘여서 그만 끊어지고 말았다.",
+        "hint": "길이를 길게 하면 '늘이다'"
+      },
+      {
+        "wrong": "생산량을 두 배로 늘이는 것이 올해 목표다.",
+        "correct": "생산량을 두 배로 늘리는 것이 올해 목표다.",
+        "hint": "수·양을 많게 하면 '늘리다'"
+      },
+      {
+        "wrong": "정답을 맞춘 사람에게 소정의 상품을 드립니다.",
+        "correct": "정답을 맞힌 사람에게 소정의 상품을 드립니다.",
+        "hint": "답·과녁을 적중시키면 '맞히다'"
+      },
+      {
+        "wrong": "친구와 시험 답안을 서로 맞혀 보았다.",
+        "correct": "친구와 시험 답안을 서로 맞춰 보았다.",
+        "hint": "둘을 나란히 비교하면 '맞추다'"
+      },
+      {
+        "wrong": "이 편지를 오늘 안에 꼭 붙여 주세요.",
+        "correct": "이 편지를 오늘 안에 꼭 부쳐 주세요.",
+        "hint": "우편으로 보내면 '부치다'"
+      },
+      {
+        "wrong": "안건을 다음 회의에 붙이기로 결정했다.",
+        "correct": "안건을 다음 회의에 부치기로 결정했다.",
+        "hint": "회의·표결에 넘기면 '부치다'"
+      },
+      {
+        "wrong": "약한 불에 간장을 조려 밑반찬을 만들었다.",
+        "correct": "약한 불에 간장을 졸여 밑반찬을 만들었다.",
+        "hint": "국물을 바짝 줄이면 '졸이다'"
+      },
+      {
+        "wrong": "김치를 담기 전에 배추를 소금에 절여야 한다.",
+        "correct": "김치를 담그기 전에 배추를 소금에 절여야 한다.",
+        "hint": "김치·장을 만들면 '담그다'"
+      },
+      {
+        "wrong": "두 사람은 오래도록 두껍게 정을 나눈 사이다.",
+        "correct": "두 사람은 오래도록 두텁게 정을 나눈 사이다.",
+        "hint": "신뢰·정이 깊으면 '두텁다'"
+      },
+      {
+        "wrong": "소문이 겉잡을 수 없이 빠르게 퍼져 나갔다.",
+        "correct": "소문이 걷잡을 수 없이 빠르게 퍼져 나갔다.",
+        "hint": "수습·억제는 '걷잡다', 어림은 '겉잡다'"
+      },
+      {
+        "wrong": "그는 나를 지긋이 바라보며 미소를 지었다.",
+        "correct": "그는 나를 지그시 바라보며 미소를 지었다.",
+        "hint": "슬며시·가만히는 '지그시', 나이는 '지긋이'"
+      },
+      {
+        "wrong": "서류를 꼼꼼이 검토한 뒤에 서명하십시오.",
+        "correct": "서류를 꼼꼼히 검토한 뒤에 서명하십시오.",
+        "hint": "'꼼꼼히'—발음이 '히'로 나요"
+      },
+      {
+        "wrong": "솔직이 말하면 나도 아직 결론을 못 내렸다.",
+        "correct": "솔직히 말하면 나도 아직 결론을 못 내렸다.",
+        "hint": "'솔직히'가 표준, '솔직이' 아니에요"
+      },
+      {
+        "wrong": "선생님은 학생 한 명 한 명을 각별이 챙기셨다.",
+        "correct": "선생님은 학생 한 명 한 명을 각별히 챙기셨다.",
+        "hint": "'각별히'—'-하다'가 붙는 말은 '히'"
+      },
+      {
+        "wrong": "지난 일을 곰곰히 되짚어 보니 내 실수였다.",
+        "correct": "지난 일을 곰곰이 되짚어 보니 내 실수였다.",
+        "hint": "'곰곰이'가 표준, '곰곰히' 아니에요"
+      },
+      {
+        "wrong": "시간이 날 때마다 틈틈히 단어를 외웠다.",
+        "correct": "시간이 날 때마다 틈틈이 단어를 외웠다.",
+        "hint": "첩어 뒤라 '틈틈이'로 적어요"
+      },
+      {
+        "wrong": "장부를 낱낱히 살펴 오류를 모두 잡아냈다.",
+        "correct": "장부를 낱낱이 살펴 오류를 모두 잡아냈다.",
+        "hint": "'낱낱이'—받침 뒤라도 '이'예요"
+      },
+      {
+        "wrong": "경찰이 현장을 샅샅히 뒤져 증거를 확보했다.",
+        "correct": "경찰이 현장을 샅샅이 뒤져 증거를 확보했다.",
+        "hint": "첩어라서 '샅샅이'로 적어요"
+      },
+      {
+        "wrong": "같은 실수를 번번히 반복하니 답답할 노릇이다.",
+        "correct": "같은 실수를 번번이 반복하니 답답할 노릇이다.",
+        "hint": "'번번이'가 표준 표기예요"
+      },
+      {
+        "wrong": "손님을 일일히 배웅하느라 자정을 넘겼다.",
+        "correct": "손님을 일일이 배웅하느라 자정을 넘겼다.",
+        "hint": "'일일이'—첩어라 '이'로 적어요"
+      },
+      {
+        "wrong": "밥을 먹던 말던 나는 이제 상관하지 않겠다.",
+        "correct": "밥을 먹든 말든 나는 이제 상관하지 않겠다.",
+        "hint": "선택·나열은 '-든', 회상은 '-던'"
+      },
+      {
+        "wrong": "교사로써 학생을 대할 때는 늘 공정해야 한다.",
+        "correct": "교사로서 학생을 대할 때는 늘 공정해야 한다.",
+        "hint": "자격·신분은 '-로서', 수단은 '-로써'"
+      },
+      {
+        "wrong": "대화로서 갈등을 풀어 가는 것이 최선이다.",
+        "correct": "대화로써 갈등을 풀어 가는 것이 최선이다.",
+        "hint": "수단·방법은 '-로써'예요"
+      },
+      {
+        "wrong": "아무리 애를 써도 도저히 할래야 할 수가 없었다.",
+        "correct": "아무리 애를 써도 도저히 하려야 할 수가 없었다.",
+        "hint": "'하려야 할 수 없다'가 표준이에요"
+      },
+      {
+        "wrong": "이 일만큼은 절대 물러서면 안 되.",
+        "correct": "이 일만큼은 절대 물러서면 안 돼.",
+        "hint": "문장 끝은 '안 돼'(되어→돼)"
+      },
+      {
+        "wrong": "웬지 오늘은 좋은 일이 생길 것만 같다.",
+        "correct": "왠지 오늘은 좋은 일이 생길 것만 같다.",
+        "hint": "'왜인지'의 준말이라 '왠지'예요"
+      },
+      {
+        "wrong": "복도에서 모르는 사람과 정면으로 부딪혔다.",
+        "correct": "복도에서 모르는 사람과 정면으로 부딪쳤다.",
+        "hint": "내가 세게 마주치면 '부딪치다'"
+      }
+    ]
+  },
+  "en": {
+    "easy": [
+      {
+        "wrong": "I recieved your letter yesterday.",
+        "correct": "I received your letter yesterday.",
+        "hint": "'i' before 'e' except after 'c' → received."
+      },
+      {
+        "wrong": "Its a beautiful day outside.",
+        "correct": "It's a beautiful day outside.",
+        "hint": "'It's' = it is; 'its' shows possession."
+      },
+      {
+        "wrong": "Your going to love this movie.",
+        "correct": "You're going to love this movie.",
+        "hint": "'You're' = you are; 'your' shows possession."
+      },
+      {
+        "wrong": "There going to the park later.",
+        "correct": "They're going to the park later.",
+        "hint": "'They're' = they are."
+      },
+      {
+        "wrong": "I have less friends than before.",
+        "correct": "I have fewer friends than before.",
+        "hint": "Use 'fewer' for countable nouns, 'less' for uncountable."
+      },
+      {
+        "wrong": "She definately finished her homework.",
+        "correct": "She definitely finished her homework.",
+        "hint": "Watch the spelling: definitely, not definately."
+      },
+      {
+        "wrong": "We should of called first.",
+        "correct": "We should have called first.",
+        "hint": "'Should've' sounds like 'should of', but it's 'should have'."
+      },
+      {
+        "wrong": "The two friends seperated at the corner.",
+        "correct": "The two friends separated at the corner.",
+        "hint": "Remember: sep-A-rate, not sep-E-rate."
+      },
+      {
+        "wrong": "He excepted the invitation happily.",
+        "correct": "He accepted the invitation happily.",
+        "hint": "'Accept' means to agree to; 'except' means excluding."
+      },
+      {
+        "wrong": "Whose coming to the party tonight?",
+        "correct": "Who's coming to the party tonight?",
+        "hint": "'Who's' = who is; 'whose' shows possession."
+      },
+      {
+        "wrong": "The weather effected our travel plans.",
+        "correct": "The weather affected our travel plans.",
+        "hint": "'Affect' is usually a verb; 'effect' is usually a noun."
+      },
+      {
+        "wrong": "Try not to loose your keys again.",
+        "correct": "Try not to lose your keys again.",
+        "hint": "'Lose' means to misplace; 'loose' means not tight."
+      },
+      {
+        "wrong": "I can't beleive how fast she runs.",
+        "correct": "I can't believe how fast she runs.",
+        "hint": "Remember: believe, not beleive."
+      },
+      {
+        "wrong": "We had a great time at they're house.",
+        "correct": "We had a great time at their house.",
+        "hint": "'Their' shows possession; 'they're' = they are."
+      },
+      {
+        "wrong": "This is the best restaurant in the neighbourhood.",
+        "correct": "This is the best restaurant in the neighborhood.",
+        "hint": "American English drops the 'u': neighbor, not neighbour."
+      },
+      {
+        "wrong": "The color of the walls is a light shade of grey.",
+        "correct": "The color of the walls is a light shade of gray.",
+        "hint": "American English generally prefers 'gray' over 'grey'."
+      },
+      {
+        "wrong": "I finaly finished the marathon.",
+        "correct": "I finally finished the marathon.",
+        "hint": "Double 'l': finally, not finaly."
+      },
+      {
+        "wrong": "The accident occured on Main Street.",
+        "correct": "The accident occurred on Main Street.",
+        "hint": "Double the 'r': occurred, not occured."
+      },
+      {
+        "wrong": "The cat licked it's paws after eating dinner.",
+        "correct": "The cat licked its paws after eating dinner.",
+        "hint": "Its = possessive; it's = it is."
+      },
+      {
+        "wrong": "Your going to love the new coffee shop downtown.",
+        "correct": "You're going to love the new coffee shop downtown.",
+        "hint": "You're = you are; your = possessive."
+      },
+      {
+        "wrong": "The kids left there backpacks by the front door.",
+        "correct": "The kids left their backpacks by the front door.",
+        "hint": "Their = possessive; there = place."
+      },
+      {
+        "wrong": "I think their going to arrive a little late tonight.",
+        "correct": "I think they're going to arrive a little late tonight.",
+        "hint": "They're = they are."
+      },
+      {
+        "wrong": "Put the groceries over their on the kitchen counter.",
+        "correct": "Put the groceries over there on the kitchen counter.",
+        "hint": "There = place; their = possessive."
+      },
+      {
+        "wrong": "Whose coming to the barbecue this weekend?",
+        "correct": "Who's coming to the barbecue this weekend?",
+        "hint": "Who's = who is; whose = possessive."
+      },
+      {
+        "wrong": "Do you know who's jacket this is?",
+        "correct": "Do you know whose jacket this is?",
+        "hint": "Whose = possessive; who's = who is."
+      },
+      {
+        "wrong": "This box is heavier then the other one.",
+        "correct": "This box is heavier than the other one.",
+        "hint": "Than = comparison; then = time."
+      },
+      {
+        "wrong": "We ate dinner and than watched a movie.",
+        "correct": "We ate dinner and then watched a movie.",
+        "hint": "Then = time/sequence; than = comparison."
+      },
+      {
+        "wrong": "I want to come to the party to.",
+        "correct": "I want to come to the party too.",
+        "hint": "Too = also; to = direction/infinitive."
+      },
+      {
+        "wrong": "The concert was way to loud for my ears.",
+        "correct": "The concert was way too loud for my ears.",
+        "hint": "Too = excessively; to = direction/infinitive."
+      },
+      {
+        "wrong": "She was too tired too finish her homework.",
+        "correct": "She was too tired to finish her homework.",
+        "hint": "To before a verb; too = excessively."
+      },
+      {
+        "wrong": "I always loose my keys when I'm in a hurry.",
+        "correct": "I always lose my keys when I'm in a hurry.",
+        "hint": "Lose = misplace; loose = not tight."
+      },
+      {
+        "wrong": "My shoelace is to loose and keeps coming undone.",
+        "correct": "My shoelace is too loose and keeps coming undone.",
+        "hint": "Loose = not tight; too = excessively."
+      },
+      {
+        "wrong": "The medicine didn't seem to effect him at all.",
+        "correct": "The medicine didn't seem to affect him at all.",
+        "hint": "Affect = verb; effect = noun."
+      },
+      {
+        "wrong": "The new policy had a big affect on our budget.",
+        "correct": "The new policy had a big effect on our budget.",
+        "hint": "Effect = noun; affect = verb."
+      },
+      {
+        "wrong": "Everyone came to the meeting accept for Sam.",
+        "correct": "Everyone came to the meeting except for Sam.",
+        "hint": "Except = excluding; accept = to receive."
+      },
+      {
+        "wrong": "Please except my apology for being late.",
+        "correct": "Please accept my apology for being late.",
+        "hint": "Accept = to receive; except = excluding."
+      },
+      {
+        "wrong": "There are less cookies in the jar than yesterday.",
+        "correct": "There are fewer cookies in the jar than yesterday.",
+        "hint": "Fewer for countable; less for uncountable."
+      },
+      {
+        "wrong": "I need to buy less eggs this week.",
+        "correct": "I need to buy fewer eggs this week.",
+        "hint": "Fewer for things you can count."
+      },
+      {
+        "wrong": "I recieved a lovely postcard from my aunt.",
+        "correct": "I received a lovely postcard from my aunt.",
+        "hint": "Spelling: i before e except after c."
+      },
+      {
+        "wrong": "I will definately be there by eight o'clock.",
+        "correct": "I will definitely be there by eight o'clock.",
+        "hint": "Spelling: definitely, not 'definately'."
+      },
+      {
+        "wrong": "We keep our socks in a seperate drawer.",
+        "correct": "We keep our socks in a separate drawer.",
+        "hint": "Spelling: separate has 'a rat' in it."
+      },
+      {
+        "wrong": "The accident occured near the old bridge.",
+        "correct": "The accident occurred near the old bridge.",
+        "hint": "Spelling: occurred has double r."
+      },
+      {
+        "wrong": "I can't beleive how fast this year went by.",
+        "correct": "I can't believe how fast this year went by.",
+        "hint": "Spelling: believe, i before e."
+      },
+      {
+        "wrong": "There was alot of traffic on the highway today.",
+        "correct": "There was a lot of traffic on the highway today.",
+        "hint": "'A lot' is two words."
+      },
+      {
+        "wrong": "We waited untill the rain finally stopped.",
+        "correct": "We waited until the rain finally stopped.",
+        "hint": "Spelling: until has one l."
+      },
+      {
+        "wrong": "I'm not sure wich sweater looks better on me.",
+        "correct": "I'm not sure which sweater looks better on me.",
+        "hint": "Spelling: which, not 'wich'."
+      },
+      {
+        "wrong": "Let's finish this project tommorrow morning.",
+        "correct": "Let's finish this project tomorrow morning.",
+        "hint": "Spelling: tomorrow, one m then two r."
+      },
+      {
+        "wrong": "We stayed inside becuase it was raining hard.",
+        "correct": "We stayed inside because it was raining hard.",
+        "hint": "Spelling: because, not 'becuase'."
+      },
+      {
+        "wrong": "The students forgot thier lunch money today.",
+        "correct": "The students forgot their lunch money today.",
+        "hint": "Spelling: their, i before e here."
+      },
+      {
+        "wrong": "That was a really wierd dream I had last night.",
+        "correct": "That was a really weird dream I had last night.",
+        "hint": "Spelling: weird, e before i."
+      },
+      {
+        "wrong": "I marked the dentist appointment on my calender.",
+        "correct": "I marked the dentist appointment on my calendar.",
+        "hint": "Spelling: calendar ends in 'ar'."
+      },
+      {
+        "wrong": "It would embarass me to sing in front of everyone.",
+        "correct": "It would embarrass me to sing in front of everyone.",
+        "hint": "Spelling: embarrass has double r and double s."
+      },
+      {
+        "wrong": "My English teacher really cares about good grammer.",
+        "correct": "My English teacher really cares about good grammar.",
+        "hint": "Spelling: grammar ends in 'ar'."
+      },
+      {
+        "wrong": "It's not neccessary to bring your own towel.",
+        "correct": "It's not necessary to bring your own towel.",
+        "hint": "Spelling: necessary, one c and two s."
+      },
+      {
+        "wrong": "We are planning something special for the occassion.",
+        "correct": "We are planning something special for the occasion.",
+        "hint": "Spelling: occasion, two c and one s."
+      },
+      {
+        "wrong": "The drummer has an amazing sense of rythm.",
+        "correct": "The drummer has an amazing sense of rhythm.",
+        "hint": "Spelling: rhythm has an h after the r."
+      },
+      {
+        "wrong": "They got into a silly arguement over nothing.",
+        "correct": "They got into a silly argument over nothing.",
+        "hint": "Spelling: argument drops the e from argue."
+      },
+      {
+        "wrong": "We should protect the enviroment for future kids.",
+        "correct": "We should protect the environment for future kids.",
+        "hint": "Spelling: environment has an n before m."
+      },
+      {
+        "wrong": "The goverment announced a new tax plan today.",
+        "correct": "The government announced a new tax plan today.",
+        "hint": "Spelling: government has an n before m."
+      },
+      {
+        "wrong": "It's a real priviledge to work with this team.",
+        "correct": "It's a real privilege to work with this team.",
+        "hint": "Spelling: privilege has no d."
+      },
+      {
+        "wrong": "You should of called me before you left the house.",
+        "correct": "You should have called me before you left the house.",
+        "hint": "'Should have,' never 'should of.'"
+      },
+      {
+        "wrong": "We could of taken the earlier train this morning.",
+        "correct": "We could have taken the earlier train this morning.",
+        "hint": "'Could have,' never 'could of.'"
+      },
+      {
+        "wrong": "She would of helped if you had just asked her.",
+        "correct": "She would have helped if you had just asked her.",
+        "hint": "'Would have,' never 'would of.'"
+      },
+      {
+        "wrong": "I painted my bedroom a soft shade of colour.",
+        "correct": "I painted my bedroom a soft shade of color.",
+        "hint": "American spelling: color, not colour."
+      },
+      {
+        "wrong": "Pizza is definitely my favourite food of all.",
+        "correct": "Pizza is definitely my favorite food of all.",
+        "hint": "American spelling: favorite, not favourite."
+      },
+      {
+        "wrong": "We met our friends at the shopping centre.",
+        "correct": "We met our friends at the shopping center.",
+        "hint": "American spelling: center, not centre."
+      },
+      {
+        "wrong": "I finally realise how much I miss my hometown.",
+        "correct": "I finally realize how much I miss my hometown.",
+        "hint": "American spelling: realize, not realise."
+      },
+      {
+        "wrong": "We spent the whole summer travelling across the country.",
+        "correct": "We spent the whole summer traveling across the country.",
+        "hint": "American spelling: traveling, one l."
+      },
+      {
+        "wrong": "The sky turned a dull shade of grey before the storm.",
+        "correct": "The sky turned a dull shade of gray before the storm.",
+        "hint": "American spelling: gray, not grey."
+      },
+      {
+        "wrong": "We bought tickets to a play at the local theatre.",
+        "correct": "We bought tickets to a play at the local theater.",
+        "hint": "American spelling: theater, not theatre."
+      },
+      {
+        "wrong": "I ordered a new seed catalogue for the garden.",
+        "correct": "I ordered a new seed catalog for the garden.",
+        "hint": "American spelling: catalog, not catalogue."
+      },
+      {
+        "wrong": "Let's analyse the results before we make a decision.",
+        "correct": "Let's analyze the results before we make a decision.",
+        "hint": "American spelling: analyze, not analyse."
+      },
+      {
+        "wrong": "I need to organise my closet this weekend.",
+        "correct": "I need to organize my closet this weekend.",
+        "hint": "American spelling: organize, not organise."
+      },
+      {
+        "wrong": "She grabbed a apple on her way out the door.",
+        "correct": "She grabbed an apple on her way out the door.",
+        "hint": "Use 'an' before a vowel sound."
+      },
+      {
+        "wrong": "My brother is applying to an university in Ohio.",
+        "correct": "My brother is applying to a university in Ohio.",
+        "hint": "'University' starts with a 'yoo' sound, so use 'a'."
+      },
+      {
+        "wrong": "The meeting lasted for a hour and a half.",
+        "correct": "The meeting lasted for an hour and a half.",
+        "hint": "'Hour' has a silent h, so use 'an'."
+      },
+      {
+        "wrong": "She married an European man she met in college.",
+        "correct": "She married a European man she met in college.",
+        "hint": "'European' starts with a 'yoo' sound, so use 'a'."
+      },
+      {
+        "wrong": "I don't want no dessert after that huge meal.",
+        "correct": "I don't want any dessert after that huge meal.",
+        "hint": "Avoid double negatives: use 'any,' not 'no.'"
+      },
+      {
+        "wrong": "The dog wagged it's tail when I came home.",
+        "correct": "The dog wagged its tail when I came home.",
+        "hint": "Its = possessive; it's = it is."
+      },
+      {
+        "wrong": "Your right about needing to leave earlier tomorrow.",
+        "correct": "You're right about needing to leave earlier tomorrow.",
+        "hint": "You're = you are; your = possessive."
+      },
+      {
+        "wrong": "The neighbors said there moving to Texas soon.",
+        "correct": "The neighbors said they're moving to Texas soon.",
+        "hint": "They're = they are."
+      },
+      {
+        "wrong": "I left my umbrella over they're by the door.",
+        "correct": "I left my umbrella over there by the door.",
+        "hint": "There = place; they're = they are."
+      },
+      {
+        "wrong": "Can you tell me whose in charge of the schedule?",
+        "correct": "Can you tell me who's in charge of the schedule?",
+        "hint": "Who's = who is; whose = possessive."
+      },
+      {
+        "wrong": "This backpack is lighter then I expected.",
+        "correct": "This backpack is lighter than I expected.",
+        "hint": "Than = comparison; then = time."
+      },
+      {
+        "wrong": "We were to busy to stop for lunch yesterday.",
+        "correct": "We were too busy to stop for lunch yesterday.",
+        "hint": "Too = excessively; to = direction/infinitive."
+      },
+      {
+        "wrong": "If you're not careful, you'll loose your wallet.",
+        "correct": "If you're not careful, you'll lose your wallet.",
+        "hint": "Lose = misplace; loose = not tight."
+      },
+      {
+        "wrong": "The loud music started to effect my concentration.",
+        "correct": "The loud music started to affect my concentration.",
+        "hint": "Affect = verb; effect = noun."
+      },
+      {
+        "wrong": "Everyone finished the race accept for one runner.",
+        "correct": "Everyone finished the race except for one runner.",
+        "hint": "Except = excluding; accept = to receive."
+      },
+      {
+        "wrong": "We have less chairs than we need for the party.",
+        "correct": "We have fewer chairs than we need for the party.",
+        "hint": "Fewer for countable; less for uncountable."
+      },
+      {
+        "wrong": "Did you recieve the package I sent last week?",
+        "correct": "Did you receive the package I sent last week?",
+        "hint": "Spelling: receive, i before e except after c."
+      },
+      {
+        "wrong": "I definately need more sleep this weekend.",
+        "correct": "I definitely need more sleep this weekend.",
+        "hint": "Spelling: definitely, not 'definately'."
+      },
+      {
+        "wrong": "Please keep the clean and dirty dishes seperate.",
+        "correct": "Please keep the clean and dirty dishes separate.",
+        "hint": "Spelling: separate has 'a rat' in it."
+      },
+      {
+        "wrong": "The same mistake occured twice in one day.",
+        "correct": "The same mistake occurred twice in one day.",
+        "hint": "Spelling: occurred has double r."
+      },
+      {
+        "wrong": "I still can't beleive we won the championship.",
+        "correct": "I still can't believe we won the championship.",
+        "hint": "Spelling: believe, i before e."
+      },
+      {
+        "wrong": "There were alot of people at the concert last night.",
+        "correct": "There were a lot of people at the concert last night.",
+        "hint": "'A lot' is two words."
+      },
+      {
+        "wrong": "Just keep stirring untill the sauce thickens.",
+        "correct": "Just keep stirring until the sauce thickens.",
+        "hint": "Spelling: until has one l."
+      },
+      {
+        "wrong": "I can't decide wich movie we should watch.",
+        "correct": "I can't decide which movie we should watch.",
+        "hint": "Spelling: which, not 'wich'."
+      },
+      {
+        "wrong": "The package should arrive sometime tommorrow.",
+        "correct": "The package should arrive sometime tomorrow.",
+        "hint": "Spelling: tomorrow, one m then two r."
+      },
+      {
+        "wrong": "We canceled the picnic becuase of the storm.",
+        "correct": "We canceled the picnic because of the storm.",
+        "hint": "Spelling: because, not 'becuase'."
+      },
+      {
+        "wrong": "The hikers packed thier gear the night before.",
+        "correct": "The hikers packed their gear the night before.",
+        "hint": "Spelling: their, i before e here."
+      },
+      {
+        "wrong": "That old house always felt a little wierd to me.",
+        "correct": "That old house always felt a little weird to me.",
+        "hint": "Spelling: weird, e before i."
+      },
+      {
+        "wrong": "I circled the deadline on my calender in red.",
+        "correct": "I circled the deadline on my calendar in red.",
+        "hint": "Spelling: calendar ends in 'ar'."
+      },
+      {
+        "wrong": "Don't embarass yourself by showing up unprepared.",
+        "correct": "Don't embarrass yourself by showing up unprepared.",
+        "hint": "Spelling: embarrass has double r and double s."
+      },
+      {
+        "wrong": "Good grammer can make your writing much clearer.",
+        "correct": "Good grammar can make your writing much clearer.",
+        "hint": "Spelling: grammar ends in 'ar'."
+      },
+      {
+        "wrong": "It isn't neccessary to reserve a table in advance.",
+        "correct": "It isn't necessary to reserve a table in advance.",
+        "hint": "Spelling: necessary, one c and two s."
+      },
+      {
+        "wrong": "We dressed up for the special occassion downtown.",
+        "correct": "We dressed up for the special occasion downtown.",
+        "hint": "Spelling: occasion, two c and one s."
+      },
+      {
+        "wrong": "You should of brought a jacket to the game.",
+        "correct": "You should have brought a jacket to the game.",
+        "hint": "'Should have,' never 'should of.'"
+      },
+      {
+        "wrong": "We grabbed a umbrella before heading outside.",
+        "correct": "We grabbed an umbrella before heading outside.",
+        "hint": "Use 'an' before a vowel sound."
+      }
+    ],
+    "med": [
+      {
+        "wrong": "Neither of the answers were correct.",
+        "correct": "Neither of the answers was correct.",
+        "hint": "'Neither' takes a singular verb: was, not were."
+      },
+      {
+        "wrong": "She is more taller than her brother.",
+        "correct": "She is taller than her brother.",
+        "hint": "Don't combine 'more' with an '-er' comparative."
+      },
+      {
+        "wrong": "He don't like coffee in the morning.",
+        "correct": "He doesn't like coffee in the morning.",
+        "hint": "Third-person singular needs 'doesn't', not 'don't'."
+      },
+      {
+        "wrong": "I seen that movie last week.",
+        "correct": "I saw that movie last week.",
+        "hint": "Simple past of 'see' is 'saw'; 'seen' needs a helping verb."
+      },
+      {
+        "wrong": "Can you borrow me some money until Friday?",
+        "correct": "Can you lend me some money until Friday?",
+        "hint": "'Lend' means to give temporarily; 'borrow' means to receive temporarily."
+      },
+      {
+        "wrong": "Lay down and rest for a while.",
+        "correct": "Lie down and rest for a while.",
+        "hint": "'Lie' (no object) means to recline; 'lay' needs an object."
+      },
+      {
+        "wrong": "The dog wagged it's tail happily.",
+        "correct": "The dog wagged its tail happily.",
+        "hint": "Possessive 'its' has no apostrophe."
+      },
+      {
+        "wrong": "There are less students in class today.",
+        "correct": "There are fewer students in class today.",
+        "hint": "'Students' is countable, so use 'fewer'."
+      },
+      {
+        "wrong": "Me and him went to the store.",
+        "correct": "He and I went to the store.",
+        "hint": "Use subject pronouns (I, he) as the sentence subject, and put yourself last."
+      },
+      {
+        "wrong": "The company have decided to expand.",
+        "correct": "The company has decided to expand.",
+        "hint": "Collective nouns like 'company' usually take a singular verb in American English."
+      },
+      {
+        "wrong": "I could care less about the results.",
+        "correct": "I couldn't care less about the results.",
+        "hint": "The idiom is 'couldn't care less' — meaning zero care."
+      },
+      {
+        "wrong": "This tastes badly.",
+        "correct": "This tastes bad.",
+        "hint": "'Taste' is a linking verb — use the adjective 'bad', not the adverb 'badly'."
+      },
+      {
+        "wrong": "Between you and I, the plan will fail.",
+        "correct": "Between you and me, the plan will fail.",
+        "hint": "After a preposition like 'between', use the object pronoun 'me'."
+      },
+      {
+        "wrong": "If I was you, I would apologize.",
+        "correct": "If I were you, I would apologize.",
+        "hint": "Hypothetical 'if' clauses use 'were', not 'was'."
+      },
+      {
+        "wrong": "My brother don't like spicy food at all.",
+        "correct": "My brother doesn't like spicy food at all.",
+        "hint": "Singular subjects use 'doesn't', not 'don't'."
+      },
+      {
+        "wrong": "She were the first person to arrive this morning.",
+        "correct": "She was the first person to arrive this morning.",
+        "hint": "Use 'was' with singular subjects like 'she'."
+      },
+      {
+        "wrong": "The whole team are traveling to the finals next week.",
+        "correct": "The whole team is traveling to the finals next week.",
+        "hint": "In American English, collective nouns take singular verbs."
+      },
+      {
+        "wrong": "Neither of the answers are correct on this quiz.",
+        "correct": "Neither of the answers is correct on this quiz.",
+        "hint": "'Neither' is singular and takes 'is'."
+      },
+      {
+        "wrong": "Each of the players have a locker in the gym.",
+        "correct": "Each of the players has a locker in the gym.",
+        "hint": "'Each' is singular; use 'has'."
+      },
+      {
+        "wrong": "There's four cookies left on the plate.",
+        "correct": "There are four cookies left on the plate.",
+        "hint": "Use 'there are' with plural nouns."
+      },
+      {
+        "wrong": "One of my friends live in another country now.",
+        "correct": "One of my friends lives in another country now.",
+        "hint": "'One of' takes a singular verb."
+      },
+      {
+        "wrong": "The list of ingredients are printed on the box.",
+        "correct": "The list of ingredients is printed on the box.",
+        "hint": "The subject is 'list', so use 'is'."
+      },
+      {
+        "wrong": "Everybody in the room were laughing at the joke.",
+        "correct": "Everybody in the room was laughing at the joke.",
+        "hint": "'Everybody' is singular; use 'was'."
+      },
+      {
+        "wrong": "My parents doesn't allow me to stay out late.",
+        "correct": "My parents don't allow me to stay out late.",
+        "hint": "Plural subjects use 'don't', not 'doesn't'."
+      },
+      {
+        "wrong": "I seen that movie twice already this year.",
+        "correct": "I saw that movie twice already this year.",
+        "hint": "Use 'saw' as the simple past, not 'seen'."
+      },
+      {
+        "wrong": "We have went to that restaurant many times.",
+        "correct": "We have gone to that restaurant many times.",
+        "hint": "Use 'gone' after 'have', not 'went'."
+      },
+      {
+        "wrong": "She has ate all of the leftovers already.",
+        "correct": "She has eaten all of the leftovers already.",
+        "hint": "The past participle of 'eat' is 'eaten'."
+      },
+      {
+        "wrong": "By noon he had drank three cups of coffee.",
+        "correct": "By noon he had drunk three cups of coffee.",
+        "hint": "Use 'drunk' as the past participle after 'had'."
+      },
+      {
+        "wrong": "I have wrote a letter to my grandmother.",
+        "correct": "I have written a letter to my grandmother.",
+        "hint": "The past participle of 'write' is 'written'."
+      },
+      {
+        "wrong": "They have ran five miles this morning.",
+        "correct": "They have run five miles this morning.",
+        "hint": "Use 'run' after 'have', not 'ran'."
+      },
+      {
+        "wrong": "She swum across the entire lake yesterday.",
+        "correct": "She swam across the entire lake yesterday.",
+        "hint": "The simple past of 'swim' is 'swam'."
+      },
+      {
+        "wrong": "He has took my umbrella by mistake.",
+        "correct": "He has taken my umbrella by mistake.",
+        "hint": "The past participle of 'take' is 'taken'."
+      },
+      {
+        "wrong": "We have began the project without you.",
+        "correct": "We have begun the project without you.",
+        "hint": "Use 'begun' as the past participle of 'begin'."
+      },
+      {
+        "wrong": "The bell had rang before we got to class.",
+        "correct": "The bell had rung before we got to class.",
+        "hint": "Use 'rung' as the past participle after 'had'."
+      },
+      {
+        "wrong": "I have never drove a truck before.",
+        "correct": "I have never driven a truck before.",
+        "hint": "The past participle of 'drive' is 'driven'."
+      },
+      {
+        "wrong": "She had spoke to the manager about it.",
+        "correct": "She had spoken to the manager about it.",
+        "hint": "Use 'spoken' as the past participle of 'speak'."
+      },
+      {
+        "wrong": "The vase was broke when I opened the box.",
+        "correct": "The vase was broken when I opened the box.",
+        "hint": "The past participle of 'break' is 'broken'."
+      },
+      {
+        "wrong": "He has gave me some really good advice.",
+        "correct": "He has given me some really good advice.",
+        "hint": "The past participle of 'give' is 'given'."
+      },
+      {
+        "wrong": "I could have chose a better seat.",
+        "correct": "I could have chosen a better seat.",
+        "hint": "Use 'chosen' after 'could have'."
+      },
+      {
+        "wrong": "That was the more easier test of the two.",
+        "correct": "That was the easier test of the two.",
+        "hint": "Don't use 'more' with a comparative ending in '-er'."
+      },
+      {
+        "wrong": "This is the most easiest recipe in the book.",
+        "correct": "This is the easiest recipe in the book.",
+        "hint": "Don't add 'most' before a superlative ending in '-est'."
+      },
+      {
+        "wrong": "Your painting is more better than mine.",
+        "correct": "Your painting is better than mine.",
+        "hint": "'Better' is already comparative; drop 'more'."
+      },
+      {
+        "wrong": "This bag is more heavier than the other one.",
+        "correct": "This bag is heavier than the other one.",
+        "hint": "Use just 'heavier', not 'more heavier'."
+      },
+      {
+        "wrong": "She is the most nicest teacher I have had.",
+        "correct": "She is the nicest teacher I have had.",
+        "hint": "Drop 'most' before a '-est' superlative."
+      },
+      {
+        "wrong": "The second movie was more worse than the first.",
+        "correct": "The second movie was worse than the first.",
+        "hint": "'Worse' is already comparative; drop 'more'."
+      },
+      {
+        "wrong": "Me and him went to the concert together.",
+        "correct": "He and I went to the concert together.",
+        "hint": "Use subject pronouns 'he and I' before a verb."
+      },
+      {
+        "wrong": "This is a secret between you and I.",
+        "correct": "This is a secret between you and me.",
+        "hint": "After a preposition, use 'me', not 'I'."
+      },
+      {
+        "wrong": "Her and me are planning a trip to Boston.",
+        "correct": "She and I are planning a trip to Boston.",
+        "hint": "Use subject pronouns as the subject of a sentence."
+      },
+      {
+        "wrong": "My mom made lunch for my sister and I.",
+        "correct": "My mom made lunch for my sister and me.",
+        "hint": "After 'for', use 'me', not 'I'."
+      },
+      {
+        "wrong": "Him and his friends built a treehouse.",
+        "correct": "He and his friends built a treehouse.",
+        "hint": "Use 'he' as part of the subject."
+      },
+      {
+        "wrong": "The coach picked Sarah and I for the team.",
+        "correct": "The coach picked Sarah and me for the team.",
+        "hint": "As an object, use 'me', not 'I'."
+      },
+      {
+        "wrong": "Us kids always help out on the farm.",
+        "correct": "We kids always help out on the farm.",
+        "hint": "Use 'we' when the phrase is the subject."
+      },
+      {
+        "wrong": "The gift was from she and her husband.",
+        "correct": "The gift was from her and her husband.",
+        "hint": "After 'from', use the object pronoun 'her'."
+      },
+      {
+        "wrong": "My grandpa always treats my cousins and I to ice cream.",
+        "correct": "My grandpa always treats my cousins and me to ice cream.",
+        "hint": "As an object, use 'me', not 'I'."
+      },
+      {
+        "wrong": "You should lay down if you feel dizzy.",
+        "correct": "You should lie down if you feel dizzy.",
+        "hint": "Use 'lie down' when no object follows."
+      },
+      {
+        "wrong": "Can you borrow me a pencil for the test?",
+        "correct": "Can you lend me a pencil for the test?",
+        "hint": "You 'lend' to others; you 'borrow' from them."
+      },
+      {
+        "wrong": "Please bring this package to the post office.",
+        "correct": "Please take this package to the post office.",
+        "hint": "Use 'take' for moving something away from here."
+      },
+      {
+        "wrong": "The whole choir sang really good tonight.",
+        "correct": "The whole choir sang really well tonight.",
+        "hint": "Use the adverb 'well' to describe how they sang."
+      },
+      {
+        "wrong": "There were less people at the game this week.",
+        "correct": "There were fewer people at the game this week.",
+        "hint": "Use 'fewer' with countable nouns like 'people'."
+      },
+      {
+        "wrong": "A large amount of students signed up for the club.",
+        "correct": "A large number of students signed up for the club.",
+        "hint": "Use 'number of' with countable nouns."
+      },
+      {
+        "wrong": "I honestly could care less about the score.",
+        "correct": "I honestly couldn't care less about the score.",
+        "hint": "The correct idiom is 'couldn't care less'."
+      },
+      {
+        "wrong": "There are less cars on the road on Sundays.",
+        "correct": "There are fewer cars on the road on Sundays.",
+        "hint": "Use 'fewer' with countable nouns like 'cars'."
+      },
+      {
+        "wrong": "The team played very good in the second half.",
+        "correct": "The team played very well in the second half.",
+        "hint": "Use the adverb 'well' after a verb like 'played'."
+      },
+      {
+        "wrong": "If I was you, I would apologize right away.",
+        "correct": "If I were you, I would apologize right away.",
+        "hint": "Use 'were' in hypothetical 'if I were' statements."
+      },
+      {
+        "wrong": "I wish I was taller so I could reach it.",
+        "correct": "I wish I were taller so I could reach it.",
+        "hint": "Use 'were' after 'wish' for unreal situations."
+      },
+      {
+        "wrong": "She acts as though she was the boss here.",
+        "correct": "She acts as though she were the boss here.",
+        "hint": "Use 'were' after 'as though' for something unreal."
+      },
+      {
+        "wrong": "If he was here, he would know what to do.",
+        "correct": "If he were here, he would know what to do.",
+        "hint": "Use 'were' in a hypothetical 'if' clause."
+      },
+      {
+        "wrong": "You should have came to the party last night.",
+        "correct": "You should have come to the party last night.",
+        "hint": "Use 'come' after 'should have', not 'came'."
+      },
+      {
+        "wrong": "We should have wrote down the directions.",
+        "correct": "We should have written down the directions.",
+        "hint": "Use 'written' after 'should have'."
+      },
+      {
+        "wrong": "He should have knew the answer by now.",
+        "correct": "He should have known the answer by now.",
+        "hint": "Use 'known' after 'should have', not 'knew'."
+      },
+      {
+        "wrong": "The dog laid on the porch all afternoon.",
+        "correct": "The dog lay on the porch all afternoon.",
+        "hint": "The past tense of 'lie' (to recline) is 'lay'."
+      },
+      {
+        "wrong": "Neither the boys nor their sister were ready.",
+        "correct": "Neither the boys nor their sister was ready.",
+        "hint": "The verb agrees with the nearest subject, 'sister'."
+      },
+      {
+        "wrong": "My scissors is on the desk in the office.",
+        "correct": "My scissors are on the desk in the office.",
+        "hint": "'Scissors' takes a plural verb, 'are'."
+      },
+      {
+        "wrong": "The news are always on at six o'clock.",
+        "correct": "The news is always on at six o'clock.",
+        "hint": "'News' is singular and takes 'is'."
+      },
+      {
+        "wrong": "Mathematics were my favorite subject in school.",
+        "correct": "Mathematics was my favorite subject in school.",
+        "hint": "'Mathematics' is singular; use 'was'."
+      },
+      {
+        "wrong": "Everyone have finished their homework already.",
+        "correct": "Everyone has finished their homework already.",
+        "hint": "'Everyone' is singular and takes 'has'."
+      },
+      {
+        "wrong": "Somebody have left their keys on the table.",
+        "correct": "Somebody has left their keys on the table.",
+        "hint": "'Somebody' is singular; use 'has'."
+      },
+      {
+        "wrong": "The number of visitors have grown this year.",
+        "correct": "The number of visitors has grown this year.",
+        "hint": "'The number of' takes a singular verb."
+      },
+      {
+        "wrong": "He don't understand why she is upset.",
+        "correct": "He doesn't understand why she is upset.",
+        "hint": "Use 'doesn't' with 'he'."
+      },
+      {
+        "wrong": "My aunt and uncle lives in the countryside.",
+        "correct": "My aunt and uncle live in the countryside.",
+        "hint": "A compound subject takes a plural verb."
+      },
+      {
+        "wrong": "That book laying on the floor is mine.",
+        "correct": "That book lying on the floor is mine.",
+        "hint": "Use 'lying' for something resting, not 'laying'."
+      },
+      {
+        "wrong": "I have saw that show three times now.",
+        "correct": "I have seen that show three times now.",
+        "hint": "Use 'seen' after 'have', not 'saw'."
+      },
+      {
+        "wrong": "The children was excited about the field trip.",
+        "correct": "The children were excited about the field trip.",
+        "hint": "'Children' is plural and takes 'were'."
+      },
+      {
+        "wrong": "Him and I have been friends since childhood.",
+        "correct": "He and I have been friends since childhood.",
+        "hint": "Use 'he' as part of the subject."
+      },
+      {
+        "wrong": "This soup tastes even more worse than before.",
+        "correct": "This soup tastes even worse than before.",
+        "hint": "'Worse' is already comparative; drop 'more'."
+      },
+      {
+        "wrong": "The keys was right where I left them.",
+        "correct": "The keys were right where I left them.",
+        "hint": "'Keys' is plural and takes 'were'."
+      },
+      {
+        "wrong": "She has fell asleep on the couch again.",
+        "correct": "She has fallen asleep on the couch again.",
+        "hint": "The past participle of 'fall' is 'fallen'."
+      },
+      {
+        "wrong": "The pipe had froze during the cold snap.",
+        "correct": "The pipe had frozen during the cold snap.",
+        "hint": "Use 'frozen' as the past participle after 'had'."
+      },
+      {
+        "wrong": "We was hoping to see you at the reunion.",
+        "correct": "We were hoping to see you at the reunion.",
+        "hint": "Use 'were' with the plural subject 'we'."
+      }
+    ],
+    "hard": [
+      {
+        "wrong": "The jury have reached their verdict.",
+        "correct": "The jury has reached its verdict.",
+        "hint": "American English treats collective nouns like 'jury' as singular: has, its."
+      },
+      {
+        "wrong": "He is one of the students who is always late.",
+        "correct": "He is one of the students who are always late.",
+        "hint": "'Who' refers to 'students' (plural), so the verb is 'are'."
+      },
+      {
+        "wrong": "I wish I was taller.",
+        "correct": "I wish I were taller.",
+        "hint": "Wishes about the present use the subjunctive 'were'."
+      },
+      {
+        "wrong": "Its important to proofread you're work before submitting it.",
+        "correct": "It's important to proofread your work before submitting it.",
+        "hint": "'It's' = it is; 'your' shows possession before 'work'."
+      },
+      {
+        "wrong": "Their are many reasons to celebrate today.",
+        "correct": "There are many reasons to celebrate today.",
+        "hint": "'There' introduces existence; 'their' shows possession."
+      },
+      {
+        "wrong": "The principle of the school gave a speech.",
+        "correct": "The principal of the school gave a speech.",
+        "hint": "A school leader is the 'principal'; a 'principle' is a rule or belief."
+      },
+      {
+        "wrong": "Please except my apology for the delay.",
+        "correct": "Please accept my apology for the delay.",
+        "hint": "'Accept' means to receive willingly; 'except' means excluding."
+      },
+      {
+        "wrong": "The stationary store sells beautiful notebooks.",
+        "correct": "The stationery store sells beautiful notebooks.",
+        "hint": "Paper goods are 'stationery' (with an e); 'stationary' means not moving."
+      },
+      {
+        "wrong": "The colors compliment each other perfectly.",
+        "correct": "The colors complement each other perfectly.",
+        "hint": "'Complement' means to complete or go well with; 'compliment' means praise."
+      },
+      {
+        "wrong": "The two teams operate as discreet units.",
+        "correct": "The two teams operate as discrete units.",
+        "hint": "'Discrete' means separate/distinct; 'discreet' means careful or private."
+      },
+      {
+        "wrong": "The new policy will affect every department, but its underlying principal is sound.",
+        "correct": "The new policy will affect every department, but its underlying principle is sound.",
+        "hint": "'Principle' = a rule or belief; 'principal' = chief or head."
+      },
+      {
+        "wrong": "She kept the drone perfectly stationery while filming the coastline.",
+        "correct": "She kept the drone perfectly stationary while filming the coastline.",
+        "hint": "'Stationary' = not moving; 'stationery' = writing paper."
+      },
+      {
+        "wrong": "His silk tie was the perfect compliment to his tailored navy suit.",
+        "correct": "His silk tie was the perfect complement to his tailored navy suit.",
+        "hint": "'Complement' completes; 'compliment' is praise."
+      },
+      {
+        "wrong": "The auditor was praised for being remarkably discrete about the figures.",
+        "correct": "The auditor was praised for being remarkably discreet about the figures.",
+        "hint": "'Discreet' = tactful; 'discrete' = separate."
+      },
+      {
+        "wrong": "Investigators worked for months to elicit the truth about the elicit payments.",
+        "correct": "Investigators worked for months to elicit the truth about the illicit payments.",
+        "hint": "'Illicit' = illegal; 'elicit' = to draw out."
+      },
+      {
+        "wrong": "Her memoir sustains the allusion that the marriage was perfectly happy.",
+        "correct": "Her memoir sustains the illusion that the marriage was perfectly happy.",
+        "hint": "'Illusion' = false impression; 'allusion' = indirect reference."
+      },
+      {
+        "wrong": "The regulations proscribe exactly how much medication a doctor may recommend.",
+        "correct": "The regulations prescribe exactly how much medication a doctor may recommend.",
+        "hint": "'Prescribe' = direct/order; 'proscribe' = forbid."
+      },
+      {
+        "wrong": "From his curt reply, the committee implied that he was hiding something.",
+        "correct": "From his curt reply, the committee inferred that he was hiding something.",
+        "hint": "Listeners infer; speakers imply."
+      },
+      {
+        "wrong": "You should insure that every guest signs the waiver before entering.",
+        "correct": "You should ensure that every guest signs the waiver before entering.",
+        "hint": "'Ensure' = make certain; 'insure' = cover with insurance."
+      },
+      {
+        "wrong": "We hiked much further into the canyon than we had originally intended.",
+        "correct": "We hiked much farther into the canyon than we had originally intended.",
+        "hint": "'Farther' = physical distance; 'further' = degree or extent."
+      },
+      {
+        "wrong": "An arbitrator must stay uninterested in the outcome to rule fairly.",
+        "correct": "An arbitrator must stay disinterested in the outcome to rule fairly.",
+        "hint": "'Disinterested' = impartial; 'uninterested' = not curious."
+      },
+      {
+        "wrong": "The invention of the printing press was a truly historical turning point.",
+        "correct": "The invention of the printing press was a truly historic turning point.",
+        "hint": "'Historic' = momentous; 'historical' = relating to history."
+      },
+      {
+        "wrong": "Reporters gathered on the steps of the state capital to await the vote.",
+        "correct": "Reporters gathered on the steps of the state capitol to await the vote.",
+        "hint": "'Capitol' = the building; 'capital' = city, money, or uppercase."
+      },
+      {
+        "wrong": "The city counsel voted unanimously to approve the new zoning ordinance.",
+        "correct": "The city council voted unanimously to approve the new zoning ordinance.",
+        "hint": "'Council' = an assembly; 'counsel' = advice or a lawyer."
+      },
+      {
+        "wrong": "The board voted to censor the executive for his reckless public remarks.",
+        "correct": "The board voted to censure the executive for his reckless public remarks.",
+        "hint": "'Censure' = formally condemn; 'censor' = suppress content."
+      },
+      {
+        "wrong": "A brief silence will proceed the announcement of this year's winner.",
+        "correct": "A brief silence will precede the announcement of this year's winner.",
+        "hint": "'Precede' = come before; 'proceed' = go forward."
+      },
+      {
+        "wrong": "Many voters are deeply adverse to raising taxes under any circumstances.",
+        "correct": "Many voters are deeply averse to raising taxes under any circumstances.",
+        "hint": "'Averse' = opposed; 'adverse' = unfavorable (of conditions)."
+      },
+      {
+        "wrong": "He loves to flout his designer watches at every networking event.",
+        "correct": "He loves to flaunt his designer watches at every networking event.",
+        "hint": "'Flaunt' = show off; 'flout' = openly disregard."
+      },
+      {
+        "wrong": "She spent the whole weekend pouring over ancient property records.",
+        "correct": "She spent the whole weekend poring over ancient property records.",
+        "hint": "'Pore over' = study intently; 'pour' = to flow."
+      },
+      {
+        "wrong": "The documentary's opening scene immediately peaked my curiosity.",
+        "correct": "The documentary's opening scene immediately piqued my curiosity.",
+        "hint": "'Pique' = arouse/stimulate; 'peak' = a summit."
+      },
+      {
+        "wrong": "The fans waited with baited breath for the final score to appear.",
+        "correct": "The fans waited with bated breath for the final score to appear.",
+        "hint": "'Bated breath' = holding one's breath; 'baited' = with bait."
+      },
+      {
+        "wrong": "The new manager was given completely free reign over the project.",
+        "correct": "The new manager was given completely free rein over the project.",
+        "hint": "'Free rein' = unrestricted freedom (from horse reins)."
+      },
+      {
+        "wrong": "The aroma drifting from the kitchen really wet my appetite for dinner.",
+        "correct": "The aroma drifting from the kitchen really whetted my appetite for dinner.",
+        "hint": "'Whet' = sharpen/stimulate; 'wet' = to moisten."
+      },
+      {
+        "wrong": "Honesty is a central tenant of the organization's code of conduct.",
+        "correct": "Honesty is a central tenet of the organization's code of conduct.",
+        "hint": "'Tenet' = a principle; 'tenant' = one who rents."
+      },
+      {
+        "wrong": "The professor asked us to sight three sources for every claim we made.",
+        "correct": "The professor asked us to cite three sources for every claim we made.",
+        "hint": "'Cite' = quote a source; 'site' = a place; 'sight' = vision."
+      },
+      {
+        "wrong": "The board recommends that the treasurer submits the report by Friday.",
+        "correct": "The board recommends that the treasurer submit the report by Friday.",
+        "hint": "After 'recommend that,' use the base verb (subjunctive)."
+      },
+      {
+        "wrong": "It is essential that every applicant is present at the orientation session.",
+        "correct": "It is essential that every applicant be present at the orientation session.",
+        "hint": "'It is essential that' takes the subjunctive: use 'be.'"
+      },
+      {
+        "wrong": "Her attorney demanded that the witness answers the question directly.",
+        "correct": "Her attorney demanded that the witness answer the question directly.",
+        "hint": "'Demand that' triggers the base-form subjunctive."
+      },
+      {
+        "wrong": "The residents are the very people who the new ordinance most affects.",
+        "correct": "The residents are the very people whom the new ordinance most affects.",
+        "hint": "Use 'whom' as the object of the verb (formal register)."
+      },
+      {
+        "wrong": "Whom do you think will be chosen to lead the committee next year?",
+        "correct": "Who do you think will be chosen to lead the committee next year?",
+        "hint": "'Who' is the subject of 'will be chosen'; ignore 'do you think.'"
+      },
+      {
+        "wrong": "Walking across the old bridge, the river roared loudly beneath us.",
+        "correct": "Walking across the old bridge, we heard the river roar loudly beneath us.",
+        "hint": "The subject after the modifier must be the one walking."
+      },
+      {
+        "wrong": "Exhausted after the long shift, the sofa looked incredibly inviting to her.",
+        "correct": "Exhausted after the long shift, she found the sofa incredibly inviting.",
+        "hint": "The one who is exhausted must follow the opening modifier."
+      },
+      {
+        "wrong": "The internship taught her to research thoroughly, write clearly, and how to present.",
+        "correct": "The internship taught her to research thoroughly, write clearly, and present confidently.",
+        "hint": "Keep list items in parallel form (all base verbs)."
+      },
+      {
+        "wrong": "The role demands creativity, precision, and being able to work under pressure.",
+        "correct": "The role demands creativity, precision, and the ability to work under pressure.",
+        "hint": "Match nouns with nouns in a parallel series."
+      },
+      {
+        "wrong": "The renovated theater is larger than any building on the entire campus.",
+        "correct": "The renovated theater is larger than any other building on the entire campus.",
+        "hint": "Add 'other' so the theater isn't compared to itself."
+      },
+      {
+        "wrong": "Her approach to teaching is completely different than her predecessor's.",
+        "correct": "Her approach to teaching is completely different from her predecessor's.",
+        "hint": "Standard American usage prefers 'different from.'"
+      },
+      {
+        "wrong": "The jury have finally reached their verdict after three days of deliberation.",
+        "correct": "The jury has finally reached its verdict after three days of deliberation.",
+        "hint": "In American English, treat collective nouns as singular."
+      },
+      {
+        "wrong": "He is one of those managers who insists on reviewing every single email.",
+        "correct": "He is one of those managers who insist on reviewing every single email.",
+        "hint": "'Who' refers to plural 'managers,' so use 'insist.'"
+      },
+      {
+        "wrong": "There were fewer traffic on the highway than the forecast had predicted.",
+        "correct": "There was less traffic on the highway than the forecast had predicted.",
+        "hint": "Use 'less' with uncountable nouns like 'traffic.'"
+      },
+      {
+        "wrong": "The organizers were surprised by the sheer amount of volunteers who showed up.",
+        "correct": "The organizers were surprised by the sheer number of volunteers who showed up.",
+        "hint": "Use 'number' for countable nouns; 'amount' for uncountable."
+      },
+      {
+        "wrong": "The inheritance was divided evenly between the four surviving siblings.",
+        "correct": "The inheritance was divided evenly among the four surviving siblings.",
+        "hint": "Use 'among' for more than two; 'between' for two."
+      },
+      {
+        "wrong": "The final budget only needs approval from the two department heads.",
+        "correct": "The final budget needs approval from only the two department heads.",
+        "hint": "Place 'only' directly before what it limits."
+      },
+      {
+        "wrong": "The committee is comprised of seven elected members and two advisors.",
+        "correct": "The committee is composed of seven elected members and two advisors.",
+        "hint": "Use 'composed of'; 'comprised of' is nonstandard."
+      },
+      {
+        "wrong": "The senator refused to be censored by his own party for speaking out.",
+        "correct": "The senator refused to be censured by his own party for speaking out.",
+        "hint": "'Censure' = formal reprimand; 'censor' = block content."
+      },
+      {
+        "wrong": "If I was in charge, I would reverse that decision without hesitation.",
+        "correct": "If I were in charge, I would reverse that decision without hesitation.",
+        "hint": "Use 'were' for hypothetical, contrary-to-fact conditions."
+      },
+      {
+        "wrong": "Neither the manager nor the employees was aware of the schedule change.",
+        "correct": "Neither the manager nor the employees were aware of the schedule change.",
+        "hint": "With 'neither/nor,' the verb agrees with the nearer subject."
+      },
+      {
+        "wrong": "The data clearly suggests that the new treatment is significantly more effective.",
+        "correct": "The data clearly suggest that the new treatment is significantly more effective.",
+        "hint": "In formal usage, 'data' is plural and takes 'suggest.'"
+      },
+      {
+        "wrong": "Between you and I, the merger was doomed from the very beginning.",
+        "correct": "Between you and me, the merger was doomed from the very beginning.",
+        "hint": "Use the object pronoun 'me' after a preposition."
+      },
+      {
+        "wrong": "Each of the finalists were required to submit an original writing sample.",
+        "correct": "Each of the finalists was required to submit an original writing sample.",
+        "hint": "'Each' is singular and takes 'was.'"
+      },
+      {
+        "wrong": "The scandal had a profound affect on the mayor's chances of reelection.",
+        "correct": "The scandal had a profound effect on the mayor's chances of reelection.",
+        "hint": "Noun 'effect' = result; verb 'affect' = to influence."
+      }
+    ]
+  }
 };
 
 /* ────────────────────────── audio (Web Audio API) ────────────────────────── */
@@ -1024,7 +3857,7 @@ function submit(){
     // 속도 등급별 연출: LIGHTNING=번쩍임+흔들림, FAST=좌측 슬라이드+잔상, QUICK=기존 동일
     if(speedTag==='LIGHTNING'){ floatTag('LIGHTNING +'+speedBonus, 'lightning'); flashScreen(); playLightning(); }
     else if(speedTag==='FAST'){ floatTag('FAST +'+speedBonus, 'fast'); spawnAfterimages('FAST +'+speedBonus); playFast(); }
-    else if(speedTag==='QUICK'){ floatTag('QUICK +'+speedBonus); }
+    else if(speedTag==='QUICK'){ floatTag('QUICK +'+speedBonus, 'quick'); }
     else if(state.combo===3) floatTag('GREAT!');
     else if(state.combo===5) floatTag('AMAZING!');
     else if(state.combo>=8) floatTag('PERFECT!');
@@ -1232,7 +4065,7 @@ document.addEventListener('keydown',e=>{
 /* ────────────────────────── i18n ────────────────────────── */
 const I18N = {
   ko: {
-    docTitle: '맞춤법 고치기 — Arcade Bold v2.0.9 · parcyun studio',
+    docTitle: '맞춤법 고치기 — Arcade Bold v2.1.0 · parcyun studio',
     marqueePill: '★ Korean Orthography',
     heroY: '맞춤법', heroStroke: '고치기',
     heroSub: '› 위에 틀린 문장이 뜨면, 아래에 정확한 문장을 처음부터 타이핑해서 ENTER. 콤보를 쌓아 최고기록을 부숴라.',
@@ -1253,16 +4086,15 @@ const I18N = {
     resultLabels: { correct:'맞힌 개수', attempts:'시도', combo:'최고 콤보', time:'클리어 시간' },
     bestLabels: { easy:'초급 best', med:'중급 best', hard:'고급 best', solved:'누적 정답' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
-    versionTitle: 'v2.0.9 업데이트',
+    versionTitle: 'v2.1.0 업데이트',
     versionItems: [
-      "헷갈리는 표현의 상황 설명을 상단 '맥락'으로 무료 표시 (힌트와 분리, 점수 차감 없음)",
-      '방문자 수(오늘·전체) 카운터 추가',
-      "'쌤 동료에게 공유하기' 플로팅 버튼 추가",
-      '콤보 유지 점수 배수: 5+ ×2, 10+ ×3, 15+ ×4'
+      '문항 대폭 확충 — 한국어·영어 425문항 신규 추가 (총 599문항)',
+      '초급·중급·고급 전 난이도 보강: 맞춤법·띄어쓰기·문법 오류 유형 확대',
+      '모든 신규 문항 맞춤법·문법 교차 검증 완료'
     ]
   },
   en: {
-    docTitle: 'Grammar Fixer — Arcade Bold v2.0.9 · parcyun studio',
+    docTitle: 'Grammar Fixer — Arcade Bold v2.1.0 · parcyun studio',
     marqueePill: '★ American English',
     heroY: 'Grammar', heroStroke: 'Fixer',
     heroSub: '› When the wrong sentence appears above, type the correct sentence from scratch below and hit ENTER. Chain combos to smash your high score.',
@@ -1283,12 +4115,11 @@ const I18N = {
     resultLabels: { correct:'Correct', attempts:'Attempts', combo:'Max Combo', time:'Clear Time' },
     bestLabels: { easy:'Beginner Best', med:'Intermediate Best', hard:'Advanced Best', solved:'Total Solved' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
-    versionTitle: 'v2.0.9 Update',
+    versionTitle: 'v2.1.0 Update',
     versionItems: [
-      "Confusable-word context now shown free up top ('맥락'), split from the point-costing hint",
-      'Added a visitor counter (today / total)',
-      "Added a 'share with a colleague' floating button",
-      'Combo score multiplier: 5+ ×2, 10+ ×3, 15+ ×4'
+      'Big content update — 425 new Korean & English items (599 total)',
+      'All levels expanded: more spelling, spacing, and grammar error types',
+      'Every new sentence cross-checked for correctness'
     ]
   }
 };

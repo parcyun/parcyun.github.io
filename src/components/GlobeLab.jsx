@@ -77,9 +77,8 @@ const meshVert=GLSL+`uniform float morph,lens,uRotY,uLon0; varying vec2 vUv;
 void main(){ vUv=uv; vec3 p=project(uv,position,morph,lens,uRotY,uLon0,0.0); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
 const cloneVert=GLSL+`uniform float uOffsetX; varying vec2 vUv;
 void main(){ vUv=uv; vec3 p=project(uv,position,1.0,0.0,0.0,0.0,uOffsetX); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
-const meshFrag=`uniform sampler2D dayTex,nightTex,overlayTex; uniform float sunLon,sunLat,nightBoost,dayNightOn,lens,uLon0; varying vec2 vUv;
+const meshFrag=`uniform sampler2D dayTex,nightTex,overlayTex; uniform float sunLon,sunLat,nightBoost,dayNightOn; varying vec2 vUv;
 void main(){ float lon=(vUv.x-0.5)*360.0, lat=(vUv.y-0.5)*180.0;
-  if(lens>0.5){ float cc=cos(radians(lat))*cos(radians(lon)-uLon0); if(cc < -0.10) discard; } // 렌즈: 중심 반대편(뒷면) 렌더 안 함
   float rl=radians(lat),ro=radians(lon),sa=radians(sunLat),so=radians(sunLon);
   float cz=sin(rl)*sin(sa)+cos(rl)*cos(sa)*cos(ro-so); float t=mix(1.0,smoothstep(-0.10,0.12,cz),dayNightOn);
   vec3 base=mix(texture2D(nightTex,vUv).rgb*nightBoost, texture2D(dayTex,vUv).rgb, t); vec4 ov=texture2D(overlayTex,vUv);
@@ -101,7 +100,7 @@ function morphLine(pts,color,opacity,U){const g=new THREE.BufferGeometry();const
 
 const VIEW={
   globe:{morph:0,lens:0,rotY:-Math.PI/2,fov:30,pos:[0,0.35,5.4],rotate:true,pan:false,min:2.4,max:9},
-  lens: {morph:0,lens:1,rotY:0,        fov:46,pos:[0,0,5.6],   rotate:false,pan:false,min:3.5,max:9},
+  lens: {morph:0,lens:1,rotY:0,        fov:46,pos:[0,0,7.2],   rotate:false,pan:false,min:4,max:10},
   flat: {morph:1,lens:0,rotY:0,        fov:40,pos:[0,0,3.7],   rotate:false,pan:true,min:1.6,max:4.2},
 };
 const MODE_WM={flat:'Mercator Projection',lens:'Focus Lens View',globe:'Orthographic Globe'};
@@ -146,7 +145,7 @@ export default function GlobeLab(){
       scene.add(mesh);
       // 평면 좌우 순환용 클론 타일(±월드폭)
       const cloneMat=(off)=>new THREE.ShaderMaterial({vertexShader:cloneVert,fragmentShader:meshFrag,side:THREE.DoubleSide,
-        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,lens:u.lens,uLon0:u.uLon0,uOffsetX:{value:off}}});
+        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,uOffsetX:{value:off}}});
       const tileL=new THREE.Mesh(mesh.geometry,cloneMat(-WORLD_W)),tileR=new THREE.Mesh(mesh.geometry,cloneMat(WORLD_W));
       tileL.frustumCulled=tileR.frustumCulled=false;tileL.visible=tileR.visible=false;scene.add(tileL,tileR);
 

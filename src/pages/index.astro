@@ -1,0 +1,1115 @@
+---
+import CinematicLayout from '../layouts/CinematicLayout.astro';
+---
+<CinematicLayout
+  title="parcyun studio · 강의 자료 허브"
+  description="초등교사 parcyun이 운영하는 교육·AI·디자인 강의 자료 허브. Designed by parcyun studio."
+  ogTitle="parcyun studio"
+  ogDescription="초등교사 · 프롬프트 엔지니어 · 디자이너. 교육과 AI를 잇는 강의 자료 허브."
+  ogUrl="https://parcyun.github.io/"
+>
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Educator · Prompt Engineer · Designer</div>
+    <h1 class="hero-wordmark">parcyun studio</h1>
+    <p class="hero-name">parcyun · 박창현</p>
+    <p class="hero-tagline">
+      교육과 <strong>AI</strong>를 잇습니다.<br>
+    </p>
+    <div class="hero-ctas">
+      <a href="#lectures" class="btn primary">강의 둘러보기 <span class="arrow">↓</span></a>
+      <a href="#activities" class="btn primary">수업 자료 둘러보기 <span class="arrow">↓</span></a>
+    </div>
+    <div class="hero-ctas">
+      <a href="./works/" class="btn ghost">parcyun studio works <span class="arrow">↗</span></a>
+      <a href="https://www.instagram.com/parcyun" class="btn ghost" target="_blank" rel="noopener">@parcyun <span class="arrow">↗</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT / MANIFESTO ===== -->
+<section class="about">
+  <div class="wrap">
+    <header class="section-header">
+      <h2 class="ko">parcyun studio는</h2>
+      <span class="en">About</span>
+    </header>
+    <p class="manifesto">
+      디자인 · 건축 · AI를 일상 교실에 활용하고,<br>
+      그 과정을 <span class="highlight">강의 자료</span>와 <span class="highlight">레퍼런스</span>로 정리해 공유합니다.
+    </p>
+    <div class="identity-tags">
+      <span class="tag-pill">초등 교사</span>
+      <span class="tag-pill">Prompt Engineer</span>
+      <span class="tag-pill">Google Educator L2</span>
+      <span class="tag-pill">디지털 미디어 교육</span>
+      <span class="tag-pill">AI R&amp;D</span>
+      <span class="tag-pill">UIUX · WEB 디자인</span>
+      <span class="tag-pill">도시공학</span>
+    </div>
+    <button class="career-toggle" type="button" aria-expanded="false" aria-controls="career-list" onclick="toggleCareer(this)">
+      <span class="label">경력 전체 보기</span>
+      <span class="chev">⌄</span>
+    </button>
+    <div class="career-list collapsed" id="career-list">
+
+      <div class="career-category-header">주요 경력</div>
+      <div class="career-item">
+        <span class="career-year">현재</span>
+        <span class="career-role">몽당분필 대외협력부장 · AI R&amp;D 팀 리더</span>
+        <span class="career-org">(사)디미교연</span>
+      </div>
+
+      <div class="career-category-header">강의 · 연수</div>
+      <div class="career-item">
+        <span class="career-year">현재</span>
+        <span class="career-role">찾아가는 학교 컨설팅 주강사</span>
+        <span class="career-org"></span>
+      </div>
+      <div class="career-item">
+        <span class="career-year">—</span>
+        <span class="career-role">관리자 연수 우수 사례 발표 (찾아가는 학교 컨설팅)</span>
+        <span class="career-org"></span>
+      </div>
+      <div class="career-item">
+        <span class="career-year">—</span>
+        <span class="career-role">AI · 에듀테크 직무 연수 강사</span>
+        <span class="career-org"></span>
+      </div>
+      <div class="career-item">
+        <span class="career-year">—</span>
+        <span class="career-role">(사)디미교연 AI · 에듀테크 내부 역량 강화 연수 강사</span>
+        <span class="career-org"></span>
+      </div>
+      <div class="career-item">
+        <span class="career-year">—</span>
+        <span class="career-role">특성화고등학교 시각디자인과 생성형 AI 활용 특강</span>
+        <span class="career-org"></span>
+      </div>
+
+      <div class="career-category-header">제작 · 콘텐츠</div>
+      <div class="career-item">
+        <span class="career-year">—</span>
+        <span class="career-role">티처빌 온라인 직무연수 제작 (이미지 · 영상 생성 AI)</span>
+        <span class="career-org">티처빌</span>
+      </div>
+      <div class="career-item">
+        <span class="career-year">—</span>
+        <span class="career-role">경기도교육청 미디어 리터러시 교육 영상 제작</span>
+        <span class="career-org">경기도교육청</span>
+      </div>
+
+      <div class="career-category-header">위원 · 연구</div>
+      <div class="career-item">
+        <span class="career-year">2026</span>
+        <span class="career-role">경기도교육청 AI 교육연구회 회장</span>
+        <span class="career-org">경기도교육청</span>
+      </div>
+      <div class="career-item">
+        <span class="career-year">2025</span>
+        <span class="career-role">화성오산교육지원청 디지털토핑교육연구위원</span>
+        <span class="career-org">화성오산교육지원청</span>
+      </div>
+      <div class="career-item">
+        <span class="career-year">2025</span>
+        <span class="career-role">경기도교육청 디지털시민역량교육연구위원</span>
+        <span class="career-org">경기도교육청</span>
+      </div>
+      <div class="career-item">
+        <span class="career-year">2023—</span>
+        <span class="career-role">교실혁명 선도교사</span>
+        <span class="career-org">교육부</span>
+      </div>
+
+      <div class="career-category-header">학력 · 자격</div>
+      <div class="career-item">
+        <span class="career-year">2023</span>
+        <span class="career-role">프롬프트 엔지니어 자격</span>
+        <span class="career-org">뤼튼</span>
+      </div>
+      <div class="career-item">
+        <span class="career-year">2022</span>
+        <span class="career-role">Google Certified Educator Level 2</span>
+        <span class="career-org">Google</span>
+      </div>
+      <div class="career-item">
+        <span class="career-year">2017</span>
+        <span class="career-role">광주교육대학교 졸업</span>
+        <span class="career-org">광주교육대학교</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== LECTURES ===== -->
+<section id="lectures">
+  <div class="wrap">
+    <header class="section-header">
+      <h2 class="ko">강의 자료</h2>
+      <span class="en">Lectures</span>
+    </header>
+
+    <!-- ── Featured: 온라인 연수 녹화본 (compact) ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko">온라인 연수 녹화본</h3>
+        <span class="en">Training Archive</span>
+      </header>
+      <a href="./academica-parcyun-studio/" class="lecture-card compact">
+        <span class="lc-id">Archive · Site</span>
+        <span class="lc-title">온라인 연수 <strong>녹화본 모아보기</strong></span>
+        <span class="lc-arrow">→</span>
+      </a>
+    </div>
+
+    <!-- ── Sub-section: LLM · Harness Agent ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko">LLM · Harness Agent</h3>
+        <span class="en">LLM &amp; Harness</span>
+      </header>
+      <div class="lecture-grid">
+        <!-- Lecture 001 -->
+        <a href="./llm-fundamentals/" class="lecture-card">
+          <div class="lecture-card-poster">
+            <div class="lid">Lecture · 001</div>
+            <p class="ptitle">
+              하네스 에이전트를 위한<br>
+              <strong>생성형 AI</strong> 기본 이해
+            </p>
+          </div>
+          <div class="lecture-card-body">
+            <div class="lecture-card-meta">
+              <span>2026.05.10</span>
+              <span class="dot"></span>
+              <span>44 slides</span>
+              <span class="dot"></span>
+              <span>FOR EDUCATORS</span>
+            </div>
+            <h3 class="lecture-card-title">LLM 이해하기 · LLM Fundamentals</h3>
+            <p class="lecture-card-desc">
+              NLP · LLM · Tokenization부터 Markdown · Skills · API · MCP · Harness · Orchestration까지 ─ 자율형 AI 에이전트를 다루기 위해 반드시 알아야 할 개념을 17개 풀스크롤 섹션으로 정리.
+            </p>
+            <div class="lecture-card-tags">
+              <span class="tag-pill">LLM</span>
+              <span class="tag-pill">MCP</span>
+              <span class="tag-pill">Agent</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Lecture 002 -->
+        <a href="https://parcyun.notion.site/Agentic-AI-with-LLM-3593f99a82238070ab4be47cefd571d7" class="lecture-card" target="_blank" rel="noopener">
+          <div class="lecture-card-poster">
+            <div class="lid">Lecture · 002 · Hands-On</div>
+            <p class="ptitle">
+              <strong>Claude Desktop</strong><br>
+              따라하기 실습
+            </p>
+          </div>
+          <div class="lecture-card-body">
+            <div class="lecture-card-meta">
+              <span>2026.05.10</span>
+              <span class="dot"></span>
+              <span>NOTION ↗</span>
+              <span class="dot"></span>
+              <span>HANDS-ON</span>
+            </div>
+            <h3 class="lecture-card-title">Agentic AI with LLM</h3>
+            <p class="lecture-card-desc">
+              Claude Desktop을 자율형 에이전트로 직접 셋업하고 운영해보는 실습 가이드. LLM 강의에서 배운 Skills · MCP · Harness · Orchestration 개념을 실제 워크플로우로 구축합니다.
+            </p>
+            <div class="lecture-card-tags">
+              <span class="tag-pill">Claude Desktop</span>
+              <span class="tag-pill">MCP</span>
+              <span class="tag-pill">실습</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Coming soon placeholder -->
+        <div class="lecture-card placeholder">
+          <p class="topic">Sub-Agent 오케스트레이션</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sub-section: Notion 활용 ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko">Notion 활용</h3>
+        <span class="en">Notion</span>
+      </header>
+      <div class="lecture-grid">
+        <a href="https://parcyun.notion.site/Notion-8280d9f2847044e6bf48b25a1f199d76" class="lecture-card" target="_blank" rel="noopener">
+          <div class="lecture-card-poster">
+            <div class="lid">Guide · 001</div>
+            <p class="ptitle">
+              <strong>Notion</strong><br>
+              Onboarding
+            </p>
+          </div>
+          <div class="lecture-card-body">
+            <div class="lecture-card-meta">
+              <span>2026.06.02</span>
+              <span class="dot"></span>
+              <span>NOTION ↗</span>
+              <span class="dot"></span>
+              <span>BEGINNER</span>
+            </div>
+            <h3 class="lecture-card-title">Notion 온보딩 가이드</h3>
+            <p class="lecture-card-desc">
+              처음 Notion을 시작하는 사용자를 위한 단계별 가이드 ─ 워크스페이스 셋업부터 페이지·데이터베이스 구조화까지 한 번에 익히기.
+            </p>
+            <div class="lecture-card-tags">
+              <span class="tag-pill">Notion</span>
+              <span class="tag-pill">온보딩</span>
+              <span class="tag-pill">기초</span>
+            </div>
+          </div>
+        </a>
+        <div class="lecture-card placeholder">
+          <p class="topic">Notion 업무 자동화</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+        <div class="lecture-card placeholder">
+          <p class="topic">교사용 Notion 템플릿</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 교육 활동 자료 (Educational Activities) ===== -->
+<section id="activities">
+  <div class="wrap">
+    <header class="section-header">
+      <h2 class="ko">교육 활동 자료</h2>
+      <span class="en">Educational Activities</span>
+    </header>
+
+    <!-- ── Sub-section: 국어 ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko">국어</h3>
+        <span class="en">Korean</span>
+      </header>
+      <div class="lecture-grid">
+
+        <!-- Activity 001: 맞춤법 연습 게임 -->
+        <a href="/korean-spell-drill-parcyun/" class="lecture-card" target="_blank" rel="noopener">
+          <div class="lecture-card-poster">
+            <div class="lid">Activity · 001</div>
+            <p class="ptitle">
+              <strong>맞춤법</strong><br>
+              연습 게임
+            </p>
+          </div>
+          <div class="lecture-card-body">
+            <div class="lecture-card-meta">
+              <span>2026.05.15</span>
+              <span class="dot"></span>
+              <span>GAME ↗</span>
+              <span class="dot"></span>
+              <span>초등</span>
+            </div>
+            <h3 class="lecture-card-title">한글 맞춤법 연습 게임</h3>
+            <p class="lecture-card-desc">
+              헷갈리기 쉬운 한글 맞춤법을 게임으로 익히는 학생용 학습 도구. 짧은 자투리 시간에 교실에서 바로 활용 가능합니다.
+            </p>
+            <div class="lecture-card-tags">
+              <span class="tag-pill">국어</span>
+              <span class="tag-pill">맞춤법</span>
+              <span class="tag-pill">게임</span>
+            </div>
+          </div>
+        </a>
+
+        <div class="lecture-card placeholder">
+          <p class="topic">국어 활동 자료 추가 예정</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+
+        <div class="lecture-card placeholder">
+          <p class="topic">국어 활동 자료 추가 예정</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Sub-section: 수학 ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko">수학</h3>
+        <span class="en">Math</span>
+      </header>
+
+      <!-- ▸ 도형과 기하 -->
+      <header class="lecture-subsubsection-header">
+        <h4 class="ko">도형과 기하</h4>
+        <span class="en">Geometry</span>
+      </header>
+      <div class="lecture-grid">
+
+        <!-- Activity: 입체도형의 부피 -->
+        <a href="./math-solid-volume/" class="lecture-card">
+          <div class="lecture-card-poster">
+            <div class="lid">Activity · 부피</div>
+            <p class="ptitle">
+              쌓기나무로 푸는<br>
+              <strong>입체도형의 부피</strong>
+            </p>
+          </div>
+          <div class="lecture-card-body">
+            <div class="lecture-card-meta">
+              <span>2026.06.23</span>
+              <span class="dot"></span>
+              <span>활동지 + 정답</span>
+              <span class="dot"></span>
+              <span>6학년</span>
+            </div>
+            <h3 class="lecture-card-title">쌓기나무 공장 · 부피 검수 미션</h3>
+            <p class="lecture-card-desc">
+              세기 = 곱하기를 발견하고, 셀 수 없는 상자를 곱셈으로 검수하고, 역추리·불량 검수까지 ─ 3단계 공장 게임으로 직육면체의 부피(가로×세로×높이)를 익히는 인쇄용 활동지.
+            </p>
+            <div class="lecture-card-tags">
+              <span class="tag-pill">부피</span>
+              <span class="tag-pill">직육면체</span>
+              <span class="tag-pill">인쇄용</span>
+            </div>
+          </div>
+        </a>
+
+        <div class="lecture-card placeholder">
+          <p class="topic">도형과 기하 활동 자료 추가 예정</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+
+        <div class="lecture-card placeholder">
+          <p class="topic">도형과 기하 활동 자료 추가 예정</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Sub-section: 사회 ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko">사회</h3>
+        <span class="en">Social Studies</span>
+      </header>
+      <div class="lecture-grid">
+        <!-- Interactive: 세계 지도 6대륙 5대양 -->
+        <a href="./world-map/" class="lecture-card">
+          <div class="lecture-card-poster">
+            <div class="lid">Interactive · 지도</div>
+            <p class="ptitle">
+              6대륙 5대양<br>
+              <strong>인터랙티브 세계지도</strong>
+            </p>
+          </div>
+          <div class="lecture-card-body">
+            <div class="lecture-card-meta">
+              <span>2026.07.03</span>
+              <span class="dot"></span>
+              <span>인터랙티브</span>
+              <span class="dot"></span>
+              <span>초등 사회</span>
+            </div>
+            <h3 class="lecture-card-title">세계 지도 · 6대륙 5대양</h3>
+            <p class="lecture-card-desc">
+              메르카토르·렌즈·지구본 3가지 도법을 오가며 6대륙과 5대양을 탐색하는 인터랙티브 세계지도. 대륙·대양·국가를 클릭해 강조·설명을 보고, 격자·확대·회전으로 자유롭게 살펴봅니다.
+            </p>
+            <div class="lecture-card-tags">
+              <span class="tag-pill">세계지리</span>
+              <span class="tag-pill">6대륙5대양</span>
+              <span class="tag-pill">지구본</span>
+            </div>
+          </div>
+        </a>
+        <div class="lecture-card placeholder">
+          <p class="topic">사회 활동 자료 추가 예정</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+        <div class="lecture-card placeholder">
+          <p class="topic">사회 활동 자료 추가 예정</p>
+          <span class="cs-label">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sub-section: AI 활용 수업 ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko">AI 활용 수업</h3>
+        <span class="en">AI in Classroom</span>
+      </header>
+      <div class="lecture-grid">
+        <a href="https://parcyun.notion.site/6-12-3683f99a822380afb2b8ded430282603" class="lecture-card" target="_blank" rel="noopener">
+          <div class="lecture-card-poster">
+            <div class="lid">Class · 12차시</div>
+            <p class="ptitle">
+              <strong>AI 활용</strong><br>
+              수업 커리큘럼
+            </p>
+          </div>
+          <div class="lecture-card-body">
+            <div class="lecture-card-meta">
+              <span>2026.06.02</span>
+              <span class="dot"></span>
+              <span>NOTION ↗</span>
+              <span class="dot"></span>
+              <span>12 SESSIONS</span>
+            </div>
+            <h3 class="lecture-card-title">AI 활용 수업</h3>
+            <p class="lecture-card-desc">
+              [12차시] 컴퓨터 언어의 이해부터 바이브 코딩 해커톤까지 ─ 초등 교실에서 AI를 다루는 한 학기 단위의 통합 커리큘럼.
+            </p>
+            <div class="lecture-card-tags">
+              <span class="tag-pill">AI 교육</span>
+              <span class="tag-pill">바이브 코딩</span>
+              <span class="tag-pill">커리큘럼</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Arcade CTA ── -->
+    <a href="./arcade/" class="arcade-cta">
+      <div class="arcade-cta-inner">
+        <span class="arcade-cta-eyebrow">// INSERT COIN</span>
+        <span class="arcade-cta-title">parcyun <strong>arcade</strong></span>
+        <span class="arcade-cta-desc">교실에서 바로 쓰는 학습 게임 모음 ─ 오락실처럼 즐기는 자료 전용 공간.</span>
+      </div>
+      <span class="arcade-cta-play">▶ PLAY</span>
+    </a>
+
+  </div>
+</section>
+
+<!-- ===== CONNECT ===== -->
+<section>
+  <div class="wrap">
+    <header class="section-header">
+      <h2 class="ko">SNS</h2>
+      <span class="en">Connect</span>
+    </header>
+
+    <div class="connect-grid">
+      <a href="https://linktr.ee/parcyun" class="connect-link" target="_blank" rel="noopener">
+        <span class="label">Hub</span>
+        <span class="handle">linktr.ee/parcyun</span>
+        <span class="desc">연수자료 · 레퍼런스 패들렛 · classroom</span>
+      </a>
+      <a href="https://www.instagram.com/parcyun" class="connect-link" target="_blank" rel="noopener">
+        <span class="label">Instagram</span>
+        <span class="handle">@parcyun</span>
+        <span class="desc">교실 일상 · 디자인 · 일러스트 기록</span>
+      </a>
+      <a href="https://github.com/parcyun" class="connect-link" target="_blank" rel="noopener">
+        <span class="label">GitHub</span>
+        <span class="handle">@parcyun</span>
+        <span class="desc">강의 자료 · 코드 · 실험 프로젝트</span>
+      </a>
+      <a href="https://padlet.com/penlayered/parcyun-studio-19rq7rovocsv24vr" class="connect-link" target="_blank" rel="noopener">
+        <span class="label">Padlet</span>
+        <span class="handle">연수 자료</span>
+        <span class="desc">강의 레퍼런스 · 연수 자료 누적 아카이브</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<style is:global>
+/* ===== Hero ===== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 120px 24px 80px;
+  position: relative;
+}
+@media (min-width: 768px) {
+  .hero { padding: 120px 48px 80px; }
+}
+.hero-inner {
+  max-width: 1108px;
+  margin: 0 auto;
+  width: 100%;
+}
+.hero-eyebrow {
+  font-family: var(--ps-font-en);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--ps-primary);
+  margin-bottom: 32px;
+}
+.hero-wordmark {
+  font-family: var(--ps-font-signature);
+  font-size: clamp(72px, 14vw, 180px);
+  font-weight: 400;
+  letter-spacing: -2px;
+  line-height: 1.15;
+  margin: 0 0 24px;
+  color: var(--ps-primary);
+}
+.hero-name {
+  font-family: var(--ps-font-en);
+  font-size: clamp(13px, 1.3vw, 16px);
+  font-weight: 300;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+  margin: 0 0 48px;
+}
+.hero-tagline {
+  font-size: clamp(20px, 2.5vw, 32px);
+  font-weight: 300;
+  letter-spacing: -0.8px;
+  line-height: 1.4;
+  max-width: 720px;
+  margin: 0 0 48px;
+  color: #FFFFFF;
+}
+.hero-tagline strong {
+  font-weight: 500;
+  color: var(--ps-primary);
+}
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  font-family: var(--ps-font-en);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  border-radius: 100px;
+  transition: all 240ms var(--ps-ease-out);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.btn.primary {
+  background: var(--ps-primary);
+  color: #000;
+}
+.btn.primary:hover {
+  background: var(--ps-primary-dark);
+  transform: translateY(-2px);
+}
+.btn.ghost {
+  background: transparent;
+  border-color: var(--ps-surface-cinematic-3);
+  color: #FFFFFF;
+}
+.btn.ghost:hover {
+  border-color: var(--ps-primary);
+  color: var(--ps-primary);
+}
+.btn .arrow {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* ===== About / Manifesto ===== */
+.about {
+  border-top: 1px solid var(--ps-surface-cinematic-3);
+  border-bottom: 1px solid var(--ps-surface-cinematic-3);
+}
+.manifesto {
+  font-size: clamp(22px, 2.5vw, 32px);
+  font-weight: 300;
+  letter-spacing: -0.6px;
+  line-height: 1.5;
+  max-width: 840px;
+  margin: 0;
+  color: #FFFFFF;
+}
+.manifesto .highlight {
+  color: var(--ps-primary);
+  font-weight: 500;
+}
+.identity-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 48px;
+}
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  color: #FFFFFF;
+  background: transparent;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 100px;
+  padding: 5px 12px 6px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ===== Lectures grid ===== */
+.lecture-section {
+  margin-bottom: 80px;
+}
+.lecture-section:last-child {
+  margin-bottom: 0;
+}
+.lecture-subsection-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ps-surface-cinematic-3);
+}
+@media (min-width: 640px) {
+  .lecture-subsection-header {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 14px;
+  }
+}
+.lecture-subsection-header .ko {
+  font-size: clamp(20px, 2vw, 24px);
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  line-height: 1.3;
+  margin: 0;
+  color: #FFFFFF;
+}
+.lecture-subsection-header .en {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+}
+
+.lecture-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+@media (min-width: 768px) {
+  .lecture-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+}
+@media (min-width: 1024px) {
+  .lecture-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.lecture-card {
+  display: block;
+  text-decoration: none;
+  color: #FFFFFF;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 320ms var(--ps-ease-out), transform 320ms var(--ps-ease-out);
+}
+.lecture-card:hover {
+  border-color: var(--ps-primary);
+  transform: translateY(-4px);
+}
+.lecture-card-poster {
+  aspect-ratio: 370 / 220;
+  background: var(--ps-surface-cinematic-1);
+  position: relative;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+/* Typographic poster (no external image needed) */
+.lecture-card-poster::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(at 80% 20%, rgba(255, 177, 26, 0.08) 0%, transparent 50%),
+    radial-gradient(at 20% 80%, rgba(255, 177, 26, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+.lecture-card-poster .lid {
+  position: relative;
+  font-family: var(--ps-font-en);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ps-primary);
+}
+.lecture-card-poster .ptitle {
+  position: relative;
+  font-size: clamp(18px, 1.8vw, 22px);
+  font-weight: 300;
+  letter-spacing: -0.6px;
+  line-height: 1.25;
+  color: #FFFFFF;
+  margin: 0;
+}
+.lecture-card-poster .ptitle strong {
+  font-weight: 700;
+  color: var(--ps-primary);
+}
+.lecture-card-body {
+  padding: 20px 24px 24px;
+  background: var(--ps-bg-cinematic);
+}
+.lecture-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: var(--ps-text-cinematic-secondary);
+  margin-bottom: 12px;
+}
+.lecture-card-meta .dot {
+  width: 4px; height: 4px;
+  background: var(--ps-text-cinematic-secondary);
+  border-radius: 50%;
+}
+.lecture-card-title {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.4px;
+  margin: 0 0 12px;
+  color: #FFFFFF;
+  line-height: 1.4;
+}
+.lecture-card-desc {
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--ps-text-cinematic-secondary);
+  margin: 0 0 16px;
+}
+.lecture-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Coming soon placeholder card */
+.lecture-card.placeholder {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  text-align: center;
+  padding: 32px 24px;
+  gap: 12px;
+}
+.lecture-card.placeholder:hover {
+  transform: none;
+  border-color: var(--ps-text-cinematic-secondary);
+  cursor: default;
+}
+.lecture-card.placeholder .topic {
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: -0.3px;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+.lecture-card.placeholder .cs-label {
+  font-family: var(--ps-font-en);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+}
+
+/* ===== Career / Timeline ===== */
+.career-list {
+  margin-top: 48px;
+  border-top: 1px solid var(--ps-surface-cinematic-3);
+  padding-top: 8px;
+}
+.career-item {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  align-items: baseline;
+  gap: 0 24px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.career-item:last-child { border-bottom: none; }
+.career-category-header {
+  font-family: var(--ps-font-en);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+  padding: 28px 0 10px;
+  border-bottom: 1px solid var(--ps-surface-cinematic-3);
+}
+.career-category-header:first-child { padding-top: 8px; }
+.career-year {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: var(--ps-primary);
+}
+.career-role {
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.3px;
+  color: #FFFFFF;
+}
+.career-org {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  color: var(--ps-text-cinematic-secondary);
+  text-align: right;
+}
+@media (max-width: 639px) {
+  .career-item { grid-template-columns: 64px 1fr; grid-template-rows: auto auto; }
+  .career-org { grid-column: 2; text-align: left; padding-top: 2px; }
+}
+
+/* ===== Connect ===== */
+.connect-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 640px) {
+  .connect-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .connect-grid { grid-template-columns: repeat(4, 1fr); }
+}
+.connect-link {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 32px 28px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 16px;
+  transition: border-color 240ms var(--ps-ease-out), background 240ms var(--ps-ease-out);
+}
+.connect-link:hover {
+  border-color: var(--ps-primary);
+  background: var(--ps-surface-cinematic-1);
+}
+.connect-link .label {
+  font-family: var(--ps-font-en);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--ps-primary);
+}
+.connect-link .handle {
+  font-family: var(--ps-font-en);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  color: #FFFFFF;
+}
+.connect-link .desc {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ps-text-cinematic-secondary);
+  margin-top: auto;
+}
+
+/* ===== Hero CTAs (multi-row) ===== */
+.hero-ctas + .hero-ctas { margin-top: 12px; }
+
+/* ===== Arcade CTA (below activities) ===== */
+.arcade-cta {
+  margin-top: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 28px 32px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 16px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 6px, rgba(255,177,26,.03) 6px 7px),
+    var(--ps-surface-cinematic-1);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 320ms var(--ps-ease-out), transform 320ms var(--ps-ease-out);
+}
+.arcade-cta::before {
+  content: '';
+  position: absolute; left: 0; top: 0; height: 3px; width: 100%;
+  background: repeating-linear-gradient(90deg, var(--ps-primary) 0 12px, transparent 12px 20px);
+  opacity: .5;
+}
+.arcade-cta:hover { border-color: var(--ps-primary); transform: translateY(-3px); }
+.arcade-cta-inner { display: flex; flex-direction: column; gap: 8px; }
+.arcade-cta-eyebrow {
+  font-family: 'JetBrains Mono', var(--ps-font-en), monospace;
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  color: var(--ps-primary);
+  animation: arcadeBlink 1.6s steps(1) infinite;
+}
+@keyframes arcadeBlink { 0%,60%{opacity:1} 61%,100%{opacity:.35} }
+.arcade-cta-title {
+  font-family: 'JetBrains Mono', var(--ps-font-en), monospace;
+  font-size: clamp(22px, 3vw, 30px); font-weight: 400; letter-spacing: -0.5px; color: #FFFFFF;
+}
+.arcade-cta-title strong { color: var(--ps-primary); font-weight: 700; }
+.arcade-cta-desc { font-size: 13px; font-weight: 300; color: var(--ps-text-cinematic-secondary); max-width: 520px; }
+.arcade-cta-play {
+  font-family: 'JetBrains Mono', var(--ps-font-en), monospace;
+  font-size: 14px; font-weight: 700; letter-spacing: 1px;
+  color: #000; background: var(--ps-primary);
+  padding: 14px 24px; border-radius: 100px; white-space: nowrap;
+  transition: background 240ms var(--ps-ease-out);
+}
+.arcade-cta:hover .arcade-cta-play { background: var(--ps-primary-dark); }
+@media (prefers-reduced-motion: reduce) {
+  .arcade-cta-eyebrow { animation: none; }
+}
+
+/* ===== Career section · collapsible ===== */
+.career-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  color: var(--ps-text-cinematic-secondary);
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  border-radius: 100px;
+  padding: 8px 16px;
+  cursor: pointer;
+  margin-top: 32px;
+  transition: border-color 240ms var(--ps-ease-out), color 240ms var(--ps-ease-out);
+}
+.career-toggle:hover { border-color: var(--ps-primary); color: var(--ps-primary); }
+.career-toggle .chev {
+  display: inline-block;
+  transition: transform 240ms var(--ps-ease-out);
+  font-size: 12px;
+  line-height: 1;
+}
+.career-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.career-list.collapsed .career-category-header,
+.career-list.collapsed .career-item { display: none; }
+.career-list.collapsed { border-top: none; padding-top: 0; margin-top: 0; }
+
+/* ===== List-style compact lecture card (for featured archive link) ===== */
+.lecture-card.compact {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 24px;
+  border-radius: 12px;
+  background: var(--ps-surface-cinematic-1);
+}
+.lecture-card.compact:hover { transform: none; }
+.lecture-card.compact .lc-id {
+  flex: 0 0 auto;
+  font-family: var(--ps-font-en);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ps-primary);
+  min-width: 92px;
+}
+.lecture-card.compact .lc-title {
+  flex: 1 1 auto;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.3px;
+  color: #FFFFFF;
+  line-height: 1.4;
+}
+.lecture-card.compact .lc-title strong { font-weight: 600; color: var(--ps-primary); }
+.lecture-card.compact .lc-arrow {
+  flex: 0 0 auto;
+  font-family: var(--ps-font-en);
+  font-size: 14px;
+  color: var(--ps-text-cinematic-secondary);
+  transition: color 240ms var(--ps-ease-out), transform 240ms var(--ps-ease-out);
+}
+.lecture-card.compact:hover .lc-arrow { color: var(--ps-primary); transform: translateX(4px); }
+@media (max-width: 639px) {
+  .lecture-card.compact { gap: 14px; padding: 14px 18px; }
+  .lecture-card.compact .lc-id { min-width: 0; }
+}
+
+/* ===== Sub-sub-section header (under a subsection) ===== */
+.lecture-subsubsection-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0 18px;
+}
+@media (min-width: 640px) {
+  .lecture-subsubsection-header { flex-direction: row; align-items: baseline; gap: 12px; }
+}
+.lecture-subsubsection-header .ko {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  color: #FFFFFF;
+  margin: 0;
+}
+.lecture-subsubsection-header .en {
+  font-family: var(--ps-font-en);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+}
+
+</style>
+
+<script is:inline>
+function toggleCareer(btn){
+  var list = document.getElementById('career-list');
+  var expanded = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', String(!expanded));
+  list.classList.toggle('collapsed', expanded);
+  btn.querySelector('.label').textContent = expanded ? '경력 전체 보기' : '경력 접기';
+}
+</script>
+</CinematicLayout>

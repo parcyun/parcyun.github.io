@@ -32,7 +32,7 @@ const OCEAN_LABELS = [ // 지도 라벨(KR+EN), 태평양·대서양은 2곳
   {o:'southern',en:'Southern Ocean',ll:[30,-60]},
   {o:'arctic',en:'Arctic Ocean',ll:[-46,74]},
 ];
-const RES=2048, MS=2/Math.PI, SC=0.8, RMX=2.2, WORLD_W=2*Math.PI*MS, D2R=Math.PI/180, R2D=180/Math.PI;
+const RES=2048, MS=2/Math.PI, SC=1.15, RMX=7.0, WORLD_W=2*Math.PI*MS, D2R=Math.PI/180, R2D=180/Math.PI;
 const projFor=(ctx)=>geoEquirectangular().scale(RES/(2*Math.PI)).translate([RES/2,RES/4]);
 const solarDeclDeg=(m)=>23.44*Math.sin((2*Math.PI*((m-0.5)*30.44-80))/365);
 const shade=(hex,amt)=>{const n=parseInt(hex.slice(1),16);let r=(n>>16)&255,g=(n>>8)&255,b=n&255;const f=amt<0?1+amt:1,a=amt>0?255*amt:0;return `rgb(${Math.round(r*f+a)},${Math.round(g*f+a)},${Math.round(b*f+a)})`;};
@@ -63,7 +63,7 @@ function buildOverlay({sel,world,oceans}){
 }
 function glowTexture(){const S=512,cv=document.createElement('canvas');cv.width=S;cv.height=S;const c=cv.getContext('2d');const g=c.createRadialGradient(S/2,S/2,S*0.30,S/2,S/2,S*0.5);g.addColorStop(0,'rgba(255,177,26,0)');g.addColorStop(0.72,'rgba(255,177,26,0.10)');g.addColorStop(0.86,'rgba(120,150,210,0.10)');g.addColorStop(1,'rgba(120,150,210,0)');c.fillStyle=g;c.fillRect(0,0,S,S);return rawTex(cv);}
 
-const GLSL=`const float PI=3.141592653589793; const float MS=0.6366197723675814; const float SC=0.8; const float RMX=2.2;
+const GLSL=`const float PI=3.141592653589793; const float MS=0.6366197723675814; const float SC=1.15; const float RMX=7.0;
 vec3 project(vec2 uv, vec3 sphere, float morph, float lens, float rotY, float lon0, float offX){
   float lon=(uv.x-0.5)*2.0*PI; float lat=(uv.y-0.5)*PI; float latC=clamp(lat,-1.4,1.4);
   vec3 pl=vec3(lon*MS+offX, log(tan(PI/4.0+latC/2.0))*MS, 0.0);
@@ -98,7 +98,7 @@ function morphLine(pts,color,opacity,U){const g=new THREE.BufferGeometry();const
 
 const VIEW={
   globe:{morph:0,lens:0,rotY:-Math.PI/2,fov:30,pos:[0,0.35,5.4],rotate:true,pan:false,min:2.4,max:9},
-  lens: {morph:0,lens:1,rotY:0,        fov:42,pos:[0,0,5.2],   rotate:false,pan:false,min:3,max:8},
+  lens: {morph:0,lens:1,rotY:0,        fov:46,pos:[0,0,7.2],   rotate:false,pan:false,min:4,max:10},
   flat: {morph:1,lens:0,rotY:0,        fov:40,pos:[0,0,5.0],   rotate:false,pan:true,min:2.5,max:8},
 };
 const MODE_WM={flat:'Mercator Projection',lens:'Focus Lens View',globe:'Orthographic Globe'};
@@ -162,7 +162,11 @@ export default function GlobeLab(){
       const dolly=(f)=>{const off=camera.position.clone().sub(controls.target);off.setLength(THREE.MathUtils.clamp(off.length()*f,controls.minDistance,controls.maxDistance));camera.position.copy(controls.target).add(off);controls.update();};
       let tr=null;
       const goView=(v)=>{const to=VIEW[v];tr={t:0,dur:0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:U.uRotY.value,fov:camera.fov,pos:camera.position.clone(),tgt:controls.target.clone()},to:{morph:to.morph,lens:to.lens,rotY:to.rotY,fov:to.fov,pos:new THREE.Vector3(...to.pos),tgt:new THREE.Vector3(0,0,0)}};controls.enabled=false;};
-      const settleView=(v)=>{const p=VIEW[v];controls.enabled=true;controls.enableRotate=p.rotate;controls.enablePan=p.pan;controls.minDistance=p.min;controls.maxDistance=p.max;controls.target.set(0,0,0);controls.update();};
+      const settleView=(v)=>{const p=VIEW[v];controls.enabled=true;controls.enableRotate=p.rotate;controls.enablePan=p.pan;controls.minDistance=p.min;controls.maxDistance=p.max;controls.target.set(0,0,0);
+        if(v==='flat'){controls.mouseButtons={LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN};}
+        else if(v==='globe'){controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};}
+        else{controls.mouseButtons={LEFT:-1,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:-1};controls.touches={ONE:-1,TWO:THREE.TOUCH.DOLLY_PAN};}
+        controls.update();};
       api.current={applyGrid,applySel,onDN,dolly,goView,pickContinent:(k)=>setSel({type:'continent',key:k}),pickOcean:(k)=>setSel({type:'ocean',key:k})};
       applyGrid();settleView('flat');
 

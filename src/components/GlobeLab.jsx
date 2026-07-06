@@ -77,8 +77,9 @@ const meshVert=GLSL+`uniform float morph,lens,uRotY,uLon0; varying vec2 vUv;
 void main(){ vUv=uv; vec3 p=project(uv,position,morph,lens,uRotY,uLon0,0.0); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
 const cloneVert=GLSL+`uniform float uOffsetX; varying vec2 vUv;
 void main(){ vUv=uv; vec3 p=project(uv,position,1.0,0.0,0.0,0.0,uOffsetX); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
-const meshFrag=`uniform sampler2D dayTex,nightTex,overlayTex; uniform float sunLon,sunLat,nightBoost,dayNightOn; varying vec2 vUv;
+const meshFrag=`uniform sampler2D dayTex,nightTex,overlayTex; uniform float sunLon,sunLat,nightBoost,dayNightOn,lens,uLon0; varying vec2 vUv;
 void main(){ float lon=(vUv.x-0.5)*360.0, lat=(vUv.y-0.5)*180.0;
+  if(lens>0.5){ float cc=cos(radians(lat))*cos(radians(lon)-uLon0); if(cc < -0.866) discard; } // 원본 clipAngle(150): 150° 너머(접힘부) 미렌더
   float rl=radians(lat),ro=radians(lon),sa=radians(sunLat),so=radians(sunLon);
   float cz=sin(rl)*sin(sa)+cos(rl)*cos(sa)*cos(ro-so); float t=mix(1.0,smoothstep(-0.10,0.12,cz),dayNightOn);
   vec3 base=mix(texture2D(nightTex,vUv).rgb*nightBoost, texture2D(dayTex,vUv).rgb, t); vec4 ov=texture2D(overlayTex,vUv);
@@ -98,10 +99,13 @@ function morphLine(pts,color,opacity,U){const g=new THREE.BufferGeometry();const
   const m=new THREE.ShaderMaterial({transparent:true,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uLon0:U.uLon0,uColor:{value:new THREE.Color(color)},uOp:{value:opacity}},vertexShader:lineVert,fragmentShader:lineFrag});
   m.uniforms.uColor.value.convertLinearToSRGB&&(m.uniforms.uColor.value=new THREE.Color(color)); return new THREE.Line(g,m);}
 
+// 직교 카메라(원근 왜곡 0 = d3 2D 도법과 동일). zoom = d3 픽셀 스케일 매칭:
+//  frustum 반높이 1 → 보이는 월드 반높이 = 1/zoom. 픽셀 = R월드·zoom·H/2.
+//  globe: 구반경1 → d3 fit=min·0.46 ⇒ zoom 0.92 / lens: 90°=2·SC → d3 fit·0.62·0.285 ⇒ zoom 0.248 / flat: MS·zoom·.5=.46 ⇒ 1.445
 const VIEW={
-  globe:{morph:0,lens:0,rotY:-Math.PI/2,fov:30,pos:[0,0.35,5.4],rotate:true,pan:false,min:2.4,max:9},
-  lens: {morph:0,lens:1,rotY:0,        fov:46,pos:[0,0,7.2],   rotate:false,pan:false,min:4,max:10},
-  flat: {morph:1,lens:0,rotY:0,        fov:40,pos:[0,0,3.7],   rotate:false,pan:true,min:1.6,max:4.2},
+  globe:{morph:0,lens:0,rotY:-Math.PI/2,zoom:0.92, rotate:true, pan:false,zmin:0.45,zmax:3},
+  lens: {morph:0,lens:1,rotY:0,        zoom:0.248,rotate:false,pan:false,zmin:0.12,zmax:0.7},
+  flat: {morph:1,lens:0,rotY:0,        zoom:0.74, rotate:false,pan:true, zmin:0.64,zmax:1.8},
 };
 const MODE_WM={flat:'Mercator Projection',lens:'Focus Lens View',globe:'Orthographic Globe'};
 const ease=(t)=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
@@ -125,14 +129,14 @@ export default function GlobeLab(){
     (async()=>{
       const w=mount.clientWidth,h=mount.clientHeight;
       const scene=new THREE.Scene();
-      const camera=new THREE.PerspectiveCamera(VIEW.flat.fov,w/h,0.1,200);camera.position.set(...VIEW.flat.pos);
+      const aspect=w/h;const camera=new THREE.OrthographicCamera(-aspect,aspect,1,-1,0.01,100);camera.position.set(0,0,10);camera.zoom=VIEW.flat.zoom;camera.updateProjectionMatrix();
       renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.outputColorSpace=THREE.LinearSRGBColorSpace;renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(w,h);mount.appendChild(renderer.domElement);
       controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.08;controls.enablePan=false;controls.screenSpacePanning=true;
 
       const sg=new THREE.BufferGeometry(),Ns=1100,spp=new Float32Array(Ns*3);
       for(let i=0;i<Ns;i++){const r=60+Math.random()*45,t=Math.acos(2*Math.random()-1),p=2*Math.PI*Math.random();spp[i*3]=r*Math.sin(t)*Math.cos(p);spp[i*3+1]=r*Math.cos(t);spp[i*3+2]=r*Math.sin(t)*Math.sin(p);}
       sg.setAttribute('position',new THREE.BufferAttribute(spp,3));scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0x555a68,size:0.12,sizeAttenuation:true})));
-      const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture(),transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,opacity:0.9}));glow.scale.set(4.6,4.6,1);glow.renderOrder=-1;scene.add(glow);
+      const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture(),transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,opacity:0.9}));glow.scale.set(2.7,2.7,1);glow.renderOrder=-1;scene.add(glow);
 
       setStatus('지형 데이터 로딩…');
       const [world,oceans]=await Promise.all([fetch('/lab-data/world.json').then(r=>r.json()),fetch('/lab-data/oceans.json').then(r=>r.json())]);
@@ -162,7 +166,7 @@ export default function GlobeLab(){
 
       const applySel=(s)=>{overlayTex.dispose();overlayTex=buildOverlay({sel:s,world,oceans});u.overlayTex.value=overlayTex;};
       const onDN=(on)=>{if(on)S.current.sunLon=-90;u.dayNightOn.value=on?1:0;};
-      const dolly=(f)=>{const off=camera.position.clone().sub(controls.target);off.setLength(THREE.MathUtils.clamp(off.length()*f,controls.minDistance,controls.maxDistance));camera.position.copy(controls.target).add(off);controls.update();};
+      const dolly=(f)=>{camera.zoom=THREE.MathUtils.clamp(camera.zoom/f,controls.minZoom,controls.maxZoom);camera.updateProjectionMatrix();controls.update();};
       let tr=null;
       const goView=(v)=>{const to=VIEW[v];
         // 현재 화면 상태로 소스 중심 경도(rad) 산출 → 뷰 전환 후에도 같은 지점 유지
@@ -171,12 +175,12 @@ export default function GlobeLab(){
         else if(l>0.5) clR=U.uLon0.value;                                     // 렌즈에서
         else{const fr=camera.position.clone().sub(controls.target).normalize();clR=vec3ToLonLat(rotY(fr,-U.uRotY.value))[0]*D2R;} // 지구본에서
         let toRotY,toLon0,toTgt,toPos;
-        if(v==='globe'){toRotY=-Math.PI/2-clR;toLon0=U.uLon0.value;toTgt=new THREE.Vector3(0,0,0);toPos=new THREE.Vector3(...to.pos);}
-        else if(v==='lens'){toRotY=0;toLon0=clR;toTgt=new THREE.Vector3(0,0,0);toPos=new THREE.Vector3(...to.pos);}
-        else{toRotY=0;toLon0=U.uLon0.value;const tx=clR*MS;toTgt=new THREE.Vector3(tx,0,0);toPos=new THREE.Vector3(to.pos[0]+tx,to.pos[1],to.pos[2]);}
-        tr={t:0,dur:0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:U.uRotY.value,lon0:U.uLon0.value,fov:camera.fov,pos:camera.position.clone(),tgt:controls.target.clone()},
-          to:{morph:to.morph,lens:to.lens,rotY:toRotY,lon0:toLon0,fov:to.fov,pos:toPos,tgt:toTgt}};controls.enabled=false;};
-      const settleView=(v)=>{const p=VIEW[v];controls.enabled=true;controls.enableRotate=p.rotate;controls.enablePan=p.pan;controls.minDistance=p.min;controls.maxDistance=p.max;
+        if(v==='globe'){toRotY=-Math.PI/2-clR;toLon0=U.uLon0.value;toTgt=new THREE.Vector3(0,0,0);toPos=new THREE.Vector3(0,0,10);}
+        else if(v==='lens'){toRotY=0;toLon0=clR;toTgt=new THREE.Vector3(0,0,0);toPos=new THREE.Vector3(0,0,10);}
+        else{toRotY=0;toLon0=U.uLon0.value;const tx=clR*MS;toTgt=new THREE.Vector3(tx,0,0);toPos=new THREE.Vector3(tx,0,10);}
+        tr={t:0,dur:0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:U.uRotY.value,lon0:U.uLon0.value,zoom:camera.zoom,pos:camera.position.clone(),tgt:controls.target.clone()},
+          to:{morph:to.morph,lens:to.lens,rotY:toRotY,lon0:toLon0,zoom:to.zoom,pos:toPos,tgt:toTgt}};controls.enabled=false;};
+      const settleView=(v)=>{const p=VIEW[v];controls.enabled=true;controls.enableRotate=p.rotate;controls.enablePan=p.pan;controls.minZoom=p.zmin;controls.maxZoom=p.zmax;
         if(v==='flat'){controls.mouseButtons={LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN};}
         else if(v==='globe'){controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};}
         else{controls.mouseButtons={LEFT:-1,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:-1};controls.touches={ONE:-1,TWO:THREE.TOUCH.DOLLY_PAN};}
@@ -210,21 +214,21 @@ export default function GlobeLab(){
         if(c){setSel(S.current.country?{type:'country',name:c.properties.n,key:c.properties.c}:{type:'continent',key:c.properties.c});return;}
         let ok=null;for(const k of Object.keys(OCEAN))if(oceans[k]&&geoContains({type:'Feature',geometry:oceans[k]},[lon,lat])){ok=k;break;}setSel(ok?{type:'ocean',key:ok}:null);});
 
-      const onResize=()=>{const W=mount.clientWidth,H=mount.clientHeight;camera.aspect=W/H;camera.updateProjectionMatrix();renderer.setSize(W,H);};
+      const onResize=()=>{const W=mount.clientWidth,H=mount.clientHeight,a=W/H;camera.left=-a;camera.right=a;camera.top=1;camera.bottom=-1;camera.updateProjectionMatrix();renderer.setSize(W,H);};
       window.addEventListener('resize',onResize);
       const clock=new THREE.Clock(),v3=new THREE.Vector3();
       const loop=()=>{if(disposed)return;raf=requestAnimationFrame(loop);const dt=clock.getDelta();const st=S.current;
         u.sunLat.value=solarDeclDeg(st.month);if(st.dayNight&&st.dnPlay){st.sunLon=((st.sunLon-dt*15+540)%360)-180;}u.sunLon.value=st.sunLon;
         if(tr){tr.t=Math.min(1,tr.t+dt/tr.dur);const k=ease(tr.t);
           U.morph.value=tr.from.morph+(tr.to.morph-tr.from.morph)*k;U.lens.value=tr.from.lens+(tr.to.lens-tr.from.lens)*k;U.uRotY.value=tr.from.rotY+(tr.to.rotY-tr.from.rotY)*k;U.uLon0.value=tr.from.lon0+(tr.to.lon0-tr.from.lon0)*k;
-          camera.fov=tr.from.fov+(tr.to.fov-tr.from.fov)*k;camera.updateProjectionMatrix();camera.position.lerpVectors(tr.from.pos,tr.to.pos,k);controls.target.lerpVectors(tr.from.tgt,tr.to.tgt,k);
+          camera.zoom=tr.from.zoom+(tr.to.zoom-tr.from.zoom)*k;camera.updateProjectionMatrix();camera.position.lerpVectors(tr.from.pos,tr.to.pos,k);controls.target.lerpVectors(tr.from.tgt,tr.to.tgt,k);
           if(tr.t>=1){const v=tr.v;tr=null;settleView(v);}}
         const isFlat=st.view==='flat'&&!tr;tileL.visible=tileR.visible=isFlat;
         glow.material.opacity=0.9*Math.max(0,1-U.morph.value-U.lens.value);glow.visible=glow.material.opacity>0.02;
         controls.update();
         if(isFlat){ // 좌우 무한 순환 + 세로 레터박스 방지
           if(controls.target.x>WORLD_W/2){controls.target.x-=WORLD_W;camera.position.x-=WORLD_W;}else if(controls.target.x<-WORLD_W/2){controls.target.x+=WORLD_W;camera.position.x+=WORLD_W;}
-          const hh=camera.position.distanceTo(controls.target)*Math.tan(camera.fov*D2R/2), lim=Math.max(0,MAP_HALF-hh);
+          const hh=1/camera.zoom, lim=Math.max(0,MAP_HALF-hh);   // 직교: 보이는 월드 반높이
           const cy=THREE.MathUtils.clamp(controls.target.y,-lim,lim), dy=cy-controls.target.y; if(dy){controls.target.y=cy;camera.position.y+=dy;}
         }
         renderer.render(scene,camera);

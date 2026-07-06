@@ -3,7 +3,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { geoEquirectangular, geoPath, geoContains } from 'd3-geo';
 
-// #3 개발자 뷰 — WebGL. HTML 세계지도판과 UI 동일 + 스피어↔메르카토르 모프.
+THREE.ColorManagement.enabled = false; // 원본 HTML과 색 정확히 일치(sRGB 값 passthrough)
+
 const MONTHS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 const CONT = {
   asia:   { ko:'아시아', en:'Asia',        color:'#F2683C', anchor:[92,46],   fact:'세계에서 가장 큰 대륙. 전 세계 인구의 약 60%가 산다.' },
@@ -21,206 +22,198 @@ const OCEAN = {
   southern:{ ko:'남극해', en:'Southern', color:'#5A78B8', anchor:[30,-66],  fact:'남극 대륙을 둘러싼 바다.' },
   arctic:  { ko:'북극해', en:'Arctic',   color:'#4EA0C0', anchor:[0,84],    fact:'가장 작고 얼어붙은 바다.' },
 };
-const RES = 2048, MERC_S = 2 / Math.PI, MERC_CLAMP = 80;
-const projFor = (ctx) => geoEquirectangular().scale(RES / (2 * Math.PI)).translate([RES / 2, RES / 4]);
-const solarDeclDeg = (m) => 23.44 * Math.sin((2 * Math.PI * ((m - 0.5) * 30.44 - 80)) / 365);
-const D2R = Math.PI / 180, R2D = 180 / Math.PI;
-const mercY = (lat) => Math.log(Math.tan(Math.PI/4 + THREE.MathUtils.clamp(lat,-MERC_CLAMP,MERC_CLAMP)*D2R/2)) * MERC_S;
+const RES=2048, MS=2/Math.PI, SC=0.8, RMX=2.2, WORLD_W=2*Math.PI*MS, D2R=Math.PI/180, R2D=180/Math.PI;
+const projFor=(ctx)=>geoEquirectangular().scale(RES/(2*Math.PI)).translate([RES/2,RES/4]);
+const solarDeclDeg=(m)=>23.44*Math.sin((2*Math.PI*((m-0.5)*30.44-80))/365);
+const shade=(hex,amt)=>{const n=parseInt(hex.slice(1),16);let r=(n>>16)&255,g=(n>>8)&255,b=n&255;const f=amt<0?1+amt:1,a=amt>0?255*amt:0;return `rgb(${Math.round(r*f+a)},${Math.round(g*f+a)},${Math.round(b*f+a)})`;};
+const rawTex=(cv)=>{const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.NoColorSpace;t.anisotropy=8;return t;};
+function lonLatToVec3(lon,lat,r){const u=(lon+180)/360,v=(90-lat)/180,th=u*2*Math.PI,ph=v*Math.PI;return new THREE.Vector3(-Math.cos(th)*Math.sin(ph),Math.cos(ph),Math.sin(th)*Math.sin(ph)).multiplyScalar(r);}
+function vec3ToLonLat(v){const n=v.clone().normalize();const lat=R2D*Math.asin(THREE.MathUtils.clamp(n.y,-1,1));let a=Math.atan2(n.z,-n.x)/(2*Math.PI);if(a<0)a+=1;return [a*360-180,lat];}
+const rotY=(v,a)=>{const c=Math.cos(a),s=Math.sin(a);return new THREE.Vector3(v.x*c+v.z*s,v.y,-v.x*s+v.z*c);};
 
-function shade(hex, amt){ const n=parseInt(hex.slice(1),16); let r=(n>>16)&255,g=(n>>8)&255,b=n&255; const f=amt<0?1+amt:1,a=amt>0?255*amt:0; return `rgb(${Math.round(r*f+a)},${Math.round(g*f+a)},${Math.round(b*f+a)})`; }
-function lonLatToVec3(lon, lat, r){ const u=(lon+180)/360, v=(90-lat)/180, th=u*2*Math.PI, ph=v*Math.PI; return new THREE.Vector3(-Math.cos(th)*Math.sin(ph), Math.cos(ph), Math.sin(th)*Math.sin(ph)).multiplyScalar(r); }
-function vec3ToLonLat(v){ const n=v.clone().normalize(); const lat=R2D*Math.asin(THREE.MathUtils.clamp(n.y,-1,1)); let a=Math.atan2(n.z,-n.x)/(2*Math.PI); if(a<0)a+=1; return [a*360-180, lat]; }
+function buildBase({world,night}){
+  const W=RES,H=RES/2,cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');const path=geoPath(projFor(ctx),ctx);
+  ctx.fillStyle=night?'#020308':'#04060B';ctx.fillRect(0,0,W,H);
+  const byC={};for(const f of world.features)(byC[f.properties.c]||=[]).push(f);
+  for(const [c,feats] of Object.entries(byC)){ctx.beginPath();for(const f of feats)path(f);const col=(CONT[c]||{}).color||'#888';ctx.fillStyle=night?shade(col,-0.6):col;ctx.fill();ctx.lineWidth=0.5;ctx.strokeStyle=night?'rgba(255,255,255,0.06)':'#04060B';ctx.stroke();}
+  return rawTex(cv);
+}
+function featherOcean(baseCtx,geom){
+  const W=RES,H=RES/2,off=document.createElement('canvas');off.width=W;off.height=H;const o=off.getContext('2d');const op=geoPath(projFor(o),o);
+  o.beginPath();op(geom);o.fillStyle='rgba(120,180,230,0.5)';o.fill();
+  o.globalCompositeOperation='destination-in';o.filter='blur(15px)';o.beginPath();op(geom);o.fillStyle='#fff';o.fill();
+  o.filter='none';o.globalCompositeOperation='source-over';baseCtx.drawImage(off,0,0);
+}
+function buildOverlay({sel,world,oceans}){
+  const W=RES,H=RES/2,cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');const path=geoPath(projFor(ctx),ctx);
+  if(sel){ if(sel.type==='ocean'&&oceans[sel.key]) featherOcean(ctx,{type:'Feature',geometry:oceans[sel.key]});
+    else if(sel.type==='continent'){ctx.beginPath();for(const f of world.features)if(f.properties.c===sel.key)path(f);ctx.fillStyle='rgba(255,177,26,0.20)';ctx.fill();ctx.lineWidth=2.2;ctx.strokeStyle='#FFB11A';ctx.stroke();}
+    else if(sel.type==='country'){const f=world.features.find(x=>x.properties.n===sel.name);if(f){ctx.beginPath();path(f);ctx.fillStyle='rgba(255,177,26,0.30)';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#FFB11A';ctx.stroke();}} }
+  return rawTex(cv);
+}
+function glowTexture(){const S=512,cv=document.createElement('canvas');cv.width=S;cv.height=S;const c=cv.getContext('2d');const g=c.createRadialGradient(S/2,S/2,S*0.30,S/2,S/2,S*0.5);g.addColorStop(0,'rgba(255,177,26,0)');g.addColorStop(0.72,'rgba(255,177,26,0.10)');g.addColorStop(0.86,'rgba(120,150,210,0.10)');g.addColorStop(1,'rgba(120,150,210,0)');c.fillStyle=g;c.fillRect(0,0,S,S);return rawTex(cv);}
 
-function buildBase({ world, night }){
-  const W=RES,H=RES/2, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const ctx=cv.getContext('2d'); const path=geoPath(projFor(ctx),ctx);
-  ctx.fillStyle = night ? '#020308' : '#04060B'; ctx.fillRect(0,0,W,H);
-  const byC={}; for(const f of world.features)(byC[f.properties.c] ||= []).push(f);
-  for(const [c,feats] of Object.entries(byC)){ ctx.beginPath(); for(const f of feats) path(f); const col=(CONT[c]||{}).color||'#888';
-    ctx.fillStyle = night ? shade(col,-0.6) : col; ctx.fill(); ctx.lineWidth=0.5; ctx.strokeStyle = night?'rgba(255,255,255,0.06)':'#04060B'; ctx.stroke(); }
-  const t=new THREE.CanvasTexture(cv); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8; return t;
-}
-function featherOcean(baseCtx, geom){
-  const W=RES,H=RES/2, off=document.createElement('canvas'); off.width=W; off.height=H; const o=off.getContext('2d'); const op=geoPath(projFor(o),o);
-  o.beginPath(); op(geom); o.fillStyle='rgba(120,180,230,0.5)'; o.fill();          // 대양 채움
-  o.globalCompositeOperation='destination-in'; o.filter='blur(15px)';               // erode+blur 근사 = 가장자리 페더
-  o.beginPath(); op(geom); o.fillStyle='#fff'; o.fill();
-  o.filter='none'; o.globalCompositeOperation='source-over';
-  baseCtx.drawImage(off,0,0);
-}
-function buildOverlay({ sel, world, oceans }){
-  const W=RES,H=RES/2, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const ctx=cv.getContext('2d'); const path=geoPath(projFor(ctx),ctx);
-  if(sel){
-    if(sel.type==='ocean' && oceans[sel.key]){ featherOcean(ctx, { type:'Feature', geometry: oceans[sel.key] }); }
-    else if(sel.type==='continent'){ ctx.beginPath(); for(const f of world.features) if(f.properties.c===sel.key) path(f); ctx.fillStyle='rgba(255,177,26,0.20)'; ctx.fill(); ctx.lineWidth=2.2; ctx.strokeStyle='#FFB11A'; ctx.stroke(); }
-    else if(sel.type==='country'){ const f=world.features.find(x=>x.properties.n===sel.name); if(f){ ctx.beginPath(); path(f); ctx.fillStyle='rgba(255,177,26,0.30)'; ctx.fill(); ctx.lineWidth=3; ctx.strokeStyle='#FFB11A'; ctx.stroke(); } }
-  }
-  const t=new THREE.CanvasTexture(cv); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8; return t;
-}
-// 배경 글로우(은은) 텍스처
-function glowTexture(){
-  const S=512, cv=document.createElement('canvas'); cv.width=S; cv.height=S; const c=cv.getContext('2d');
-  const g=c.createRadialGradient(S/2,S/2,S*0.30, S/2,S/2,S*0.5);
-  g.addColorStop(0,'rgba(255,177,26,0)'); g.addColorStop(0.72,'rgba(255,177,26,0.10)'); g.addColorStop(0.86,'rgba(120,150,210,0.10)'); g.addColorStop(1,'rgba(120,150,210,0)');
-  c.fillStyle=g; c.fillRect(0,0,S,S); const t=new THREE.CanvasTexture(cv); t.colorSpace=THREE.SRGBColorSpace; return t;
-}
-
-// 스피어↔메르카토르 격자 지오메트리(모프용 aPlane 속성 포함)
-function buildMorphGeometry(lonN, latN){
-  const g=new THREE.BufferGeometry(); const pos=[],pl=[],uv=[],idx=[];
-  for(let j=0;j<=latN;j++){ const lat=-90+180*j/latN; for(let i=0;i<=lonN;i++){ const lon=-180+360*i/lonN;
-    const s=lonLatToVec3(lon,lat,1); pos.push(s.x,s.y,s.z); pl.push(lon*D2R*MERC_S, mercY(lat), 0); uv.push((lon+180)/360,(lat+90)/180); } }
-  const row=lonN+1; for(let j=0;j<latN;j++)for(let i=0;i<lonN;i++){ const a=j*row+i; idx.push(a,a+row,a+1, a+1,a+row,a+row+1); }
-  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
-  g.setAttribute('aPlane',new THREE.Float32BufferAttribute(pl,3));
-  g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2)); g.setIndex(idx); return g;
-}
-function morphLine(pts, color, opacity, morphU){
-  const g=new THREE.BufferGeometry(); const pos=[],pl=[];
-  for(const [lo,la] of pts){ const s=lonLatToVec3(lo,la,1.003); pos.push(s.x,s.y,s.z); pl.push(lo*D2R*MERC_S, mercY(la), 0.004); }
-  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.setAttribute('aPlane',new THREE.Float32BufferAttribute(pl,3));
-  const m=new THREE.ShaderMaterial({ transparent:true, uniforms:{ morph:morphU, uColor:{value:new THREE.Color(color)}, uOp:{value:opacity} },
-    vertexShader:`attribute vec3 aPlane; uniform float morph; void main(){ gl_Position=projectionMatrix*modelViewMatrix*vec4(mix(position,aPlane,morph),1.0);} `,
-    fragmentShader:`uniform vec3 uColor; uniform float uOp; void main(){ gl_FragColor=vec4(uColor,uOp);} ` });
-  return new THREE.Line(g,m);
-}
-
-const meshVert = `attribute vec3 aPlane; uniform float morph; varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(mix(position,aPlane,morph),1.0);} `;
-const meshFrag = `uniform sampler2D dayTex,nightTex,overlayTex; uniform float sunLon,sunLat,nightBoost,dayNightOn; varying vec2 vUv;
+const GLSL=`const float PI=3.141592653589793; const float MS=0.6366197723675814; const float SC=0.8; const float RMX=2.2;
+vec3 project(vec2 uv, vec3 sphere, float morph, float lens, float rotY, float lon0, float offX){
+  float lon=(uv.x-0.5)*2.0*PI; float lat=(uv.y-0.5)*PI; float latC=clamp(lat,-1.4,1.4);
+  vec3 pl=vec3(lon*MS+offX, log(tan(PI/4.0+latC/2.0))*MS, 0.0);
+  float slon=lon-lon0; float den=max(1.0+cos(lat)*cos(slon),0.14);
+  vec3 st=vec3(2.0*SC*cos(lat)*sin(slon)/den, 2.0*SC*sin(lat)/den, 0.0); float rr=length(st.xy); if(rr>RMX) st.xy*=RMX/rr;
+  float cy=cos(rotY), sy=sin(rotY); vec3 sph=vec3(sphere.x*cy+sphere.z*sy, sphere.y, -sphere.x*sy+sphere.z*cy);
+  return sph*(1.0-morph-lens)+pl*morph+st*lens;
+}`;
+const meshVert=GLSL+`uniform float morph,lens,uRotY,uLon0; varying vec2 vUv;
+void main(){ vUv=uv; vec3 p=project(uv,position,morph,lens,uRotY,uLon0,0.0); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
+const cloneVert=GLSL+`uniform float uOffsetX; varying vec2 vUv;
+void main(){ vUv=uv; vec3 p=project(uv,position,1.0,0.0,0.0,0.0,uOffsetX); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
+const meshFrag=`uniform sampler2D dayTex,nightTex,overlayTex; uniform float sunLon,sunLat,nightBoost,dayNightOn; varying vec2 vUv;
 void main(){ float lon=(vUv.x-0.5)*360.0, lat=(vUv.y-0.5)*180.0; float rl=radians(lat),ro=radians(lon),sa=radians(sunLat),so=radians(sunLon);
   float cz=sin(rl)*sin(sa)+cos(rl)*cos(sa)*cos(ro-so); float t=mix(1.0,smoothstep(-0.10,0.12,cz),dayNightOn);
   vec3 base=mix(texture2D(nightTex,vUv).rgb*nightBoost, texture2D(dayTex,vUv).rgb, t); vec4 ov=texture2D(overlayTex,vUv);
-  gl_FragColor=vec4(mix(base, ov.rgb, ov.a), 1.0);} `;
+  gl_FragColor=vec4(mix(base,ov.rgb,ov.a),1.0);} `;
+const lineVert=GLSL+`attribute vec2 aGeo; uniform float morph,lens,uRotY,uLon0;
+void main(){ vec2 uv=vec2((aGeo.x+180.0)/360.0,(aGeo.y+90.0)/180.0); vec3 sph=normalize(vec3(-cos(uv.x*2.0*PI)*sin((1.0-uv.y)*PI),cos((1.0-uv.y)*PI),sin(uv.x*2.0*PI)*sin((1.0-uv.y)*PI)))*1.003;
+  vec3 p=project(uv,sph,morph,lens,uRotY,uLon0,0.0); p.z+=0.006; gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
+const lineFrag=`uniform vec3 uColor; uniform float uOp; void main(){ gl_FragColor=vec4(uColor,uOp);} `;
 
-const VIEW = {
-  globe: { morph:0, rotY:-Math.PI/2, fov:30, pos:[0,0.35,5.4], rotate:true, pan:false, min:2.4, max:9 },
-  lens:  { morph:0, rotY:-Math.PI/2, fov:80, pos:[0,0,1.95],  rotate:true, pan:false, min:1.7, max:5 },
-  flat:  { morph:1, rotY:0,          fov:40, pos:[0,0,5.0],   rotate:false, pan:true, min:2.5, max:8 },
+function morphGeom(lonN,latN){const g=new THREE.BufferGeometry();const pos=[],uv=[],idx=[];
+  for(let j=0;j<=latN;j++){const lat=-90+180*j/latN;for(let i=0;i<=lonN;i++){const lon=-180+360*i/lonN;const s=lonLatToVec3(lon,lat,1);pos.push(s.x,s.y,s.z);uv.push((lon+180)/360,(lat+90)/180);}}
+  const row=lonN+1;for(let j=0;j<latN;j++)for(let i=0;i<lonN;i++){const a=j*row+i;idx.push(a,a+row,a+1,a+1,a+row,a+row+1);}
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);return g;}
+function morphLine(pts,color,opacity,U){const g=new THREE.BufferGeometry();const pos=[],geo=[];
+  for(const [lo,la] of pts){const s=lonLatToVec3(lo,la,1.003);pos.push(s.x,s.y,s.z);geo.push(lo,la);}
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('aGeo',new THREE.Float32BufferAttribute(geo,2));
+  const m=new THREE.ShaderMaterial({transparent:true,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uLon0:U.uLon0,uColor:{value:new THREE.Color(color)},uOp:{value:opacity}},vertexShader:lineVert,fragmentShader:lineFrag});
+  m.uniforms.uColor.value.convertLinearToSRGB&&(m.uniforms.uColor.value=new THREE.Color(color)); return new THREE.Line(g,m);}
+
+const VIEW={
+  globe:{morph:0,lens:0,rotY:-Math.PI/2,fov:30,pos:[0,0.35,5.4],rotate:true,pan:false,min:2.4,max:9},
+  lens: {morph:0,lens:1,rotY:0,        fov:42,pos:[0,0,5.2],   rotate:false,pan:false,min:3,max:8},
+  flat: {morph:1,lens:0,rotY:0,        fov:40,pos:[0,0,5.0],   rotate:false,pan:true,min:2.5,max:8},
 };
-const MODE_WM = { flat:'Mercator Projection', lens:'Focus Lens', globe:'Orthographic Globe' };
-const ease = (t) => t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+const MODE_WM={flat:'Mercator Projection',lens:'Focus Lens View',globe:'Orthographic Globe'};
+const ease=(t)=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 
 export default function GlobeLab(){
-  const mountRef=useRef(null), labelRef=useRef(null), api=useRef({});
-  const S=useRef({ view:'globe', tex:'vector', country:false, dayNight:false, dnPlay:true, month:6, grat:true, eq:true, prime:false, step:20, sunLon:-90 });
+  const mountRef=useRef(null),labelRef=useRef(null),api=useRef({});
+  const S=useRef({view:'globe',tex:'vector',country:false,dayNight:false,dnPlay:true,month:6,grat:true,eq:true,prime:false,step:20,sunLon:-90});
   const [view,setView]=useState('globe'),[texMode,setTexMode]=useState('vector');
   const [country,setCountry]=useState(false),[dayNight,setDayNight]=useState(false),[dnPlay,setDnPlay]=useState(true),[month,setMonth]=useState(6);
   const [grat,setGrat]=useState(true),[eq,setEq]=useState(true),[prime,setPrime]=useState(false),[step,setStep]=useState(20);
   const [sel,setSel]=useState(null),[status,setStatus]=useState('로딩 중…');
 
-  useEffect(()=>{ Object.assign(S.current,{view,tex:texMode,country,dayNight,dnPlay,month,grat,eq,prime,step:+step||20}); },[view,texMode,country,dayNight,dnPlay,month,grat,eq,prime,step]);
-  useEffect(()=>{ api.current.applyTex&&api.current.applyTex(); },[texMode]);
-  useEffect(()=>{ api.current.goView&&api.current.goView(view); },[view]);
-  useEffect(()=>{ api.current.applyGrid&&api.current.applyGrid(); },[grat,eq,prime,step]);
-  useEffect(()=>{ api.current.applySel&&api.current.applySel(sel); },[sel]);
-  useEffect(()=>{ if(api.current.onDN) api.current.onDN(dayNight); },[dayNight]);
+  useEffect(()=>{Object.assign(S.current,{view,tex:texMode,country,dayNight,dnPlay,month,grat,eq,prime,step:+step||20});},[view,texMode,country,dayNight,dnPlay,month,grat,eq,prime,step]);
+  useEffect(()=>{api.current.applyTex&&api.current.applyTex();},[texMode]);
+  useEffect(()=>{api.current.goView&&api.current.goView(view);},[view]);
+  useEffect(()=>{api.current.applyGrid&&api.current.applyGrid();},[grat,eq,prime,step]);
+  useEffect(()=>{api.current.applySel&&api.current.applySel(sel);},[sel]);
+  useEffect(()=>{if(api.current.onDN)api.current.onDN(dayNight);},[dayNight]);
 
   useEffect(()=>{
-    const mount=mountRef.current; let raf,renderer,controls,disposed=false;
-    (async ()=>{
+    const mount=mountRef.current;let raf,renderer,controls,disposed=false;
+    (async()=>{
       const w=mount.clientWidth,h=mount.clientHeight;
       const scene=new THREE.Scene();
-      const camera=new THREE.PerspectiveCamera(VIEW.globe.fov, w/h, 0.1, 200); camera.position.set(...VIEW.globe.pos);
-      renderer=new THREE.WebGLRenderer({antialias:true,alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(w,h); mount.appendChild(renderer.domElement);
-      controls=new OrbitControls(camera,renderer.domElement); controls.enableDamping=true; controls.dampingFactor=0.08; controls.enablePan=false; controls.screenSpacePanning=true;
+      const camera=new THREE.PerspectiveCamera(VIEW.globe.fov,w/h,0.1,200);camera.position.set(...VIEW.globe.pos);
+      renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.outputColorSpace=THREE.LinearSRGBColorSpace;renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(w,h);mount.appendChild(renderer.domElement);
+      controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.08;controls.enablePan=false;controls.screenSpacePanning=true;
 
-      const sg=new THREE.BufferGeometry(),Ns=1100,sp=new Float32Array(Ns*3);
-      for(let i=0;i<Ns;i++){const r=60+Math.random()*45,t=Math.acos(2*Math.random()-1),p=2*Math.PI*Math.random();sp[i*3]=r*Math.sin(t)*Math.cos(p);sp[i*3+1]=r*Math.cos(t);sp[i*3+2]=r*Math.sin(t)*Math.sin(p);}
-      sg.setAttribute('position',new THREE.BufferAttribute(sp,3)); scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0x555a68,size:0.12,sizeAttenuation:true})));
-
-      // 배경 글로우(은은) — 지구본 뒤 빌보드
-      const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture(),transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,opacity:0.9}));
-      glow.scale.set(4.6,4.6,1); glow.renderOrder=-1; scene.add(glow);
+      const sg=new THREE.BufferGeometry(),Ns=1100,spp=new Float32Array(Ns*3);
+      for(let i=0;i<Ns;i++){const r=60+Math.random()*45,t=Math.acos(2*Math.random()-1),p=2*Math.PI*Math.random();spp[i*3]=r*Math.sin(t)*Math.cos(p);spp[i*3+1]=r*Math.cos(t);spp[i*3+2]=r*Math.sin(t)*Math.sin(p);}
+      sg.setAttribute('position',new THREE.BufferAttribute(spp,3));scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0x555a68,size:0.12,sizeAttenuation:true})));
+      const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture(),transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,opacity:0.9}));glow.scale.set(4.6,4.6,1);glow.renderOrder=-1;scene.add(glow);
 
       setStatus('지형 데이터 로딩…');
       const [world,oceans]=await Promise.all([fetch('/lab-data/world.json').then(r=>r.json()),fetch('/lab-data/oceans.json').then(r=>r.json())]);
       if(disposed)return;
-      const vDay=buildBase({world,night:false}), vNight=buildBase({world,night:true});
+      const vDay=buildBase({world,night:false}),vNight=buildBase({world,night:true});
       setStatus('위성 텍스처 로딩…');
-      const loader=new THREE.TextureLoader(); loader.setCrossOrigin('anonymous');
-      const lt=(u)=>new Promise(res=>loader.load(u,t=>{t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;res(t);},undefined,()=>res(null)));
+      const loader=new THREE.TextureLoader();loader.setCrossOrigin('anonymous');
+      const lt=(u)=>new Promise(res=>loader.load(u,t=>{t.colorSpace=THREE.NoColorSpace;t.anisotropy=8;res(t);},undefined,()=>res(null)));
       const [phoDay,phoNight]=await Promise.all([lt('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg'),lt('https://threejs.org/examples/textures/planets/earth_lights_2048.png')]);
       if(disposed)return;
 
-      const morphU={value:0};
+      const U={morph:{value:0},lens:{value:0},uRotY:{value:VIEW.globe.rotY},uLon0:{value:0}};
       let overlayTex=buildOverlay({sel:null,world,oceans});
-      const u={ dayTex:{value:vDay},nightTex:{value:vNight},overlayTex:{value:overlayTex},morph:morphU, sunLon:{value:S.current.sunLon},sunLat:{value:solarDeclDeg(6)},nightBoost:{value:1},dayNightOn:{value:0} };
-      const mesh=new THREE.Mesh(buildMorphGeometry(180,90), new THREE.ShaderMaterial({vertexShader:meshVert,fragmentShader:meshFrag,uniforms:u,side:THREE.DoubleSide}));
-      mesh.rotation.y=VIEW.globe.rotY; scene.add(mesh);
+      const u={dayTex:{value:vDay},nightTex:{value:vNight},overlayTex:{value:overlayTex},...U,sunLon:{value:S.current.sunLon},sunLat:{value:solarDeclDeg(6)},nightBoost:{value:1},dayNightOn:{value:0}};
+      const mesh=new THREE.Mesh(morphGeom(180,90),new THREE.ShaderMaterial({vertexShader:meshVert,fragmentShader:meshFrag,uniforms:u,side:THREE.DoubleSide}));
+      scene.add(mesh);
+      // 평면 좌우 순환용 클론 타일(±월드폭)
+      const cloneMat=(off)=>new THREE.ShaderMaterial({vertexShader:cloneVert,fragmentShader:meshFrag,side:THREE.DoubleSide,
+        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,uOffsetX:{value:off}}});
+      const tileL=new THREE.Mesh(mesh.geometry,cloneMat(-WORLD_W)),tileR=new THREE.Mesh(mesh.geometry,cloneMat(WORLD_W));
+      tileL.frustumCulled=tileR.frustumCulled=false;tileL.visible=tileR.visible=false;scene.add(tileL,tileR);
 
-      // 격자/적도/본초자오선(모프 공유)
       const grat=new THREE.Group();
-      for(let lon=-180;lon<=180;lon+=S.current.step){const p=[];for(let la=-85;la<=85;la+=3)p.push([lon,la]);grat.add(morphLine(p,0xffffff,0.30,morphU));}
-      for(let lat=-90+S.current.step;lat<90;lat+=S.current.step){const p=[];for(let lo=-180;lo<=180;lo+=3)p.push([lo,lat]);grat.add(morphLine(p,0xffffff,0.30,morphU));}
-      let eqL=(()=>{const p=[];for(let lo=-180;lo<=180;lo+=3)p.push([lo,0]);return morphLine(p,0xFF7B7B,0.6,morphU);})();
-      let pmL=(()=>{const p=[];for(let la=-85;la<=85;la+=3)p.push([0,la]);return morphLine(p,0xFFB270,0.6,morphU);})();
-      mesh.add(grat,eqL,pmL);
-      const rebuildGrid=(stp)=>{ mesh.remove(grat); while(grat.children.length)grat.remove(grat.children[0]);
-        for(let lon=-180;lon<=180;lon+=stp){const p=[];for(let la=-85;la<=85;la+=3)p.push([lon,la]);grat.add(morphLine(p,0xffffff,0.30,morphU));}
-        for(let lat=-90+stp;lat<90;lat+=stp){const p=[];for(let lo=-180;lo<=180;lo+=3)p.push([lo,lat]);grat.add(morphLine(p,0xffffff,0.30,morphU));}
-        mesh.add(grat); };
-      let curStep=S.current.step;
-      const applyGrid=()=>{ const st=S.current; if(st.step!==curStep){curStep=st.step; rebuildGrid(st.step);} grat.visible=st.grat; eqL.visible=st.eq; pmL.visible=st.prime; };
+      const buildG=(stp)=>{while(grat.children.length)grat.remove(grat.children[0]);
+        for(let lon=-180;lon<=180;lon+=stp){const p=[];for(let la=-85;la<=85;la+=3)p.push([lon,la]);grat.add(morphLine(p,0xffffff,0.30,U));}
+        for(let lat=-90+stp;lat<90;lat+=stp){const p=[];for(let lo=-180;lo<=180;lo+=3)p.push([lo,lat]);grat.add(morphLine(p,0xffffff,0.30,U));}};
+      buildG(S.current.step);
+      const eqP=[];for(let lo=-180;lo<=180;lo+=3)eqP.push([lo,0]);const eqL=morphLine(eqP,0xFF7B7B,0.6,U);
+      const pmP=[];for(let la=-85;la<=85;la+=3)pmP.push([0,la]);const pmL=morphLine(pmP,0xFFB270,0.6,U);
+      scene.add(grat,eqL,pmL);let curStep=S.current.step;
+      const applyGrid=()=>{const st=S.current;if(st.step!==curStep){curStep=st.step;buildG(st.step);}grat.visible=st.grat;eqL.visible=st.eq;pmL.visible=st.prime;};
 
-      const applyTex=()=>{ const st=S.current, pho=st.tex==='photoreal'&&phoDay; u.dayTex.value=pho?phoDay:vDay; u.nightTex.value=pho?(phoNight||phoDay):vNight; u.nightBoost.value=pho?2.2:1; };
-      const applySel=(s)=>{ overlayTex.dispose(); overlayTex=buildOverlay({sel:s,world,oceans}); u.overlayTex.value=overlayTex; };
-      const onDN=(on)=>{ if(on) S.current.sunLon=-90; u.dayNightOn.value=on?1:0; };
-      const dolly=(f)=>{ const off=camera.position.clone().sub(controls.target); off.setLength(THREE.MathUtils.clamp(off.length()*f,controls.minDistance,controls.maxDistance)); camera.position.copy(controls.target).add(off); controls.update(); };
-
-      // 뷰 전환 트윈(모프+카메라+회전)
+      const applyTex=()=>{const st=S.current,pho=st.tex==='photoreal'&&phoDay;u.dayTex.value=pho?phoDay:vDay;u.nightTex.value=pho?(phoNight||phoDay):vNight;u.nightBoost.value=pho?2.2:1;};
+      const applySel=(s)=>{overlayTex.dispose();overlayTex=buildOverlay({sel:s,world,oceans});u.overlayTex.value=overlayTex;};
+      const onDN=(on)=>{if(on)S.current.sunLon=-90;u.dayNightOn.value=on?1:0;};
+      const dolly=(f)=>{const off=camera.position.clone().sub(controls.target);off.setLength(THREE.MathUtils.clamp(off.length()*f,controls.minDistance,controls.maxDistance));camera.position.copy(controls.target).add(off);controls.update();};
       let tr=null;
-      const goView=(v)=>{ const to=VIEW[v]; tr={ t:0, dur:0.72, v,
-        from:{ morph:morphU.value, rotY:mesh.rotation.y, fov:camera.fov, pos:camera.position.clone(), tgt:controls.target.clone() },
-        to:{ morph:to.morph, rotY:to.rotY, fov:to.fov, pos:new THREE.Vector3(...to.pos), tgt:new THREE.Vector3(0,0,0) } };
-        controls.enabled=false; };
-      const settleView=(v)=>{ const p=VIEW[v]; controls.enabled=true; controls.enableRotate=p.rotate; controls.enablePan=p.pan; controls.minDistance=p.min; controls.maxDistance=p.max; controls.target.set(0,0,0); controls.update(); };
+      const goView=(v)=>{const to=VIEW[v];tr={t:0,dur:0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:U.uRotY.value,fov:camera.fov,pos:camera.position.clone(),tgt:controls.target.clone()},to:{morph:to.morph,lens:to.lens,rotY:to.rotY,fov:to.fov,pos:new THREE.Vector3(...to.pos),tgt:new THREE.Vector3(0,0,0)}};controls.enabled=false;};
+      const settleView=(v)=>{const p=VIEW[v];controls.enabled=true;controls.enableRotate=p.rotate;controls.enablePan=p.pan;controls.minDistance=p.min;controls.maxDistance=p.max;controls.target.set(0,0,0);controls.update();};
+      api.current={applyTex,applyGrid,applySel,onDN,dolly,goView,pickContinent:(k)=>setSel({type:'continent',key:k}),pickOcean:(k)=>setSel({type:'ocean',key:k})};
+      applyTex();applyGrid();settleView('globe');
 
-      api.current={applyTex,applyGrid,applySel,onDN,dolly,goView,
-        pickContinent:(k)=>setSel({type:'continent',key:k}), pickOcean:(k)=>setSel({type:'ocean',key:k}) };
-      applyTex(); applyGrid(); settleView('globe');
+      const labels={};const mk=(dict,cls)=>{for(const k of Object.keys(dict)){const el=document.createElement('div');el.className='gl-lbl '+cls;el.innerHTML=cls==='ocn'?`<div class="kr">${dict[k].ko}</div>`:dict[k].ko;labelRef.current.appendChild(el);labels[cls+k]={el,anchor:dict[k].anchor};}};
+      mk(CONT,'cont');mk(OCEAN,'ocn');
 
-      // 라벨
-      const labels={}; const mk=(dict,cls)=>{ for(const k of Object.keys(dict)){ const el=document.createElement('div'); el.className='gl-lbl '+cls; el.innerHTML=cls==='ocn'?`<div class="kr">${dict[k].ko}</div>`:dict[k].ko; labelRef.current.appendChild(el); labels[cls+k]={el,anchor:dict[k].anchor}; } };
-      mk(CONT,'cont'); mk(OCEAN,'ocn');
+      // 스테레오/메르카토 위치 계산(라벨용, project()와 동일)
+      const projectJS=(lon,lat)=>{const uvx=(lon+180)/360; const morph=U.morph.value,lens=U.lens.value,rY=U.uRotY.value,l0=U.uLon0.value;
+        const loR=lon*D2R, laR=lat*D2R, latC=THREE.MathUtils.clamp(laR,-1.4,1.4);
+        const pl=new THREE.Vector3(loR*MS, Math.log(Math.tan(Math.PI/4+latC/2))*MS, 0.02);
+        const slon=loR-l0, den=Math.max(1+Math.cos(laR)*Math.cos(slon),0.14); let st=new THREE.Vector3(2*SC*Math.cos(laR)*Math.sin(slon)/den,2*SC*Math.sin(laR)/den,0.02); const rr=Math.hypot(st.x,st.y); if(rr>RMX)st.multiplyScalar(RMX/rr);
+        const sph=rotY(lonLatToVec3(lon,lat,1.02),rY);
+        return sph.multiplyScalar(1-morph-lens).add(pl.multiplyScalar(morph)).add(st.multiplyScalar(lens));};
 
-      // 선택(수학 픽킹)
-      const ray=new THREE.Raycaster(),ptr=new THREE.Vector2(),plane0=new THREE.Plane(new THREE.Vector3(0,0,1),0),unit=new THREE.Sphere(new THREE.Vector3(),1); let downXY=null; const dom=renderer.domElement;
-      dom.addEventListener('pointerdown',e=>{downXY=[e.clientX,e.clientY];});
-      dom.addEventListener('pointerup',e=>{ if(!downXY)return; const mv=Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1]); downXY=null; if(mv>6||tr)return;
-        const rect=dom.getBoundingClientRect(); ptr.x=((e.clientX-rect.left)/rect.width)*2-1; ptr.y=-((e.clientY-rect.top)/rect.height)*2+1; ray.setFromCamera(ptr,camera);
-        let lon,lat; const flat=S.current.view==='flat';
-        if(flat){ const hit=ray.ray.intersectPlane(plane0,new THREE.Vector3()); if(!hit)return; lon=THREE.MathUtils.radToDeg(hit.x/MERC_S); lat=THREE.MathUtils.radToDeg(2*Math.atan(Math.exp(hit.y/MERC_S))-Math.PI/2); if(Math.abs(lon)>180||Math.abs(lat)>MERC_CLAMP+2)return; }
-        else { const hit=ray.ray.intersectSphere(unit,new THREE.Vector3()); if(!hit)return; const loc=hit.applyQuaternion(mesh.quaternion.clone().invert()); [lon,lat]=vec3ToLonLat(loc); }
+      const ray=new THREE.Raycaster(),ptr=new THREE.Vector2(),plane0=new THREE.Plane(new THREE.Vector3(0,0,1),0),unit=new THREE.Sphere(new THREE.Vector3(),1);
+      let downXY=null,dragLens=null;const dom=renderer.domElement;
+      dom.addEventListener('pointerdown',e=>{downXY=[e.clientX,e.clientY];if(S.current.view==='lens')dragLens=e.clientX;});
+      dom.addEventListener('pointermove',e=>{if(dragLens!==null&&(e.buttons&1)){U.uLon0.value-=(e.clientX-dragLens)*0.006;dragLens=e.clientX;}});
+      window.addEventListener('pointerup',()=>{dragLens=null;});
+      dom.addEventListener('pointerup',e=>{if(!downXY)return;const mv=Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1]);downXY=null;if(mv>6||tr)return;
+        const rect=dom.getBoundingClientRect();ptr.x=((e.clientX-rect.left)/rect.width)*2-1;ptr.y=-((e.clientY-rect.top)/rect.height)*2+1;ray.setFromCamera(ptr,camera);const v=S.current.view;let lon,lat;
+        if(v==='globe'){const hit=ray.ray.intersectSphere(unit,new THREE.Vector3());if(!hit)return;[lon,lat]=vec3ToLonLat(rotY(hit,-U.uRotY.value));}
+        else if(v==='flat'){const hit=ray.ray.intersectPlane(plane0,new THREE.Vector3());if(!hit)return;lon=R2D*(hit.x/MS);lat=R2D*(2*Math.atan(Math.exp(hit.y/MS))-Math.PI/2);lon=((lon+180)%360+360)%360-180;if(Math.abs(lat)>85)return;}
+        else{const hit=ray.ray.intersectPlane(plane0,new THREE.Vector3());if(!hit)return;const uu=hit.x/(2*SC),vv=hit.y/(2*SC);const rho=Math.hypot(uu,vv);if(rho<1e-6){lon=R2D*U.uLon0.value;lat=0;}else{const c=2*Math.atan(rho);lat=R2D*Math.asin(THREE.MathUtils.clamp(vv*Math.sin(c)/rho,-1,1));lon=R2D*(Math.atan2(uu*Math.sin(c),rho*Math.cos(c))+U.uLon0.value);}lon=((lon+180)%360+360)%360-180;}
         const c=world.features.find(f=>geoContains(f,[lon,lat]));
-        if(c){ setSel(S.current.country?{type:'country',name:c.properties.n,key:c.properties.c}:{type:'continent',key:c.properties.c}); return; }
-        let ok=null; for(const k of Object.keys(OCEAN)) if(oceans[k]&&geoContains({type:'Feature',geometry:oceans[k]},[lon,lat])){ok=k;break;} setSel(ok?{type:'ocean',key:ok}:null); });
+        if(c){setSel(S.current.country?{type:'country',name:c.properties.n,key:c.properties.c}:{type:'continent',key:c.properties.c});return;}
+        let ok=null;for(const k of Object.keys(OCEAN))if(oceans[k]&&geoContains({type:'Feature',geometry:oceans[k]},[lon,lat])){ok=k;break;}setSel(ok?{type:'ocean',key:ok}:null);});
 
       const onResize=()=>{const W=mount.clientWidth,H=mount.clientHeight;camera.aspect=W/H;camera.updateProjectionMatrix();renderer.setSize(W,H);};
       window.addEventListener('resize',onResize);
       const clock=new THREE.Clock(),v3=new THREE.Vector3();
-      const loop=()=>{ raf=requestAnimationFrame(loop); const dt=clock.getDelta(); const st=S.current;
-        u.sunLat.value=solarDeclDeg(st.month);
-        if(st.dayNight&&st.dnPlay){ st.sunLon=((st.sunLon-dt*15+540)%360)-180; } u.sunLon.value=st.sunLon;
-        if(tr){ tr.t=Math.min(1,tr.t+dt/tr.dur); const k=ease(tr.t);
-          morphU.value=tr.from.morph+(tr.to.morph-tr.from.morph)*k;
-          mesh.rotation.y=tr.from.rotY+(tr.to.rotY-tr.from.rotY)*k;
-          camera.fov=tr.from.fov+(tr.to.fov-tr.from.fov)*k; camera.updateProjectionMatrix();
-          camera.position.lerpVectors(tr.from.pos,tr.to.pos,k); controls.target.lerpVectors(tr.from.tgt,tr.to.tgt,k);
-          if(tr.t>=1){ const v=tr.v; tr=null; settleView(v); } }
-        glow.material.opacity=0.9*(1-morphU.value); glow.visible=morphU.value<0.98;
-        controls.update(); renderer.render(scene,camera);
-        const flat=morphU.value>0.5;
-        for(const key in labels){ const {el,anchor}=labels[key]; let w3,faceOk=true;
-          const sV=lonLatToVec3(anchor[0],anchor[1],1.02), pV=new THREE.Vector3(anchor[0]*D2R*MERC_S, mercY(anchor[1]), 0.02);
-          const local=sV.clone().lerp(pV,morphU.value); w3=local.clone(); mesh.localToWorld(w3);
-          if(!flat){ const nrm=sV.clone().applyQuaternion(mesh.quaternion).normalize(); faceOk=nrm.dot(v3.copy(camera.position).sub(w3).normalize())>0.02; }
-          const p=w3.project(camera);
+      const loop=()=>{raf=requestAnimationFrame(loop);const dt=clock.getDelta();const st=S.current;
+        u.sunLat.value=solarDeclDeg(st.month);if(st.dayNight&&st.dnPlay){st.sunLon=((st.sunLon-dt*15+540)%360)-180;}u.sunLon.value=st.sunLon;
+        if(tr){tr.t=Math.min(1,tr.t+dt/tr.dur);const k=ease(tr.t);
+          U.morph.value=tr.from.morph+(tr.to.morph-tr.from.morph)*k;U.lens.value=tr.from.lens+(tr.to.lens-tr.from.lens)*k;U.uRotY.value=tr.from.rotY+(tr.to.rotY-tr.from.rotY)*k;
+          camera.fov=tr.from.fov+(tr.to.fov-tr.from.fov)*k;camera.updateProjectionMatrix();camera.position.lerpVectors(tr.from.pos,tr.to.pos,k);controls.target.lerpVectors(tr.from.tgt,tr.to.tgt,k);
+          if(tr.t>=1){const v=tr.v;tr=null;settleView(v);}}
+        // 평면 좌우 무한 순환: 카메라 x를 월드폭으로 랩
+        const isFlat=st.view==='flat'&&!tr;tileL.visible=tileR.visible=isFlat;
+        if(isFlat){if(controls.target.x>WORLD_W/2){controls.target.x-=WORLD_W;camera.position.x-=WORLD_W;}else if(controls.target.x<-WORLD_W/2){controls.target.x+=WORLD_W;camera.position.x+=WORLD_W;}}
+        glow.material.opacity=0.9*Math.max(0,1-U.morph.value-U.lens.value);glow.visible=glow.material.opacity>0.02;
+        controls.update();renderer.render(scene,camera);
+        const globeish=U.morph.value<0.5&&U.lens.value<0.5;
+        for(const key in labels){const {el,anchor}=labels[key];const w3=projectJS(anchor[0],anchor[1]);let faceOk=true;
+          if(globeish){const nrm=rotY(lonLatToVec3(anchor[0],anchor[1],1),U.uRotY.value);faceOk=nrm.dot(v3.copy(camera.position).sub(w3).normalize())>0.02;}
+          const p=w3.clone().project(camera);
           if(!faceOk||p.z>1||Math.abs(p.x)>1.06||Math.abs(p.y)>1.06){el.style.display='none';continue;}
-          el.style.display='block'; el.style.left=((p.x*0.5+0.5)*mount.clientWidth)+'px'; el.style.top=((-p.y*0.5+0.5)*mount.clientHeight)+'px'; }
+          el.style.display='block';el.style.left=((p.x*0.5+0.5)*mount.clientWidth)+'px';el.style.top=((-p.y*0.5+0.5)*mount.clientHeight)+'px';}
       };
-      loop(); setStatus('');
+      loop();setStatus('');
       GlobeLab._cleanup=()=>{window.removeEventListener('resize',onResize);cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
     })();
-    return ()=>{disposed=true; if(GlobeLab._cleanup)GlobeLab._cleanup();};
+    return ()=>{disposed=true;if(GlobeLab._cleanup)GlobeLab._cleanup();};
   },[]);
 
   const info=sel&&(sel.type==='ocean'?{sw:OCEAN[sel.key].color,en:OCEAN[sel.key].en,kr:OCEAN[sel.key].ko,fact:OCEAN[sel.key].fact}
@@ -233,14 +226,10 @@ export default function GlobeLab(){
       <div id="stage"><div ref={mountRef} className="gl-canvas" /><div ref={labelRef} className="gl-labels" /></div>
       {status && <div className="gl-status">{status}</div>}
       <div className={'info'+(info?' show':'')}>{info&&<><div className="swatch" style={{background:info.sw}} /><div className="en">{info.en}</div><div className="kr">{info.kr}</div><div className="fact">{info.fact}</div></>}</div>
-
       <div className="legend"><div className="legend-cols">
-        <div className="legend-col"><h4>6대륙</h4>{['asia','africa','europe','na','sa','oceania','ant'].map(k=>(
-          <button key={k} className={'chip'+(sel&&sel.key===k&&sel.type!=='ocean'?' on':'')} onClick={()=>api.current.pickContinent&&api.current.pickContinent(k)}><span className="dot" style={{background:CONT[k].color}} /><span>{CONT[k].ko}</span><small>{CONT[k].en}</small></button>))}</div>
-        <div className="legend-col"><h4>5대양</h4>{['pacific','atlantic','indian','southern','arctic'].map(k=>(
-          <button key={k} className={'chip'+(sel&&sel.type==='ocean'&&sel.key===k?' on':'')} onClick={()=>api.current.pickOcean&&api.current.pickOcean(k)}><span className="dot" style={{background:OCEAN[k].color}} /><span>{OCEAN[k].ko}</span><small>{OCEAN[k].en}</small></button>))}</div>
+        <div className="legend-col"><h4>6대륙</h4>{['asia','africa','europe','na','sa','oceania','ant'].map(k=>(<button key={k} className={'chip'+(sel&&sel.key===k&&sel.type!=='ocean'?' on':'')} onClick={()=>api.current.pickContinent&&api.current.pickContinent(k)}><span className="dot" style={{background:CONT[k].color}} /><span>{CONT[k].ko}</span><small>{CONT[k].en}</small></button>))}</div>
+        <div className="legend-col"><h4>5대양</h4>{['pacific','atlantic','indian','southern','arctic'].map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='ocean'&&sel.key===k?' on':'')} onClick={()=>api.current.pickOcean&&api.current.pickOcean(k)}><span className="dot" style={{background:OCEAN[k].color}} /><span>{OCEAN[k].ko}</span><small>{OCEAN[k].en}</small></button>))}</div>
       </div><div className="note">대륙·대양을 클릭하면 이름과 설명이 나와요.</div></div>
-
       <div className="grid-panel">
         <h4>Grid</h4>
         <label className="tg"><input type="checkbox" checked={grat} onChange={e=>setGrat(e.target.checked)} /><span>위경도 격자</span></label>
@@ -249,14 +238,9 @@ export default function GlobeLab(){
         <div className="step"><span>간격</span><input type="number" min="5" max="90" step="5" value={step} onChange={e=>setStep(e.target.value)} /><span>°</span></div>
         <label className="tg tg-sep"><input type="checkbox" checked={country} onChange={e=>setCountry(e.target.checked)} /><span>국가 선택 <small>(실험)</small></span></label>
         <label className="tg"><input type="checkbox" checked={dayNight} onChange={e=>setDayNight(e.target.checked)} /><span>낮과 밤</span></label>
-        {dayNight && <div className="daynight-ctl">
-          <button className={'dn-btn'+(dnPlay?' on':'')} title="재생/일시정지" onClick={()=>setDnPlay(p=>!p)}>{dnPlay?'❚❚':'▶'}</button>
-          <input type="range" min="1" max="12" step="1" value={month} onChange={e=>setMonth(+e.target.value)} />
-          <span className="dn-lbl">{MONTHS[month-1]}</span>
-        </div>}
+        {dayNight && <div className="daynight-ctl"><button className={'dn-btn'+(dnPlay?' on':'')} onClick={()=>setDnPlay(p=>!p)}>{dnPlay?'❚❚':'▶'}</button><input type="range" min="1" max="12" step="1" value={month} onChange={e=>setMonth(+e.target.value)} /><span className="dn-lbl">{MONTHS[month-1]}</span></div>}
         <label className="tg tg-sep"><input type="checkbox" checked={texMode==='photoreal'} onChange={e=>setTexMode(e.target.checked?'photoreal':'vector')} /><span>위성 사진 <small>(dev)</small></span></label>
       </div>
-
       <div className="projseg">
         <button className={view==='flat'?'on':''} onClick={()=>setView('flat')}>평면</button>
         <button className={view==='lens'?'on':''} onClick={()=>setView('lens')}>Focus Lens</button>
@@ -267,14 +251,11 @@ export default function GlobeLab(){
         <button className="ctrl" aria-label="축소" onClick={()=>api.current.dolly&&api.current.dolly(1.25)}>−</button>
         <button className="ctrl home" aria-label="처음으로" onClick={()=>api.current.goView&&api.current.goView(view)}>⟳</button>
       </div>
-      <div className="hint">드래그로 회전 · 휠로 확대 · 대륙이나 바다를 클릭</div>
+      <div className="hint">{view==='flat'?'좌우로 끝없이 이어집니다 · 대륙·바다 클릭':view==='lens'?'드래그로 렌즈 회전 · 대륙·바다 클릭':'드래그로 회전 · 휠로 확대 · 대륙·바다 클릭'}</div>
       <div className="watermark">{MODE_WM[view]}</div>
       <footer className="ps-footer">Designed by <span className="ps-signature">parcyun studio</span> · <a href="https://www.instagram.com/parcyun" className="ps-ig" target="_blank" rel="noopener">@parcyun</a> · <span style={{color:'var(--ps-primary)'}}>#3 개발자 뷰</span></footer>
-
       <style>{`
-        .gl-app{--ps-primary:#FFB11A;--bg:#04060B;--surface-1:#101319;--surface-2:#191D26;--border:#2A2F3A;--text:#fff;--text-2:#8C93A1;
-          --font-kr:'Pretendard Variable','Pretendard','Montserrat',system-ui,sans-serif;--font-en:'Montserrat',sans-serif;--font-sig:'Covered By Your Grace',cursive;--ease:cubic-bezier(0.16,1,0.3,1);
-          position:fixed;inset:0;background:var(--bg);color:var(--text);font-family:var(--font-kr);user-select:none;overflow:hidden}
+        .gl-app{--ps-primary:#FFB11A;--bg:#04060B;--surface-1:#101319;--surface-2:#191D26;--border:#2A2F3A;--text:#fff;--text-2:#8C93A1;--font-kr:'Pretendard Variable','Pretendard','Montserrat',system-ui,sans-serif;--font-en:'Montserrat',sans-serif;--font-sig:'Covered By Your Grace',cursive;--ease:cubic-bezier(0.16,1,0.3,1);position:fixed;inset:0;background:var(--bg);color:var(--text);font-family:var(--font-kr);user-select:none;overflow:hidden}
         .gl-canvas{position:absolute;inset:0}.gl-labels{position:absolute;inset:0;pointer-events:none}#stage{position:absolute;inset:0;cursor:grab}
         .gl-lbl{position:absolute;transform:translate(-50%,-50%);font-weight:600;color:#fff;font-size:13px;letter-spacing:.02em;text-shadow:0 0 3px #000,0 0 3px #000,0 1px 4px #000;white-space:nowrap}
         .gl-lbl.ocn .kr{color:#9DB0D6;font-weight:300;font-size:13px;letter-spacing:.16em}

@@ -33,6 +33,7 @@ const OCEAN_LABELS = [ // 지도 라벨(KR+EN), 태평양·대서양은 2곳
   {o:'arctic',en:'Arctic Ocean',ll:[-46,74]},
 ];
 const RES=2048, MS=2/Math.PI, SC=1.15, RMX=7.0, WORLD_W=2*Math.PI*MS, D2R=Math.PI/180, R2D=180/Math.PI;
+const MAP_HALF=Math.log(Math.tan(Math.PI/4+0.7))*MS; // 메르카토 세로 절반(GLSL clamp 1.4rad=±80°)
 const projFor=(ctx)=>geoEquirectangular().scale(RES/(2*Math.PI)).translate([RES/2,RES/4]);
 const solarDeclDeg=(m)=>23.44*Math.sin((2*Math.PI*((m-0.5)*30.44-80))/365);
 const shade=(hex,amt)=>{const n=parseInt(hex.slice(1),16);let r=(n>>16)&255,g=(n>>8)&255,b=n&255;const f=amt<0?1+amt:1,a=amt>0?255*amt:0;return `rgb(${Math.round(r*f+a)},${Math.round(g*f+a)},${Math.round(b*f+a)})`;};
@@ -76,8 +77,10 @@ const meshVert=GLSL+`uniform float morph,lens,uRotY,uLon0; varying vec2 vUv;
 void main(){ vUv=uv; vec3 p=project(uv,position,morph,lens,uRotY,uLon0,0.0); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
 const cloneVert=GLSL+`uniform float uOffsetX; varying vec2 vUv;
 void main(){ vUv=uv; vec3 p=project(uv,position,1.0,0.0,0.0,0.0,uOffsetX); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
-const meshFrag=`uniform sampler2D dayTex,nightTex,overlayTex; uniform float sunLon,sunLat,nightBoost,dayNightOn; varying vec2 vUv;
-void main(){ float lon=(vUv.x-0.5)*360.0, lat=(vUv.y-0.5)*180.0; float rl=radians(lat),ro=radians(lon),sa=radians(sunLat),so=radians(sunLon);
+const meshFrag=`uniform sampler2D dayTex,nightTex,overlayTex; uniform float sunLon,sunLat,nightBoost,dayNightOn,lens,uLon0; varying vec2 vUv;
+void main(){ float lon=(vUv.x-0.5)*360.0, lat=(vUv.y-0.5)*180.0;
+  if(lens>0.5){ float cc=cos(radians(lat))*cos(radians(lon)-uLon0); if(cc < -0.10) discard; } // 렌즈: 중심 반대편(뒷면) 렌더 안 함
+  float rl=radians(lat),ro=radians(lon),sa=radians(sunLat),so=radians(sunLon);
   float cz=sin(rl)*sin(sa)+cos(rl)*cos(sa)*cos(ro-so); float t=mix(1.0,smoothstep(-0.10,0.12,cz),dayNightOn);
   vec3 base=mix(texture2D(nightTex,vUv).rgb*nightBoost, texture2D(dayTex,vUv).rgb, t); vec4 ov=texture2D(overlayTex,vUv);
   gl_FragColor=vec4(mix(base,ov.rgb,ov.a),1.0);} `;
@@ -98,8 +101,8 @@ function morphLine(pts,color,opacity,U){const g=new THREE.BufferGeometry();const
 
 const VIEW={
   globe:{morph:0,lens:0,rotY:-Math.PI/2,fov:30,pos:[0,0.35,5.4],rotate:true,pan:false,min:2.4,max:9},
-  lens: {morph:0,lens:1,rotY:0,        fov:46,pos:[0,0,7.2],   rotate:false,pan:false,min:4,max:10},
-  flat: {morph:1,lens:0,rotY:0,        fov:40,pos:[0,0,5.0],   rotate:false,pan:true,min:2.5,max:8},
+  lens: {morph:0,lens:1,rotY:0,        fov:46,pos:[0,0,5.6],   rotate:false,pan:false,min:3.5,max:9},
+  flat: {morph:1,lens:0,rotY:0,        fov:40,pos:[0,0,3.7],   rotate:false,pan:true,min:1.6,max:4.2},
 };
 const MODE_WM={flat:'Mercator Projection',lens:'Focus Lens View',globe:'Orthographic Globe'};
 const ease=(t)=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
@@ -143,17 +146,18 @@ export default function GlobeLab(){
       scene.add(mesh);
       // 평면 좌우 순환용 클론 타일(±월드폭)
       const cloneMat=(off)=>new THREE.ShaderMaterial({vertexShader:cloneVert,fragmentShader:meshFrag,side:THREE.DoubleSide,
-        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,uOffsetX:{value:off}}});
+        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,lens:u.lens,uLon0:u.uLon0,uOffsetX:{value:off}}});
       const tileL=new THREE.Mesh(mesh.geometry,cloneMat(-WORLD_W)),tileR=new THREE.Mesh(mesh.geometry,cloneMat(WORLD_W));
       tileL.frustumCulled=tileR.frustumCulled=false;tileL.visible=tileR.visible=false;scene.add(tileL,tileR);
 
       const grat=new THREE.Group();
+      // 평면 좌우 순환용으로 격자를 ±540°(3폭)로 그려 타일 전체에 이어지게. 구/렌즈에선 겹쳐 보여도 동일선이라 무해.
       const buildG=(stp)=>{while(grat.children.length)grat.remove(grat.children[0]);
-        for(let lon=-180;lon<=180;lon+=stp){const p=[];for(let la=-85;la<=85;la+=3)p.push([lon,la]);grat.add(morphLine(p,0xffffff,0.30,U));}
-        for(let lat=-90+stp;lat<90;lat+=stp){const p=[];for(let lo=-180;lo<=180;lo+=3)p.push([lo,lat]);grat.add(morphLine(p,0xffffff,0.30,U));}};
+        for(let lon=-540;lon<=540;lon+=stp){const p=[];for(let la=-85;la<=85;la+=3)p.push([lon,la]);grat.add(morphLine(p,0xffffff,0.30,U));}
+        for(let lat=-90+stp;lat<90;lat+=stp){const p=[];for(let lo=-540;lo<=540;lo+=3)p.push([lo,lat]);grat.add(morphLine(p,0xffffff,0.30,U));}};
       buildG(S.current.step);
-      const eqP=[];for(let lo=-180;lo<=180;lo+=3)eqP.push([lo,0]);const eqL=morphLine(eqP,0xFF7B7B,0.6,U);
-      const pmP=[];for(let la=-85;la<=85;la+=3)pmP.push([0,la]);const pmL=morphLine(pmP,0xFFB270,0.6,U);
+      const eqP=[];for(let lo=-540;lo<=540;lo+=3)eqP.push([lo,0]);const eqL=morphLine(eqP,0xFF7B7B,0.6,U);
+      const pmL=new THREE.Group();for(const off of [-360,0,360]){const pmP=[];for(let la=-85;la<=85;la+=3)pmP.push([off,la]);pmL.add(morphLine(pmP,0xFFB270,0.6,U));}
       scene.add(grat,eqL,pmL);let curStep=S.current.step;
       const applyGrid=()=>{const st=S.current;if(st.step!==curStep){curStep=st.step;buildG(st.step);}grat.visible=st.grat;eqL.visible=st.eq;pmL.visible=st.prime;};
 
@@ -161,8 +165,19 @@ export default function GlobeLab(){
       const onDN=(on)=>{if(on)S.current.sunLon=-90;u.dayNightOn.value=on?1:0;};
       const dolly=(f)=>{const off=camera.position.clone().sub(controls.target);off.setLength(THREE.MathUtils.clamp(off.length()*f,controls.minDistance,controls.maxDistance));camera.position.copy(controls.target).add(off);controls.update();};
       let tr=null;
-      const goView=(v)=>{const to=VIEW[v];tr={t:0,dur:0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:U.uRotY.value,fov:camera.fov,pos:camera.position.clone(),tgt:controls.target.clone()},to:{morph:to.morph,lens:to.lens,rotY:to.rotY,fov:to.fov,pos:new THREE.Vector3(...to.pos),tgt:new THREE.Vector3(0,0,0)}};controls.enabled=false;};
-      const settleView=(v)=>{const p=VIEW[v];controls.enabled=true;controls.enableRotate=p.rotate;controls.enablePan=p.pan;controls.minDistance=p.min;controls.maxDistance=p.max;controls.target.set(0,0,0);
+      const goView=(v)=>{const to=VIEW[v];
+        // 현재 화면 상태로 소스 중심 경도(rad) 산출 → 뷰 전환 후에도 같은 지점 유지
+        const m=U.morph.value,l=U.lens.value; let clR;
+        if(m>0.5) clR=controls.target.x/MS;                                   // 평면에서
+        else if(l>0.5) clR=U.uLon0.value;                                     // 렌즈에서
+        else{const fr=camera.position.clone().sub(controls.target).normalize();clR=vec3ToLonLat(rotY(fr,-U.uRotY.value))[0]*D2R;} // 지구본에서
+        let toRotY,toLon0,toTgt,toPos;
+        if(v==='globe'){toRotY=-Math.PI/2-clR;toLon0=U.uLon0.value;toTgt=new THREE.Vector3(0,0,0);toPos=new THREE.Vector3(...to.pos);}
+        else if(v==='lens'){toRotY=0;toLon0=clR;toTgt=new THREE.Vector3(0,0,0);toPos=new THREE.Vector3(...to.pos);}
+        else{toRotY=0;toLon0=U.uLon0.value;const tx=clR*MS;toTgt=new THREE.Vector3(tx,0,0);toPos=new THREE.Vector3(to.pos[0]+tx,to.pos[1],to.pos[2]);}
+        tr={t:0,dur:0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:U.uRotY.value,lon0:U.uLon0.value,fov:camera.fov,pos:camera.position.clone(),tgt:controls.target.clone()},
+          to:{morph:to.morph,lens:to.lens,rotY:toRotY,lon0:toLon0,fov:to.fov,pos:toPos,tgt:toTgt}};controls.enabled=false;};
+      const settleView=(v)=>{const p=VIEW[v];controls.enabled=true;controls.enableRotate=p.rotate;controls.enablePan=p.pan;controls.minDistance=p.min;controls.maxDistance=p.max;
         if(v==='flat'){controls.mouseButtons={LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN};}
         else if(v==='globe'){controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};}
         else{controls.mouseButtons={LEFT:-1,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:-1};controls.touches={ONE:-1,TWO:THREE.TOUCH.DOLLY_PAN};}
@@ -202,14 +217,18 @@ export default function GlobeLab(){
       const loop=()=>{if(disposed)return;raf=requestAnimationFrame(loop);const dt=clock.getDelta();const st=S.current;
         u.sunLat.value=solarDeclDeg(st.month);if(st.dayNight&&st.dnPlay){st.sunLon=((st.sunLon-dt*15+540)%360)-180;}u.sunLon.value=st.sunLon;
         if(tr){tr.t=Math.min(1,tr.t+dt/tr.dur);const k=ease(tr.t);
-          U.morph.value=tr.from.morph+(tr.to.morph-tr.from.morph)*k;U.lens.value=tr.from.lens+(tr.to.lens-tr.from.lens)*k;U.uRotY.value=tr.from.rotY+(tr.to.rotY-tr.from.rotY)*k;
+          U.morph.value=tr.from.morph+(tr.to.morph-tr.from.morph)*k;U.lens.value=tr.from.lens+(tr.to.lens-tr.from.lens)*k;U.uRotY.value=tr.from.rotY+(tr.to.rotY-tr.from.rotY)*k;U.uLon0.value=tr.from.lon0+(tr.to.lon0-tr.from.lon0)*k;
           camera.fov=tr.from.fov+(tr.to.fov-tr.from.fov)*k;camera.updateProjectionMatrix();camera.position.lerpVectors(tr.from.pos,tr.to.pos,k);controls.target.lerpVectors(tr.from.tgt,tr.to.tgt,k);
           if(tr.t>=1){const v=tr.v;tr=null;settleView(v);}}
-        // 평면 좌우 무한 순환: 카메라 x를 월드폭으로 랩
         const isFlat=st.view==='flat'&&!tr;tileL.visible=tileR.visible=isFlat;
-        if(isFlat){if(controls.target.x>WORLD_W/2){controls.target.x-=WORLD_W;camera.position.x-=WORLD_W;}else if(controls.target.x<-WORLD_W/2){controls.target.x+=WORLD_W;camera.position.x+=WORLD_W;}}
         glow.material.opacity=0.9*Math.max(0,1-U.morph.value-U.lens.value);glow.visible=glow.material.opacity>0.02;
-        controls.update();renderer.render(scene,camera);
+        controls.update();
+        if(isFlat){ // 좌우 무한 순환 + 세로 레터박스 방지
+          if(controls.target.x>WORLD_W/2){controls.target.x-=WORLD_W;camera.position.x-=WORLD_W;}else if(controls.target.x<-WORLD_W/2){controls.target.x+=WORLD_W;camera.position.x+=WORLD_W;}
+          const hh=camera.position.distanceTo(controls.target)*Math.tan(camera.fov*D2R/2), lim=Math.max(0,MAP_HALF-hh);
+          const cy=THREE.MathUtils.clamp(controls.target.y,-lim,lim), dy=cy-controls.target.y; if(dy){controls.target.y=cy;camera.position.y+=dy;}
+        }
+        renderer.render(scene,camera);
         const globeish=U.morph.value<0.5&&U.lens.value<0.5;
         for(const key in labels){const {el,anchor}=labels[key];const w3=projectJS(anchor[0],anchor[1]);let faceOk=true;
           if(globeish){const nrm=rotY(lonLatToVec3(anchor[0],anchor[1],1),U.uRotY.value);faceOk=nrm.dot(v3.copy(camera.position).sub(w3).normalize())>0.02;}

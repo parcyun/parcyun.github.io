@@ -6,22 +6,32 @@ import { geoEquirectangular, geoPath, geoContains } from 'd3-geo';
 THREE.ColorManagement.enabled = false; // 원본 HTML과 색 정확히 일치(sRGB 값 passthrough)
 
 const MONTHS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+// 원본 HTML 데이터 그대로
 const CONT = {
-  asia:   { ko:'아시아', en:'Asia',        color:'#F2683C', anchor:[92,46],   fact:'세계에서 가장 큰 대륙. 전 세계 인구의 약 60%가 산다.' },
-  europe: { ko:'유럽',   en:'Europe',      color:'#5AA9E6', anchor:[16,55],   fact:'작지만 많은 나라가 모여 있는 대륙.' },
-  africa: { ko:'아프리카', en:'Africa',     color:'#F4C145', anchor:[20,3],    fact:'사하라 사막과 나일강이 있는 두 번째로 큰 대륙.' },
-  oceania:{ ko:'오세아니아', en:'Oceania',  color:'#3FC79A', anchor:[134,-26], fact:'오스트레일리아와 태평양의 섬들로 이루어진다.' },
-  na:     { ko:'북아메리카', en:'N. America', color:'#C879E0', anchor:[-100,44], fact:'캐나다·미국·멕시코가 있는 북쪽 대륙.' },
-  sa:     { ko:'남아메리카', en:'S. America', color:'#86D957', anchor:[-60,-12], fact:'아마존 열대우림과 안데스산맥이 있다.' },
-  ant:    { ko:'남극',   en:'Antarctica',  color:'#3A3F49', anchor:[0,-84],   fact:'얼음으로 덮인 가장 추운 대륙.' },
+  asia:   { ko:'아시아', en:'ASIA',          color:'#F2683C', ll:[95,46],   s:22, fact:'가장 큰 대륙. 세계 인구의 절반 이상이 살아요.' },
+  europe: { ko:'유럽',   en:'EUROPE',        color:'#5AA9E6', ll:[18,56],   s:15, fact:'대륙은 작지만 많은 나라가 모여 있어요.' },
+  africa: { ko:'아프리카', en:'AFRICA',       color:'#F4C145', ll:[20,2],    s:20, fact:'두 번째로 큰 대륙. 사하라 사막이 있어요.' },
+  oceania:{ ko:'오세아니아', en:'OCEANIA',    color:'#3FC79A', ll:[134,-26], s:16, fact:'가장 작은 대륙. 오스트레일리아와 섬나라들로 이뤄져요.' },
+  na:     { ko:'북아메리카', en:'NORTH AMERICA', color:'#C879E0', ll:[-100,46], s:19, fact:'북쪽의 큰 대륙. 캐나다·미국·멕시코가 있어요.' },
+  sa:     { ko:'남아메리카', en:'SOUTH AMERICA', color:'#86D957', ll:[-61,-12], s:19, fact:'아마존 열대우림과 안데스산맥이 있는 대륙이에요.' },
+  ant:    { ko:'남극',   en:'ANTARCTICA',    color:'#3A3F49', ll:[10,-80],  s:13, fact:'얼음으로 덮인 대륙. 한국 교육과정의 6대륙에는 넣지 않아요.' },
 };
+const CONT_ORDER = ['asia','europe','africa','oceania','na','sa']; // 남극 제외
 const OCEAN = {
-  pacific: { ko:'태평양', en:'Pacific',  color:'#3E76A8', anchor:[-150,0],  fact:'가장 크고 깊은 바다.' },
-  atlantic:{ ko:'대서양', en:'Atlantic', color:'#4A86AE', anchor:[-30,5],   fact:'아메리카와 유럽·아프리카 사이의 바다.' },
-  indian:  { ko:'인도양', en:'Indian',   color:'#4E9AA0', anchor:[78,-22],  fact:'아시아 남쪽의 세 번째로 큰 바다.' },
-  southern:{ ko:'남극해', en:'Southern', color:'#5A78B8', anchor:[30,-66],  fact:'남극 대륙을 둘러싼 바다.' },
-  arctic:  { ko:'북극해', en:'Arctic',   color:'#4EA0C0', anchor:[0,84],    fact:'가장 작고 얼어붙은 바다.' },
+  pacific: { ko:'태평양', en:'PACIFIC OCEAN',  color:'#2E6CA6', fact:'가장 크고 깊은 바다. 아시아와 아메리카 사이에 있어요.' },
+  atlantic:{ ko:'대서양', en:'ATLANTIC OCEAN', color:'#3E8FB0', fact:'두 번째로 큰 바다. 아메리카와 유럽·아프리카 사이예요.' },
+  indian:  { ko:'인도양', en:'INDIAN OCEAN',   color:'#2FA39B', fact:'세 번째로 큰 바다. 아프리카·아시아·오세아니아 사이에 있어요.' },
+  southern:{ ko:'남극해', en:'SOUTHERN OCEAN', color:'#5A78C2', fact:'남극 대륙을 둘러싼 차가운 바다예요.' },
+  arctic:  { ko:'북극해', en:'ARCTIC OCEAN',   color:'#79B4D6', fact:'가장 작고 추운 바다. 북극 둘레에 얼음이 많아요.' },
 };
+const OCEAN_ORDER = ['pacific','atlantic','indian','southern','arctic'];
+const OCEAN_LABELS = [ // 지도 라벨(KR+EN), 태평양·대서양은 2곳
+  {o:'pacific',en:'Pacific Ocean',ll:[-148,6]},{o:'pacific',en:'Pacific Ocean',ll:[168,-14]},
+  {o:'atlantic',en:'Atlantic Ocean',ll:[-32,26]},{o:'atlantic',en:'Atlantic Ocean',ll:[-18,-32]},
+  {o:'indian',en:'Indian Ocean',ll:[78,-24]},
+  {o:'southern',en:'Southern Ocean',ll:[30,-60]},
+  {o:'arctic',en:'Arctic Ocean',ll:[-46,74]},
+];
 const RES=2048, MS=2/Math.PI, SC=0.8, RMX=2.2, WORLD_W=2*Math.PI*MS, D2R=Math.PI/180, R2D=180/Math.PI;
 const projFor=(ctx)=>geoEquirectangular().scale(RES/(2*Math.PI)).translate([RES/2,RES/4]);
 const solarDeclDeg=(m)=>23.44*Math.sin((2*Math.PI*((m-0.5)*30.44-80))/365);
@@ -96,25 +106,24 @@ const ease=(t)=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 
 export default function GlobeLab(){
   const mountRef=useRef(null),labelRef=useRef(null),api=useRef({});
-  const S=useRef({view:'globe',tex:'vector',country:false,dayNight:false,dnPlay:true,month:6,grat:true,eq:true,prime:false,step:20,sunLon:-90});
-  const [view,setView]=useState('globe'),[texMode,setTexMode]=useState('vector');
+  const S=useRef({view:'flat',country:false,dayNight:false,dnPlay:true,month:6,grat:true,eq:true,prime:false,step:20,sunLon:-90});
+  const [view,setView]=useState('flat');
   const [country,setCountry]=useState(false),[dayNight,setDayNight]=useState(false),[dnPlay,setDnPlay]=useState(true),[month,setMonth]=useState(6);
   const [grat,setGrat]=useState(true),[eq,setEq]=useState(true),[prime,setPrime]=useState(false),[step,setStep]=useState(20);
   const [sel,setSel]=useState(null),[status,setStatus]=useState('로딩 중…');
 
-  useEffect(()=>{Object.assign(S.current,{view,tex:texMode,country,dayNight,dnPlay,month,grat,eq,prime,step:+step||20});},[view,texMode,country,dayNight,dnPlay,month,grat,eq,prime,step]);
-  useEffect(()=>{api.current.applyTex&&api.current.applyTex();},[texMode]);
+  useEffect(()=>{Object.assign(S.current,{view,country,dayNight,dnPlay,month,grat,eq,prime,step:+step||20});},[view,country,dayNight,dnPlay,month,grat,eq,prime,step]);
   useEffect(()=>{api.current.goView&&api.current.goView(view);},[view]);
   useEffect(()=>{api.current.applyGrid&&api.current.applyGrid();},[grat,eq,prime,step]);
   useEffect(()=>{api.current.applySel&&api.current.applySel(sel);},[sel]);
   useEffect(()=>{if(api.current.onDN)api.current.onDN(dayNight);},[dayNight]);
 
   useEffect(()=>{
-    const mount=mountRef.current;let raf,renderer,controls,disposed=false;
+    const mount=mountRef.current;let raf,renderer,controls,cleanupFn=null,disposed=false;
     (async()=>{
       const w=mount.clientWidth,h=mount.clientHeight;
       const scene=new THREE.Scene();
-      const camera=new THREE.PerspectiveCamera(VIEW.globe.fov,w/h,0.1,200);camera.position.set(...VIEW.globe.pos);
+      const camera=new THREE.PerspectiveCamera(VIEW.flat.fov,w/h,0.1,200);camera.position.set(...VIEW.flat.pos);
       renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.outputColorSpace=THREE.LinearSRGBColorSpace;renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(w,h);mount.appendChild(renderer.domElement);
       controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.08;controls.enablePan=false;controls.screenSpacePanning=true;
 
@@ -127,13 +136,7 @@ export default function GlobeLab(){
       const [world,oceans]=await Promise.all([fetch('/lab-data/world.json').then(r=>r.json()),fetch('/lab-data/oceans.json').then(r=>r.json())]);
       if(disposed)return;
       const vDay=buildBase({world,night:false}),vNight=buildBase({world,night:true});
-      setStatus('위성 텍스처 로딩…');
-      const loader=new THREE.TextureLoader();loader.setCrossOrigin('anonymous');
-      const lt=(u)=>new Promise(res=>loader.load(u,t=>{t.colorSpace=THREE.NoColorSpace;t.anisotropy=8;res(t);},undefined,()=>res(null)));
-      const [phoDay,phoNight]=await Promise.all([lt('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg'),lt('https://threejs.org/examples/textures/planets/earth_lights_2048.png')]);
-      if(disposed)return;
-
-      const U={morph:{value:0},lens:{value:0},uRotY:{value:VIEW.globe.rotY},uLon0:{value:0}};
+      const U={morph:{value:VIEW.flat.morph},lens:{value:VIEW.flat.lens},uRotY:{value:VIEW.flat.rotY},uLon0:{value:0}};
       let overlayTex=buildOverlay({sel:null,world,oceans});
       const u={dayTex:{value:vDay},nightTex:{value:vNight},overlayTex:{value:overlayTex},...U,sunLon:{value:S.current.sunLon},sunLat:{value:solarDeclDeg(6)},nightBoost:{value:1},dayNightOn:{value:0}};
       const mesh=new THREE.Mesh(morphGeom(180,90),new THREE.ShaderMaterial({vertexShader:meshVert,fragmentShader:meshFrag,uniforms:u,side:THREE.DoubleSide}));
@@ -154,18 +157,18 @@ export default function GlobeLab(){
       scene.add(grat,eqL,pmL);let curStep=S.current.step;
       const applyGrid=()=>{const st=S.current;if(st.step!==curStep){curStep=st.step;buildG(st.step);}grat.visible=st.grat;eqL.visible=st.eq;pmL.visible=st.prime;};
 
-      const applyTex=()=>{const st=S.current,pho=st.tex==='photoreal'&&phoDay;u.dayTex.value=pho?phoDay:vDay;u.nightTex.value=pho?(phoNight||phoDay):vNight;u.nightBoost.value=pho?2.2:1;};
       const applySel=(s)=>{overlayTex.dispose();overlayTex=buildOverlay({sel:s,world,oceans});u.overlayTex.value=overlayTex;};
       const onDN=(on)=>{if(on)S.current.sunLon=-90;u.dayNightOn.value=on?1:0;};
       const dolly=(f)=>{const off=camera.position.clone().sub(controls.target);off.setLength(THREE.MathUtils.clamp(off.length()*f,controls.minDistance,controls.maxDistance));camera.position.copy(controls.target).add(off);controls.update();};
       let tr=null;
       const goView=(v)=>{const to=VIEW[v];tr={t:0,dur:0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:U.uRotY.value,fov:camera.fov,pos:camera.position.clone(),tgt:controls.target.clone()},to:{morph:to.morph,lens:to.lens,rotY:to.rotY,fov:to.fov,pos:new THREE.Vector3(...to.pos),tgt:new THREE.Vector3(0,0,0)}};controls.enabled=false;};
       const settleView=(v)=>{const p=VIEW[v];controls.enabled=true;controls.enableRotate=p.rotate;controls.enablePan=p.pan;controls.minDistance=p.min;controls.maxDistance=p.max;controls.target.set(0,0,0);controls.update();};
-      api.current={applyTex,applyGrid,applySel,onDN,dolly,goView,pickContinent:(k)=>setSel({type:'continent',key:k}),pickOcean:(k)=>setSel({type:'ocean',key:k})};
-      applyTex();applyGrid();settleView('globe');
+      api.current={applyGrid,applySel,onDN,dolly,goView,pickContinent:(k)=>setSel({type:'continent',key:k}),pickOcean:(k)=>setSel({type:'ocean',key:k})};
+      applyGrid();settleView('flat');
 
-      const labels={};const mk=(dict,cls)=>{for(const k of Object.keys(dict)){const el=document.createElement('div');el.className='gl-lbl '+cls;el.innerHTML=cls==='ocn'?`<div class="kr">${dict[k].ko}</div>`:dict[k].ko;labelRef.current.appendChild(el);labels[cls+k]={el,anchor:dict[k].anchor};}};
-      mk(CONT,'cont');mk(OCEAN,'ocn');
+      const labels={};
+      for(const [k,d] of Object.entries(CONT)){const el=document.createElement('div');el.className='gl-lbl cont';el.textContent=d.ko;el.style.fontSize=d.s+'px';labelRef.current.appendChild(el);labels['c'+k]={el,anchor:d.ll};}
+      OCEAN_LABELS.forEach((L,i)=>{const el=document.createElement('div');el.className='gl-lbl ocn';el.innerHTML=`<div class="kr">${OCEAN[L.o].ko}</div><div class="en">${L.en}</div>`;labelRef.current.appendChild(el);labels['o'+i]={el,anchor:L.ll};});
 
       // 스테레오/메르카토 위치 계산(라벨용, project()와 동일)
       const projectJS=(lon,lat)=>{const uvx=(lon+180)/360; const morph=U.morph.value,lens=U.lens.value,rY=U.uRotY.value,l0=U.uLon0.value;
@@ -192,7 +195,7 @@ export default function GlobeLab(){
       const onResize=()=>{const W=mount.clientWidth,H=mount.clientHeight;camera.aspect=W/H;camera.updateProjectionMatrix();renderer.setSize(W,H);};
       window.addEventListener('resize',onResize);
       const clock=new THREE.Clock(),v3=new THREE.Vector3();
-      const loop=()=>{raf=requestAnimationFrame(loop);const dt=clock.getDelta();const st=S.current;
+      const loop=()=>{if(disposed)return;raf=requestAnimationFrame(loop);const dt=clock.getDelta();const st=S.current;
         u.sunLat.value=solarDeclDeg(st.month);if(st.dayNight&&st.dnPlay){st.sunLon=((st.sunLon-dt*15+540)%360)-180;}u.sunLon.value=st.sunLon;
         if(tr){tr.t=Math.min(1,tr.t+dt/tr.dur);const k=ease(tr.t);
           U.morph.value=tr.from.morph+(tr.to.morph-tr.from.morph)*k;U.lens.value=tr.from.lens+(tr.to.lens-tr.from.lens)*k;U.uRotY.value=tr.from.rotY+(tr.to.rotY-tr.from.rotY)*k;
@@ -211,14 +214,15 @@ export default function GlobeLab(){
           el.style.display='block';el.style.left=((p.x*0.5+0.5)*mount.clientWidth)+'px';el.style.top=((-p.y*0.5+0.5)*mount.clientHeight)+'px';}
       };
       loop();setStatus('');
-      GlobeLab._cleanup=()=>{window.removeEventListener('resize',onResize);cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
+      cleanupFn=()=>{window.removeEventListener('resize',onResize);cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
+      if(disposed)cleanupFn();
     })();
-    return ()=>{disposed=true;if(GlobeLab._cleanup)GlobeLab._cleanup();};
+    return ()=>{disposed=true;cancelAnimationFrame(raf);if(cleanupFn)cleanupFn();};
   },[]);
 
   const info=sel&&(sel.type==='ocean'?{sw:OCEAN[sel.key].color,en:OCEAN[sel.key].en,kr:OCEAN[sel.key].ko,fact:OCEAN[sel.key].fact}
     :sel.type==='continent'?{sw:CONT[sel.key].color,en:CONT[sel.key].en,kr:CONT[sel.key].ko,fact:CONT[sel.key].fact}
-    :{sw:(CONT[sel.key]||{}).color||'#888',en:(CONT[sel.key]||{}).en||'',kr:sel.name,fact:CONT[sel.key]?`${CONT[sel.key].ko} 대륙의 나라`:''});
+    :{sw:(CONT[sel.key]||{}).color||'#888',en:sel.name,kr:sel.name,fact:CONT[sel.key]?`${CONT[sel.key].ko} 대륙`:''});
 
   return (
     <div id="app" className="gl-app">
@@ -227,9 +231,9 @@ export default function GlobeLab(){
       {status && <div className="gl-status">{status}</div>}
       <div className={'info'+(info?' show':'')}>{info&&<><div className="swatch" style={{background:info.sw}} /><div className="en">{info.en}</div><div className="kr">{info.kr}</div><div className="fact">{info.fact}</div></>}</div>
       <div className="legend"><div className="legend-cols">
-        <div className="legend-col"><h4>6대륙</h4>{['asia','africa','europe','na','sa','oceania','ant'].map(k=>(<button key={k} className={'chip'+(sel&&sel.key===k&&sel.type!=='ocean'?' on':'')} onClick={()=>api.current.pickContinent&&api.current.pickContinent(k)}><span className="dot" style={{background:CONT[k].color}} /><span>{CONT[k].ko}</span><small>{CONT[k].en}</small></button>))}</div>
-        <div className="legend-col"><h4>5대양</h4>{['pacific','atlantic','indian','southern','arctic'].map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='ocean'&&sel.key===k?' on':'')} onClick={()=>api.current.pickOcean&&api.current.pickOcean(k)}><span className="dot" style={{background:OCEAN[k].color}} /><span>{OCEAN[k].ko}</span><small>{OCEAN[k].en}</small></button>))}</div>
-      </div><div className="note">대륙·대양을 클릭하면 이름과 설명이 나와요.</div></div>
+        <div className="legend-col"><h4>6 Continents</h4>{CONT_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.key===k&&sel.type!=='ocean'?' on':'')} onClick={()=>api.current.pickContinent&&api.current.pickContinent(k)}><span className="dot" style={{background:CONT[k].color}} /><span>{CONT[k].ko}</span><small>{CONT[k].en.split(' ')[0]}</small></button>))}</div>
+        <div className="legend-col"><h4>5 Oceans</h4>{OCEAN_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='ocean'&&sel.key===k?' on':'')} onClick={()=>api.current.pickOcean&&api.current.pickOcean(k)}><span className="dot" style={{background:OCEAN[k].color}} /><span>{OCEAN[k].ko}</span><small>{OCEAN[k].en.split(' ')[0]}</small></button>))}</div>
+      </div><div className="note">남극(Antarctica)은 6대륙에서 제외</div></div>
       <div className="grid-panel">
         <h4>Grid</h4>
         <label className="tg"><input type="checkbox" checked={grat} onChange={e=>setGrat(e.target.checked)} /><span>위경도 격자</span></label>
@@ -239,7 +243,6 @@ export default function GlobeLab(){
         <label className="tg tg-sep"><input type="checkbox" checked={country} onChange={e=>setCountry(e.target.checked)} /><span>국가 선택 <small>(실험)</small></span></label>
         <label className="tg"><input type="checkbox" checked={dayNight} onChange={e=>setDayNight(e.target.checked)} /><span>낮과 밤</span></label>
         {dayNight && <div className="daynight-ctl"><button className={'dn-btn'+(dnPlay?' on':'')} onClick={()=>setDnPlay(p=>!p)}>{dnPlay?'❚❚':'▶'}</button><input type="range" min="1" max="12" step="1" value={month} onChange={e=>setMonth(+e.target.value)} /><span className="dn-lbl">{MONTHS[month-1]}</span></div>}
-        <label className="tg tg-sep"><input type="checkbox" checked={texMode==='photoreal'} onChange={e=>setTexMode(e.target.checked?'photoreal':'vector')} /><span>위성 사진 <small>(dev)</small></span></label>
       </div>
       <div className="projseg">
         <button className={view==='flat'?'on':''} onClick={()=>setView('flat')}>평면</button>
@@ -251,14 +254,16 @@ export default function GlobeLab(){
         <button className="ctrl" aria-label="축소" onClick={()=>api.current.dolly&&api.current.dolly(1.25)}>−</button>
         <button className="ctrl home" aria-label="처음으로" onClick={()=>api.current.goView&&api.current.goView(view)}>⟳</button>
       </div>
-      <div className="hint">{view==='flat'?'좌우로 끝없이 이어집니다 · 대륙·바다 클릭':view==='lens'?'드래그로 렌즈 회전 · 대륙·바다 클릭':'드래그로 회전 · 휠로 확대 · 대륙·바다 클릭'}</div>
+      <div className="hint">{view==='flat'?'드래그하면 지도가 좌우로 끝없이 이어집니다 · 대륙을 클릭해 보세요':view==='lens'?'드래그로 렌즈 회전 · 대륙을 클릭해 보세요':'드래그로 회전 · 휠로 확대 · 대륙을 클릭해 보세요'}</div>
       <div className="watermark">{MODE_WM[view]}</div>
       <footer className="ps-footer">Designed by <span className="ps-signature">parcyun studio</span> · <a href="https://www.instagram.com/parcyun" className="ps-ig" target="_blank" rel="noopener">@parcyun</a> · <span style={{color:'var(--ps-primary)'}}>#3 개발자 뷰</span></footer>
       <style>{`
         .gl-app{--ps-primary:#FFB11A;--bg:#04060B;--surface-1:#101319;--surface-2:#191D26;--border:#2A2F3A;--text:#fff;--text-2:#8C93A1;--font-kr:'Pretendard Variable','Pretendard','Montserrat',system-ui,sans-serif;--font-en:'Montserrat',sans-serif;--font-sig:'Covered By Your Grace',cursive;--ease:cubic-bezier(0.16,1,0.3,1);position:fixed;inset:0;background:var(--bg);color:var(--text);font-family:var(--font-kr);user-select:none;overflow:hidden}
         .gl-canvas{position:absolute;inset:0}.gl-labels{position:absolute;inset:0;pointer-events:none}#stage{position:absolute;inset:0;cursor:grab}
-        .gl-lbl{position:absolute;transform:translate(-50%,-50%);font-weight:600;color:#fff;font-size:13px;letter-spacing:.02em;text-shadow:0 0 3px #000,0 0 3px #000,0 1px 4px #000;white-space:nowrap}
-        .gl-lbl.ocn .kr{color:#9DB0D6;font-weight:300;font-size:13px;letter-spacing:.16em}
+        .gl-lbl{position:absolute;transform:translate(-50%,-50%);letter-spacing:.02em;text-shadow:0 0 3px #000,0 0 3px #000,0 1px 4px #000;white-space:nowrap;text-align:center}
+        .gl-lbl.cont{font-weight:600;color:#fff}
+        .gl-lbl.ocn .kr{color:#9DB0D6;font-weight:300;font-size:14px;letter-spacing:.18em}
+        .gl-lbl.ocn .en{font-family:var(--font-en);font-weight:300;color:#56627E;font-size:8.5px;letter-spacing:.32em;text-transform:uppercase;margin-top:2px}
         .gl-status{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--ps-primary);font-size:14px;z-index:40}
         .topbar{position:absolute;top:0;left:0;right:0;z-index:30;display:flex;padding:18px 22px;pointer-events:none}.title-wrap{pointer-events:auto}
         .kicker{font-family:var(--font-en);font-size:10px;letter-spacing:.28em;color:var(--ps-primary);font-weight:600;text-transform:uppercase}

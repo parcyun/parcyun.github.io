@@ -156,6 +156,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .ps-visits-float{left:50%!important;transform:translateX(-50%);bottom:14px!important;
   right:auto!important}                               /* 방문자수 하단 중앙(범례와 안 겹침) */
 @media(max-width:520px){.controls{bottom:96px}.ps-share-fab{bottom:56px!important}}
+
+/* 낮·밤 컨트롤(#낮밤/v24) */
+.daynight-ctl{display:flex;align-items:center;gap:8px;margin-top:9px;padding-top:9px;border-top:1px solid var(--border)}
+.dn-btn{width:30px;height:26px;border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,.04);color:var(--text);cursor:pointer;font-size:11px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .16s var(--ease)}
+.dn-btn:hover{border-color:var(--ps-primary);color:var(--ps-primary)}
+.daynight-ctl input[type=range]{flex:1;min-width:78px;height:3px;accent-color:var(--ps-primary);cursor:pointer}
+.dn-lbl{font-size:11px;color:var(--text-2);min-width:28px;text-align:right;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -187,13 +194,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <label class="tg"><input type="checkbox" id="tgPrime"><span>본초자오선</span></label>
     <div class="step"><span>간격</span><input type="number" id="inStep" min="5" max="90" step="5" value="20"><span>°</span></div>
     <label class="tg" style="margin-top:8px;border-top:1px solid var(--border);padding-top:9px"><input type="checkbox" id="tgCountry"><span>국가 선택 <small style="color:var(--text-2)">(실험)</small></span></label>
+    <label class="tg"><input type="checkbox" id="tgDayNight"><span>낮과 밤</span></label>
+    <div class="daynight-ctl" id="dayNightCtl" hidden>
+      <button id="dnPlay" class="dn-btn" title="재생/일시정지">❚❚</button>
+      <input type="range" id="dnMonth" min="1" max="12" step="1" value="6" aria-label="월(계절)">
+      <span class="dn-lbl" id="dnMonthLbl">6월</span>
+    </div>
   </div>
 
   <div class="projseg" id="projseg">
     <button data-mode="flat" class="on">평면</button>
     <button data-mode="lens">Focus Lens</button>
     <button data-mode="globe">지구본</button>
-    <button data-mode="daynight">낮과 밤</button>
   </div>
 
   <div class="controls">
@@ -278,7 +290,7 @@ const stage=document.getElementById('stage');
 const svg=d3.select('#map');
 // #P2/v19 도법 3종 모핑: 평면(메르카토르)/렌즈(스테레오그래픽)/지구본(정사도법).
 let projMode='flat',alpha=0,phi=0,proj,path,projMutate,targetRaw=d3.geoOrthographicRaw;
-const TARGET_RAW={lens:d3.geoStereographicRaw,globe:d3.geoOrthographicRaw,daynight:d3.geoOrthographicRaw};
+const TARGET_RAW={lens:d3.geoStereographicRaw,globe:d3.geoOrthographicRaw};
 function buildProj(){
   projMutate=d3.geoProjectionMutator(t=>(x,y)=>{
     const a=d3.geoMercatorRaw(x,y),b=targetRaw(x,y);
@@ -293,7 +305,7 @@ function applyProj(){
   const effScale=scale*(1-alpha)+tScale*alpha;
   proj.scale(effScale).rotate([lambda,phi*alpha]).translate([W/2,H/2+panY*(1-alpha)])
       .clipExtent([[-2,-2],[W+2,H+2]])
-      .clipAngle(alpha>=0.999?((projMode==='globe'||projMode==='daynight')?90:(projMode==='lens'?150:null)):null);
+      .clipAngle(alpha>=0.999?(projMode==='globe'?90:(projMode==='lens'?150:null)):null);
 }
 const grat=d3.geoGraticule().step([20,20]);
 const equatorLine={type:'LineString',coordinates:Array.from({length:73},(_,i)=>[-180+i*5,0])};
@@ -398,7 +410,7 @@ function featureAt(lon,lat){ for(const f of WORLD.features){ if(d3.geoContains(f
 function hitProj(){
   const fit=Math.min(W,H)*0.46;
   let b;
-  if(projMode==='globe'||projMode==='daynight') b=d3.geoOrthographic().clipAngle(90).scale(fit*globeZoom);
+  if(projMode==='globe') b=d3.geoOrthographic().clipAngle(90).scale(fit*globeZoom);
   else if(projMode==='lens') b=d3.geoStereographic().clipAngle(150).scale(fit*0.62*globeZoom);
   else b=d3.geoMercator().scale(scale);
   return b.rotate([lambda, projMode==='flat'?0:phi]).translate([W/2, H/2+(projMode==='flat'?panY:0)]);
@@ -459,26 +471,52 @@ function animateAlpha(to,done){
     if(k<1)animRAF=requestAnimationFrame(step);else{animRAF=null;alpha=to;render();if(done)done();}
   })(performance.now());
 }
-// #낮밤/v23: 태양은 화면에 고정, 지구가 자전 → 밤 반구(반태양점)를 뷰 좌표에 고정하고
-// 회전 역변환으로 지리좌표를 구한다. 자전(lambda↑)해도 밤은 화면에 머물고 대륙이 통과한다.
-const SUN_VIEW=[-72,-12];  // 뷰상 밤 반구 중심(좌·약간아래) — 태양은 우상단에서 비춤
-function nightGeo(){ const anti=d3.geoRotation(proj.rotate()).invert(SUN_VIEW);
-  return d3.geoCircle().center(anti).radius(90)(); }
-let spinRAF=null,spinPrev=0;
-function startSpin(){ if(spinRAF)return; spinPrev=performance.now(); spinRAF=requestAnimationFrame(spinTick); }
-function stopSpin(){ if(spinRAF){cancelAnimationFrame(spinRAF); spinRAF=null;} }
-function spinTick(now){ const dt=Math.min(60,now-spinPrev); spinPrev=now;
-  if(!dragging){ lambda=((lambda+8*dt/1000+180)%360+360)%360-180; }  // 8°/s 천천히 자전
-  render(); spinRAF = projMode==='daynight' ? requestAnimationFrame(spinTick) : null; }
+// #낮밤/v24: 도법과 독립된 토글. 평면/렌즈/지구본 어디서나 낮·밤 그림자 표시.
+//  - 평면: 지리 반태양점(sunLon=시간)을 두고 경계선이 지도 위를 서→동으로 쓸고 감.
+//  - 렌즈·지구본: 태양을 화면에 고정(우상단)하고 지구를 자전(lambda↑) → 대륙이 낮→밤 통과.
+//  - 월 슬라이더 → 태양 적위(계절): 여름 북극 백야·겨울 남극 백야 등 극야/백야 표현.
+let dayNightOn=false, dnPlaying=true, dnMonth=6, sunLon=0;
+function solarDecl(){ return 23.44*Math.sin(2*Math.PI*(((dnMonth-0.5)*30.44)-80)/365); }
+function nightGeo(){
+  const d=solarDecl();
+  // 지리 반태양점(모든 모드 공통). 지구본에서 lambda(자전·드래그)가 바뀌면 이 지리점이 proj로
+  // 다시 투영돼 그림자가 지구와 함께 움직인다(화면 고정이 아니라 지구에 '붙어' 회전 따라감).
+  const anti=[((sunLon+180+540)%360)-180, -d];
+  return d3.geoCircle().center(anti).radius(90)();
+}
+let dnRAF=null, dnPrev=0;
+function dnTick(now){
+  const dt=Math.min(60, now-dnPrev); dnPrev=now;
+  if(!dragging){
+    if(projMode==='flat') sunLon=((sunLon-12*dt/1000+540)%360)-180;      // 시간 흐름(서쪽)
+    else lambda=((lambda+8*dt/1000+180)%360+360)%360-180;                 // 지구 자전 8°/s
+  }
+  render();
+  dnRAF=(dayNightOn&&dnPlaying)?requestAnimationFrame(dnTick):null;
+}
+function startDN(){ if(dnRAF)return; dnPrev=performance.now(); dnRAF=requestAnimationFrame(dnTick); }
+function stopDN(){ if(dnRAF){cancelAnimationFrame(dnRAF); dnRAF=null;} }
 function setMode(m){
   document.getElementById('projseg').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
-  const _wm=document.getElementById('watermark'); if(_wm)_wm.textContent={flat:'Mercator Projection',lens:'Focus Lens View',globe:'Orthographic Globe',daynight:'Day & Night · Rotating'}[m];
-  if(projMode==='daynight'&&m!=='daynight') stopSpin();  // 낮밤 벗어나면 자전 정지
+  const _wm=document.getElementById('watermark'); if(_wm)_wm.textContent={flat:'Mercator Projection',lens:'Focus Lens View',globe:'Orthographic Globe'}[m];
   if(m==='flat'){ if(alpha===0){projMode='flat';return;} animateAlpha(0,()=>{projMode='flat';}); return; }
-  const go=()=>{ targetRaw=TARGET_RAW[m]; buildProj(); projMode=m; animateAlpha(1, m==='daynight'?startSpin:null); };
+  const go=()=>{ targetRaw=TARGET_RAW[m]; buildProj(); projMode=m; animateAlpha(1); };
   if(alpha>0.001) animateAlpha(0,go); else go();
 }
 document.getElementById('projseg').querySelectorAll('button').forEach(b=>{ b.onclick=()=>setMode(b.dataset.mode); });
+// 낮·밤 토글 / 재생·정지 / 월(계절)
+document.getElementById('tgDayNight').onchange=e=>{
+  dayNightOn=e.target.checked;
+  document.getElementById('dayNightCtl').hidden=!dayNightOn;
+  if(dayNightOn){
+    if(projMode!=='flat') sunLon=(((-lambda-90)+540)%360)-180;  // 경계선이 현재 뷰에 걸치게
+    dnPlaying=true; document.getElementById('dnPlay').textContent='❚❚'; startDN();
+  } else { stopDN(); schedule(); }
+};
+document.getElementById('dnPlay').onclick=()=>{ dnPlaying=!dnPlaying;
+  document.getElementById('dnPlay').textContent=dnPlaying?'❚❚':'▶'; if(dnPlaying)startDN(); };
+document.getElementById('dnMonth').oninput=e=>{ dnMonth=+e.target.value;
+  document.getElementById('dnMonthLbl').textContent=dnMonth+'월'; schedule(); };
 
 // #2/v11: 확대 상한 9→60배(도시국가·소도서까지 렌더링되도록). 벡터라 고배율도 부담 적음.
 function clampScale(){scale=Math.max(baseScale,Math.min(scale,baseScale*60));}
@@ -549,7 +587,7 @@ function render(){
   gGrat.attr('d',showGrat?path(grat()):null);
   gEq.attr('d',showEq?path(equatorLine):null);
   gPrime.attr('d',showPrime?path(primeLine):null);
-  gNight.attr('d', (projMode==='daynight'&&alpha>0.5)?path(nightGeo()):null).style('opacity',(projMode==='daynight'?0.6:0)*alpha);
+  gNight.attr('d', dayNightOn?path(nightGeo()):null).style('opacity', dayNightOn?0.6:0);
 
   // labels
   const rot=proj.rotate(), center=[-rot[0],-rot[1]];

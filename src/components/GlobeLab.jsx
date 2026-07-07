@@ -75,10 +75,10 @@ const GLSL=`const float PI=3.141592653589793; const float MS=0.6366197723675814;
 vec3 project(vec2 uv, vec3 sphere, float morph, float lens, float rotY, float rotX, float lon0, float lat0, float offX){
   float lon=(uv.x-0.5)*2.0*PI; float lat=(uv.y-0.5)*PI; float latC=clamp(lat,-1.4,1.4);
   vec3 pl=vec3(lon*MS+offX, log(tan(PI/4.0+latC/2.0))*MS, 0.0);
-  // oblique 스테레오그래픽(중심 lon0,lat0)
-  float slon=lon-lon0, sl0=sin(lat0), cl0=cos(lat0);
-  float cosc=sl0*sin(lat)+cl0*cos(lat)*cos(slon); float k=2.0/max(1.0+cosc,0.14);
-  vec3 st=vec3(SC*k*cos(lat)*sin(slon), SC*k*(cl0*sin(lat)-sl0*cos(lat)*cos(slon)), 0.0); float rr=length(st.xy); if(rr>RMX) st.xy*=RMX/rr;
+  // 렌즈 = 평면(메르카토르) + 화면중심 어안 확대 버블(lon0,lat0=렌즈중심 월드좌표). 구가 아니라 평면.
+  vec2 lc=vec2(lon0,lat0); vec2 dd=pl.xy-lc; float r=length(dd); float R=2.4, mg=2.6;
+  float rr = r<R ? R*(1.0-pow(max(1.0-r/R,0.0),mg)) : r;
+  vec3 st=vec3(lc + (r>1e-5? dd/r : vec2(0.0))*rr, 0.0);
   // 구 회전: Y(경도) 후 X(위도 틸트)
   float cy=cos(rotY), sy=sin(rotY); vec3 s1=vec3(sphere.x*cy+sphere.z*sy, sphere.y, -sphere.x*sy+sphere.z*cy);
   float cx=cos(rotX), sx=sin(rotX); vec3 sph=vec3(s1.x, s1.y*cx-s1.z*sx, s1.y*sx+s1.z*cx);
@@ -90,7 +90,6 @@ const cloneVert=GLSL+`uniform float uOffsetX; varying vec2 vUv;
 void main(){ vUv=uv; vec3 p=project(uv,position,1.0,0.0,0.0,0.0,0.0,0.0,uOffsetX); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
 const meshFrag=`uniform sampler2D dayTex,nightTex,overlayTex; uniform float sunLon,sunLat,nightBoost,dayNightOn,lens,uLon0,uLat0; varying vec2 vUv;
 void main(){ float lon=(vUv.x-0.5)*360.0, lat=(vUv.y-0.5)*180.0;
-  if(lens>0.5){ float rl2=radians(lat),ro2=radians(lon); float cc=sin(uLat0)*sin(rl2)+cos(uLat0)*cos(rl2)*cos(ro2-uLon0); if(cc < -0.866) discard; } // clipAngle(150)
   float rl=radians(lat),ro=radians(lon),sa=radians(sunLat),so=radians(sunLon);
   float cz=sin(rl)*sin(sa)+cos(rl)*cos(sa)*cos(ro-so); float t=mix(1.0,smoothstep(-0.10,0.12,cz),dayNightOn);
   vec3 base=mix(texture2D(nightTex,vUv).rgb*nightBoost, texture2D(dayTex,vUv).rgb, t); vec4 ov=texture2D(overlayTex,vUv);
@@ -115,7 +114,7 @@ function morphLine(pts,color,opacity,U,offX=0){const g=new THREE.BufferGeometry(
 //  globe: 구반경1 → d3 fit=min·0.46 ⇒ zoom 0.92 / lens: 90°=2·SC → d3 fit·0.62·0.285 ⇒ zoom 0.248 / flat: MS·zoom·.5=.46 ⇒ 1.445
 const VIEW={
   globe:{morph:0,lens:0,rotY:-Math.PI/2,zoom:0.92, rotate:true, pan:false,zmin:0.45,zmax:11},
-  lens: {morph:0,lens:1,rotY:0,        zoom:0.32, rotate:false,pan:false,zmin:0.14,zmax:3},
+  lens: {morph:0,lens:1,rotY:0,        zoom:0.62, rotate:false,pan:true, zmin:0.4, zmax:4},
   flat: {morph:1,lens:0,rotY:0,        zoom:0.74, rotate:false,pan:true, zmin:0.64,zmax:9},
 };
 const MODE_WM={flat:'Mercator Projection',lens:'Focus Lens View',globe:'Orthographic Globe'};
@@ -196,19 +195,18 @@ export default function GlobeLab(){
       const goView=(v)=>{const to=VIEW[v];
         // 현재 화면 상태로 소스 중심 경위도(rad) 산출 → 뷰 전환 후에도 같은 지점 유지(#5)
         const m=U.morph.value,l=U.lens.value; let clR,claR;
-        if(m>0.5){clR=controls.target.x/MS;claR=2*Math.atan(Math.exp(controls.target.y/MS))-Math.PI/2;}    // 평면
-        else if(l>0.5){clR=U.uLon0.value;claR=U.uLat0.value;}                                              // 렌즈
+        if(m>0.5||l>0.5){clR=controls.target.x/MS;claR=2*Math.atan(Math.exp(controls.target.y/MS))-Math.PI/2;}  // 평면·렌즈(둘 다 메르카토르 좌표)
         else{const fr=camera.position.clone().sub(controls.target).normalize();const g=vec3ToLonLat(rotY(rotX(fr,-U.uRotX.value),-U.uRotY.value));clR=g[0]*D2R;claR=g[1]*D2R;} // 지구본
+        const tx=clR*MS,ty=Math.log(Math.tan(Math.PI/4+THREE.MathUtils.clamp(claR,-1.4,1.4)/2))*MS;
         let toRotY,toRotXv,toLon0,toLat0,toTgt,toPos;
         if(v==='globe'){toRotY=-Math.PI/2-clR;toRotXv=claR;toLon0=U.uLon0.value;toLat0=U.uLat0.value;toTgt=new THREE.Vector3(0,0,0);toPos=new THREE.Vector3(0,0,10);}
-        else if(v==='lens'){toRotY=0;toRotXv=0;toLon0=clR;toLat0=claR;toTgt=new THREE.Vector3(0,0,0);toPos=new THREE.Vector3(0,0,10);}
-        else{toRotY=0;toRotXv=0;toLon0=U.uLon0.value;toLat0=U.uLat0.value;const tx=clR*MS,ty=Math.log(Math.tan(Math.PI/4+THREE.MathUtils.clamp(claR,-1.4,1.4)/2))*MS;toTgt=new THREE.Vector3(tx,ty,0);toPos=new THREE.Vector3(tx,ty,10);}
+        else if(v==='lens'){toRotY=0;toRotXv=0;toLon0=tx;toLat0=ty;toTgt=new THREE.Vector3(tx,ty,0);toPos=new THREE.Vector3(tx,ty,10);}  // 렌즈=평면 중심+어안버블
+        else{toRotY=0;toRotXv=0;toLon0=U.uLon0.value;toLat0=U.uLat0.value;toTgt=new THREE.Vector3(tx,ty,0);toPos=new THREE.Vector3(tx,ty,10);}
         tr={t:0,dur:0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:U.uRotY.value,rotX:U.uRotX.value,lon0:U.uLon0.value,lat0:U.uLat0.value,zoom:camera.zoom,pos:camera.position.clone(),tgt:controls.target.clone()},
           to:{morph:to.morph,lens:to.lens,rotY:toRotY,rotX:toRotXv,lon0:toLon0,lat0:toLat0,zoom:to.zoom,pos:toPos,tgt:toTgt}};controls.enabled=false;};
       const settleView=(v)=>{const p=VIEW[v];controls.enabled=true;controls.enableRotate=p.rotate;controls.enablePan=p.pan;controls.minZoom=p.zmin;controls.maxZoom=p.zmax;
-        if(v==='flat'){controls.mouseButtons={LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN};}
-        else if(v==='globe'){controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};}
-        else{controls.mouseButtons={LEFT:-1,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:-1};controls.touches={ONE:-1,TWO:THREE.TOUCH.DOLLY_PAN};}
+        if(v==='globe'){controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};}
+        else{controls.mouseButtons={LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN};} // 평면·렌즈=팬
         controls.update();};
       api.current={applyGrid,applySel,onDN,dolly,goView,pickContinent:(k)=>setSel({type:'continent',key:k}),pickOcean:(k)=>setSel({type:'ocean',key:k})};
       applyGrid();settleView('flat');
@@ -221,27 +219,22 @@ export default function GlobeLab(){
       const projectJS=(lon,lat)=>{const morph=U.morph.value,lens=U.lens.value,rY=U.uRotY.value,rXv=U.uRotX.value,l0=U.uLon0.value,la0=U.uLat0.value;
         const loR=lon*D2R, laR=lat*D2R, latC=THREE.MathUtils.clamp(laR,-1.4,1.4);
         const pl=new THREE.Vector3(loR*MS, Math.log(Math.tan(Math.PI/4+latC/2))*MS, 0.02);
-        const slon=loR-l0, sl0=Math.sin(la0), cl0=Math.cos(la0), cosc=sl0*Math.sin(laR)+cl0*Math.cos(laR)*Math.cos(slon), k=2/Math.max(1+cosc,0.14);
-        let st=new THREE.Vector3(SC*k*Math.cos(laR)*Math.sin(slon), SC*k*(cl0*Math.sin(laR)-sl0*Math.cos(laR)*Math.cos(slon)), 0.02); const rr=Math.hypot(st.x,st.y); if(rr>RMX)st.multiplyScalar(RMX/rr);
+        const R=2.4,mg=2.6,dx=pl.x-l0,dy=pl.y-la0,rr=Math.hypot(dx,dy),nr=rr<R?R*(1-Math.pow(1-rr/R,mg)):rr; // 어안버블(평면)
+        const st=new THREE.Vector3(l0+(rr>1e-6?dx/rr:0)*nr, la0+(rr>1e-6?dy/rr:0)*nr, 0.02);
         const sph=rotX(rotY(lonLatToVec3(lon,lat,1.02),rY),rXv);
         return sph.multiplyScalar(1-morph-lens).add(pl.multiplyScalar(morph)).add(st.multiplyScalar(lens));};
 
       const ray=new THREE.Raycaster(),ptr=new THREE.Vector2(),plane0=new THREE.Plane(new THREE.Vector3(0,0,1),0),unit=new THREE.Sphere(new THREE.Vector3(),1);
-      let downXY=null,dragLens=null;const dom=renderer.domElement;
-      dom.addEventListener('pointerdown',e=>{downXY=[e.clientX,e.clientY];if(S.current.view==='lens')dragLens=[e.clientX,e.clientY];});
-      dom.addEventListener('pointermove',e=>{if(dragLens&&(e.buttons&1)){ // 렌즈: 경위도 2D 자유 이동(어안 중심 이동)
-        const f=2.4/(camera.zoom*mount.clientHeight); const dx=(e.clientX-dragLens[0]), dy=(e.clientY-dragLens[1]);
-        U.uLon0.value-=dx*f/Math.max(0.3,Math.cos(U.uLat0.value)); U.uLat0.value=THREE.MathUtils.clamp(U.uLat0.value+dy*f,-1.45,1.45); dragLens=[e.clientX,e.clientY]; }});
-      window.addEventListener('pointerup',()=>{dragLens=null;});
+      let downXY=null;const dom=renderer.domElement; // 렌즈 이동은 OrbitControls 팬으로(평면과 동일)
+      dom.addEventListener('pointerdown',e=>{downXY=[e.clientX,e.clientY];});
       dom.addEventListener('pointerup',e=>{if(!downXY)return;const mv=Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1]);downXY=null;if(mv>6||tr)return;
         const rect=dom.getBoundingClientRect();ptr.x=((e.clientX-rect.left)/rect.width)*2-1;ptr.y=-((e.clientY-rect.top)/rect.height)*2+1;ray.setFromCamera(ptr,camera);const v=S.current.view;let lon,lat;
         if(v==='globe'){const hit=ray.ray.intersectSphere(unit,new THREE.Vector3());if(!hit)return;[lon,lat]=vec3ToLonLat(rotY(rotX(hit,-U.uRotX.value),-U.uRotY.value));}
         else if(v==='flat'){const hit=ray.ray.intersectPlane(plane0,new THREE.Vector3());if(!hit)return;lon=R2D*(hit.x/MS);lat=R2D*(2*Math.atan(Math.exp(hit.y/MS))-Math.PI/2);lon=((lon+180)%360+360)%360-180;if(Math.abs(lat)>85)return;}
-        else{const hit=ray.ray.intersectPlane(plane0,new THREE.Vector3());if(!hit)return;const uu=hit.x/SC,vv=hit.y/SC,rho=Math.hypot(uu,vv),la0=U.uLat0.value;
-          if(rho<1e-6){lon=R2D*U.uLon0.value;lat=R2D*la0;}else{const c=2*Math.atan(rho/2),sc=Math.sin(c),cc=Math.cos(c);
-            lat=R2D*Math.asin(THREE.MathUtils.clamp(cc*Math.sin(la0)+vv*sc*Math.cos(la0)/rho,-1,1));
-            lon=R2D*(U.uLon0.value+Math.atan2(uu*sc, rho*Math.cos(la0)*cc-vv*Math.sin(la0)*sc));}
-          lon=((lon+180)%360+360)%360-180;}
+        else{const hit=ray.ray.intersectPlane(plane0,new THREE.Vector3());if(!hit)return; // 렌즈=평면+어안버블 역변환
+          const R=2.4,mg=2.6,lcx=U.uLon0.value,lcy=U.uLat0.value;let dx=hit.x-lcx,dy=hit.y-lcy;const rr=Math.hypot(dx,dy);
+          const ro=rr<R?R*(1-Math.pow(1-rr/R,1/mg)):rr; const ox=lcx+(rr>1e-6?dx/rr:0)*ro, oy=lcy+(rr>1e-6?dy/rr:0)*ro;
+          lon=R2D*(ox/MS);lat=R2D*(2*Math.atan(Math.exp(oy/MS))-Math.PI/2);lon=((lon+180)%360+360)%360-180;if(Math.abs(lat)>85)return;}
         const c=world.features.find(f=>geoContains(f,[lon,lat]));
         if(c){setSel(S.current.country?{type:'country',name:c.properties.n,key:c.properties.c}:{type:'continent',key:c.properties.c});return;}
         let ok=null;for(const k of Object.keys(OCEAN))if(oceans[k]&&geoContains({type:'Feature',geometry:oceans[k]},[lon,lat])){ok=k;break;}setSel(ok?{type:'ocean',key:ok}:null);});
@@ -262,6 +255,11 @@ export default function GlobeLab(){
           if(controls.target.x>WORLD_W/2){controls.target.x-=WORLD_W;camera.position.x-=WORLD_W;}else if(controls.target.x<-WORLD_W/2){controls.target.x+=WORLD_W;camera.position.x+=WORLD_W;}
           const hh=1/camera.zoom, lim=Math.max(0,MAP_HALF-hh);   // 직교: 보이는 월드 반높이
           const cy=THREE.MathUtils.clamp(controls.target.y,-lim,lim), dy=cy-controls.target.y; if(dy){controls.target.y=cy;camera.position.y+=dy;}
+        }
+        if(st.view==='lens'&&!tr){ // 렌즈 어안 중심 = 화면중심(=target). 팬으로 지도 위 자유 이동, 지도 밖으로는 못 나가게 클램프
+          const cx2=THREE.MathUtils.clamp(controls.target.x,-2,2), cy2=THREE.MathUtils.clamp(controls.target.y,-MAP_HALF,MAP_HALF);
+          camera.position.x+=cx2-controls.target.x;camera.position.y+=cy2-controls.target.y;controls.target.x=cx2;controls.target.y=cy2;
+          U.uLon0.value=cx2;U.uLat0.value=cy2;
         }
         renderer.render(scene,camera);
         const globeish=U.morph.value<0.5&&U.lens.value<0.5;

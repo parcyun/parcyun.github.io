@@ -1,3 +1,7 @@
+---
+import WorksFilter from '../components/WorksFilter.tsx';
+import { works } from '../data/works';
+---
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -16,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 
-<style>
+<style is:global>
 /* === parcyun studio · Cinematic Mode tokens === */
 :root {
   --ps-primary:                    #FFB11A;
@@ -396,6 +400,23 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
   html { scroll-behavior: auto; }
   section, .hero { opacity: 1; transform: none; transition: none; }
 }
+
+  /* ===== Works Filter (동적 상태·태그 필터) ===== */
+  .wf-controls{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
+  .wf-tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .wf-tab{padding:9px 16px;border-radius:100px;cursor:pointer;font-size:13px;font-weight:500;background:transparent;border:1px solid var(--ps-surface-cinematic-3);color:var(--ps-text-cinematic-secondary);font-family:var(--ps-font-body);transition:all .18s var(--ps-ease-out)}
+  .wf-tab:hover{border-color:var(--ps-primary);color:#fff}
+  .wf-tab.on{background:var(--ps-primary);border-color:var(--ps-primary);color:#000;font-weight:700}
+  .wf-tags{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .wf-chip{padding:6px 12px;border-radius:100px;cursor:pointer;font-size:12px;background:var(--ps-surface-cinematic-1);border:1px solid var(--ps-surface-cinematic-3);color:var(--ps-text-cinematic-secondary);font-family:var(--ps-font-en);transition:all .16s var(--ps-ease-out)}
+  .wf-chip:hover{border-color:var(--ps-primary);color:#fff}
+  .wf-chip.on{background:rgba(255,177,26,.14);border-color:var(--ps-primary);color:var(--ps-primary);font-weight:700}
+  .wf-reset{padding:6px 13px;border:0;border-radius:100px;cursor:pointer;background:var(--ps-surface-cinematic-3);color:#fff;font-size:12px;font-family:var(--ps-font-body);transition:all .18s var(--ps-ease-out)}
+  .wf-reset:hover{background:var(--ps-primary);color:#000}
+  .wf-count{font-family:var(--ps-font-en);font-size:12px;letter-spacing:.08em;color:var(--ps-text-cinematic-secondary);text-transform:uppercase;margin-bottom:18px}
+  .wf-count b{color:var(--ps-primary);font-weight:700;font-size:14px;margin-right:4px}
+  .wf-empty{text-align:center;padding:48px 20px;border:1px dashed var(--ps-surface-cinematic-3);border-radius:16px}
+  .wf-empty-big{font-family:var(--ps-font-en);font-size:18px;font-weight:600;color:#fff;margin:0 0 16px}
 </style>
 </head>
 
@@ -433,66 +454,7 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
       <h2 class="ko">웹서비스</h2>
       <span class="en">Weekly Builds</span>
     </header>
-
-    <div class="work-grid">
-
-      <!-- 001 -->
-      <a href="../" class="work-card live">
-        <div class="work-poster">
-          <span class="status live">Live</span>
-          <span class="pnum">001</span>
-          <span class="ptitle">parcyun studio<br>포트폴리오 허브</span>
-        </div>
-        <div class="work-body">
-          <span class="work-week">Week 01 · 2026.06</span>
-          <p class="work-desc">
-            웹서비스를 한 주에 하나씩 쌓아갈 정적 포트폴리오 허브.
-            GitHub Pages 위에 시네마틱 브랜드로 구현한 첫 결과물.
-          </p>
-          <div class="work-tags">
-            <span>HTML</span><span>CSS</span><span>GitHub Pages</span><span>Static</span>
-          </div>
-        </div>
-      </a>
-
-      <!-- 002 -->
-      <a href="./002-i-am-serif/" class="work-card live">
-        <div class="work-poster">
-          <span class="status live">Live</span>
-          <span class="pnum">002</span>
-          <span class="ptitle">I am Serif<br>스튜디오 포트폴리오</span>
-        </div>
-        <div class="work-body">
-          <span class="work-week">Week 02 · 2026.06</span>
-          <p class="work-desc">
-            세리프 전용 · 극한 미니멀리즘으로 구현한 상업 스튜디오 포트폴리오.
-            미색 바탕에 순수 블랙 포인트, 웜 그레이스케일 이미지의 단일 스크롤 사이트.
-          </p>
-          <div class="work-tags">
-            <span>HTML</span><span>CSS</span><span>Editorial</span><span>Static</span>
-          </div>
-        </div>
-      </a>
-
-      <!-- 003 placeholder -->
-      <div class="work-card soon">
-        <div class="work-poster">
-          <span class="status soon">Soon</span>
-          <span class="pnum">003</span>
-          <span class="ptitle">다음 주<br>공개 예정</span>
-        </div>
-        <div class="work-body">
-          <span class="work-week">Week 03 · 2026.06</span>
-          <p class="work-desc">
-            다음 웹서비스를 준비 중입니다. 매주 이 자리에 새 카드가 하나씩 추가됩니다.
-          </p>
-          <div class="work-tags">
-            <span>Coming soon</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
+    <WorksFilter client:load works={works} />
   </div>
 </section>
 
@@ -509,7 +471,7 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
 </footer>
 
 <!-- ===== Entry animation ===== -->
-<script>
+<script is:inline>
 (function(){
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.querySelectorAll('section').forEach(function(el){ el.classList.add('in-view'); });
@@ -524,7 +486,7 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
 })();
 </script>
 
-<script src="/share-widget.js" defer></script>
-<script src="/visitor-counter.js" defer></script>
+<script is:inline src="/share-widget.js" defer></script>
+<script is:inline src="/visitor-counter.js" defer></script>
 </body>
 </html>

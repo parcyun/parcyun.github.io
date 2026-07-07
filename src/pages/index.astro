@@ -1,5 +1,7 @@
 ---
 import CinematicLayout from '../layouts/CinematicLayout.astro';
+import ResourceExplorer from '../components/ResourceExplorer.tsx';
+import { resources } from '../data/resources';
 ---
 <CinematicLayout
   title="parcyun studio · 강의 자료 허브"
@@ -142,6 +144,52 @@ import CinematicLayout from '../layouts/CinematicLayout.astro';
     </div>
   </div>
 </section>
+
+<!-- ===== EXPLORE (동적 검색·필터 · React 아일랜드) ===== -->
+<section id="explore">
+  <div class="wrap">
+    <header class="section-header">
+      <h2 class="ko">자료 찾기</h2>
+      <span class="en">Explore</span>
+    </header>
+    <ResourceExplorer client:load resources={resources} />
+  </div>
+</section>
+
+<style is:global>
+  /* ===== Resource Explorer (동적 검색·필터) ===== */
+  .rx-controls{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
+  .rx-search{position:relative;display:flex;align-items:center}
+  .rx-search-icon{position:absolute;left:16px;font-size:18px;color:var(--ps-text-cinematic-secondary);pointer-events:none}
+  .rx-input{width:100%;padding:15px 16px 15px 44px;border-radius:14px;background:var(--ps-surface-cinematic-1);
+    border:1px solid var(--ps-surface-cinematic-3);color:#fff;font-family:var(--ps-font-body);font-size:15px;font-weight:300;
+    transition:border-color .2s var(--ps-ease-out)}
+  .rx-input::placeholder{color:var(--ps-text-cinematic-secondary)}
+  .rx-input:focus{outline:none;border-color:var(--ps-primary)}
+  .rx-reset{position:absolute;right:10px;padding:7px 13px;border:0;border-radius:100px;cursor:pointer;
+    background:var(--ps-surface-cinematic-3);color:#fff;font-size:12px;font-family:var(--ps-font-body);white-space:nowrap;
+    transition:all .18s var(--ps-ease-out)}
+  .rx-reset:hover{background:var(--ps-primary);color:#000}
+  .rx-tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .rx-tab{padding:9px 16px;border-radius:100px;cursor:pointer;font-size:13px;font-weight:500;background:transparent;
+    border:1px solid var(--ps-surface-cinematic-3);color:var(--ps-text-cinematic-secondary);font-family:var(--ps-font-body);
+    transition:all .18s var(--ps-ease-out)}
+  .rx-tab:hover{border-color:var(--ps-primary);color:#fff}
+  .rx-tab.on{background:var(--ps-primary);border-color:var(--ps-primary);color:#000;font-weight:700}
+  .rx-tags{display:flex;gap:8px;flex-wrap:wrap}
+  .rx-chip{padding:6px 12px;border-radius:100px;cursor:pointer;font-size:12px;background:var(--ps-surface-cinematic-1);
+    border:1px solid var(--ps-surface-cinematic-3);color:var(--ps-text-cinematic-secondary);font-family:var(--ps-font-en);
+    transition:all .16s var(--ps-ease-out)}
+  .rx-chip:hover{border-color:var(--ps-primary);color:#fff}
+  .rx-chip.on{background:rgba(255,177,26,.14);border-color:var(--ps-primary);color:var(--ps-primary);font-weight:700}
+  .rx-count{font-family:var(--ps-font-en);font-size:12px;letter-spacing:.08em;color:var(--ps-text-cinematic-secondary);
+    text-transform:uppercase;margin-bottom:18px}
+  .rx-count b{color:var(--ps-primary);font-weight:700;font-size:14px;margin-right:4px}
+  .tag-pill.on{background:var(--ps-primary);color:#000;border-color:var(--ps-primary)}
+  .rx-empty{text-align:center;padding:56px 20px;border:1px dashed var(--ps-surface-cinematic-3);border-radius:16px}
+  .rx-empty-big{font-family:var(--ps-font-en);font-size:20px;font-weight:600;color:#fff;margin:0 0 8px}
+  .rx-empty-sub{font-size:13px;color:var(--ps-text-cinematic-secondary);margin:0 0 20px}
+</style>
 
 <!-- ===== LECTURES ===== -->
 <section id="lectures">

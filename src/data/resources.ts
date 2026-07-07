@@ -123,6 +123,6 @@ export const resources: Resource[] = [
     posterTitle: '<strong>AI 활용</strong><br>수업 커리큘럼',
     date: '2026.06.02',
     meta: ['2026.06.02', 'NOTION ↗', '12 SESSIONS'],
-    tags: ['AI 활용', '커리큘럼', '초등'],
+    tags: ['AI 교육', '바이브 코딩', '커리큘럼'],
   },
 ];

@@ -1,0 +1,26 @@
+---
+import type { Resource } from '../data/resources';
+interface Props { r: Resource; }
+const { r } = Astro.props;
+const ext = r.external ? { target: '_blank', rel: 'noopener' } : {};
+---
+<a href={r.url} class="lecture-card" {...ext}>
+  <div class="lecture-card-poster">
+    <div class="lid">{r.lid}</div>
+    <p class="ptitle" set:html={r.posterTitle}></p>
+  </div>
+  <div class="lecture-card-body">
+    {r.meta && r.meta.length > 0 && (
+      <div class="lecture-card-meta">
+        {r.meta.map((m, i) => (
+          <>{i > 0 && <span class="dot"></span>}<span>{m}</span></>
+        ))}
+      </div>
+    )}
+    <h3 class="lecture-card-title">{r.title}</h3>
+    <p class="lecture-card-desc">{r.desc}</p>
+    <div class="lecture-card-tags">
+      {r.tags.map((t) => <span class="tag-pill">{t}</span>)}
+    </div>
+  </div>
+</a>

@@ -52,16 +52,21 @@ function buildBase({world,night}){
 }
 function featherOcean(baseCtx,geom){
   const W=RES,H=RES/2,off=document.createElement('canvas');off.width=W;off.height=H;const o=off.getContext('2d');const op=geoPath(projFor(o),o);
-  o.beginPath();op(geom);o.fillStyle='rgba(120,180,230,0.6)';o.fill();
-  // 가장자리 페더 강화(원본 대비 더 넓게) — destination-in 블러 마스크(다중-스트립 내부경계 보존 위해 erode 생략)
-  o.globalCompositeOperation='destination-in';o.filter=`blur(${RES/2048*34}px)`;o.beginPath();op(geom);o.fillStyle='#fff';o.fill();
+  o.beginPath();op(geom);o.fillStyle='rgba(120,180,230,0.65)';o.fill();
+  // 가장자리 페더 극대화 — 해안선에서 완전히 사라지도록 아주 넓은 블러 마스크(다중-스트립 내부경계 보존 위해 erode 생략)
+  o.globalCompositeOperation='destination-in';o.filter=`blur(${RES/2048*80}px)`;o.beginPath();op(geom);o.fillStyle='#fff';o.fill();
   o.filter='none';o.globalCompositeOperation='source-over';baseCtx.drawImage(off,0,0);
 }
 function buildOverlay({sel,world,oceans}){
   const W=RES,H=RES/2,cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');const path=geoPath(projFor(ctx),ctx);
   if(sel){ if(sel.type==='ocean'&&oceans[sel.key]) featherOcean(ctx,{type:'Feature',geometry:oceans[sel.key]});
-    else if(sel.type==='continent'){ctx.beginPath();for(const f of world.features)if(f.properties.c===sel.key)path(f);ctx.fillStyle='rgba(255,177,26,0.20)';ctx.fill();ctx.lineWidth=2.2;ctx.strokeStyle='#FFB11A';ctx.stroke();}
-    else if(sel.type==='country'){ctx.beginPath();for(const f of world.features)if(f.properties.n===sel.name)path(f);ctx.fillStyle='rgba(255,177,26,0.30)';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#FFB11A';ctx.stroke();} } // 동명 feature 전부(러시아 등 분할국)
+    else if(sel.type==='continent'||sel.type==='country'){
+      const drawSel=()=>{ctx.beginPath();for(const f of world.features){const m=sel.type==='continent'?f.properties.c===sel.key:f.properties.n===sel.name;if(m)path(f);}};
+      ctx.fillStyle='rgba(3,5,10,0.62)';ctx.fillRect(0,0,W,H);            // #4 나머지 그림자
+      ctx.globalCompositeOperation='destination-out';drawSel();ctx.fill(); // 선택 영역 뚫어 밝게
+      ctx.globalCompositeOperation='source-over';
+      drawSel();ctx.fillStyle='rgba(255,177,26,0.14)';ctx.fill();ctx.lineWidth=sel.type==='country'?3:2.4;ctx.strokeStyle='#FFB11A';ctx.stroke();
+    } }
   return rawTex(cv);
 }
 function glowTexture(){const S=512,cv=document.createElement('canvas');cv.width=S;cv.height=S;const c=cv.getContext('2d');const g=c.createRadialGradient(S/2,S/2,S*0.30,S/2,S/2,S*0.5);g.addColorStop(0,'rgba(255,177,26,0)');g.addColorStop(0.72,'rgba(255,177,26,0.10)');g.addColorStop(0.86,'rgba(120,150,210,0.10)');g.addColorStop(1,'rgba(120,150,210,0)');c.fillStyle=g;c.fillRect(0,0,S,S);return rawTex(cv);}
@@ -137,7 +142,7 @@ export default function GlobeLab(){
       const scene=new THREE.Scene();
       const aspect=w/h;const camera=new THREE.OrthographicCamera(-aspect,aspect,1,-1,0.01,100);camera.position.set(0,0,10);camera.zoom=VIEW.flat.zoom;camera.updateProjectionMatrix();
       renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.outputColorSpace=THREE.LinearSRGBColorSpace;renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(w,h);mount.appendChild(renderer.domElement);
-      controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.08;controls.enablePan=false;controls.screenSpacePanning=true;
+      controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.08;controls.enablePan=false;controls.screenSpacePanning=true;controls.zoomSpeed=2.4;
 
       const sg=new THREE.BufferGeometry(),Ns=1100,spp=new Float32Array(Ns*3);
       for(let i=0;i<Ns;i++){const r=60+Math.random()*45,t=Math.acos(2*Math.random()-1),p=2*Math.PI*Math.random();spp[i*3]=r*Math.sin(t)*Math.cos(p);spp[i*3+1]=r*Math.cos(t);spp[i*3+2]=r*Math.sin(t)*Math.sin(p);}
@@ -162,10 +167,10 @@ export default function GlobeLab(){
       // 격자 세트(중심 offX=0은 항상, 평면 타일용 ±WORLD_W는 gridFlat에). 구/렌즈에선 중심만 → 중복선 없음(#7)
       const IDL=[[180,90],[180,73],[190.5,68],[190.5,65],[192.5,60],[180,53],[180,50],[180,7],[203,7],[203,-9],[188,-13],[180,-16],[180,-47],[180,-90]]; // 실제 날짜변경선 근사(#1)
       const makeGridSet=(offX,stp)=>{const grat=new THREE.Group();
-        for(let lon=-180;lon<=180;lon+=stp){const p=[];for(let la=-85;la<=85;la+=3)p.push([lon,la]);grat.add(morphLine(p,0xffffff,0.30,U,offX));}
+        for(let lon=-180;lon<=180;lon+=stp){const p=[];for(let la=-90;la<=90;la+=3)p.push([lon,la]);grat.add(morphLine(p,0xffffff,0.30,U,offX));}
         for(let lat=-90+stp;lat<90;lat+=stp){const p=[];for(let lo=-180;lo<=180;lo+=3)p.push([lo,lat]);grat.add(morphLine(p,0xffffff,0.30,U,offX));}
         const eqP=[];for(let lo=-180;lo<=180;lo+=3)eqP.push([lo,0]);const eq=morphLine(eqP,0xFF7B7B,0.6,U,offX);
-        const pmP=[];for(let la=-85;la<=85;la+=3)pmP.push([0,la]);const pm=morphLine(pmP,0xFFB270,0.6,U,offX);
+        const pmP=[];for(let la=-90;la<=90;la+=3)pmP.push([0,la]);const pm=morphLine(pmP,0xFFB270,0.6,U,offX);
         const dl=morphLine(IDL,0x38E0D0,0.9,U,offX);
         const g=new THREE.Group();g.add(grat,eq,pm,dl);g.userData={grat,eq,pm,dl};return g;};
       // 크리스프 벡터 국경/해안선(#4 심층줌): 채움은 텍스처(솔리드색), 경계선만 벡터라 딥줌에서 선명

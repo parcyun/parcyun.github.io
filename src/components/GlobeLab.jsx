@@ -52,40 +52,42 @@ function buildBase({world,night}){
   for(const [c,feats] of Object.entries(byC)){ctx.beginPath();for(const f of feats)path(f);const col=(CONT[c]||{}).color||'#888';ctx.fillStyle=night?shade(col,-0.6):col;ctx.fill();ctx.lineWidth=0.5;ctx.strokeStyle=night?'rgba(255,255,255,0.06)':'#04060B';ctx.stroke();}
   return rawTex(cv);
 }
-function featherOcean(baseCtx,geom,color){
-  // 원본 SVG ocean-fill 정확 재현: fill opacity 0.55 + mask(feMorphology erode radius=10 → feGaussianBlur stdDeviation=16) + drop-shadow(0 0 10px rgba(120,180,230,.4)).
-  // SVG 지도폭 ~2000px=360° 기준 → RES 텍스처 스케일 환산: erode 10px→RES/2048*10(=20px≈1.8°), blur σ16→RES/2048*16.5(≈33px≈2.9°). CSS blur(N)=Gaussian σ.
-  // 효과: 채움이 경계 안쪽으로 ~1.8° 당겨진 뒤 2.9° 페더 → 파랑이 해안선에 닿지 않고 물 안쪽에 떠 있으며, 직선 폴리곤 경계(남위 60° 등)는 부드러운 블러 밴드가 된다.
-  // 반자오선(lon180) 래핑: ±W 복사로 캔버스를 주기적으로 만들어 seam 연속 — erode/blur도 래핑된 wide 마스크 위에서 수행해 seam에서 침식/페이드 없음.
-  // 전제: geom은 oceans-fill.json의 dissolve된(내부 seam 없는) 폴리곤 — 스트립 원본(oceans.json)에 erode를 걸면 세로줄 아티팩트가 난다.
+function featherOcean(baseCtx,geom,color,world){
+  // 안개형 페더: 대양색은 폴리곤 깊은 안쪽만 solid, 모든 경계(대양-대양·대양-육지)로 갈수록 배경으로 소멸.
+  // 방법 — solid 마스크에서 ①육지를 빼고(대양-육지 경계 확보: 남극해가 남극 대륙을 안 덮고, 해안선도 함께 페이드)
+  //   ②안쪽으로 erode(마스크를 모든 경계에서 안으로 당김 → 이웃 대양 경계를 넘지 않음: 태평양이 남극해로 침범 방지)
+  //   ③blur(그 경계를 안개처럼 페이드 → 알파 0%로 사라짐). 아래엔 base oceanGrad(배경)이라 색이 배경으로 녹는다.
+  // 반자오선(lon180) 래핑: ±W 복사로 캔버스를 주기적으로 만들어 seam 연속 — erode/blur도 wide 마스크 위에서 수행.
   const W=RES,H=RES/2;
-  const ER=Math.round(RES/2048*4);    // 미세 erode(~0.7°) — 원본처럼 파랑이 해안선에 거의 닿게(과한 erode는 안쪽으로 뜸)
-  const BL=RES/2048*8;                // blur(~1.4°) — 코어 solid 유지해 원본처럼 밝고 선명한 블루, 열린바다 경계만 소프트
+  const ER=Math.round(RES/360*1.7);   // 안쪽 침식(~1.7°): 페이드 시작점 + 이웃 대양 경계 넘침 방지
+  const BL=RES/360*2.8;               // 페더 반경(~2.8°): 경계를 배경으로 소멸시키는 안개 프로파일
   const PAD=Math.ceil(ER+BL*4);       // wide 마스크 좌우 여백(erode 이동 + 블러 지원폭)
   // 1) 색 채움(±W 래핑 복사)
   const off=document.createElement('canvas');off.width=W;off.height=H;const o=off.getContext('2d');const op=geoPath(projFor(o),o);
   o.fillStyle=color;for(const dx of [-W,0,W]){o.save();o.translate(dx,0);o.beginPath();op(geom);o.fill();o.restore();}
-  // 2) solid 마스크 — 좌우 PAD 여백을 둔 wide 캔버스에 래핑 복사로 union(주기적)
+  // 2) solid 마스크(wide, wrapped) = 대양 폴리곤 − 육지
   const WW=W+2*PAD,A=document.createElement('canvas');A.width=WW;A.height=H;const a=A.getContext('2d');const ap=geoPath(projFor(a),a);
   a.fillStyle='#fff';for(const dx of [-W,0,W]){a.save();a.translate(PAD+dx,0);a.beginPath();ap(geom);a.fill();a.restore();}
-  // 3) erode: 원본 snapshot(B)을 8방향(대각선은 1/√2)으로 shift해 destination-in — min-filter 근사
-  //    (각 shift가 '원본 전체'의 이동 복사라 교집합=침식이 정확. 래핑 wide 캔버스라 seam·여백에서도 안전)
+  if(world){a.globalCompositeOperation='destination-out'; // 육지 제거 → 대양-육지 경계가 마스크 경계가 되어 erode/blur가 함께 페이드
+    for(const dx of [-W,0,W]){a.save();a.translate(PAD+dx,0);a.beginPath();for(const f of world.features)ap(f);a.fill();a.restore();}
+    a.globalCompositeOperation='source-over';}
+  // 3) erode: snapshot(B)을 8방향(대각선은 1/√2)으로 shift해 destination-in — min-filter 근사(마스크를 모든 경계에서 안으로)
   const B=document.createElement('canvas');B.width=WW;B.height=H;B.getContext('2d').drawImage(A,0,0);
   const dg=Math.round(ER/Math.SQRT2);
   a.globalCompositeOperation='destination-in';
   for(const [sx,sy] of [[ER,0],[-ER,0],[0,ER],[0,-ER],[dg,dg],[dg,-dg],[-dg,dg],[-dg,-dg]]) a.drawImage(B,sx,sy);
   a.globalCompositeOperation='source-over';
-  // 4) gaussian blur → W폭으로 crop해 최종 마스크(wide 여백 덕에 seam에서 블러 페이드 없음)
+  // 4) gaussian blur → W폭으로 crop(여백 덕에 seam 페이드 없음). 이 블러가 가장자리→0% 안개 알파 프로파일.
   const mk=document.createElement('canvas');mk.width=W;mk.height=H;const mc=mk.getContext('2d');
   mc.filter=`blur(${BL}px)`;mc.drawImage(A,-PAD,0);mc.filter='none';
-  // 5) destination-in 1회 (주의: 루프로 여러 번 하면 알파가 곱해져 바다색이 사라짐)
+  // 5) 색에 마스크 적용(destination-in 1회) — 안쪽 solid, 가장자리 알파 0%
   o.globalCompositeOperation='destination-in';o.drawImage(mk,0,0);o.globalCompositeOperation='source-over';
-  baseCtx.save();baseCtx.globalAlpha=0.55;baseCtx.shadowColor='rgba(120,180,230,0.4)';baseCtx.shadowBlur=RES/2048*10;baseCtx.drawImage(off,0,0);baseCtx.restore();
+  baseCtx.save();baseCtx.globalAlpha=0.62;baseCtx.drawImage(off,0,0);baseCtx.restore();
 }
 
 function buildOverlay({sel,world,oceans,oceansFill}){
   const W=RES,H=RES/2,cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');const path=geoPath(projFor(ctx),ctx);
-  if(sel){ if(sel.type==='ocean'&&oceans[sel.key]) featherOcean(ctx,{type:'Feature',geometry:(oceansFill&&oceansFill[sel.key])||oceans[sel.key]},(OCEAN[sel.key]||{}).color||'#3E8FB0'); // 채움은 매끈하게 정리된 폴리곤(있으면), 클릭 판정은 원본
+  if(sel){ if(sel.type==='ocean'&&oceans[sel.key]) featherOcean(ctx,{type:'Feature',geometry:(oceansFill&&oceansFill[sel.key])||oceans[sel.key]},(OCEAN[sel.key]||{}).color||'#3E8FB0',world); // 채움은 매끈하게 정리된 폴리곤(있으면), 클릭 판정은 원본. world=육지 빼기용(안개 페더)
     else if(sel.type==='continent'||sel.type==='country'){
       const drawSel=()=>{ctx.beginPath();for(const f of world.features){const m=sel.type==='continent'?f.properties.c===sel.key:f.properties.n===sel.name;if(m)path(f);}};
       ctx.fillStyle='rgba(3,5,10,0.6)';ctx.fillRect(0,0,W,H);             // 나머지 대륙 dim

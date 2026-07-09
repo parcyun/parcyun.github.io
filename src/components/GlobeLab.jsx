@@ -300,6 +300,13 @@ export default function GlobeLab(){
         uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},uCloneAmt,uScreen}});
       const tileL=new THREE.Mesh(mesh.geometry,cloneMat(-WORLD_W)),tileR=new THREE.Mesh(mesh.geometry,cloneMat(WORLD_W));
       tileL.frustumCulled=tileR.frustumCulled=false;tileL.visible=tileR.visible=false;scene.add(tileL,tileR);
+      // 평면 seam 패치: uLonC=π 복사본(콘텐츠 동일, seam만 lon180→lon0). 정상상태 평면(uLonC=0)의 lon180 seam 갭을 덮어 검은선·지도 잘림 제거. base 메쉬(바다+선택 오버레이) + 좌우 타일 각각.
+      const patchU=Object.assign({},u,{uLonC:{value:Math.PI}});
+      const meshPatch=new THREE.Mesh(mesh.geometry,new THREE.ShaderMaterial({vertexShader:meshVert,fragmentShader:meshFrag,uniforms:patchU,side:THREE.DoubleSide}));
+      const clonePatchMat=(off)=>new THREE.ShaderMaterial({vertexShader:cloneVert,fragmentShader:cloneFrag,side:THREE.DoubleSide,transparent:true,
+        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:{value:Math.PI},uOffsetX:{value:off},uCloneAmt,uScreen}});
+      const tileLp=new THREE.Mesh(mesh.geometry,clonePatchMat(-WORLD_W)),tileRp=new THREE.Mesh(mesh.geometry,clonePatchMat(WORLD_W));
+      meshPatch.frustumCulled=tileLp.frustumCulled=tileRp.frustumCulled=false;meshPatch.visible=tileLp.visible=tileRp.visible=false;scene.add(meshPatch,tileLp,tileRp);
 
       // 격자 세트(중심 offX=0은 항상, 평면 타일용 ±WORLD_W는 gridFlat에). 구/렌즈에선 중심만 → 중복선 없음(#7)
       const IDL=[[180,90],[180,73],[190.5,68],[190.5,65],[192.5,60],[180,53],[180,50],[180,7],[203,7],[203,-9],[188,-13],[180,-16],[180,-47],[180,-90]]; // 실제 날짜변경선 근사(#1)
@@ -338,7 +345,7 @@ export default function GlobeLab(){
         const fm=new THREE.ShaderMaterial({side:THREE.DoubleSide,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,dayNightOn:u.dayNightOn},vertexShader:fillVert,fragmentShader:fillFrag});
         const fmesh=new THREE.Mesh(fg,fm);fmesh.frustumCulled=false;fmesh.renderOrder=0.5;scene.add(fmesh);})();
       // #2 줌 적응형 격자: 확대할수록 중심 격자를 더 촘촘히(딥줌에서 위경도선 유지). 중심 세트만 세분(성능), 평면 클론은 사용자 간격 유지.
-      const NICE=[90,45,30,20,15,10,5,3];
+      const NICE=[90,45,30,20,15,10,5,3,2,1,0.5]; // 깊은 줌에서 더 촘촘히 → 격자선 사라짐 방지(뷰 폭보다 간격이 커지지 않게)
       const adaptiveStep=(base)=>{const z0={flat:0.74,globe:0.92,lens:0.285}[S.current.view]||0.74;
         const lv=Math.max(0,Math.floor(Math.log2(Math.max(1,camera.zoom/z0))));let i=NICE.findIndex(v=>v<=base);if(i<0)i=0;return NICE[Math.min(NICE.length-1,i+lv)];};
       let curStep=S.current.step,curEff=curStep;
@@ -475,7 +482,7 @@ export default function GlobeLab(){
         // 클론 알파: 정상상태 평면=1(무한스크롤). 전환 뜯김 마스킹(trDatelineNear)은 seam 파킹으로 불필요해져 삭제 —
         // 전환 중엔 평면 근접(morph≥0.8)에서만 페이드 인/아웃: 넓은 화면에서 ±180° 밖 가장자리 커버 + settle 시 타일 팝인 방지(클론은 seam 상대라 본체와 연속).
         uCloneAmt.value = tr ? THREE.MathUtils.smoothstep(U.morph.value,0.8,1.0) : (st.view==='flat'?1:0);
-        const isFlat=st.view==='flat'&&!tr;tileL.visible=tileR.visible=uCloneAmt.value>0.004;gridFlat.visible=isFlat;bgMesh.visible=isFlat; // 평면 정상상태에서만 seam 배경(구/렌즈 검은 배경 유지)
+        const isFlat=st.view==='flat'&&!tr;tileL.visible=tileR.visible=uCloneAmt.value>0.004;gridFlat.visible=isFlat;bgMesh.visible=meshPatch.visible=tileLp.visible=tileRp.visible=isFlat; // 평면 정상상태에서만 seam 배경+패치(구/렌즈 검은 배경 유지)
         glow.material.opacity=0.9*Math.max(0,1-U.morph.value-U.lens.value);glow.visible=glow.material.opacity>0.02;
         controls.update();
         if(isFlat){ // 좌우 무한 순환 + 세로 레터박스 방지

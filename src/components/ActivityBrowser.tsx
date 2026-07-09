@@ -48,6 +48,7 @@ export default function ActivityBrowser({ resources, types }: { resources: Resou
       key={r.id}
       href={r.url}
       className="act-card"
+      data-res-id={r.id}
       target={r.external ? '_blank' : undefined}
       rel={r.external ? 'noopener' : undefined}
     >

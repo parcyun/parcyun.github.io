@@ -1,6 +1,7 @@
 ---
 import CinematicLayout from '../layouts/CinematicLayout.astro';
 import { icon } from '../lib/icons';
+import Guestbook from '../components/Guestbook.tsx';
 ---
 <CinematicLayout
   title="parcyun studio · 강의 자료 허브"
@@ -184,6 +185,17 @@ import { icon } from '../lib/icons';
   .cc-go{margin-top:16px;font-family:var(--ps-font-en);font-size:13px;font-weight:600;letter-spacing:.02em;color:#fff;display:inline-flex;align-items:center;gap:6px}
   .collection-card:hover .cc-go{color:var(--ps-primary)}
 </style>
+
+<!-- ===== GUESTBOOK (방명록) ===== -->
+<section id="guestbook">
+  <div class="wrap">
+    <header class="section-header">
+      <h2 class="ko">방명록</h2>
+      <span class="en">Guestbook</span>
+    </header>
+    <Guestbook client:visible context="home" />
+  </div>
+</section>
 
 <!-- ===== CONNECT ===== -->
 <section>

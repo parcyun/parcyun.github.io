@@ -369,7 +369,7 @@ section.in-view, .hero.in-view {
         </header>
         <div class="hbooks">
           {byCat(c).map((r) => (
-            <a href={r.url} class="hbook" target={r.external ? '_blank' : undefined} rel={r.external ? 'noopener' : undefined}>
+            <a href={r.url} class="hbook" data-res-id={r.id} target={r.external ? '_blank' : undefined} rel={r.external ? 'noopener' : undefined}>
               <span class="hbook-ico ico" set:html={icon(typeIcon[r.type], 20)}></span>
               <span class="hbook-main">
                 <span class="hbook-title">{r.title}</span>

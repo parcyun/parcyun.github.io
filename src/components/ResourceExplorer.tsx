@@ -7,7 +7,17 @@ function norm(s: string) {
   return s.toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
-export default function ResourceExplorer({ resources }: { resources: Resource[] }) {
+export default function ResourceExplorer({
+  resources,
+  showCategoryTabs = true,
+  placeholder = '자료 검색 — 제목·설명·태그 (예: LLM, 맞춤법, Notion)',
+  unit = '자료',
+}: {
+  resources: Resource[];
+  showCategoryTabs?: boolean;
+  placeholder?: string;
+  unit?: string;
+}) {
   const [query, setQuery] = useState('');
   const [cat, setCat] = useState<Category | '전체'>('전체');
   const [activeTags, setActiveTags] = useState<string[]>([]);
@@ -49,7 +59,7 @@ export default function ResourceExplorer({ resources }: { resources: Resource[] 
           <input
             type="search"
             className="rx-input"
-            placeholder="자료 검색 — 제목·설명·태그 (예: LLM, 맞춤법, Notion)"
+            placeholder={placeholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             aria-label="자료 검색"
@@ -61,19 +71,21 @@ export default function ResourceExplorer({ resources }: { resources: Resource[] 
           )}
         </div>
 
-        <div className="rx-tabs" role="tablist" aria-label="카테고리">
-          {CATEGORIES.map((c) => (
-            <button
-              type="button"
-              key={c}
-              className={'rx-tab' + (cat === c ? ' on' : '')}
-              aria-pressed={cat === c}
-              onClick={() => setCat(c)}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
+        {showCategoryTabs && (
+          <div className="rx-tabs" role="tablist" aria-label="카테고리">
+            {CATEGORIES.map((c) => (
+              <button
+                type="button"
+                key={c}
+                className={'rx-tab' + (cat === c ? ' on' : '')}
+                aria-pressed={cat === c}
+                onClick={() => setCat(c)}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="rx-tags">
           {allTags.map((t) => (
@@ -92,7 +104,7 @@ export default function ResourceExplorer({ resources }: { resources: Resource[] 
 
       <div className="rx-count">
         <b>{filtered.length}</b>
-        <span>{active ? '개 자료 · 필터 적용됨' : '개 자료'}</span>
+        <span>{active ? `개 ${unit} · 필터 적용됨` : `개 ${unit}`}</span>
       </div>
 
       {filtered.length > 0 ? (

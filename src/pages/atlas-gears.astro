@@ -1,164 +1,289 @@
 ---
-import CinematicLayout from '../layouts/CinematicLayout.astro';
 import ResourceExplorer from '../components/ResourceExplorer.tsx';
 import ResourceCard from '../components/ResourceCard.astro';
 import { resources } from '../data/resources';
-const bySubject = (s: string) => resources.filter((r) => r.subject === s);
+const activities = resources.filter((r) => r.category === '교육 활동 자료');
+const bySubject = (s: string) => activities.filter((r) => r.subject === s);
 ---
-<CinematicLayout
-  title="parcyun studio · 강의 자료 허브"
-  description="초등교사 parcyun이 운영하는 교육·AI·디자인 강의 자료 허브. Designed by parcyun studio."
-  ogTitle="parcyun studio"
-  ogDescription="초등교사 · 프롬프트 엔지니어 · 디자이너. 교육과 AI를 잇는 강의 자료 허브."
-  ogUrl="https://parcyun.github.io/"
->
-<!-- ===== HERO ===== -->
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-eyebrow">Educator · Prompt Engineer · Designer</div>
-    <h1 class="hero-wordmark">parcyun studio</h1>
-    <p class="hero-name">parcyun · 박창현</p>
-    <p class="hero-tagline">
-      교육과 <strong>AI</strong>를 잇습니다.<br>
-    </p>
-    <div class="hero-ctas">
-      <a href="#lectures" class="btn primary">강의 둘러보기 <span class="arrow">↓</span></a>
-      <a href="/atlas-gears/" class="btn primary">교육 활동 자료 <span class="arrow">↗</span></a>
-    </div>
-    <div class="hero-ctas">
-      <a href="./works/" class="btn ghost">parcyun studio works <span class="arrow">↗</span></a>
-      <a href="https://www.instagram.com/parcyun" class="btn ghost" target="_blank" rel="noopener">@parcyun <span class="arrow">↗</span></a>
-    </div>
-  </div>
-</section>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ATLAS GEARS · 교육 활동 자료 · parcyun studio</title>
+<meta name="description" content="교실에서 바로 꺼내 쓰는 교육 활동 자료 모음. 검색해서 오늘 수업에 딱 맞는 자료를 찾아보세요. Designed by parcyun studio." />
+<meta property="og:title" content="ATLAS GEARS · parcyun studio" />
+<meta property="og:description" content="교실에서 바로 꺼내 쓰는 교육 활동 자료 모음." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://parcyun.github.io/atlas-gears/" />
 
-<!-- ===== ABOUT / MANIFESTO ===== -->
-<section class="about">
-  <div class="wrap">
-    <header class="section-header">
-      <h2 class="ko">parcyun studio는</h2>
-      <span class="en">About</span>
-    </header>
-    <p class="manifesto">
-      디자인 · 건축 · AI를 일상 교실에 활용하고,<br>
-      그 과정을 <span class="highlight">강의 자료</span>와 <span class="highlight">레퍼런스</span>로 정리해 공유합니다.
-    </p>
-    <div class="identity-tags">
-      <span class="tag-pill">초등 교사</span>
-      <span class="tag-pill">Prompt Engineer</span>
-      <span class="tag-pill">Google Educator L2</span>
-      <span class="tag-pill">디지털 미디어 교육</span>
-      <span class="tag-pill">AI R&amp;D</span>
-      <span class="tag-pill">UIUX · WEB 디자인</span>
-      <span class="tag-pill">도시공학</span>
-    </div>
-    <button class="career-toggle" type="button" aria-expanded="false" aria-controls="career-list" onclick="toggleCareer(this)">
-      <span class="label">경력 전체 보기</span>
-      <span class="chev">⌄</span>
-    </button>
-    <div class="career-list collapsed" id="career-list">
-
-      <div class="career-category-header">주요 경력</div>
-      <div class="career-item">
-        <span class="career-year">현재</span>
-        <span class="career-role">몽당분필 대외협력부장 · AI R&amp;D 팀 리더</span>
-        <span class="career-org">(사)디미교연</span>
-      </div>
-
-      <div class="career-category-header">강의 · 연수</div>
-      <div class="career-item">
-        <span class="career-year">현재</span>
-        <span class="career-role">찾아가는 학교 컨설팅 주강사</span>
-        <span class="career-org"></span>
-      </div>
-      <div class="career-item">
-        <span class="career-year">—</span>
-        <span class="career-role">관리자 연수 우수 사례 발표 (찾아가는 학교 컨설팅)</span>
-        <span class="career-org"></span>
-      </div>
-      <div class="career-item">
-        <span class="career-year">—</span>
-        <span class="career-role">AI · 에듀테크 직무 연수 강사</span>
-        <span class="career-org"></span>
-      </div>
-      <div class="career-item">
-        <span class="career-year">—</span>
-        <span class="career-role">(사)디미교연 AI · 에듀테크 내부 역량 강화 연수 강사</span>
-        <span class="career-org"></span>
-      </div>
-      <div class="career-item">
-        <span class="career-year">—</span>
-        <span class="career-role">특성화고등학교 시각디자인과 생성형 AI 활용 특강</span>
-        <span class="career-org"></span>
-      </div>
-
-      <div class="career-category-header">제작 · 콘텐츠</div>
-      <div class="career-item">
-        <span class="career-year">—</span>
-        <span class="career-role">티처빌 온라인 직무연수 제작 (이미지 · 영상 생성 AI)</span>
-        <span class="career-org">티처빌</span>
-      </div>
-      <div class="career-item">
-        <span class="career-year">—</span>
-        <span class="career-role">경기도교육청 미디어 리터러시 교육 영상 제작</span>
-        <span class="career-org">경기도교육청</span>
-      </div>
-
-      <div class="career-category-header">위원 · 연구</div>
-      <div class="career-item">
-        <span class="career-year">2026</span>
-        <span class="career-role">경기도교육청 AI 교육연구회 회장</span>
-        <span class="career-org">경기도교육청</span>
-      </div>
-      <div class="career-item">
-        <span class="career-year">2025</span>
-        <span class="career-role">화성오산교육지원청 디지털토핑교육연구위원</span>
-        <span class="career-org">화성오산교육지원청</span>
-      </div>
-      <div class="career-item">
-        <span class="career-year">2025</span>
-        <span class="career-role">경기도교육청 디지털시민역량교육연구위원</span>
-        <span class="career-org">경기도교육청</span>
-      </div>
-      <div class="career-item">
-        <span class="career-year">2023—</span>
-        <span class="career-role">교실혁명 선도교사</span>
-        <span class="career-org">교육부</span>
-      </div>
-
-      <div class="career-category-header">학력 · 자격</div>
-      <div class="career-item">
-        <span class="career-year">2023</span>
-        <span class="career-role">프롬프트 엔지니어 자격</span>
-        <span class="career-org">뤼튼</span>
-      </div>
-      <div class="career-item">
-        <span class="career-year">2022</span>
-        <span class="career-role">Google Certified Educator Level 2</span>
-        <span class="career-org">Google</span>
-      </div>
-      <div class="career-item">
-        <span class="career-year">2017</span>
-        <span class="career-role">광주교육대학교 졸업</span>
-        <span class="career-org">광주교육대학교</span>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ===== EXPLORE (동적 검색·필터 · React 아일랜드) ===== -->
-<section id="explore">
-  <div class="wrap">
-    <header class="section-header">
-      <h2 class="ko">자료 찾기</h2>
-      <span class="en">Explore</span>
-    </header>
-    <ResourceExplorer client:load resources={resources.filter((r) => r.category === '강의 자료')} showCategoryTabs={false} placeholder="강의 자료 검색 — 제목·설명·태그 (예: LLM, Notion)" unit="강의" />
-  </div>
-</section>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 
 <style is:global>
+
+/* === parcyun studio · Cinematic Mode tokens === */
+:root {
+  --ps-primary:                    #FFB11A;
+  --ps-primary-dark:               #E89500;
+
+  --ps-bg-cinematic:               #000000;
+  --ps-surface-cinematic-1:        #141414;
+  --ps-surface-cinematic-2:        #222222;
+  --ps-surface-cinematic-3:        #333333;
+  --ps-text-cinematic-secondary:   #8C8C8C;
+
+  --ps-font-body: 'Pretendard Variable', 'Pretendard', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  --ps-font-en:   'Montserrat', 'Pretendard Variable', 'Pretendard', sans-serif;
+  --ps-font-signature: 'Covered By Your Grace', cursive;
+
+  --ps-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--ps-bg-cinematic);
+  color: #FFFFFF;
+  font-family: var(--ps-font-body);
+  font-weight: 300;
+  line-height: 1.6;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ===== Top corner mark ===== */
+.ps-corner {
+  position: fixed;
+  top: 20px;
+  left: 24px;
+  font-family: var(--ps-font-en);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: var(--ps-text-cinematic-secondary);
+  z-index: 90;
+  transition: color 240ms var(--ps-ease-out);
+}
+.ps-corner:hover { color: var(--ps-primary); }
+
+/* ===== Layout ===== */
+.wrap {
+  max-width: 1108px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+@media (min-width: 768px) {
+  .wrap { padding: 0 48px; }
+}
+
+section {
+  padding: 96px 0;
+}
+@media (min-width: 768px) {
+  section { padding: 120px 0; }
+}
+
+/* ===== Bilingual Section Header ===== */
+.section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 48px;
+}
+@media (min-width: 768px) {
+  .section-header { flex-direction: row; align-items: baseline; gap: 16px; }
+}
+.section-header .ko {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 300;
+  letter-spacing: -1.2px;
+  line-height: 1.2;
+  margin: 0;
+  color: #FFFFFF;
+}
+.section-header .en {
+  font-family: var(--ps-font-en);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--ps-text-cinematic-secondary);
+}
+
+/* ===== Mandatory parcyun footer ===== */
+.ps-footer {
+  position: fixed;
+  bottom: 16px;
+  right: 20px;
+  font-family: var(--ps-font-en);
+  font-weight: 300;
+  font-size: 11px;
+  color: var(--ps-text-cinematic-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px 12px;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.ps-signature {
+  font-family: var(--ps-font-signature);
+  font-size: 15px;
+  color: var(--ps-primary);
+  line-height: 1;
+}
+.ps-ig {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: inherit;
+  text-decoration: none;
+  margin-left: 4px;
+}
+.ps-ig:hover { color: var(--ps-primary); }
+.ps-ig-icon { width: 10px; height: 10px; vertical-align: middle; }
+
+/* ===== Entry animation ===== */
+section, .hero {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 800ms var(--ps-ease-out), transform 800ms var(--ps-ease-out);
+}
+section.in-view, .hero.in-view {
+  opacity: 1;
+  transform: none;
+}
+.hero { opacity: 1; transform: none; } /* hero is always visible */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  section, .hero { opacity: 1; transform: none; transition: none; }
+}
+
+/* ===== Floating nav (top / bottom) ===== */
+.float-nav {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 80;
+}
+.float-nav button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  font-family: var(--ps-font-en);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 240ms var(--ps-ease-out), color 240ms var(--ps-ease-out), transform 240ms var(--ps-ease-out);
+}
+.float-nav button:hover {
+  border-color: var(--ps-primary);
+  color: var(--ps-primary);
+  transform: translateY(-2px);
+}
+@media (max-width: 639px) {
+  .float-nav { right: 12px; gap: 6px; }
+  .float-nav button { width: 36px; height: 36px; font-size: 13px; }
+}
+
+/* ===== Footer (ps-footer) · 업무 대시보드 link ===== */
+.ps-footer-link {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  color: var(--ps-text-cinematic-secondary);
+  text-decoration: none;
+  padding-right: 10px;
+  margin-right: 4px;
+  border-right: 1px solid rgba(255, 255, 255, 0.14);
+  transition: color 240ms var(--ps-ease-out);
+}
+.ps-footer-link:hover { color: var(--ps-primary); }
+.ps-footer-coffee {
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  color: var(--ps-primary);
+  background: transparent;
+  border: 0;
+  padding: 0 10px 0 0;
+  margin-right: 4px;
+  border-right: 1px solid rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  transition: color 240ms var(--ps-ease-out);
+}
+.ps-footer-coffee:hover { color: var(--ps-primary-dark); }
+
+/* ===== 커피 후원 QR 팝업 ===== */
+.coffee-modal {
+  position: fixed; inset: 0; z-index: 10000;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.coffee-modal[hidden] { display: none; }
+.coffee-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  animation: coffeeFade 0.2s var(--ps-ease-out);
+}
+@keyframes coffeeFade { from { opacity: 0; } to { opacity: 1; } }
+.coffee-card {
+  position: relative; z-index: 1;
+  background: var(--ps-surface-cinematic-1);
+  border: 1px solid var(--ps-primary);
+  border-radius: 18px;
+  padding: 32px 32px 26px;
+  text-align: center; max-width: 340px; width: 100%;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(255, 177, 26, 0.12);
+  animation: coffeePop 0.28s var(--ps-ease-out);
+}
+@keyframes coffeePop { from { opacity: 0; transform: translateY(16px) scale(0.96); } to { opacity: 1; transform: none; } }
+.coffee-close {
+  position: absolute; top: 12px; right: 16px;
+  background: transparent; border: 0;
+  color: var(--ps-text-cinematic-secondary);
+  font-size: 24px; line-height: 1; cursor: pointer;
+  transition: color 150ms var(--ps-ease-out);
+}
+.coffee-close:hover { color: var(--ps-primary); }
+.coffee-emoji { font-size: 40px; line-height: 1; margin-bottom: 10px; }
+.coffee-title { margin: 0 0 6px; font-size: 19px; font-weight: 500; color: #FFFFFF; }
+.coffee-sub { margin: 0 0 20px; font-size: 13px; font-weight: 300; color: var(--ps-text-cinematic-secondary); line-height: 1.6; }
+.coffee-qr { display: block; width: 220px; height: 220px; margin: 0 auto 14px; border-radius: 12px; background: #fff; padding: 10px; object-fit: contain; }
+.coffee-qr-fallback { display: none; margin: 0 auto 14px; padding: 40px 16px; border: 1px dashed var(--ps-surface-cinematic-3); border-radius: 12px; font-family: var(--ps-font-en); font-size: 12px; color: var(--ps-text-cinematic-secondary); }
+.coffee-label { font-family: var(--ps-font-signature); font-size: 20px; color: var(--ps-primary); }
+
+
   /* ===== Resource Explorer (동적 검색·필터) ===== */
   .rx-controls{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
   .rx-search{position:relative;display:flex;align-items:center}
@@ -191,107 +316,8 @@ const bySubject = (s: string) => resources.filter((r) => r.subject === s);
   .rx-empty{text-align:center;padding:56px 20px;border:1px dashed var(--ps-surface-cinematic-3);border-radius:16px}
   .rx-empty-big{font-family:var(--ps-font-en);font-size:20px;font-weight:600;color:#fff;margin:0 0 8px}
   .rx-empty-sub{font-size:13px;color:var(--ps-text-cinematic-secondary);margin:0 0 20px}
-</style>
-
-<!-- ===== LECTURES ===== -->
-<section id="lectures">
-  <div class="wrap">
-    <header class="section-header">
-      <h2 class="ko">강의 자료</h2>
-      <span class="en">Lectures</span>
-    </header>
-
-    <!-- ── Featured: 온라인 연수 녹화본 (compact) ── -->
-    <div class="lecture-section">
-      <header class="lecture-subsection-header">
-        <h3 class="ko">온라인 연수 녹화본</h3>
-        <span class="en">Training Archive</span>
-      </header>
-      <a href="./academica-parcyun-studio/" class="lecture-card compact">
-        <span class="lc-id">Archive · Site</span>
-        <span class="lc-title">온라인 연수 <strong>녹화본 모아보기</strong></span>
-        <span class="lc-arrow">→</span>
-      </a>
-    </div>
-
-    <!-- ── Sub-section: LLM · Harness Agent ── -->
-    <div class="lecture-section">
-      <header class="lecture-subsection-header">
-        <h3 class="ko">LLM · Harness Agent</h3>
-        <span class="en">LLM &amp; Harness</span>
-      </header>
-      <div class="lecture-grid">
-        <!-- Lecture 001 -->
-        {bySubject('LLM · Harness Agent').map((r) => <ResourceCard r={r} />)}
-
-        <!-- Lecture 002 -->
-        
-
-        <!-- Coming soon placeholder -->
-        <div class="lecture-card placeholder">
-          <p class="topic">Sub-Agent 오케스트레이션</p>
-          <span class="cs-label">Coming Soon</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Sub-section: Notion 활용 ── -->
-    <div class="lecture-section">
-      <header class="lecture-subsection-header">
-        <h3 class="ko">Notion 활용</h3>
-        <span class="en">Notion</span>
-      </header>
-      <div class="lecture-grid">
-        {bySubject('Notion 활용').map((r) => <ResourceCard r={r} />)}
-        <div class="lecture-card placeholder">
-          <p class="topic">Notion 업무 자동화</p>
-          <span class="cs-label">Coming Soon</span>
-        </div>
-        <div class="lecture-card placeholder">
-          <p class="topic">교사용 Notion 템플릿</p>
-          <span class="cs-label">Coming Soon</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
 
-<!-- ===== CONNECT ===== -->
-<section>
-  <div class="wrap">
-    <header class="section-header">
-      <h2 class="ko">SNS</h2>
-      <span class="en">Connect</span>
-    </header>
-
-    <div class="connect-grid">
-      <a href="https://linktr.ee/parcyun" class="connect-link" target="_blank" rel="noopener">
-        <span class="label">Hub</span>
-        <span class="handle">linktr.ee/parcyun</span>
-        <span class="desc">연수자료 · 레퍼런스 패들렛 · classroom</span>
-      </a>
-      <a href="https://www.instagram.com/parcyun" class="connect-link" target="_blank" rel="noopener">
-        <span class="label">Instagram</span>
-        <span class="handle">@parcyun</span>
-        <span class="desc">교실 일상 · 디자인 · 일러스트 기록</span>
-      </a>
-      <a href="https://github.com/parcyun" class="connect-link" target="_blank" rel="noopener">
-        <span class="label">GitHub</span>
-        <span class="handle">@parcyun</span>
-        <span class="desc">강의 자료 · 코드 · 실험 프로젝트</span>
-      </a>
-      <a href="https://padlet.com/penlayered/parcyun-studio-19rq7rovocsv24vr" class="connect-link" target="_blank" rel="noopener">
-        <span class="label">Padlet</span>
-        <span class="handle">연수 자료</span>
-        <span class="desc">강의 레퍼런스 · 연수 자료 누적 아카이브</span>
-      </a>
-    </div>
-  </div>
-</section>
-
-
-<style is:global>
 /* ===== Hero ===== */
 .hero {
   min-height: 100vh;
@@ -864,15 +890,150 @@ const bySubject = (s: string) => resources.filter((r) => r.subject === s);
   color: var(--ps-text-cinematic-secondary);
 }
 
+
+
+  /* ===== ATLAS GEARS · 캐주얼 톤 ===== */
+  .ps-corner{font-family:var(--ps-font-en);font-size:12px;letter-spacing:.04em}
+  .atlas-hero{padding:104px 0 26px}
+  .atlas-eyebrow{font-family:var(--ps-font-en);font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--ps-primary)}
+  .atlas-wordmark{font-family:var(--ps-font-en);font-weight:800;font-size:clamp(52px,13vw,140px);line-height:.86;letter-spacing:-.035em;margin:16px 0 0;text-transform:uppercase}
+  .atlas-wordmark .g{color:var(--ps-primary);text-shadow:0 0 46px rgba(255,177,26,.42)}
+  .atlas-tagline{margin:22px 0 0;max-width:560px;font-size:15px;line-height:1.75;color:#EDEDED;font-weight:300}
+  .atlas-tagline .amber{color:var(--ps-primary);font-weight:500}
+  .atlas-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}
+  .atlas-pill{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:100px;font-size:14px;font-weight:600;
+    font-family:var(--ps-font-body);transition:all .2s var(--ps-ease-out)}
+  .atlas-pill.solid{background:var(--ps-primary);color:#000}
+  .atlas-pill.solid:hover{background:var(--ps-primary-dark);transform:translateY(-2px)}
+  .atlas-pill.ghost{border:1px solid var(--ps-surface-cinematic-3);color:#fff}
+  .atlas-pill.ghost:hover{border-color:var(--ps-primary);color:var(--ps-primary)}
+  .subject-emoji{margin-right:8px;font-size:.85em}
+  #explore{padding-top:8px}
+  .atlas-hint{font-size:13px;color:var(--ps-text-cinematic-secondary);margin:-6px 0 18px}
+
 </style>
+</head>
+<body>
+
+<a href="/" class="ps-corner">← parcyun studio</a>
+
+<!-- ===== HERO ===== -->
+<section class="hero atlas-hero">
+  <div class="wrap">
+    <div class="atlas-eyebrow">Classroom Activity Kit</div>
+    <h1 class="atlas-wordmark">ATLAS <span class="g">GEARS</span></h1>
+    <p class="atlas-tagline">
+      교실에서 바로 꺼내 쓰는 <span class="amber">교육 활동 자료</span> 모음이에요. ⚙️<br>
+      위에서 검색해 오늘 수업에 딱 맞는 걸 골라보세요.
+    </p>
+    <div class="atlas-actions">
+      <a href="#explore" class="atlas-pill solid">자료 검색하러 가기 <span>↓</span></a>
+      <a href="/" class="atlas-pill ghost">← parcyun studio 메인</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EXPLORE (활동 자료 검색 · React 아일랜드) ===== -->
+<section id="explore">
+  <div class="wrap">
+    <header class="section-header">
+      <h2 class="ko">활동 자료 찾기</h2>
+      <span class="en">Search</span>
+    </header>
+    <p class="atlas-hint">키워드나 태그로 검색하면 아래에서 바로 찾아줘요. (예: 맞춤법, 부피, 지도)</p>
+    <ResourceExplorer client:load resources={activities} showCategoryTabs={false} placeholder="활동 자료 검색 — 과목·주제·태그 (예: 국어, 부피, 세계지도)" unit="활동" />
+  </div>
+</section>
+
+<!-- ===== 전체 활동 (과목별) ===== -->
+<section id="activities">
+  <div class="wrap">
+    <header class="section-header">
+      <h2 class="ko">과목별 모아보기</h2>
+      <span class="en">By Subject</span>
+    </header>
+
+    <!-- ── 국어 ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko"><span class="subject-emoji">📖</span>국어</h3>
+        <span class="en">Korean</span>
+      </header>
+      <div class="lecture-grid">
+        {bySubject('국어').map((r) => <ResourceCard r={r} />)}
+        <div class="lecture-card placeholder"><p class="topic">국어 활동 자료 추가 예정</p><span class="cs-label">Coming Soon</span></div>
+        <div class="lecture-card placeholder"><p class="topic">국어 활동 자료 추가 예정</p><span class="cs-label">Coming Soon</span></div>
+      </div>
+    </div>
+
+    <!-- ── 수학 ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko"><span class="subject-emoji">📐</span>수학</h3>
+        <span class="en">Math</span>
+      </header>
+      <header class="lecture-subsubsection-header">
+        <h4 class="ko">도형과 기하</h4>
+        <span class="en">Geometry</span>
+      </header>
+      <div class="lecture-grid">
+        {bySubject('수학 · 도형과 기하').map((r) => <ResourceCard r={r} />)}
+        <div class="lecture-card placeholder"><p class="topic">도형과 기하 활동 자료 추가 예정</p><span class="cs-label">Coming Soon</span></div>
+        <div class="lecture-card placeholder"><p class="topic">도형과 기하 활동 자료 추가 예정</p><span class="cs-label">Coming Soon</span></div>
+      </div>
+    </div>
+
+    <!-- ── 사회 ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko"><span class="subject-emoji">🌍</span>사회</h3>
+        <span class="en">Social Studies</span>
+      </header>
+      <div class="lecture-grid">
+        {bySubject('사회').map((r) => <ResourceCard r={r} />)}
+        <div class="lecture-card placeholder"><p class="topic">사회 활동 자료 추가 예정</p><span class="cs-label">Coming Soon</span></div>
+        <div class="lecture-card placeholder"><p class="topic">사회 활동 자료 추가 예정</p><span class="cs-label">Coming Soon</span></div>
+      </div>
+    </div>
+
+    <!-- ── AI 활용 수업 ── -->
+    <div class="lecture-section">
+      <header class="lecture-subsection-header">
+        <h3 class="ko"><span class="subject-emoji">🤖</span>AI 활용 수업</h3>
+        <span class="en">AI in Classroom</span>
+      </header>
+      <div class="lecture-grid">
+        {bySubject('AI 활용 수업').map((r) => <ResourceCard r={r} />)}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== footer ===== -->
+<footer class="ps-footer">
+  <a href="/" class="ps-footer-link">← parcyun studio</a>
+  Designed by
+  <span class="ps-signature">parcyun studio</span>
+  <a href="https://www.instagram.com/parcyun" class="ps-ig" target="_blank" rel="noopener">
+    <svg class="ps-ig-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4 1 .5.4.8.8 1 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-1 1.4-.4.5-.8.8-1.4 1-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-1-.5-.4-.8-.8-1-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 1-1.4.4-.5.8-.8 1.4-1 .4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.4-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/></svg>
+    @parcyun
+  </a>
+</footer>
 
 <script is:inline>
-function toggleCareer(btn){
-  var list = document.getElementById('career-list');
-  var expanded = btn.getAttribute('aria-expanded') === 'true';
-  btn.setAttribute('aria-expanded', String(!expanded));
-  list.classList.toggle('collapsed', expanded);
-  btn.querySelector('.label').textContent = expanded ? '경력 전체 보기' : '경력 접기';
-}
+(function(){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('section').forEach(function(el){ el.classList.add('in-view'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -15% 0px', threshold: 0.05 });
+  document.querySelectorAll('section').forEach(function(el){ io.observe(el); });
+})();
 </script>
-</CinematicLayout>
+
+<script is:inline src="/share-widget.js" defer></script>
+<script is:inline src="/visitor-counter.js" defer></script>
+</body>
+</html>

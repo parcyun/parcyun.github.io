@@ -1,9 +1,5 @@
 ---
 import CinematicLayout from '../layouts/CinematicLayout.astro';
-import ResourceExplorer from '../components/ResourceExplorer.tsx';
-import ResourceCard from '../components/ResourceCard.astro';
-import { resources } from '../data/resources';
-const bySubject = (s: string) => resources.filter((r) => r.subject === s);
 ---
 <CinematicLayout
   title="parcyun studio · 강의 자료 허브"
@@ -22,7 +18,7 @@ const bySubject = (s: string) => resources.filter((r) => r.subject === s);
       교육과 <strong>AI</strong>를 잇습니다.<br>
     </p>
     <div class="hero-ctas">
-      <a href="#lectures" class="btn primary">강의 둘러보기 <span class="arrow">↓</span></a>
+      <a href="/library/" class="btn primary">강의 자료 <span class="arrow">↗</span></a>
       <a href="/atlas-gears/" class="btn primary">교육 활동 자료 <span class="arrow">↗</span></a>
     </div>
     <div class="hero-ctas">
@@ -147,115 +143,49 @@ const bySubject = (s: string) => resources.filter((r) => r.subject === s);
   </div>
 </section>
 
-<!-- ===== EXPLORE (동적 검색·필터 · React 아일랜드) ===== -->
-<section id="explore">
+<!-- ===== COLLECTIONS (자료실) ===== -->
+<section id="collections">
   <div class="wrap">
     <header class="section-header">
-      <h2 class="ko">자료 찾기</h2>
-      <span class="en">Explore</span>
+      <h2 class="ko">자료실</h2>
+      <span class="en">Collections</span>
     </header>
-    <ResourceExplorer client:load resources={resources.filter((r) => r.category === '강의 자료')} showCategoryTabs={false} placeholder="강의 자료 검색 — 제목·설명·태그 (예: LLM, Notion)" unit="강의" />
+    <div class="collections-grid">
+      <a href="/library/" class="collection-card">
+        <span class="cc-emoji">📚</span>
+        <span class="cc-brand">LIBRARY</span>
+        <span class="cc-ko">강의 서가</span>
+        <span class="cc-desc">교육 · AI · 디자인 강의 자료를 책장처럼 모아뒀어요.</span>
+        <span class="cc-go">서가 열기 →</span>
+      </a>
+      <a href="/atlas-gears/" class="collection-card">
+        <span class="cc-emoji">⚙️</span>
+        <span class="cc-brand">ATLAS GEARS</span>
+        <span class="cc-ko">교육 활동 자료</span>
+        <span class="cc-desc">게임 · 활동지 · 커리큘럼 · 인터랙티브를 검색해서 바로.</span>
+        <span class="cc-go">자료 찾기 →</span>
+      </a>
+    </div>
   </div>
 </section>
 
 <style is:global>
-  /* ===== Resource Explorer (동적 검색·필터) ===== */
-  .rx-controls{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
-  .rx-search{position:relative;display:flex;align-items:center}
-  .rx-search-icon{position:absolute;left:16px;font-size:18px;color:var(--ps-text-cinematic-secondary);pointer-events:none}
-  .rx-input{width:100%;padding:15px 16px 15px 44px;border-radius:14px;background:var(--ps-surface-cinematic-1);
-    border:1px solid var(--ps-surface-cinematic-3);color:#fff;font-family:var(--ps-font-body);font-size:15px;font-weight:300;
-    transition:border-color .2s var(--ps-ease-out)}
-  .rx-input::placeholder{color:var(--ps-text-cinematic-secondary)}
-  .rx-input:focus{outline:none;border-color:var(--ps-primary)}
-  .rx-reset{position:absolute;right:10px;padding:7px 13px;border:0;border-radius:100px;cursor:pointer;
-    background:var(--ps-surface-cinematic-3);color:#fff;font-size:12px;font-family:var(--ps-font-body);white-space:nowrap;
-    transition:all .18s var(--ps-ease-out)}
-  .rx-reset:hover{background:var(--ps-primary);color:#000}
-  .rx-tabs{display:flex;gap:8px;flex-wrap:wrap}
-  .rx-tab{padding:9px 16px;border-radius:100px;cursor:pointer;font-size:13px;font-weight:500;background:transparent;
-    border:1px solid var(--ps-surface-cinematic-3);color:var(--ps-text-cinematic-secondary);font-family:var(--ps-font-body);
-    transition:all .18s var(--ps-ease-out)}
-  .rx-tab:hover{border-color:var(--ps-primary);color:#fff}
-  .rx-tab.on{background:var(--ps-primary);border-color:var(--ps-primary);color:#000;font-weight:700}
-  .rx-tags{display:flex;gap:8px;flex-wrap:wrap}
-  .rx-chip{padding:6px 12px;border-radius:100px;cursor:pointer;font-size:12px;background:var(--ps-surface-cinematic-1);
-    border:1px solid var(--ps-surface-cinematic-3);color:var(--ps-text-cinematic-secondary);font-family:var(--ps-font-en);
-    transition:all .16s var(--ps-ease-out)}
-  .rx-chip:hover{border-color:var(--ps-primary);color:#fff}
-  .rx-chip.on{background:rgba(255,177,26,.14);border-color:var(--ps-primary);color:var(--ps-primary);font-weight:700}
-  .rx-count{font-family:var(--ps-font-en);font-size:12px;letter-spacing:.08em;color:var(--ps-text-cinematic-secondary);
-    text-transform:uppercase;margin-bottom:18px}
-  .rx-count b{color:var(--ps-primary);font-weight:700;font-size:14px;margin-right:4px}
-  .tag-pill.on{background:var(--ps-primary);color:#000;border-color:var(--ps-primary)}
-  .rx-empty{text-align:center;padding:56px 20px;border:1px dashed var(--ps-surface-cinematic-3);border-radius:16px}
-  .rx-empty-big{font-family:var(--ps-font-en);font-size:20px;font-weight:600;color:#fff;margin:0 0 8px}
-  .rx-empty-sub{font-size:13px;color:var(--ps-text-cinematic-secondary);margin:0 0 20px}
+  .collections-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:6px}
+  @media(min-width:720px){.collections-grid{grid-template-columns:1fr 1fr}}
+  .collection-card{position:relative;display:flex;flex-direction:column;gap:2px;padding:34px 30px 30px;border-radius:20px;overflow:hidden;
+    background:linear-gradient(160deg,var(--ps-surface-cinematic-1),#0c0c0c);border:1px solid var(--ps-surface-cinematic-3);
+    transition:transform .24s var(--ps-ease-out),border-color .24s var(--ps-ease-out),box-shadow .24s}
+  .collection-card::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,177,26,.12),transparent 70%);pointer-events:none}
+  .collection-card:hover{transform:translateY(-4px);border-color:var(--ps-primary);box-shadow:0 18px 40px rgba(0,0,0,.4),0 0 30px rgba(255,177,26,.14)}
+  .cc-emoji{font-size:34px;line-height:1}
+  .cc-brand{font-family:var(--ps-font-en);font-weight:800;font-size:26px;letter-spacing:-.01em;color:#fff;margin-top:12px}
+  .collection-card:hover .cc-brand{color:var(--ps-primary)}
+  .cc-ko{font-size:14px;font-weight:600;color:var(--ps-primary);margin-top:2px}
+  .cc-desc{font-size:13.5px;line-height:1.65;color:var(--ps-text-cinematic-secondary);margin-top:8px}
+  .cc-go{margin-top:16px;font-family:var(--ps-font-en);font-size:13px;font-weight:600;letter-spacing:.02em;color:#fff}
+  .collection-card:hover .cc-go{color:var(--ps-primary)}
 </style>
-
-<!-- ===== LECTURES ===== -->
-<section id="lectures">
-  <div class="wrap">
-    <header class="section-header">
-      <h2 class="ko">강의 자료</h2>
-      <span class="en">Lectures</span>
-    </header>
-
-    <!-- ── Featured: 온라인 연수 녹화본 (compact) ── -->
-    <div class="lecture-section">
-      <header class="lecture-subsection-header">
-        <h3 class="ko">온라인 연수 녹화본</h3>
-        <span class="en">Training Archive</span>
-      </header>
-      <a href="./academica-parcyun-studio/" class="lecture-card compact">
-        <span class="lc-id">Archive · Site</span>
-        <span class="lc-title">온라인 연수 <strong>녹화본 모아보기</strong></span>
-        <span class="lc-arrow">→</span>
-      </a>
-    </div>
-
-    <!-- ── Sub-section: LLM · Harness Agent ── -->
-    <div class="lecture-section">
-      <header class="lecture-subsection-header">
-        <h3 class="ko">LLM · Harness Agent</h3>
-        <span class="en">LLM &amp; Harness</span>
-      </header>
-      <div class="lecture-grid">
-        <!-- Lecture 001 -->
-        {bySubject('LLM · Harness Agent').map((r) => <ResourceCard r={r} />)}
-
-        <!-- Lecture 002 -->
-        
-
-        <!-- Coming soon placeholder -->
-        <div class="lecture-card placeholder">
-          <p class="topic">Sub-Agent 오케스트레이션</p>
-          <span class="cs-label">Coming Soon</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Sub-section: Notion 활용 ── -->
-    <div class="lecture-section">
-      <header class="lecture-subsection-header">
-        <h3 class="ko">Notion 활용</h3>
-        <span class="en">Notion</span>
-      </header>
-      <div class="lecture-grid">
-        {bySubject('Notion 활용').map((r) => <ResourceCard r={r} />)}
-        <div class="lecture-card placeholder">
-          <p class="topic">Notion 업무 자동화</p>
-          <span class="cs-label">Coming Soon</span>
-        </div>
-        <div class="lecture-card placeholder">
-          <p class="topic">교사용 Notion 템플릿</p>
-          <span class="cs-label">Coming Soon</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 
 <!-- ===== CONNECT ===== -->
 <section>

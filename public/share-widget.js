@@ -26,7 +26,7 @@
     + 'box-shadow:0 10px 26px rgba(0,0,0,.5);opacity:0;transform:translateY(8px);pointer-events:none;'
     + 'transition:opacity .22s ease,transform .22s ease;}'
     + '.ps-share-toast.show{opacity:1;transform:translateY(0);}'
-    + '@media (max-width:520px){.ps-share-fab{right:14px;bottom:calc(var(--ps-footer-h,0px) + 20px);padding:9px 13px;font-size:11px;}'
+    + '@media (max-width:480px){.ps-share-fab{right:14px;bottom:calc(var(--ps-footer-h,0px) + 20px);padding:9px 13px;font-size:11px;}'
     + '.ps-share-toast{right:14px;bottom:calc(var(--ps-footer-h,0px) + 74px);}}'
     // 아주 좁은 화면: 아이콘만 남긴 원형 FAB — 주요 버튼을 덜 가림
     + '@media (max-width:430px){.ps-share-fab{padding:0;width:44px;height:44px;border-radius:50%;justify-content:center;gap:0;}'

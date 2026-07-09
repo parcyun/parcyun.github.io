@@ -32,7 +32,7 @@
       + ".ps-visits-float{position:fixed;left:var(--ps-brand-left, 16px);bottom:calc(var(--ps-footer-h,0px) + 20px);z-index:80;background:rgba(0,0,0,.55);"
       + "backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:6px 12px;border-radius:100px;"
       + "border:1px solid rgba(255,255,255,.08)}"
-      + "@media(max-width:430px){.ps-visits-float{font-size:10px;gap:8px}}";
+      + "@media(max-width:480px){.ps-visits-float{font-size:10px;gap:8px}}";
     document.head.appendChild(s);
   }
 

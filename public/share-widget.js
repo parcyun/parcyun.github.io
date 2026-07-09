@@ -11,26 +11,26 @@
 
   var css = ''
     + '.ps-share-fab{position:fixed;right:20px;bottom:calc(var(--ps-footer-h,0px) + 20px);z-index:9990;display:inline-flex;'
-    + 'align-items:center;gap:8px;padding:12px 18px;border:0;border-radius:100px;cursor:pointer;'
-    + 'background:' + AMBER + ';color:#000;font-weight:700;font-size:13px;letter-spacing:-.01em;'
+    + 'align-items:center;gap:7px;padding:10px 15px;border:0;border-radius:100px;cursor:pointer;'
+    + 'background:' + AMBER + ';color:#000;font-weight:700;font-size:12px;letter-spacing:-.01em;'
     + "font-family:'Pretendard Variable','Pretendard','Montserrat',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;"
     + 'box-shadow:0 8px 24px rgba(0,0,0,.35),0 0 0 0 rgba(255,177,26,.5);'
     + 'transition:transform .22s cubic-bezier(.16,1,.3,1),box-shadow .22s cubic-bezier(.16,1,.3,1),background .18s;}'
     + '.ps-share-fab:hover{background:' + AMBER_DARK + ';transform:translateY(-2px);'
     + 'box-shadow:0 12px 30px rgba(0,0,0,.45),0 0 24px rgba(255,177,26,.35);}'
     + '.ps-share-fab:active{transform:translateY(0);}'
-    + '.ps-share-fab svg{width:16px;height:16px;flex:0 0 auto;}'
+    + '.ps-share-fab svg{width:14px;height:14px;flex:0 0 auto;}'
     + '.ps-share-toast{position:fixed;right:20px;bottom:calc(var(--ps-footer-h,0px) + 74px);z-index:9991;padding:10px 16px;'
     + 'border-radius:10px;background:rgba(20,20,20,.95);color:#fff;font-size:12px;font-weight:500;'
     + "font-family:'Pretendard Variable','Pretendard',sans-serif;border:1px solid rgba(255,177,26,.4);"
     + 'box-shadow:0 10px 26px rgba(0,0,0,.5);opacity:0;transform:translateY(8px);pointer-events:none;'
     + 'transition:opacity .22s ease,transform .22s ease;}'
     + '.ps-share-toast.show{opacity:1;transform:translateY(0);}'
-    + '@media (max-width:520px){.ps-share-fab{right:14px;bottom:calc(var(--ps-footer-h,0px) + 20px);padding:11px 15px;font-size:12px;}'
+    + '@media (max-width:520px){.ps-share-fab{right:14px;bottom:calc(var(--ps-footer-h,0px) + 20px);padding:9px 13px;font-size:11px;}'
     + '.ps-share-toast{right:14px;bottom:calc(var(--ps-footer-h,0px) + 74px);}}'
     // 아주 좁은 화면: 아이콘만 남긴 원형 FAB — 주요 버튼을 덜 가림
-    + '@media (max-width:430px){.ps-share-fab{padding:0;width:48px;height:48px;border-radius:50%;justify-content:center;gap:0;}'
-    + '.ps-share-fab span{display:none;}.ps-share-fab svg{width:20px;height:20px;}}'
+    + '@media (max-width:430px){.ps-share-fab{padding:0;width:44px;height:44px;border-radius:50%;justify-content:center;gap:0;}'
+    + '.ps-share-fab span{display:none;}.ps-share-fab svg{width:18px;height:18px;}}'
     + '@media (prefers-reduced-motion:reduce){.ps-share-fab,.ps-share-toast{transition:none;}}';
 
   var shareIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '

@@ -7,6 +7,7 @@ export interface Props {
   ogUrl?: string;
   lang?: string;
 }
+import { icon } from '../lib/icons';
 const { title, description = '', ogTitle = '', ogDescription = '', ogUrl = '', lang = 'ko' } = Astro.props;
 ---
 <!doctype html>
@@ -69,8 +70,8 @@ a { color: inherit; text-decoration: none; }
 /* ===== Top corner mark ===== */
 .ps-corner {
   position: fixed;
-  top: 20px;
-  left: 24px;
+  top: 21px;
+  left: 74px;
   font-family: var(--ps-font-en);
   font-size: 12px;
   font-weight: 400;
@@ -80,6 +81,16 @@ a { color: inherit; text-decoration: none; }
   transition: color 240ms var(--ps-ease-out);
 }
 .ps-corner:hover { color: var(--ps-primary); }
+.ico { display: inline-flex; align-items: center; justify-content: center; line-height: 0; }
+.ico svg { display: block; }
+.ps-back {
+  position: fixed; top: 16px; left: 20px; z-index: 91;
+  width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 100px; border: 1px solid rgba(255,255,255,.1); background: rgba(0,0,0,.4);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: #8C8C8C; cursor: pointer; padding: 0; transition: color .18s, border-color .18s;
+}
+.ps-back:hover { color: #fff; border-color: rgba(255,255,255,.25); }
 
 /* ===== Layout ===== */
 .wrap {
@@ -290,6 +301,7 @@ section.in-view, .hero.in-view {
 </head>
 <body>
 
+<button type="button" class="ps-back" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}"><span class="ico" set:html={icon('arrowLeft', 18)}></span></button>
 <a href="https://www.instagram.com/parcyun" class="ps-corner" target="_blank" rel="noopener">@parcyun</a>
 
 <slot />

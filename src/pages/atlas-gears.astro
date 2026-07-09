@@ -286,6 +286,8 @@ section.in-view, .hero.in-view {
   /* ===== 글로벌 · 우상단 네비 + 라인 아이콘 ===== */
   .ps-topnav{position:fixed;top:16px;right:20px;z-index:90;font-family:var(--ps-font-en);font-size:12px;letter-spacing:.04em;color:#8C8C8C;display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:100px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:color .18s,border-color .18s;text-decoration:none}
   .ps-topnav:hover{color:#fff;border-color:rgba(255,255,255,.25)}
+  .ps-back{position:fixed;top:16px;left:20px;z-index:91;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#8C8C8C;cursor:pointer;padding:0;transition:color .18s,border-color .18s}
+  .ps-back:hover{color:#fff;border-color:rgba(255,255,255,.25)}
   .ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}
   .ico svg{display:block}
   .ps-footer-coffee .ico{margin-right:1px}
@@ -354,6 +356,8 @@ section.in-view, .hero.in-view {
 </style>
 </head>
 <body>
+
+<button type="button" class="ps-back" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}"><span class="ico" set:html={icon('arrowLeft', 18)}></span></button>
 
 <a href="/" class="ps-topnav"><span class="ico" set:html={icon('home', 15)}></span> parcyun studio</a>
 

@@ -1,5 +1,7 @@
 ---
-// 모든 페이지 공용 하단 고정 푸터 — 텍스트 나열형, 전체 페이지 하단 고정.
+// 모든 페이지 공용 하단 푸터 — 텍스트 나열형, 페이지 콘텐츠 끝(문서 흐름)에 고정.
+// 플로팅(position:fixed) 아님 — body를 flex column으로 만들고 footer에 margin-top:auto를
+// 줘서 짧은 페이지에서도 뷰포트 바닥에 붙지만 콘텐츠 위에 뜨거나 겹치지 않는다("sticky footer" 패턴).
 // MANDATORY(parcyun-studio 스킬 mandatory-footer 규정): "Designed by parcyun studio" 문구·
 // 시그니처 폰트/컬러(#FFB11A)·Instagram 링크는 절대 변경/제거 금지.
 import { icon } from '../lib/icons';
@@ -41,7 +43,7 @@ import AdminAuth from './AdminAuth.tsx';
 </div>
 
 <style>
-.ps-footer{position:fixed;left:0;right:0;bottom:0;z-index:9999;width:100%;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.08)}
+.ps-footer{position:static;flex-shrink:0;margin-top:auto;width:100%;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.08)}
 .ps-footer-inner{max-width:1108px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px}
 @media(min-width:768px){.ps-footer-inner{padding:11px 48px}}
 .ps-flinks{display:flex;flex-wrap:wrap;align-items:center;gap:0;row-gap:4px}
@@ -76,8 +78,8 @@ import AdminAuth from './AdminAuth.tsx';
 </style>
 
 <style is:global>
-/* 전체 페이지 하단 고정 푸터가 콘텐츠를 가리지 않도록 여백 확보 */
-body{padding-bottom:64px}
+/* sticky footer: body를 flex column으로 — 짧은 페이지도 footer가 뷰포트 바닥에 붙음(플로팅 아님) */
+body{display:flex;flex-direction:column;min-height:100vh}
 </style>
 
 <script is:inline>

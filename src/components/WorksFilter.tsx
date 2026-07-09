@@ -75,7 +75,7 @@ export default function WorksFilter() {
         {isAdmin && (
           <button type="button" className="wf-add" onClick={() => setEditing('new')}>+ Work 추가</button>
         )}
-        <div className="wf-tabs" role="tablist" aria-label="상태">
+        <div className="wf-tabs" role="group" aria-label="상태">
           {STATUS_TABS.map((s) => (
             <button
               type="button"
@@ -172,6 +172,7 @@ export default function WorksFilter() {
 
       {editing && accessToken && (
         <WorkEditModal
+          key={editing === 'new' ? 'new' : editing.num}
           accessToken={accessToken}
           initial={editing === 'new' ? undefined : editing}
           nextNum={nextNum}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { sbInsert, sbUpdate } from '../../lib/supabase';
 import type { Category, Resource, ResourceType } from '../../data/resources';
 
@@ -38,6 +38,15 @@ export default function ResourceEditModal({ category, accessToken, initial, onCl
   const [tags, setTags] = useState((initial?.tags || []).join(', '));
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // ESC 닫기 + 최초 포커스(첫 활성 입력). 리스너는 모달 수명 동안만 등록.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    formRef.current?.querySelector<HTMLElement>('input:not([disabled]), select, textarea')?.focus();
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -78,9 +87,9 @@ export default function ResourceEditModal({ category, accessToken, initial, onCl
   }
 
   return (
-    <div className="rem-backdrop" onClick={onClose}>
-      <form className="rem-card" onClick={(e) => e.stopPropagation()} onSubmit={submit}>
-        <h3 className="rem-title">{isEdit ? '자료 수정' : '자료 추가'}</h3>
+    <div className="rem-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="rem-title">
+      <form ref={formRef} className="rem-card" onClick={(e) => e.stopPropagation()} onSubmit={submit}>
+        <h3 className="rem-title" id="rem-title">{isEdit ? '자료 수정' : '자료 추가'}</h3>
 
         <label className="rem-field">
           <span>제목</span>

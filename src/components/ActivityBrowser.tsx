@@ -120,7 +120,7 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
           )}
         </div>
         <div className="rx-row">
-          <div className="rx-tabs" role="tablist" aria-label="카테고리">
+          <div className="rx-tabs" role="group" aria-label="카테고리">
             {['전체', ...types].map((c) => (
               <button
                 type="button"
@@ -188,6 +188,7 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
 
       {editing && accessToken && (
         <ResourceEditModal
+          key={editing === 'new' ? 'new' : editing.id}
           category={CATEGORY}
           accessToken={accessToken}
           initial={editing === 'new' ? undefined : editing}

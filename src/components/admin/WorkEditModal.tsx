@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { sbInsert, sbUpdate } from '../../lib/supabase';
 import type { Work, WorkStatus } from '../../data/works';
 
@@ -22,6 +22,15 @@ export default function WorkEditModal({ accessToken, initial, nextNum, onClose, 
   const [tags, setTags] = useState((initial?.tags || []).join(', '));
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // ESC 닫기 + 최초 포커스(disabled 번호 필드는 건너뛰고 제목에). 모달 수명 동안만 리스너 등록.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    formRef.current?.querySelector<HTMLElement>('input:not([disabled]), select, textarea')?.focus();
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,9 +65,9 @@ export default function WorkEditModal({ accessToken, initial, nextNum, onClose, 
   }
 
   return (
-    <div className="rem-backdrop" onClick={onClose}>
-      <form className="rem-card" onClick={(e) => e.stopPropagation()} onSubmit={submit}>
-        <h3 className="rem-title">{isEdit ? `Work ${num} 수정` : '새 Work 추가'}</h3>
+    <div className="rem-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="work-modal-title">
+      <form ref={formRef} className="rem-card" onClick={(e) => e.stopPropagation()} onSubmit={submit}>
+        <h3 className="rem-title" id="work-modal-title">{isEdit ? `Work ${num} 수정` : '새 Work 추가'}</h3>
         <label className="rem-field"><span>번호</span><input value={num} disabled /></label>
         <label className="rem-field"><span>제목</span><input value={title} onChange={(e) => setTitle(e.target.value)} required /></label>
         <label className="rem-field"><span>포스터 제목(HTML, &lt;br&gt; 허용)</span><input value={titleHtml} onChange={(e) => setTitleHtml(e.target.value)} placeholder={title} /></label>

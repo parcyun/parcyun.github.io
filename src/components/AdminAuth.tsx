@@ -16,6 +16,14 @@ export default function AdminAuth() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // 팝오버 열림 동안만 ESC 닫기 등록 (role=dialog는 ESC-dismiss를 함의)
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
+
   async function sendLink(e: React.FormEvent) {
     e.preventDefault();
     setErr('');

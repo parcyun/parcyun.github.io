@@ -75,6 +75,7 @@ export default function LectureShelf() {
 
       {editing && accessToken && (
         <ResourceEditModal
+          key={editing === 'new' ? 'new' : editing.id}
           category={CATEGORY}
           accessToken={accessToken}
           initial={editing === 'new' ? undefined : editing}

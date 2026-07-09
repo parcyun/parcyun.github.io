@@ -179,6 +179,7 @@ section.in-view, .hero.in-view {
 }
 
 </style>
+<noscript><style>section,.hero{opacity:1!important;transform:none!important}</style></noscript>
 </head>
 <body>
 
@@ -197,7 +198,7 @@ section.in-view, .hero.in-view {
 
 <script is:inline>
 (function(){
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.querySelectorAll('section').forEach(function(el){ el.classList.add('in-view'); });
     return;
   }

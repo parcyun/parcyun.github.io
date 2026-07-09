@@ -374,6 +374,7 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
   .ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}
   .ico svg{display:block}
 </style>
+<noscript><style>section,.hero{opacity:1!important;transform:none!important}</style></noscript>
 </head>
 
 <body>
@@ -422,7 +423,7 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
 <!-- ===== Entry animation ===== -->
 <script is:inline>
 (function(){
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.querySelectorAll('section').forEach(function(el){ el.classList.add('in-view'); });
     return;
   }

@@ -195,6 +195,7 @@ section.in-view, .hero.in-view {
   .type-head .cnt b{color:var(--ps-primary)}
 
 </style>
+<noscript><style>section,.hero{opacity:1!important;transform:none!important}</style></noscript>
 </head>
 <body>
 
@@ -234,7 +235,7 @@ section.in-view, .hero.in-view {
 
 <script is:inline>
 (function(){
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { document.querySelectorAll('section').forEach(function(el){ el.classList.add('in-view'); }); return; }
+  if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { document.querySelectorAll('section').forEach(function(el){ el.classList.add('in-view'); }); return; }
   var io = new IntersectionObserver(function(entries){ entries.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -15% 0px', threshold: 0.05 });
   document.querySelectorAll('section').forEach(function(el){ io.observe(el); });
 })();

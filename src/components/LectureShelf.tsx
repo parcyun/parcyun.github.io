@@ -32,7 +32,9 @@ export default function LectureShelf() {
     }
   }
 
-  if (loading) return null;
+  // loading 중에도 정적 시드(useResources 초기값)로 서가를 즉시 렌더 → SSR 콘텐츠 확보 +
+  // client:visible 하이드레이션이 관측할 실제 높이 확보(빈 아일랜드로 인한 조기/미하이드레이션 방지).
+  void loading;
 
   return (
     <div className="ls">

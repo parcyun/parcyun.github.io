@@ -52,7 +52,7 @@ function buildBase({world,night}){
   for(const [c,feats] of Object.entries(byC)){ctx.beginPath();for(const f of feats)path(f);const col=(CONT[c]||{}).color||'#888';ctx.fillStyle=night?shade(col,-0.6):col;ctx.fill();ctx.lineWidth=0.5;ctx.strokeStyle=night?'rgba(255,255,255,0.06)':'#04060B';ctx.stroke();}
   return rawTex(cv);
 }
-const OCEAN_LAT_CLIP={pacific:{smin:-60},atlantic:{smin:-60},indian:{smin:-60},southern:{smax:-60}}; // 대양 영역 분할: 개방 3대양은 60°S 위(smin)만, 남극해는 60°S 아래(smax)만 → −60에서 깔끔히 만남(IHO 정의)
+const OCEAN_LAT_CLIP={pacific:{smin:-60},atlantic:{smin:-60,smax:66.5},indian:{smin:-60},southern:{smax:-60},arctic:{smin:66.5}}; // 대양 영역 분할: 개방대양은 60°S 위(smin)만·남극해는 60°S 아래(smax)만 / 북극권 66.5°N에서 대서양(위 잘림)·북극해(아래 잘림) 분할(그린란드 동쪽 겹침 제거)
 const latRow=(lat)=>RES/4-(RES/(2*Math.PI))*(lat*D2R);                                              // projFor(equirect) 위도→텍스처 y (equator=RES/4, 남쪽일수록 큼)
 function featherOcean(baseCtx,geom,color,world,key){
   // 안개형 페더: 대양색은 폴리곤 깊은 안쪽만 solid, 모든 경계(대양-대양·대양-육지)로 갈수록 배경으로 소멸.
@@ -60,8 +60,9 @@ function featherOcean(baseCtx,geom,color,world,key){
   //   ③안쪽으로 erode(모든 경계에서 안으로) ④blur(그 경계를 안개처럼 알파 0%로). 아래엔 base oceanGrad(배경)이라 색이 배경으로 녹는다.
   // 반자오선(lon180) 래핑: ±W 복사로 캔버스를 주기적으로 만들어 seam 연속 — erode/blur도 wide 마스크 위에서 수행.
   const W=RES,H=RES/2;
-  const ER=Math.round(RES/360*1.7);   // 안쪽 침식(~1.7°): 페이드 시작점 + 이웃 대양 경계 넘침 방지
-  const BL=RES/360*2.8;               // 페더 반경(~2.8°): 경계를 배경으로 소멸시키는 안개 프로파일
+  const FADE=key==='southern'?1:1.1;  // 남극해 제외 4개 대양(태평양·대서양·인도양·북극해)은 바깥 페이드 10%↑
+  const ER=Math.round(RES/360*1.7*FADE);   // 안쪽 침식(~1.7°): 페이드 시작점 + 이웃 대양 경계 넘침 방지
+  const BL=RES/360*2.8*FADE;               // 페더 반경(~2.8°): 경계를 배경으로 소멸시키는 안개 프로파일
   const PAD=Math.ceil(ER+BL*4);       // wide 마스크 좌우 여백(erode 이동 + 블러 지원폭)
   // 1) 색 채움(±W 래핑 복사)
   const off=document.createElement('canvas');off.width=W;off.height=H;const o=off.getContext('2d');const op=geoPath(projFor(o),o);

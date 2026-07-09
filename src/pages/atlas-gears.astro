@@ -2,6 +2,7 @@
 import ActivityExplorer from '../components/ActivityExplorer.tsx';
 import ActivityCard from '../components/ActivityCard.astro';
 import { resources, ACTIVITY_TYPES } from '../data/resources';
+import { icon, typeIcon } from '../lib/icons';
 const activities = resources.filter((r) => r.category === '교육 활동 자료');
 const byType = (t: string) => activities.filter((r) => r.type === t);
 ---
@@ -875,16 +876,21 @@ section.in-view, .hero.in-view {
 
 
 
+  /* ===== 글로벌 · 우상단 그레이스케일 네비 + 라인 아이콘 ===== */
+  .ps-topnav{position:fixed;top:16px;right:20px;z-index:90;font-family:var(--ps-font-en);font-size:12px;letter-spacing:.04em;color:#8C8C8C;display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:100px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:color .18s,border-color .18s;text-decoration:none}
+  .ps-topnav:hover{color:#fff;border-color:rgba(255,255,255,.25)}
+  .ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}
+  .ico svg{display:block}
+
   /* ===== ATLAS GEARS · 캐주얼 + 컴팩트 카드 ===== */
-  .ps-corner{font-family:var(--ps-font-en);font-size:12px;letter-spacing:.04em}
-  .atlas-hero{padding:104px 0 26px}
+  .atlas-hero{padding:100px 0 26px}
   .atlas-eyebrow{font-family:var(--ps-font-en);font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--ps-primary)}
   .atlas-wordmark{font-family:var(--ps-font-en);font-weight:800;font-size:clamp(52px,13vw,140px);line-height:.86;letter-spacing:-.035em;margin:16px 0 0;text-transform:uppercase}
   .atlas-wordmark .g{color:var(--ps-primary);text-shadow:0 0 46px rgba(255,177,26,.42)}
   .atlas-tagline{margin:22px 0 0;max-width:560px;font-size:15px;line-height:1.75;color:#EDEDED;font-weight:300}
   .atlas-tagline .amber{color:var(--ps-primary);font-weight:500}
-  .atlas-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}
-  .atlas-pill{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:100px;font-size:14px;font-weight:600;font-family:var(--ps-font-body);transition:all .2s var(--ps-ease-out)}
+  .atlas-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+  .atlas-pill{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;font-size:14px;font-weight:600;font-family:var(--ps-font-body);transition:all .2s var(--ps-ease-out)}
   .atlas-pill.solid{background:var(--ps-primary);color:#000}
   .atlas-pill.solid:hover{background:var(--ps-primary-dark);transform:translateY(-2px)}
   .atlas-pill.ghost{border:1px solid var(--ps-surface-cinematic-3);color:#fff}
@@ -892,25 +898,25 @@ section.in-view, .hero.in-view {
   .atlas-hint{font-size:13px;color:var(--ps-text-cinematic-secondary);margin:-6px 0 18px}
   #explore{padding-top:8px}
 
-  /* 컴팩트 썸네일 카드 */
+  /* 컴팩트 카드 (썸네일=라인 아이콘) */
   .act-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:2px}
   @media(min-width:640px){.act-grid{grid-template-columns:1fr 1fr}}
   .act-card{display:flex;gap:15px;padding:15px;border-radius:14px;background:var(--ps-surface-cinematic-1);border:1px solid var(--ps-surface-cinematic-3);text-decoration:none;transition:transform .22s var(--ps-ease-out),border-color .22s,box-shadow .22s}
-  .act-card:hover{border-color:var(--ps-primary);transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.35),0 0 22px rgba(255,177,26,.1)}
-  .act-thumb{flex:0 0 66px;width:66px;height:66px;border-radius:12px;display:grid;place-items:center;font-size:32px;background:radial-gradient(at 30% 25%,rgba(255,177,26,.2),transparent 62%),var(--ps-surface-cinematic-2);border:1px solid var(--ps-surface-cinematic-3)}
+  .act-card:hover{border-color:var(--ps-primary);transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.35)}
+  .act-thumb{flex:0 0 60px;width:60px;height:60px;border-radius:12px;display:grid;place-items:center;color:var(--ps-primary);background:var(--ps-surface-cinematic-2);border:1px solid var(--ps-surface-cinematic-3)}
   .act-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
   .act-type{align-self:flex-start;font-family:var(--ps-font-en);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ps-primary);border:1px solid rgba(255,177,26,.35);padding:2px 8px;border-radius:100px}
   .act-title{margin:3px 0 0;font-size:15px;font-weight:700;color:#fff;line-height:1.3}
   .act-desc{margin:0;font-size:12px;line-height:1.55;color:var(--ps-text-cinematic-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .act-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
   .tag-pill.sm{font-size:10px;padding:2px 8px}
-  .act-card.placeholder{align-items:center;justify-content:center;min-height:96px;border-style:dashed;opacity:.55}
+  .act-card.placeholder{align-items:center;justify-content:center;min-height:90px;border-style:dashed;opacity:.55}
   .act-card.placeholder span{font-size:12.5px;color:var(--ps-text-cinematic-secondary)}
 
   /* 타입 카테고리 헤더 */
   .type-section{margin-bottom:34px}
   .type-head{display:flex;align-items:center;gap:9px;margin:0 0 14px;padding-bottom:11px;border-bottom:1px solid var(--ps-surface-cinematic-2)}
-  .type-head .emoji{font-size:20px;line-height:1}
+  .type-head .type-ico{color:var(--ps-primary)}
   .type-head .ko{font-size:17px;font-weight:700;color:#fff}
   .type-head .en{font-family:var(--ps-font-en);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ps-text-cinematic-secondary)}
   .type-head .cnt{margin-left:auto;font-family:var(--ps-font-en);font-size:11px;color:var(--ps-text-cinematic-secondary)}
@@ -920,7 +926,7 @@ section.in-view, .hero.in-view {
 </head>
 <body>
 
-<a href="/" class="ps-corner">← parcyun studio</a>
+<a href="/" class="ps-topnav"><span class="ico" set:html={icon('home', 15)}></span> parcyun studio</a>
 
 <!-- ===== HERO ===== -->
 <section class="hero atlas-hero">
@@ -928,13 +934,12 @@ section.in-view, .hero.in-view {
     <div class="atlas-eyebrow">Classroom Activity Kit</div>
     <h1 class="atlas-wordmark">ATLAS <span class="g">GEARS</span></h1>
     <p class="atlas-tagline">
-      교실에서 바로 꺼내 쓰는 <span class="amber">교육 활동 자료</span> 모음이에요. ⚙️<br>
+      교실에서 바로 꺼내 쓰는 <span class="amber">교육 활동 자료</span> 모음이에요.<br>
       게임 · 활동지 · 커리큘럼 · 인터랙티브를 검색해 오늘 수업에 딱 맞는 걸 골라보세요.
     </p>
     <div class="atlas-actions">
-      <a href="#explore" class="atlas-pill solid">자료 검색하러 가기 <span>↓</span></a>
-      <a href="/library/" class="atlas-pill ghost">강의 자료 · LIBRARY →</a>
-      <a href="/" class="atlas-pill ghost">← parcyun studio 메인</a>
+      <a href="#explore" class="atlas-pill solid">자료 검색하러 가기 <span class="ico" set:html={icon('search', 16)}></span></a>
+      <a href="/academica/" class="atlas-pill ghost">강의 자료 · ACADEMICA <span class="ico" set:html={icon('arrowRight', 16)}></span></a>
     </div>
   </div>
 </section>
@@ -951,7 +956,7 @@ section.in-view, .hero.in-view {
   </div>
 </section>
 
-<!-- ===== 카테고리별 모아보기 (게임·활동지·커리큘럼·인터랙티브) ===== -->
+<!-- ===== 카테고리별 모아보기 ===== -->
 <section id="categories">
   <div class="wrap">
     <header class="section-header">
@@ -961,7 +966,7 @@ section.in-view, .hero.in-view {
 
     <div class="type-section">
       <header class="type-head">
-        <span class="emoji">🎮</span>
+        <span class="ico type-ico" set:html={icon(typeIcon['게임'], 20)}></span>
         <span class="ko">게임</span>
         <span class="en">Game</span>
         <span class="cnt"><b>{byType('게임').length}</b>개</span>
@@ -974,7 +979,7 @@ section.in-view, .hero.in-view {
 
     <div class="type-section">
       <header class="type-head">
-        <span class="emoji">📄</span>
+        <span class="ico type-ico" set:html={icon(typeIcon['활동지'], 20)}></span>
         <span class="ko">활동지</span>
         <span class="en">Worksheet</span>
         <span class="cnt"><b>{byType('활동지').length}</b>개</span>
@@ -987,7 +992,7 @@ section.in-view, .hero.in-view {
 
     <div class="type-section">
       <header class="type-head">
-        <span class="emoji">🗂️</span>
+        <span class="ico type-ico" set:html={icon(typeIcon['커리큘럼'], 20)}></span>
         <span class="ko">커리큘럼</span>
         <span class="en">Curriculum</span>
         <span class="cnt"><b>{byType('커리큘럼').length}</b>개</span>
@@ -1000,7 +1005,7 @@ section.in-view, .hero.in-view {
 
     <div class="type-section">
       <header class="type-head">
-        <span class="emoji">🕹️</span>
+        <span class="ico type-ico" set:html={icon(typeIcon['인터랙티브'], 20)}></span>
         <span class="ko">인터랙티브</span>
         <span class="en">Interactive</span>
         <span class="cnt"><b>{byType('인터랙티브').length}</b>개</span>

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Resource } from '../data/resources';
+import { icon, typeIcon } from '../lib/icons';
 
 function norm(s: string) {
   return s.toLowerCase().replace(/\s+/g, ' ').trim();
@@ -107,7 +108,7 @@ export default function ActivityExplorer({
               target={r.external ? '_blank' : undefined}
               rel={r.external ? 'noopener' : undefined}
             >
-              <div className="act-thumb">{r.thumb}</div>
+              <div className="act-thumb ico" dangerouslySetInnerHTML={{ __html: icon(typeIcon[r.type], 28) }} />
               <div className="act-body">
                 <span className="act-type">{r.type}</span>
                 <h3 className="act-title">{r.title}</h3>

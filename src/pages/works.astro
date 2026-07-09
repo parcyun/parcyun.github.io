@@ -1,6 +1,7 @@
 ---
 import WorksFilter from '../components/WorksFilter.tsx';
 import { works } from '../data/works';
+import { icon } from '../lib/icons';
 ---
 <!DOCTYPE html>
 <html lang="ko">
@@ -417,12 +418,16 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
   .wf-count b{color:var(--ps-primary);font-weight:700;font-size:14px;margin-right:4px}
   .wf-empty{text-align:center;padding:48px 20px;border:1px dashed var(--ps-surface-cinematic-3);border-radius:16px}
   .wf-empty-big{font-family:var(--ps-font-en);font-size:18px;font-weight:600;color:#fff;margin:0 0 16px}
+  .ps-topnav{position:fixed;top:16px;right:20px;z-index:90;font-family:var(--ps-font-en);font-size:12px;letter-spacing:.04em;color:#8C8C8C;display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:100px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:color .18s,border-color .18s;text-decoration:none}
+  .ps-topnav:hover{color:#fff;border-color:rgba(255,255,255,.25)}
+  .ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}
+  .ico svg{display:block}
 </style>
 </head>
 
 <body>
 
-<a href="../" class="ps-corner">← parcyun studio</a>
+<a href="/" class="ps-topnav"><span class="ico" set:html={icon('home', 15)}></span> parcyun studio</a>
 
 <!-- ===== HERO ===== -->
 <section class="hero">

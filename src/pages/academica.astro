@@ -1,20 +1,23 @@
 ---
 import { resources } from '../data/resources';
+import { icon, typeIcon } from '../lib/icons';
 const lectures = resources.filter((r) => r.category === '강의 자료');
-const palette = ["linear-gradient(180deg,#2b2119,#181109)","linear-gradient(180deg,#1d2431,#111620)","linear-gradient(180deg,#2b1f27,#160e14)","linear-gradient(180deg,#232a21,#141812)","linear-gradient(180deg,#2a2620,#161310)"];
-const spine = (r) => r.title.split(' · ')[0];
+const subjectEn = {"연수 아카이브":"Training Archive","LLM · Harness Agent":"LLM & Harness","Notion 활용":"Notion"};
+// 카테고리(소분류)별로 나눔 — 등장 순서 유지 (연수 아카이브가 먼저)
+const cats = [...new Set(lectures.map((r) => r.subject))];
+const byCat = (s) => lectures.filter((r) => r.subject === s);
 ---
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>LIBRARY · 강의 자료 · parcyun studio</title>
-<meta name="description" content="parcyun studio 강의 자료를 책장처럼 모아둔 서가. 교육·AI·디자인 강의를 한 권씩 꺼내 보세요. Designed by parcyun studio." />
-<meta property="og:title" content="LIBRARY · parcyun studio" />
-<meta property="og:description" content="강의 자료를 책장처럼 모아둔 서가." />
+<title>ACADEMICA · 강의 자료 · parcyun studio</title>
+<meta name="description" content="parcyun studio 강의 자료 서가. 교육·AI·디자인 강의를 카테고리별로 모아 한 권씩 꺼내 보세요. Designed by parcyun studio." />
+<meta property="og:title" content="ACADEMICA · parcyun studio" />
+<meta property="og:description" content="강의 자료를 카테고리별로 모아둔 서가." />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://parcyun.github.io/library/" />
+<meta property="og:url" content="https://parcyun.github.io/academica/" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -283,89 +286,97 @@ section.in-view, .hero.in-view {
 .coffee-label { font-family: var(--ps-font-signature); font-size: 20px; color: var(--ps-primary); }
 
 
-  /* ===== LIBRARY · 히어로 ===== */
-  .ps-corner{font-family:var(--ps-font-en);font-size:12px;letter-spacing:.04em}
-  .lib-hero{padding:104px 0 20px}
-  .lib-eyebrow{font-family:var(--ps-font-en);font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--ps-primary)}
-  .lib-wordmark{font-family:var(--ps-font-en);font-weight:800;font-size:clamp(52px,13vw,140px);line-height:.86;letter-spacing:-.035em;margin:16px 0 0;text-transform:uppercase}
-  .lib-wordmark .g{color:var(--ps-primary);text-shadow:0 0 46px rgba(255,177,26,.42)}
-  .lib-tagline{margin:22px 0 0;max-width:560px;font-size:15px;line-height:1.75;color:#EDEDED;font-weight:300}
-  .lib-tagline .amber{color:var(--ps-primary);font-weight:500}
-  .lib-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}
-  .lib-pill{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:100px;font-size:14px;font-weight:600;font-family:var(--ps-font-body);transition:all .2s var(--ps-ease-out)}
-  .lib-pill.ghost{border:1px solid var(--ps-surface-cinematic-3);color:#fff}
-  .lib-pill.ghost:hover{border-color:var(--ps-primary);color:var(--ps-primary)}
+  /* ===== 글로벌 · 우상단 그레이스케일 메인 네비 + 라인 아이콘 ===== */
+  .ps-topnav{position:fixed;top:16px;right:20px;z-index:90;font-family:var(--ps-font-en);font-size:12px;letter-spacing:.04em;
+    color:#8C8C8C;display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:100px;
+    border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    transition:color .18s,border-color .18s;text-decoration:none}
+  .ps-topnav:hover{color:#fff;border-color:rgba(255,255,255,.25)}
+  .ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}
+  .ico svg{display:block}
 
-  /* ===== 책장 (Bookshelf) ===== */
-  .lib-hint{font-size:13px;color:var(--ps-text-cinematic-secondary);margin:-4px 0 22px}
-  .bookshelf{position:relative;margin-top:8px}
-  .shelf{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:0 10px;min-height:340px}
-  .book{position:relative;width:70px;min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
-    padding:0 0 16px;border-radius:5px 5px 3px 3px;color:#fff;text-decoration:none;overflow:hidden;
-    border:1px solid rgba(255,255,255,.08);
-    box-shadow:inset 3px 0 0 rgba(255,255,255,.07), inset -5px 0 10px rgba(0,0,0,.45), 0 12px 22px rgba(0,0,0,.4);
-    transition:transform .24s var(--ps-ease-out), box-shadow .24s var(--ps-ease-out)}
-  .book:hover{transform:translateY(-20px);box-shadow:inset 3px 0 0 rgba(255,255,255,.1), inset -5px 0 12px rgba(0,0,0,.5), 0 22px 36px rgba(0,0,0,.55), 0 0 26px rgba(255,177,26,.25)}
-  .book-cap{width:100%;padding:12px 0 11px;text-align:center;font-size:22px;line-height:1;background:linear-gradient(180deg,rgba(255,177,26,.22),rgba(255,177,26,0));border-bottom:1px solid rgba(255,177,26,.28)}
-  .book-title{writing-mode:vertical-rl;text-orientation:mixed;font-family:var(--ps-font-body);font-weight:600;font-size:15px;letter-spacing:.03em;color:#fff;white-space:nowrap;margin:16px 0 auto;line-height:1}
-  .book-foot{font-family:var(--ps-font-en);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.62);margin-top:12px}
-  .book.empty{background:repeating-linear-gradient(180deg,#141414 0 8px,#101010 8px 16px);border-style:dashed;border-color:var(--ps-surface-cinematic-3);box-shadow:inset 0 0 0 1px rgba(255,255,255,.02)}
-  .book.empty .book-title{color:var(--ps-text-cinematic-secondary);font-weight:500}
-  .shelf-board{height:18px;margin:0 -2px;border-radius:3px;
-    background:linear-gradient(180deg,#3b2c14 0%,#2a1f0e 55%,#1c1408 100%);
-    box-shadow:0 14px 28px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,177,26,.3), inset 0 -2px 4px rgba(0,0,0,.5)}
-  .shelf-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:18px;font-family:var(--ps-font-en);font-size:11px;letter-spacing:.06em;color:var(--ps-text-cinematic-secondary);text-transform:uppercase}
-  .shelf-legend b{color:var(--ps-primary);font-weight:700}
-  @media(max-width:520px){.book{width:58px;min-height:220px}.book-title{font-size:13px}}
+  /* ===== ACADEMICA · 히어로 ===== */
+  .aca-hero{padding:100px 0 18px}
+  .aca-eyebrow{font-family:var(--ps-font-en);font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--ps-primary)}
+  .aca-wordmark{font-family:var(--ps-font-en);font-weight:800;font-size:clamp(48px,12vw,128px);line-height:.86;letter-spacing:-.035em;margin:16px 0 0;text-transform:uppercase}
+  .aca-wordmark .g{color:var(--ps-primary);text-shadow:0 0 46px rgba(255,177,26,.42)}
+  .aca-tagline{margin:22px 0 0;max-width:560px;font-size:15px;line-height:1.75;color:#EDEDED;font-weight:300}
+  .aca-tagline .amber{color:var(--ps-primary);font-weight:500}
+  .aca-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+  .aca-pill{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;font-size:14px;font-weight:600;font-family:var(--ps-font-body);border:1px solid var(--ps-surface-cinematic-3);color:#fff;transition:all .2s var(--ps-ease-out)}
+  .aca-pill:hover{border-color:var(--ps-primary);color:var(--ps-primary)}
+
+  /* ===== 책장 · 가로 flat 책 (카테고리별) ===== */
+  .aca-hint{font-size:13px;color:var(--ps-text-cinematic-secondary);margin:-4px 0 24px}
+  .shelf-cat{margin-bottom:30px}
+  .shelf-cat-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--ps-surface-cinematic-2)}
+  .shelf-cat-head .ko{font-size:15px;font-weight:700;color:#fff}
+  .shelf-cat-head .en{font-family:var(--ps-font-en);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ps-text-cinematic-secondary)}
+  .shelf-cat-head .cnt{margin-left:auto;font-family:var(--ps-font-en);font-size:11px;color:var(--ps-text-cinematic-secondary)}
+  .shelf-cat-head .cnt b{color:var(--ps-primary)}
+  .hbooks{display:flex;flex-direction:column;gap:8px}
+  .hbook{display:flex;align-items:center;gap:14px;padding:0 16px 0 0;background:var(--ps-surface-cinematic-1);border:1px solid var(--ps-surface-cinematic-3);border-radius:8px;overflow:hidden;text-decoration:none;min-height:62px;transition:background .16s,border-color .16s}
+  .hbook:hover{background:var(--ps-surface-cinematic-2);border-color:var(--ps-primary)}
+  .hbook-spine{width:6px;align-self:stretch;background:var(--ps-primary);flex:0 0 auto}
+  .hbook-ico{color:var(--ps-text-cinematic-secondary);flex:0 0 auto;margin-left:4px}
+  .hbook:hover .hbook-ico{color:var(--ps-primary)}
+  .hbook-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;padding:12px 0}
+  .hbook-title{font-size:15px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hbook-meta{font-family:var(--ps-font-en);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ps-text-cinematic-secondary)}
+  .hbook-go{color:var(--ps-text-cinematic-secondary);flex:0 0 auto}
+  .hbook:hover .hbook-go{color:var(--ps-primary)}
 
 </style>
 </head>
 <body>
 
-<a href="/" class="ps-corner">← parcyun studio</a>
+<a href="/" class="ps-topnav"><span class="ico" set:html={icon('home', 15)}></span> parcyun studio</a>
 
 <!-- ===== HERO ===== -->
-<section class="hero lib-hero">
+<section class="hero aca-hero">
   <div class="wrap">
-    <div class="lib-eyebrow">Lecture Shelf</div>
-    <h1 class="lib-wordmark">LIBRA<span class="g">RY</span></h1>
-    <p class="lib-tagline">
-      교육 · AI · 디자인 <span class="amber">강의 자료</span>를 책장처럼 모아둔 서가예요. 📚<br>
+    <div class="aca-eyebrow">Lecture Shelf</div>
+    <h1 class="aca-wordmark">ACADE<span class="g">MICA</span></h1>
+    <p class="aca-tagline">
+      교육 · AI · 디자인 <span class="amber">강의 자료</span>를 카테고리별로 모아둔 서가예요.<br>
       아래에서 한 권씩 꺼내 보세요.
     </p>
-    <div class="lib-actions">
-      <a href="/atlas-gears/" class="lib-pill ghost">교육 활동 자료 · ATLAS GEARS →</a>
-      <a href="/" class="lib-pill ghost">← parcyun studio 메인</a>
+    <div class="aca-actions">
+      <a href="/atlas-gears/" class="aca-pill">교육 활동 자료 · ATLAS GEARS <span class="ico" set:html={icon('arrowRight', 16)}></span></a>
     </div>
   </div>
 </section>
 
-<!-- ===== 책장 ===== -->
+<!-- ===== 카테고리별 책장 ===== -->
 <section id="shelf">
   <div class="wrap">
     <header class="section-header">
       <h2 class="ko">강의 서가</h2>
       <span class="en">The Shelf</span>
     </header>
-    <p class="lib-hint">책등을 클릭하면 해당 강의로 이동해요. 마우스를 올리면 책이 살짝 올라옵니다.</p>
-    <div class="bookshelf">
-      <div class="shelf">
-        {lectures.map((r, i) => (
-          <a href={r.url} class="book" style={`background:${palette[i % palette.length]}`} target={r.external ? '_blank' : undefined} rel={r.external ? 'noopener' : undefined}>
-            <span class="book-cap">{r.thumb}</span>
-            <span class="book-title">{spine(r)}</span>
-            <span class="book-foot">{r.type}</span>
-          </a>
-        ))}
-        <div class="book empty"><span class="book-cap">✦</span><span class="book-title">다음 강의 준비 중</span><span class="book-foot">Soon</span></div>
-        <div class="book empty" style="min-height:210px"><span class="book-cap">✦</span><span class="book-title">Coming soon</span><span class="book-foot">Soon</span></div>
+    <p class="aca-hint">카테고리별로 나뉜 책장이에요. 책을 클릭하면 해당 강의로 이동해요.</p>
+    {cats.map((c) => (
+      <div class="shelf-cat">
+        <header class="shelf-cat-head">
+          <span class="ko">{c}</span>
+          <span class="en">{subjectEn[c] ?? ''}</span>
+          <span class="cnt"><b>{byCat(c).length}</b>권</span>
+        </header>
+        <div class="hbooks">
+          {byCat(c).map((r) => (
+            <a href={r.url} class="hbook" target={r.external ? '_blank' : undefined} rel={r.external ? 'noopener' : undefined}>
+              <span class="hbook-spine"></span>
+              <span class="hbook-ico ico" set:html={icon(typeIcon[r.type], 20)}></span>
+              <span class="hbook-main">
+                <span class="hbook-title">{r.title}</span>
+                <span class="hbook-meta">{r.type}{r.meta && r.meta[1] ? ' · ' + r.meta[1] : ''}</span>
+              </span>
+              <span class="hbook-go ico" set:html={icon('arrowRight', 18)}></span>
+            </a>
+          ))}
+        </div>
       </div>
-      <div class="shelf-board"></div>
-    </div>
-    <div class="shelf-legend">
-      <span><b>{lectures.length}</b> 권 · Lectures</span>
-      <span>📚 교육 · AI · 디자인</span>
-    </div>
+    ))}
   </div>
 </section>
 

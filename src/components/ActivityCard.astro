@@ -1,11 +1,12 @@
 ---
 import type { Resource } from '../data/resources';
+import { icon, typeIcon } from '../lib/icons';
 interface Props { r: Resource; }
 const { r } = Astro.props;
 const ext = r.external ? { target: '_blank', rel: 'noopener' } : {};
 ---
 <a href={r.url} class="act-card" {...ext}>
-  <div class="act-thumb">{r.thumb}</div>
+  <div class="act-thumb ico" set:html={icon(typeIcon[r.type], 28)}></div>
   <div class="act-body">
     <span class="act-type">{r.type}</span>
     <h3 class="act-title">{r.title}</h3>

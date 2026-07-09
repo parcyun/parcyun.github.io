@@ -291,6 +291,10 @@ export default function GlobeLab(){
       const u={dayTex:{value:vDay},nightTex:{value:vNight},overlayTex:{value:overlayTex},...U,sunLon:{value:S.current.sunLon},sunLat:{value:solarDeclDeg(6)},nightBoost:{value:1},dayNightOn:{value:0},uScreen};
       const mesh=new THREE.Mesh(morphGeom(180,90),new THREE.ShaderMaterial({vertexShader:meshVert,fragmentShader:meshFrag,uniforms:u,side:THREE.DoubleSide}));
       scene.add(mesh);
+      // 평면 seam 배경: 화면 전체를 base oceanGrad로 채우는 fullscreen 삼각형(뒤에 깔림). 모프 seam 갭이 페이지 검정 대신 바다색으로 채워져 검은 세로선 제거. 평면에서만 표시(구/렌즈의 검은 우주 배경 보존).
+      const bgGeo=new THREE.BufferGeometry();bgGeo.setAttribute('position',new THREE.Float32BufferAttribute([-1,-1,0,3,-1,0,-1,3,0],3));
+      const bgMesh=new THREE.Mesh(bgGeo,new THREE.ShaderMaterial({depthTest:false,depthWrite:false,uniforms:{uScreen},vertexShader:'void main(){gl_Position=vec4(position,1.0);}',fragmentShader:OCEANGRAD+'uniform vec2 uScreen;void main(){gl_FragColor=vec4(oceanGrad(gl_FragCoord.xy,uScreen),1.0);}'}));
+      bgMesh.frustumCulled=false;bgMesh.renderOrder=-3;bgMesh.visible=false;scene.add(bgMesh);
       // 평면 좌우 순환용 클론 타일(±월드폭)
       const cloneMat=(off)=>new THREE.ShaderMaterial({vertexShader:cloneVert,fragmentShader:cloneFrag,side:THREE.DoubleSide,transparent:true,
         uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},uCloneAmt,uScreen}});
@@ -300,8 +304,8 @@ export default function GlobeLab(){
       // 격자 세트(중심 offX=0은 항상, 평면 타일용 ±WORLD_W는 gridFlat에). 구/렌즈에선 중심만 → 중복선 없음(#7)
       const IDL=[[180,90],[180,73],[190.5,68],[190.5,65],[192.5,60],[180,53],[180,50],[180,7],[203,7],[203,-9],[188,-13],[180,-16],[180,-47],[180,-90]]; // 실제 날짜변경선 근사(#1)
       const makeGridSet=(offX,stp)=>{const grat=new THREE.Group();
-        for(let lon=-180;lon<180;lon+=stp){const p=[];for(let la=-90;la<=90;la+=3)p.push([lon,la]);grat.add(morphLine(p,0x8A909C,0.5,U,offX));} // lon<180: 대척자오선 중복선 제거(#1c)
-        for(let lat=-90+stp;lat<90;lat+=stp){const p=[];for(let lo=-180;lo<=180;lo+=3)p.push([lo,lat]);grat.add(morphLine(p,0x8A909C,0.5,U,offX));}
+        for(let lon=-180;lon<180;lon+=stp){const p=[];for(let la=-90;la<=90;la+=3)p.push([lon,la]);grat.add(morphLine(p,0x9098A4,0.28,U,offX));} // lon<180: 대척자오선 중복선 제거(#1c)
+        for(let lat=-90+stp;lat<90;lat+=stp){const p=[];for(let lo=-180;lo<=180;lo+=3)p.push([lo,lat]);grat.add(morphLine(p,0x9098A4,0.28,U,offX));}
         const eqP=[];for(let lo=-180;lo<=180;lo+=3)eqP.push([lo,0]);const eq=makeFatLine(eqP,1.5,0xFF7B7B,0.72,U,uRes,offX);
         const pmP=[];for(let la=-90;la<=90;la+=3)pmP.push([0,la]);const pm=makeFatLine(pmP,1.3,0xFFB270,0.7,U,uRes,offX);
         const dl=makeFatLine(densify(IDL),1.4,0x38E0D0,0.9,U,uRes,offX);
@@ -311,7 +315,7 @@ export default function GlobeLab(){
       const borderMat=(()=>{const pos=[],geo=[],geoB=[];const addRing=(ring)=>{for(let i=0;i<ring.length-1;i++){const a=ring[i],b=ring[i+1];if(Math.abs(a[0]-b[0])>180)continue;const va=lonLatToVec3(a[0],a[1],1.0045),vb=lonLatToVec3(b[0],b[1],1.0045);pos.push(va.x,va.y,va.z,vb.x,vb.y,vb.z);geo.push(a[0],a[1],b[0],b[1]);geoB.push(b[0],b[1],a[0],a[1]);}}; // aGeoB=짝 끝점 → seam 걸친 세그먼트 셰이더 붕괴(러시아·피지 등 lon180 횡단 스미어 방지)
         for(const f of world.features){const g=f.geometry,polys=g.type==='Polygon'?[g.coordinates]:g.coordinates;for(const poly of polys)for(const ring of poly)addRing(ring);}
         const bg=new THREE.BufferGeometry();bg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));bg.setAttribute('aGeo',new THREE.Float32BufferAttribute(geo,2));bg.setAttribute('aGeoB',new THREE.Float32BufferAttribute(geoB,2));
-        const bm=new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:0},uColor:{value:new THREE.Color(0x04060B)},uOp:{value:0.6}},vertexShader:lineVert,fragmentShader:lineFrag});
+        const bm=new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:0},uColor:{value:new THREE.Color(0x04060B)},uOp:{value:0.42}},vertexShader:lineVert,fragmentShader:lineFrag});
         const bls=new THREE.LineSegments(bg,bm);bls.renderOrder=1;scene.add(bls);return bm;})();
       const BORDER_DARK=new THREE.Color(0x04060B),BORDER_LIT=new THREE.Color(0x46586e);
       // #5 벡터 대륙 채움 빌드: 각 폴리곤(외곽+구멍)을 ShapeGeometry(내부 earcut)로 삼각분할 → aGeo/aColor.
@@ -471,14 +475,14 @@ export default function GlobeLab(){
         // 클론 알파: 정상상태 평면=1(무한스크롤). 전환 뜯김 마스킹(trDatelineNear)은 seam 파킹으로 불필요해져 삭제 —
         // 전환 중엔 평면 근접(morph≥0.8)에서만 페이드 인/아웃: 넓은 화면에서 ±180° 밖 가장자리 커버 + settle 시 타일 팝인 방지(클론은 seam 상대라 본체와 연속).
         uCloneAmt.value = tr ? THREE.MathUtils.smoothstep(U.morph.value,0.8,1.0) : (st.view==='flat'?1:0);
-        const isFlat=st.view==='flat'&&!tr;tileL.visible=tileR.visible=uCloneAmt.value>0.004;gridFlat.visible=isFlat;
+        const isFlat=st.view==='flat'&&!tr;tileL.visible=tileR.visible=uCloneAmt.value>0.004;gridFlat.visible=isFlat;bgMesh.visible=isFlat; // 평면 정상상태에서만 seam 배경(구/렌즈 검은 배경 유지)
         glow.material.opacity=0.9*Math.max(0,1-U.morph.value-U.lens.value);glow.visible=glow.material.opacity>0.02;
         controls.update();
         if(isFlat){ // 좌우 무한 순환 + 세로 레터박스 방지
           if(controls.target.x>WORLD_W/2){controls.target.x-=WORLD_W;camera.position.x-=WORLD_W;}else if(controls.target.x<-WORLD_W/2){controls.target.x+=WORLD_W;camera.position.x+=WORLD_W;}
           const hh=1/camera.zoom, lim=Math.max(0,MAP_HALF-hh);   // 직교: 보이는 월드 반높이
           const cy=THREE.MathUtils.clamp(controls.target.y,-lim,lim), dy=cy-controls.target.y; if(dy){controls.target.y=cy;camera.position.y+=dy;}
-          U.uLonC.value=controls.target.x/MS; // 정상상태 평면: seam이 팬을 따라 항상 화면 반대편(±180° 시거리)에 위치
+          U.uLonC.value=0; // 정상상태 평면: seam(모프 갭)을 경도 180°(태평양)에 고정 → 육지 안 지남 + oceanGrad 배경이 갭을 바다색으로 채워 검은선 소멸. uLonC는 seam 위치만 바꾸고 콘텐츠 위치는 불변.
         }
         renderer.render(scene,camera);
         const globeish=U.morph.value<0.5&&U.lens.value<0.5;

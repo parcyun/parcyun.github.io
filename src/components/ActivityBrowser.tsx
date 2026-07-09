@@ -1,6 +1,10 @@
-import { Fragment, useMemo, useState } from 'react';
-import type { Resource } from '../data/resources';
+import { useMemo, useState } from 'react';
+import type { Category, Resource } from '../data/resources';
 import { icon, typeIcon } from '../lib/icons';
+import { useResources } from '../lib/useResources';
+import { useAdminSession } from '../lib/useAdminSession';
+import { sbDelete } from '../lib/supabase';
+import ResourceEditModal from './admin/ResourceEditModal';
 
 const TYPE_META: Record<string, { en: string; ph: string }> = {
   '게임': { en: 'Game', ph: '새 게임 준비 중' },
@@ -13,10 +17,15 @@ function norm(s: string) {
   return s.toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
-export default function ActivityBrowser({ resources, types }: { resources: Resource[]; types: string[] }) {
+const CATEGORY: Category = '교육 활동 자료';
+
+export default function ActivityBrowser({ types }: { types: string[] }) {
+  const { items: resources, reload } = useResources(CATEGORY);
+  const { isAdmin, accessToken } = useAdminSession();
   const [query, setQuery] = useState('');
   const [type, setType] = useState<string>('전체');
   const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [editing, setEditing] = useState<Resource | 'new' | null>(null);
 
   const allTags = useMemo(() => {
     const count = new Map<string, number>();
@@ -43,34 +52,57 @@ export default function ActivityBrowser({ resources, types }: { resources: Resou
     setActiveTags([]);
   };
 
+  async function remove(r: Resource) {
+    if (!accessToken) return;
+    if (!confirm(`"${r.title}" 자료를 삭제할까요?`)) return;
+    try {
+      await sbDelete('resources', `?id=eq.${encodeURIComponent(r.id)}`, accessToken);
+      reload();
+    } catch (e: any) {
+      alert('삭제 실패: ' + (e?.message || '알 수 없는 오류'));
+    }
+  }
+
   const card = (r: Resource) => (
-    <a
-      key={r.id}
-      href={r.url}
-      className="act-card"
-      data-res-id={r.id}
-      target={r.external ? '_blank' : undefined}
-      rel={r.external ? 'noopener' : undefined}
-    >
-      <div className="act-thumb ico" dangerouslySetInnerHTML={{ __html: icon(typeIcon[r.type], 28) }} />
-      <div className="act-body">
-        <span className="act-type">{r.type}</span>
-        <h3 className="act-title">{r.title}</h3>
-        <p className="act-desc">{r.desc}</p>
-        <div className="act-tags">
-          {r.tags.map((t) => (
-            <span key={t} className={'tag-pill sm' + (activeTags.includes(t) ? ' on' : '')}>
-              {t}
-            </span>
-          ))}
+    <div className="act-card-wrap" key={r.id}>
+      <a
+        href={r.url}
+        className="act-card"
+        data-res-id={r.id}
+        target={r.external ? '_blank' : undefined}
+        rel={r.external ? 'noopener' : undefined}
+      >
+        <div className="act-thumb ico" dangerouslySetInnerHTML={{ __html: icon(typeIcon[r.type], 28) }} />
+        <div className="act-body">
+          <span className="act-type">{r.type}</span>
+          <h3 className="act-title">{r.title}</h3>
+          <p className="act-desc">{r.desc}</p>
+          <div className="act-tags">
+            {r.tags.map((t) => (
+              <span key={t} className={'tag-pill sm' + (activeTags.includes(t) ? ' on' : '')}>
+                {t}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
-    </a>
+      </a>
+      {isAdmin && (
+        <div className="act-admin">
+          <button type="button" className="act-admin-btn" onClick={() => setEditing(r)} aria-label="수정">
+            <span className="ico" dangerouslySetInnerHTML={{ __html: icon('guide', 14) }} />
+          </button>
+          <button type="button" className="act-admin-btn danger" onClick={() => remove(r)} aria-label="삭제">✕</button>
+        </div>
+      )}
+    </div>
   );
 
   return (
     <div className="ab">
       <div className="ab-controls">
+        {isAdmin && (
+          <button type="button" className="ab-add" onClick={() => setEditing('new')}>+ 자료 추가</button>
+        )}
         <div className="rx-search">
           <span className="rx-search-icon ico" dangerouslySetInnerHTML={{ __html: icon('search', 17) }} />
           <input
@@ -145,7 +177,7 @@ export default function ActivityBrowser({ resources, types }: { resources: Resou
               </header>
               <div className="act-grid">
                 {cards.map(card)}
-                {!filtering && (
+                {!filtering && cards.length === 0 && (
                   <div className="act-card placeholder"><span>{TYPE_META[t]?.ph}</span></div>
                 )}
               </div>
@@ -153,6 +185,26 @@ export default function ActivityBrowser({ resources, types }: { resources: Resou
           );
         })
       )}
+
+      {editing && accessToken && (
+        <ResourceEditModal
+          category={CATEGORY}
+          accessToken={accessToken}
+          initial={editing === 'new' ? undefined : editing}
+          onClose={() => setEditing(null)}
+          onSaved={reload}
+        />
+      )}
+
+      <style>{`
+        .ab-add{align-self:flex-start;font-family:var(--ps-font-body);font-size:12.5px;font-weight:600;color:#000;background:#B8B8B8;border:0;border-radius:100px;padding:8px 16px;cursor:pointer;transition:background .18s}
+        .ab-add:hover{background:#fff}
+        .act-card-wrap{position:relative}
+        .act-admin{position:absolute;top:8px;right:8px;display:flex;gap:5px;z-index:2}
+        .act-admin-btn{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.65);color:#B8B8B8;cursor:pointer;font-size:12px;line-height:1;padding:0}
+        .act-admin-btn:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+        .act-admin-btn.danger:hover{color:#ff8080}
+      `}</style>
     </div>
   );
 }

@@ -1,12 +1,7 @@
 ---
-import { resources } from '../data/resources';
-import { icon, typeIcon } from '../lib/icons';
+import { icon } from '../lib/icons';
 import PsFooter from '../components/PsFooter.astro';
-const lectures = resources.filter((r) => r.category === '강의 자료');
-const subjectEn = {"연수 아카이브":"Training Archive","LLM · Harness Agent":"LLM & Harness","Notion 활용":"Notion"};
-// 카테고리(소분류)별로 나눔 — 등장 순서 유지 (연수 아카이브가 먼저)
-const cats = [...new Set(lectures.map((r) => r.subject))];
-const byCat = (s) => lectures.filter((r) => r.subject === s);
+import LectureShelf from '../components/LectureShelf.tsx';
 ---
 <!DOCTYPE html>
 <html lang="ko">
@@ -124,43 +119,6 @@ section {
   color: var(--ps-text-cinematic-secondary);
 }
 
-/* ===== Mandatory parcyun footer ===== */
-.ps-footer {
-  position: fixed;
-  bottom: 16px;
-  right: 20px;
-  font-family: var(--ps-font-en);
-  font-weight: 300;
-  font-size: 11px;
-  color: var(--ps-text-cinematic-secondary);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 9999;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 6px 12px;
-  border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-.ps-signature {
-  font-family: var(--ps-font-signature);
-  font-size: 15px;
-  color: var(--ps-primary);
-  line-height: 1;
-}
-.ps-ig {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  color: inherit;
-  text-decoration: none;
-  margin-left: 4px;
-}
-.ps-ig:hover { color: var(--ps-primary); }
-.ps-ig-icon { width: 10px; height: 10px; vertical-align: middle; }
-
 /* ===== Entry animation ===== */
 section, .hero {
   opacity: 0;
@@ -217,76 +175,6 @@ section.in-view, .hero.in-view {
   .float-nav button { width: 36px; height: 36px; font-size: 13px; }
 }
 
-/* ===== Footer (ps-footer) · 업무 대시보드 link ===== */
-.ps-footer-link {
-  font-family: var(--ps-font-en);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.3px;
-  color: var(--ps-text-cinematic-secondary);
-  text-decoration: none;
-  padding-right: 10px;
-  margin-right: 4px;
-  border-right: 1px solid rgba(255, 255, 255, 0.14);
-  transition: color 240ms var(--ps-ease-out);
-}
-.ps-footer-link:hover { color: var(--ps-primary); }
-.ps-footer-coffee {
-  font-family: var(--ps-font-en);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.3px;
-  color: var(--ps-primary);
-  background: transparent;
-  border: 0;
-  padding: 0 10px 0 0;
-  margin-right: 4px;
-  border-right: 1px solid rgba(255, 255, 255, 0.14);
-  cursor: pointer;
-  transition: color 240ms var(--ps-ease-out);
-}
-.ps-footer-coffee:hover { color: var(--ps-primary-dark); }
-
-/* ===== 커피 후원 QR 팝업 ===== */
-.coffee-modal {
-  position: fixed; inset: 0; z-index: 10000;
-  display: flex; align-items: center; justify-content: center; padding: 24px;
-}
-.coffee-modal[hidden] { display: none; }
-.coffee-backdrop {
-  position: absolute; inset: 0;
-  background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  animation: coffeeFade 0.2s var(--ps-ease-out);
-}
-@keyframes coffeeFade { from { opacity: 0; } to { opacity: 1; } }
-.coffee-card {
-  position: relative; z-index: 1;
-  background: var(--ps-surface-cinematic-1);
-  border: 1px solid var(--ps-primary);
-  border-radius: 18px;
-  padding: 32px 32px 26px;
-  text-align: center; max-width: 340px; width: 100%;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(255, 177, 26, 0.12);
-  animation: coffeePop 0.28s var(--ps-ease-out);
-}
-@keyframes coffeePop { from { opacity: 0; transform: translateY(16px) scale(0.96); } to { opacity: 1; transform: none; } }
-.coffee-close {
-  position: absolute; top: 12px; right: 16px;
-  background: transparent; border: 0;
-  color: var(--ps-text-cinematic-secondary);
-  font-size: 24px; line-height: 1; cursor: pointer;
-  transition: color 150ms var(--ps-ease-out);
-}
-.coffee-close:hover { color: var(--ps-primary); }
-.coffee-emoji { font-size: 40px; line-height: 1; margin-bottom: 10px; }
-.coffee-title { margin: 0 0 6px; font-size: 19px; font-weight: 500; color: #FFFFFF; }
-.coffee-sub { margin: 0 0 20px; font-size: 13px; font-weight: 300; color: var(--ps-text-cinematic-secondary); line-height: 1.6; }
-.coffee-qr { display: block; width: 220px; height: 220px; margin: 0 auto 14px; border-radius: 12px; background: #fff; padding: 10px; object-fit: contain; }
-.coffee-qr-fallback { display: none; margin: 0 auto 14px; padding: 40px 16px; border: 1px dashed var(--ps-surface-cinematic-3); border-radius: 12px; font-family: var(--ps-font-en); font-size: 12px; color: var(--ps-text-cinematic-secondary); }
-.coffee-label { font-family: var(--ps-font-signature); font-size: 20px; color: var(--ps-primary); }
-
-
   /* ===== 글로벌 · 우상단 그레이스케일 메인 네비 + 라인 아이콘 ===== */
   .ps-topnav{position:fixed;top:16px;right:20px;z-index:90;font-family:var(--ps-font-en);font-size:12px;letter-spacing:.04em;
     color:#8C8C8C;display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:100px;
@@ -321,7 +209,6 @@ section.in-view, .hero.in-view {
   .hbook{display:flex;align-items:center;gap:14px;padding:0 16px;background:var(--ps-surface-cinematic-1);border:1px solid var(--ps-surface-cinematic-3);border-radius:8px;overflow:hidden;text-decoration:none;min-height:62px;transition:background .16s,border-color .16s}
   .hbook:hover{background:var(--ps-surface-cinematic-2);border-color:var(--ps-primary)}
   .hbook-ico{color:var(--ps-text-cinematic-secondary);flex:0 0 auto}
-  .ps-footer-coffee .ico{margin-right:1px}
   .hbook:hover .hbook-ico{color:var(--ps-primary)}
   .hbook-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;padding:12px 0}
   .hbook-title{font-size:15px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -360,27 +247,7 @@ section.in-view, .hero.in-view {
       <span class="en">The Shelf</span>
     </header>
     <p class="aca-hint">카테고리별로 나뉜 책장이에요. 책을 클릭하면 해당 강의로 이동해요.</p>
-    {cats.map((c) => (
-      <div class="shelf-cat">
-        <header class="shelf-cat-head">
-          <span class="ko">{c}</span>
-          <span class="en">{subjectEn[c] ?? ''}</span>
-          <span class="cnt"><b>{byCat(c).length}</b>권</span>
-        </header>
-        <div class="hbooks">
-          {byCat(c).map((r) => (
-            <a href={r.url} class="hbook" data-res-id={r.id} target={r.external ? '_blank' : undefined} rel={r.external ? 'noopener' : undefined}>
-              <span class="hbook-ico ico" set:html={icon(typeIcon[r.type], 20)}></span>
-              <span class="hbook-main">
-                <span class="hbook-title">{r.title}</span>
-                <span class="hbook-meta">{r.type}{r.meta && r.meta[1] ? ' · ' + r.meta[1] : ''}</span>
-              </span>
-              <span class="hbook-go ico" set:html={icon('arrowRight', 18)}></span>
-            </a>
-          ))}
-        </div>
-      </div>
-    ))}
+    <LectureShelf client:load />
   </div>
 </section>
 

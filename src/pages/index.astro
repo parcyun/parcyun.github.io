@@ -1,7 +1,6 @@
 ---
 import CinematicLayout from '../layouts/CinematicLayout.astro';
 import { icon } from '../lib/icons';
-import Guestbook from '../components/Guestbook.tsx';
 ---
 <CinematicLayout
   title="parcyun studio · 강의 자료 허브"
@@ -185,51 +184,6 @@ import Guestbook from '../components/Guestbook.tsx';
   .cc-go{margin-top:16px;font-family:var(--ps-font-en);font-size:13px;font-weight:600;letter-spacing:.02em;color:#fff;display:inline-flex;align-items:center;gap:6px}
   .collection-card:hover .cc-go{color:var(--ps-primary)}
 </style>
-
-<!-- ===== GUESTBOOK (방명록) ===== -->
-<section id="guestbook">
-  <div class="wrap">
-    <header class="section-header">
-      <h2 class="ko">방명록</h2>
-      <span class="en">Guestbook</span>
-    </header>
-    <Guestbook client:visible context="home" />
-  </div>
-</section>
-
-<!-- ===== CONNECT ===== -->
-<section>
-  <div class="wrap">
-    <header class="section-header">
-      <h2 class="ko">SNS</h2>
-      <span class="en">Connect</span>
-    </header>
-
-    <div class="connect-grid">
-      <a href="https://linktr.ee/parcyun" class="connect-link" target="_blank" rel="noopener">
-        <span class="label">Hub</span>
-        <span class="handle">linktr.ee/parcyun</span>
-        <span class="desc">연수자료 · 레퍼런스 패들렛 · classroom</span>
-      </a>
-      <a href="https://www.instagram.com/parcyun" class="connect-link" target="_blank" rel="noopener">
-        <span class="label">Instagram</span>
-        <span class="handle">@parcyun</span>
-        <span class="desc">교실 일상 · 디자인 · 일러스트 기록</span>
-      </a>
-      <a href="https://github.com/parcyun" class="connect-link" target="_blank" rel="noopener">
-        <span class="label">GitHub</span>
-        <span class="handle">@parcyun</span>
-        <span class="desc">강의 자료 · 코드 · 실험 프로젝트</span>
-      </a>
-      <a href="https://padlet.com/penlayered/parcyun-studio-19rq7rovocsv24vr" class="connect-link" target="_blank" rel="noopener">
-        <span class="label">Padlet</span>
-        <span class="handle">연수 자료</span>
-        <span class="desc">강의 레퍼런스 · 연수 자료 누적 아카이브</span>
-      </a>
-    </div>
-  </div>
-</section>
-
 
 <style is:global>
 /* ===== Hero ===== */
@@ -602,53 +556,6 @@ import Guestbook from '../components/Guestbook.tsx';
 @media (max-width: 639px) {
   .career-item { grid-template-columns: 64px 1fr; grid-template-rows: auto auto; }
   .career-org { grid-column: 2; text-align: left; padding-top: 2px; }
-}
-
-/* ===== Connect ===== */
-.connect-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-@media (min-width: 640px) {
-  .connect-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (min-width: 1024px) {
-  .connect-grid { grid-template-columns: repeat(4, 1fr); }
-}
-.connect-link {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 32px 28px;
-  border: 1px solid var(--ps-surface-cinematic-3);
-  border-radius: 16px;
-  transition: border-color 240ms var(--ps-ease-out), background 240ms var(--ps-ease-out);
-}
-.connect-link:hover {
-  border-color: var(--ps-primary);
-  background: var(--ps-surface-cinematic-1);
-}
-.connect-link .label {
-  font-family: var(--ps-font-en);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 1.8px;
-  text-transform: uppercase;
-  color: var(--ps-primary);
-}
-.connect-link .handle {
-  font-family: var(--ps-font-en);
-  font-size: 20px;
-  font-weight: 500;
-  letter-spacing: -0.3px;
-  color: #FFFFFF;
-}
-.connect-link .desc {
-  font-size: 13px;
-  font-weight: 300;
-  color: var(--ps-text-cinematic-secondary);
-  margin-top: auto;
 }
 
 /* ===== Hero CTAs (multi-row) ===== */

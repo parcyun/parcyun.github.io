@@ -104,7 +104,10 @@ function buildOverlay({sel,world,oceans,oceansFill}){
     } }
   return rawTex(cv);
 }
-function glowTexture(){const S=512,cv=document.createElement('canvas');cv.width=S;cv.height=S;const c=cv.getContext('2d');const g=c.createRadialGradient(S/2,S/2,S*0.30,S/2,S/2,S*0.5);g.addColorStop(0,'rgba(255,177,26,0)');g.addColorStop(0.72,'rgba(255,177,26,0.10)');g.addColorStop(0.86,'rgba(120,150,210,0.10)');g.addColorStop(1,'rgba(120,150,210,0)');c.fillStyle=g;c.fillRect(0,0,S,S);return rawTex(cv);}
+function glowTexture(){const S=512,cv=document.createElement('canvas');cv.width=S;cv.height=S;const c=cv.getContext('2d');const g=c.createRadialGradient(S/2,S/2,S*0.30,S/2,S/2,S*0.5);
+  // 골든 글로우 제거, 네이비만 표면(구 반지름 1, 스프라이트 scale 2.7 기준 gradient fraction≈0.35 지점) 바로 바깥에 얇은 밴드로
+  g.addColorStop(0,'rgba(120,150,210,0)');g.addColorStop(0.30,'rgba(120,150,210,0)');g.addColorStop(0.38,'rgba(120,150,210,0.16)');g.addColorStop(0.50,'rgba(120,150,210,0)');g.addColorStop(1,'rgba(120,150,210,0)');
+  c.fillStyle=g;c.fillRect(0,0,S,S);return rawTex(cv);}
 
 const GLSL=`const float PI=3.141592653589793; const float MS=0.6366197723675814; const float STE=1.0;
 float wrapLon(float x){ return x-2.0*PI*floor(x/(2.0*PI)); } // [0,2π) 안전 래핑(seam 상대좌표·straddle 판정 공용)
@@ -125,12 +128,23 @@ vec3 project(vec2 uv, vec3 sphere, float morph, float lens, float rotY, float ro
 // seam(lonC+π) 걸친 삼각형 판정: 세 꼭짓점 경도를 lonC 기준 [0,2π)로 래핑 → span>π면 straddle → 정점 전부 클립 밖으로(파생함수 없이 결정적 붕괴)
 const STRADDLE=`bool straddle3(vec3 tl,float lonC){ float w0=wrapLon(tl.x-lonC+PI),w1=wrapLon(tl.y-lonC+PI),w2=wrapLon(tl.z-lonC+PI);
   return max(w0,max(w1,w2))-min(w0,min(w1,w2))>PI; }`;
-const meshVert=GLSL+STRADDLE+`attribute vec3 aTriLon; uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC; varying vec2 vUv;
+// 렌즈(스테레오그래픽) 대척점 근처 삼각형 사전 붕괴: ks=STE*2/(1+cosc)는 cosc→-1(대척점)일 때 발산하는데,
+// 프래그먼트 discard(vCosc<-0.985)는 정점 위치가 *이미 폭주한 뒤*라 화면을 가로지르는 거대 삼각형이 잠깐 보임
+// (Focus Lens 드래그 중 반대편 대륙이 화면을 덮는 버그의 원인). 세 꼭짓점 중 하나라도 대척점에 근접(cosc<-0.9)하면
+// 정점 단계에서 삼각형 전체를 화면 밖으로 보내 폭주를 원천 차단 — 그 자리는 실제로도 안 보여야 하는 영역이라 무해.
+const LENSCLIP=`bool lensTriBad(vec3 tlon,vec3 tlat,float lon0,float lat0){
+  float c0=sin(lat0)*sin(tlat.x)+cos(lat0)*cos(tlat.x)*cos(tlon.x-lon0);
+  float c1=sin(lat0)*sin(tlat.y)+cos(lat0)*cos(tlat.y)*cos(tlon.y-lon0);
+  float c2=sin(lat0)*sin(tlat.z)+cos(lat0)*cos(tlat.z)*cos(tlon.z-lon0);
+  return min(c0,min(c1,c2))<-0.9; }`;
+const meshVert=GLSL+STRADDLE+LENSCLIP+`attribute vec3 aTriLon; attribute vec3 aTriLat; uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC; varying vec2 vUv;
 void main(){ vUv=uv; if(morph>0.001&&straddle3(aTriLon,uLonC)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;}
+  if(lens>0.001&&lensTriBad(aTriLon,aTriLat,uLon0,uLat0)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;}
   vec3 p=project(uv,position,morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,0.0); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
 // 클론 타일: 중심 메쉬와 동일하게 모핑(morph/lens/rot 공유) + 경도 오프셋. seam 상대 pl이라 타일끼리 연속 — 평면 무한스크롤 전용.
-const cloneVert=GLSL+STRADDLE+`attribute vec3 aTriLon; uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX; varying vec2 vUv;
+const cloneVert=GLSL+STRADDLE+LENSCLIP+`attribute vec3 aTriLon; attribute vec3 aTriLat; uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX; varying vec2 vUv;
 void main(){ vUv=uv; if(morph>0.001&&straddle3(aTriLon,uLonC)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;}
+  if(lens>0.001&&lensTriBad(aTriLon,aTriLat,uLon0,uLat0)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;}
   vec3 p=project(uv,position,morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
 // 원본 oceanGrad 정확 재현: 화면공간 radial gradient (cx50% cy42% r75%), stops #0A1322/#060B16/#04060B.
 // gl_FragCoord(디바이스px, 원점=좌하단)라 y=42%(위)→sc.y 0.58. dc.a로 육지(1)/바다(0) 구분.
@@ -200,10 +214,11 @@ void main(){ if(vSphereW>0.5&&vFrontZ<-0.02) discard; if(lens>0.5&&vCosc<-0.72) 
 const densify=(pts,maxStep=3)=>{const out=[pts[0]];for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],n=Math.max(1,Math.ceil(Math.max(Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1]))/maxStep));for(let j=1;j<=n;j++)out.push([a[0]+(b[0]-a[0])*j/n,a[1]+(b[1]-a[1])*j/n]);}return out;};
 // #5 벡터 대륙 채움(딥줌 선명): 폴리곤을 lon/lat 공간에서 삼각분할→aGeo 모핑 셰이더로 투영. 텍스처 대신 벡터라 어느 배율에도 안 깨짐.
 // 채색·낮밤·선택 dim은 meshFrag와 동일 로직 재현(vCol 베이스 + overlayTex 블렌드). 대척점/구 뒷면 컬 포함.
-const fillVert=GLSL+STRADDLE+`attribute vec2 aGeo; attribute vec3 aColor; attribute vec3 aTriLon; uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX;
+const fillVert=GLSL+STRADDLE+LENSCLIP+`attribute vec2 aGeo; attribute vec3 aColor; attribute vec3 aTriLon; attribute vec3 aTriLat; uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX;
 varying vec2 vUv; varying vec3 vCol; varying float vCosc,vFrontZ,vSphereW;
 void main(){ vUv=vec2((aGeo.x+180.0)/360.0,(aGeo.y+90.0)/180.0); vCol=aColor;
   if(morph>0.001&&straddle3(aTriLon,uLonC)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;} // seam 걸친 삼각형 붕괴(빠진 곳은 아래 텍스처 메쉬가 동일색 폴백)
+  if(lens>0.001&&lensTriBad(aTriLon,aTriLat,uLon0,uLat0)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;} // 렌즈 대척점 근처 삼각형 사전 붕괴(#4)
   vec3 nn=normalize(vec3(-cos(vUv.x*2.0*PI)*sin((1.0-vUv.y)*PI),cos((1.0-vUv.y)*PI),sin(vUv.x*2.0*PI)*sin((1.0-vUv.y)*PI)));
   float glon=(vUv.x-0.5)*2.0*PI,glat=(vUv.y-0.5)*PI; vCosc=sin(uLat0)*sin(glat)+cos(uLat0)*cos(glat)*cos(glon-uLon0);
   vec3 p=project(vUv,nn,morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX);
@@ -218,12 +233,13 @@ void main(){ if(vSphereW>0.5&&vFrontZ<-0.02) discard; if(lens>0.5&&vCosc<-0.985)
   vec3 base=mix(vCol*0.4,vCol,t); vec4 ov=texture2D(overlayTex,vUv);
   gl_FragColor=vec4(mix(base,ov.rgb,ov.a),1.0);}`;
 
-function morphGeom(lonN,latN){const g=new THREE.BufferGeometry();const pos=[],uv=[],tri=[];
-  // 논인덱스드(삼각형 전개, 180×90×6≈97k 정점): 삼각형별 aTriLon(세 꼭짓점 경도 rad, 세 정점 동일값) → 셰이더 straddle 붕괴용
-  const V=[];for(let j=0;j<=latN;j++){const lat=-90+180*j/latN;for(let i=0;i<=lonN;i++){const lon=-180+360*i/lonN;const s=lonLatToVec3(lon,lat,1);V.push([s.x,s.y,s.z,(lon+180)/360,(lat+90)/180,lon*D2R]);}}
-  const row=lonN+1,pushTri=(a,b,c)=>{const l0=V[a][5],l1=V[b][5],l2=V[c][5];for(const vi of [a,b,c]){const v=V[vi];pos.push(v[0],v[1],v[2]);uv.push(v[3],v[4]);tri.push(l0,l1,l2);}};
+function morphGeom(lonN,latN){const g=new THREE.BufferGeometry();const pos=[],uv=[],tri=[],triLat=[];
+  // 논인덱스드(삼각형 전개, 180×90×6≈97k 정점): 삼각형별 aTriLon/aTriLat(세 꼭짓점 경위도 rad, 세 정점 동일값)
+  // → 셰이더에서 seam straddle 붕괴 + 렌즈 대척점 근처 삼각형 사전 붕괴(정점 단계, #4 폭주 방지)용
+  const V=[];for(let j=0;j<=latN;j++){const lat=-90+180*j/latN;for(let i=0;i<=lonN;i++){const lon=-180+360*i/lonN;const s=lonLatToVec3(lon,lat,1);V.push([s.x,s.y,s.z,(lon+180)/360,(lat+90)/180,lon*D2R,lat*D2R]);}}
+  const row=lonN+1,pushTri=(a,b,c)=>{const l0=V[a][5],l1=V[b][5],l2=V[c][5],a0=V[a][6],a1=V[b][6],a2=V[c][6];for(const vi of [a,b,c]){const v=V[vi];pos.push(v[0],v[1],v[2]);uv.push(v[3],v[4]);tri.push(l0,l1,l2);triLat.push(a0,a1,a2);}};
   for(let j=0;j<latN;j++)for(let i=0;i<lonN;i++){const a=j*row+i;pushTri(a,a+row,a+1);pushTri(a+1,a+row,a+row+1);}
-  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setAttribute('aTriLon',new THREE.Float32BufferAttribute(tri,3));return g;}
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setAttribute('aTriLon',new THREE.Float32BufferAttribute(tri,3));g.setAttribute('aTriLat',new THREE.Float32BufferAttribute(triLat,3));return g;}
 function morphLine(pts,color,opacity,U,offX=0){const g=new THREE.BufferGeometry();const pos=[],geo=[];
   for(const [lo,la] of pts){const s=lonLatToVec3(lo,la,1.003);pos.push(s.x,s.y,s.z);geo.push(lo,la);}
   g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('aGeo',new THREE.Float32BufferAttribute(geo,2));g.setAttribute('aGeoB',new THREE.Float32BufferAttribute(geo.slice(),2)); // 라인스트립: aGeoB=자기 자신 → straddle 미발동(위선 랩 세그먼트는 수평 동일선상이라 무해)
@@ -355,7 +371,7 @@ export default function GlobeLab(){
         return bm;})();
       const BORDER_DARK=new THREE.Color(0x04060B),BORDER_LIT=new THREE.Color(0x46586e);
       // #5 벡터 대륙 채움 빌드: 각 폴리곤(외곽+구멍)을 ShapeGeometry(내부 earcut)로 삼각분할 → aGeo/aColor.
-      (()=>{const aGeo=[],aCol=[],aTri=[],tmp=new THREE.Color();
+      (()=>{const aGeo=[],aCol=[],aTri=[],aTriLat=[],tmp=new THREE.Color();
         for(const f of world.features){const col=(CONT[f.properties.c]||{}).color||'#888';tmp.set(col);
           const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
           for(const poly of polys){const outer=poly[0];if(!outer||outer.length<4)continue;
@@ -366,9 +382,10 @@ export default function GlobeLab(){
             let sg;try{sg=new THREE.ShapeGeometry(shape);}catch(e){continue;}
             const ps=sg.attributes.position.array,ix=sg.index?sg.index.array:null;if(!ix){sg.dispose();continue;}
             for(let i=0;i<ix.length;i+=3){const i0=ix[i],i1=ix[i+1],i2=ix[i+2],l0=ps[i0*3]*D2R,l1=ps[i1*3]*D2R,l2=ps[i2*3]*D2R; // aTriLon=삼각형 세 꼭짓점 경도(rad, 세 정점 동일) → straddle 붕괴
-              for(const vi of [i0,i1,i2]){aGeo.push(ps[vi*3],ps[vi*3+1]);aCol.push(tmp.r,tmp.g,tmp.b);aTri.push(l0,l1,l2);}}
+              const a0=ps[i0*3+1]*D2R,a1=ps[i1*3+1]*D2R,a2=ps[i2*3+1]*D2R; // aTriLat=세 꼭짓점 위도(rad) → 렌즈 대척점 사전 붕괴(#4)
+              for(const vi of [i0,i1,i2]){aGeo.push(ps[vi*3],ps[vi*3+1]);aCol.push(tmp.r,tmp.g,tmp.b);aTri.push(l0,l1,l2);aTriLat.push(a0,a1,a2);}}
             sg.dispose();}}
-        const fg=new THREE.BufferGeometry();fg.setAttribute('aGeo',new THREE.Float32BufferAttribute(aGeo,2));fg.setAttribute('aColor',new THREE.Float32BufferAttribute(aCol,3));fg.setAttribute('aTriLon',new THREE.Float32BufferAttribute(aTri,3));
+        const fg=new THREE.BufferGeometry();fg.setAttribute('aGeo',new THREE.Float32BufferAttribute(aGeo,2));fg.setAttribute('aColor',new THREE.Float32BufferAttribute(aCol,3));fg.setAttribute('aTriLon',new THREE.Float32BufferAttribute(aTri,3));fg.setAttribute('aTriLat',new THREE.Float32BufferAttribute(aTriLat,3));
         const pos=new Float32Array(aGeo.length/2*3);for(let i=0;i<aGeo.length/2;i++){const v=lonLatToVec3(aGeo[i*2],aGeo[i*2+1],1);pos[i*3]=v.x;pos[i*3+1]=v.y;pos[i*3+2]=v.z;}
         fg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
         const fm=new THREE.ShaderMaterial({side:THREE.DoubleSide,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:0},overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,dayNightOn:u.dayNightOn},vertexShader:fillVert,fragmentShader:fillFrag});
@@ -403,6 +420,10 @@ export default function GlobeLab(){
       const centerLonRad=()=>U.lens.value>0.5?U.uLon0.value:(U.morph.value>0.5?controls.target.x/MS:-Math.PI/2-U.uRotY.value);
       const onDN=(on)=>{if(on)S.current.sunLon=R2D*centerLonRad()-90;u.dayNightOn.value=on?1:0;}; // 켤 때 명암 경계선이 현재 뷰에 걸치게(원본과 동일)
       const dolly=(f)=>{camera.zoom=THREE.MathUtils.clamp(camera.zoom/f,controls.minZoom,controls.maxZoom);camera.updateProjectionMatrix();controls.update();};
+      // 평면 seam은 항상 화면 중심 대척점(WORLD_W/2 거리)에 파킹되지만, 그 가정은 "화면 반너비(월드단위) < WORLD_W/2"일 때만 성립.
+      // 와이드 화면에서 zmin(0.64)까지 축소하면 aspect/zoom이 WORLD_W/2(=π·MS)를 넘어 seam이 좌우 가장자리로 들어와 보였음
+      // (벡터 국경/채움 레이어는 텍스처 메쉬 같은 patch 이중화가 없어 그 지점에 얇은 틈으로 드러남). aspect에 맞춰 zmin 하한을 동적으로 올려 원천 차단.
+      const flatSafeZmin=()=>Math.max(VIEW.flat.zmin,(mount.clientWidth/mount.clientHeight)*1.08/(Math.PI*MS));
       let tr=null;
       const goView=(v)=>{const to=VIEW[v];
         // 현재 화면 상태로 소스 중심 경위도(rad) 산출 → 뷰 전환 후에도 같은 지점 유지(#5)
@@ -436,10 +457,10 @@ export default function GlobeLab(){
         if(!home){ // 홈(⟳)은 기본 zoom 리셋. 그 외에는 소스 중심 크기에 맞춰 목표 zoom 계산
           if(v==='lens') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom/STE,VIEW.lens.zmin,VIEW.lens.zmax);
           else if(v==='globe') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom,VIEW.globe.zmin,VIEW.globe.zmax); // 지구본 월드스케일=1
-          else toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom*cosLat/MS,VIEW.flat.zmin,VIEW.flat.zmax); }        // 평면 월드스케일=MS/cos
+          else toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom*cosLat/MS,flatSafeZmin(),VIEW.flat.zmax); }        // 평면 월드스케일=MS/cos
         tr={t:0,dur:0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:fromRotY,rotX:fromRotX,lon0:fromLon0,lat0:fromLat0,lonC:fromLonC,zoom:camera.zoom,pos:camera.position.clone(),tgt:controls.target.clone()},
           to:{morph:to.morph,lens:to.lens,rotY:toRotY,rotX:toRotXv,lon0:toLon0,lat0:toLat0,lonC:toLonC,zoom:toZoomv,pos:toPos,tgt:toTgt}};controls.enabled=false;}; // uLonC를 fromLonC→toLonC 최단호로 애니메이션(seam이 카메라 반대편을 따라 이동), patch가 매 프레임 동기화되어 항상 안 보임
-      const settleView=(v)=>{const p=VIEW[v];controls.enabled=true;controls.enableRotate=p.rotate;controls.enablePan=p.pan;controls.minZoom=p.zmin;controls.maxZoom=p.zmax;
+      const settleView=(v)=>{const p=VIEW[v];controls.enabled=true;controls.enableRotate=p.rotate;controls.enablePan=p.pan;controls.minZoom=v==='flat'?flatSafeZmin():p.zmin;controls.maxZoom=p.zmax;
         if(v==='globe'){controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};}
         else if(v==='flat'){controls.mouseButtons={LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN};}
         else{controls.mouseButtons={LEFT:-1,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:-1};controls.touches={ONE:-1,TWO:THREE.TOUCH.DOLLY_PAN};} // 렌즈=시선 커스텀 드래그
@@ -501,7 +522,9 @@ export default function GlobeLab(){
         let ok=null;for(const k of OCEAN_PRIORITY)if(oceans[k]&&geoContains({type:'Feature',geometry:oceans[k]},[lon,lat])){ok=k;break;}
         const ns=ok?{type:'ocean',key:ok}:null;setSel(ns&&sameSel(cur,ns)?null:ns);});
 
-      const onResize=()=>{const W=mount.clientWidth,H=mount.clientHeight,a=W/H;camera.left=-a;camera.right=a;camera.top=1;camera.bottom=-1;camera.updateProjectionMatrix();renderer.setSize(W,H);uRes.value.set(W,H);uScreen.value.set(renderer.domElement.width,renderer.domElement.height);};
+      const onResize=()=>{const W=mount.clientWidth,H=mount.clientHeight,a=W/H;camera.left=-a;camera.right=a;camera.top=1;camera.bottom=-1;
+        if(S.current.view==='flat'&&!tr){const zs=flatSafeZmin();controls.minZoom=zs;if(camera.zoom<zs)camera.zoom=zs;} // 리사이즈로 aspect가 넓어지면 seam 안전 zmin도 즉시 재계산(#2)
+        camera.updateProjectionMatrix();renderer.setSize(W,H);uRes.value.set(W,H);uScreen.value.set(renderer.domElement.width,renderer.domElement.height);};
       window.addEventListener('resize',onResize);
       const clock=new THREE.Clock(),v3=new THREE.Vector3();
       const loop=()=>{if(disposed)return;raf=requestAnimationFrame(loop);const dt=clock.getDelta();const st=S.current;
@@ -519,9 +542,11 @@ export default function GlobeLab(){
           camera.zoom=tr.from.zoom+(tr.to.zoom-tr.from.zoom)*k;camera.updateProjectionMatrix();camera.position.lerpVectors(tr.from.pos,tr.to.pos,k);controls.target.lerpVectors(tr.from.tgt,tr.to.tgt,k);
           if(tr.t>=1){const v=tr.v;tr=null;settleView(v);}}
         if(!tr) applyGrid(); // 줌 적응형 격자 갱신(#2, 레벨 바뀔 때만 재빌드)
-        // 클론 알파: 정상상태 평면=1(무한스크롤). 전환 뜯김 마스킹(trDatelineNear)은 seam 파킹으로 불필요해져 삭제 —
-        // 전환 중엔 평면 근접(morph≥0.8)에서만 페이드 인/아웃: 넓은 화면에서 ±180° 밖 가장자리 커버 + settle 시 타일 팝인 방지(클론은 seam 상대라 본체와 연속).
-        uCloneAmt.value = tr ? THREE.MathUtils.smoothstep(U.morph.value,0.8,1.0) : (st.view==='flat'?1:0);
+        // 클론 알파: 정상상태 평면=1(무한스크롤), 그 외(전환 도중 포함)엔 즉시 0 — 예전엔 전환 중 morph≥0.8 구간에서
+        // 서서히 페이드했는데, 그 사이 카메라도 같이 움직여서 클론(월드 오프셋 사본)이 화면을 가로질러 슬라이드해
+        // 지나가는 것처럼 보였음(평면↔렌즈 전환 시 특히 눈에 띔). 즉시 꺼서 슬라이드 아티팩트 제거 — settle 순간
+        // 살짝 팝인하지만 1프레임이라 슬라이드보다 훨씬 덜 거슬림.
+        uCloneAmt.value = (!tr && st.view==='flat') ? 1 : 0;
         const isFlat=st.view==='flat'&&!tr;tileL.visible=tileR.visible=uCloneAmt.value>0.004;gridFlat.visible=isFlat;
         if(borderClones)borderClones.blsL.visible=borderClones.blsR.visible=tileL.visible;
         if(fillClones)fillClones.fmeshL.visible=fillClones.fmeshR.visible=tileL.visible;

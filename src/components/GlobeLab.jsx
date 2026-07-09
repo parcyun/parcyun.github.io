@@ -118,7 +118,10 @@ vec3 project(vec2 uv, vec3 sphere, float morph, float lens, float rotY, float ro
   // 렌즈 = stereographic(방위·등각 도법, 원본 HTML과 동일): 중앙 실제비율·형태보존, 가장자리로 갈수록 확대. lon0,lat0=시선중심(rad)
   float slon=lon-lon0, sl0=sin(lat0), cl0=cos(lat0);
   float cosc=sl0*sin(lat)+cl0*cos(lat)*cos(slon);
-  float ks=STE*2.0/(1.0+max(cosc,-0.985));
+  // 대척점 근접 시 ks가 무제한 발산 → 방향(방위각)은 정확히 보존한 채 거리만 항상 화면 밖인 값(30)으로 클램프.
+  // 등각도법이라 방위각이 대척점 바로 그 지점 외엔 연속이라, "먼 모서리 하나 때문에 삼각형 전체를 껐다 켰다"하던
+  // 깜빡임(#4 이후 드래그 중 화면이 툭툭 끊기던 버그)을 없애고, 큰 삼각형의 나머지 두 꼭짓점은 정상 렌더 유지.
+  float ks=min(STE*2.0/(1.0+max(cosc,-0.985)),30.0);
   vec3 st=vec3(ks*cos(lat)*sin(slon), ks*(cl0*sin(lat)-sl0*cos(lat)*cos(slon)), 0.0);
   // 구 회전: Y(경도) 후 X(위도 틸트)
   float cy=cos(rotY), sy=sin(rotY); vec3 s1=vec3(sphere.x*cy+sphere.z*sy, sphere.y, -sphere.x*sy+sphere.z*cy);
@@ -128,15 +131,15 @@ vec3 project(vec2 uv, vec3 sphere, float morph, float lens, float rotY, float ro
 // seam(lonC+π) 걸친 삼각형 판정: 세 꼭짓점 경도를 lonC 기준 [0,2π)로 래핑 → span>π면 straddle → 정점 전부 클립 밖으로(파생함수 없이 결정적 붕괴)
 const STRADDLE=`bool straddle3(vec3 tl,float lonC){ float w0=wrapLon(tl.x-lonC+PI),w1=wrapLon(tl.y-lonC+PI),w2=wrapLon(tl.z-lonC+PI);
   return max(w0,max(w1,w2))-min(w0,min(w1,w2))>PI; }`;
-// 렌즈(스테레오그래픽) 대척점 근처 삼각형 사전 붕괴: ks=STE*2/(1+cosc)는 cosc→-1(대척점)일 때 발산하는데,
-// 프래그먼트 discard(vCosc<-0.985)는 정점 위치가 *이미 폭주한 뒤*라 화면을 가로지르는 거대 삼각형이 잠깐 보임
-// (Focus Lens 드래그 중 반대편 대륙이 화면을 덮는 버그의 원인). 세 꼭짓점 중 하나라도 대척점에 근접(cosc<-0.9)하면
-// 정점 단계에서 삼각형 전체를 화면 밖으로 보내 폭주를 원천 차단 — 그 자리는 실제로도 안 보여야 하는 영역이라 무해.
+// 렌즈(스테레오그래픽) 대척점 "정확히 걸친" 삼각형만 붕괴: project()의 ks 클램프(위)가 거리 폭주 자체를 이미 막아주므로
+// (먼 꼭짓점은 항상 화면 밖 반경 30에 고정 → 나머지 두 꼭짓점은 정상 렌더, 깜빡임 없음), 여기선 방위각이 실제로
+// 불연속(등각도법 특이점 그 자체를 관통)이 되는 극히 드문 경우만 잡으면 됨 — 임계값을 -0.9→-0.995로 좁혀
+// "화면에 살짝이라도 걸치는 큰 삼각형"이 일반 드래그 중에 오탐(=화면 깜빡임)되는 빈도를 최소화.
 const LENSCLIP=`bool lensTriBad(vec3 tlon,vec3 tlat,float lon0,float lat0){
   float c0=sin(lat0)*sin(tlat.x)+cos(lat0)*cos(tlat.x)*cos(tlon.x-lon0);
   float c1=sin(lat0)*sin(tlat.y)+cos(lat0)*cos(tlat.y)*cos(tlon.y-lon0);
   float c2=sin(lat0)*sin(tlat.z)+cos(lat0)*cos(tlat.z)*cos(tlon.z-lon0);
-  return min(c0,min(c1,c2))<-0.9; }`;
+  return min(c0,min(c1,c2))<-0.995; }`;
 const meshVert=GLSL+STRADDLE+LENSCLIP+`attribute vec3 aTriLon; attribute vec3 aTriLat; uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC; varying vec2 vUv;
 void main(){ vUv=uv; if(morph>0.001&&straddle3(aTriLon,uLonC)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;}
   if(lens>0.001&&lensTriBad(aTriLon,aTriLat,uLon0,uLat0)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;}

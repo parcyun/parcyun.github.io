@@ -1,0 +1,17 @@
+---
+import type { Resource } from '../data/resources';
+interface Props { r: Resource; }
+const { r } = Astro.props;
+const ext = r.external ? { target: '_blank', rel: 'noopener' } : {};
+---
+<a href={r.url} class="act-card" {...ext}>
+  <div class="act-thumb">{r.thumb}</div>
+  <div class="act-body">
+    <span class="act-type">{r.type}</span>
+    <h3 class="act-title">{r.title}</h3>
+    <p class="act-desc">{r.desc}</p>
+    <div class="act-tags">
+      {r.tags.map((t) => <span class="tag-pill sm">{t}</span>)}
+    </div>
+  </div>
+</a>

@@ -1,9 +1,9 @@
 ---
-import ResourceExplorer from '../components/ResourceExplorer.tsx';
-import ResourceCard from '../components/ResourceCard.astro';
-import { resources } from '../data/resources';
+import ActivityExplorer from '../components/ActivityExplorer.tsx';
+import ActivityCard from '../components/ActivityCard.astro';
+import { resources, ACTIVITY_TYPES } from '../data/resources';
 const activities = resources.filter((r) => r.category === '교육 활동 자료');
-const bySubject = (s: string) => activities.filter((r) => r.subject === s);
+const byType = (t: string) => activities.filter((r) => r.type === t);
 ---
 <!DOCTYPE html>
 <html lang="ko">
@@ -11,7 +11,7 @@ const bySubject = (s: string) => activities.filter((r) => r.subject === s);
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ATLAS GEARS · 교육 활동 자료 · parcyun studio</title>
-<meta name="description" content="교실에서 바로 꺼내 쓰는 교육 활동 자료 모음. 검색해서 오늘 수업에 딱 맞는 자료를 찾아보세요. Designed by parcyun studio." />
+<meta name="description" content="교실에서 바로 꺼내 쓰는 교육 활동 자료 모음. 게임·활동지·커리큘럼·인터랙티브를 검색해 오늘 수업에 딱 맞는 자료를 찾아보세요. Designed by parcyun studio." />
 <meta property="og:title" content="ATLAS GEARS · parcyun studio" />
 <meta property="og:description" content="교실에서 바로 꺼내 쓰는 교육 활동 자료 모음." />
 <meta property="og:type" content="website" />
@@ -284,38 +284,21 @@ section.in-view, .hero.in-view {
 .coffee-label { font-family: var(--ps-font-signature); font-size: 20px; color: var(--ps-primary); }
 
 
-  /* ===== Resource Explorer (동적 검색·필터) ===== */
-  .rx-controls{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
-  .rx-search{position:relative;display:flex;align-items:center}
-  .rx-search-icon{position:absolute;left:16px;font-size:18px;color:var(--ps-text-cinematic-secondary);pointer-events:none}
-  .rx-input{width:100%;padding:15px 16px 15px 44px;border-radius:14px;background:var(--ps-surface-cinematic-1);
-    border:1px solid var(--ps-surface-cinematic-3);color:#fff;font-family:var(--ps-font-body);font-size:15px;font-weight:300;
-    transition:border-color .2s var(--ps-ease-out)}
-  .rx-input::placeholder{color:var(--ps-text-cinematic-secondary)}
-  .rx-input:focus{outline:none;border-color:var(--ps-primary)}
-  .rx-reset{position:absolute;right:10px;padding:7px 13px;border:0;border-radius:100px;cursor:pointer;
-    background:var(--ps-surface-cinematic-3);color:#fff;font-size:12px;font-family:var(--ps-font-body);white-space:nowrap;
-    transition:all .18s var(--ps-ease-out)}
-  .rx-reset:hover{background:var(--ps-primary);color:#000}
-  .rx-tabs{display:flex;gap:8px;flex-wrap:wrap}
-  .rx-tab{padding:9px 16px;border-radius:100px;cursor:pointer;font-size:13px;font-weight:500;background:transparent;
-    border:1px solid var(--ps-surface-cinematic-3);color:var(--ps-text-cinematic-secondary);font-family:var(--ps-font-body);
-    transition:all .18s var(--ps-ease-out)}
-  .rx-tab:hover{border-color:var(--ps-primary);color:#fff}
-  .rx-tab.on{background:var(--ps-primary);border-color:var(--ps-primary);color:#000;font-weight:700}
-  .rx-tags{display:flex;gap:8px;flex-wrap:wrap}
-  .rx-chip{padding:6px 12px;border-radius:100px;cursor:pointer;font-size:12px;background:var(--ps-surface-cinematic-1);
-    border:1px solid var(--ps-surface-cinematic-3);color:var(--ps-text-cinematic-secondary);font-family:var(--ps-font-en);
-    transition:all .16s var(--ps-ease-out)}
-  .rx-chip:hover{border-color:var(--ps-primary);color:#fff}
-  .rx-chip.on{background:rgba(255,177,26,.14);border-color:var(--ps-primary);color:var(--ps-primary);font-weight:700}
-  .rx-count{font-family:var(--ps-font-en);font-size:12px;letter-spacing:.08em;color:var(--ps-text-cinematic-secondary);
-    text-transform:uppercase;margin-bottom:18px}
-  .rx-count b{color:var(--ps-primary);font-weight:700;font-size:14px;margin-right:4px}
-  .tag-pill.on{background:var(--ps-primary);color:#000;border-color:var(--ps-primary)}
-  .rx-empty{text-align:center;padding:56px 20px;border:1px dashed var(--ps-surface-cinematic-3);border-radius:16px}
-  .rx-empty-big{font-family:var(--ps-font-en);font-size:20px;font-weight:600;color:#fff;margin:0 0 8px}
-  .rx-empty-sub{font-size:13px;color:var(--ps-text-cinematic-secondary);margin:0 0 20px}
+  .collections-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:6px}
+  @media(min-width:720px){.collections-grid{grid-template-columns:1fr 1fr}}
+  .collection-card{position:relative;display:flex;flex-direction:column;gap:2px;padding:34px 30px 30px;border-radius:20px;overflow:hidden;
+    background:linear-gradient(160deg,var(--ps-surface-cinematic-1),#0c0c0c);border:1px solid var(--ps-surface-cinematic-3);
+    transition:transform .24s var(--ps-ease-out),border-color .24s var(--ps-ease-out),box-shadow .24s}
+  .collection-card::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,177,26,.12),transparent 70%);pointer-events:none}
+  .collection-card:hover{transform:translateY(-4px);border-color:var(--ps-primary);box-shadow:0 18px 40px rgba(0,0,0,.4),0 0 30px rgba(255,177,26,.14)}
+  .cc-emoji{font-size:34px;line-height:1}
+  .cc-brand{font-family:var(--ps-font-en);font-weight:800;font-size:26px;letter-spacing:-.01em;color:#fff;margin-top:12px}
+  .collection-card:hover .cc-brand{color:var(--ps-primary)}
+  .cc-ko{font-size:14px;font-weight:600;color:var(--ps-primary);margin-top:2px}
+  .cc-desc{font-size:13.5px;line-height:1.65;color:var(--ps-text-cinematic-secondary);margin-top:8px}
+  .cc-go{margin-top:16px;font-family:var(--ps-font-en);font-size:13px;font-weight:600;letter-spacing:.02em;color:#fff}
+  .collection-card:hover .cc-go{color:var(--ps-primary)}
 
 
 /* ===== Hero ===== */
@@ -892,7 +875,7 @@ section.in-view, .hero.in-view {
 
 
 
-  /* ===== ATLAS GEARS · 캐주얼 톤 ===== */
+  /* ===== ATLAS GEARS · 캐주얼 + 컴팩트 카드 ===== */
   .ps-corner{font-family:var(--ps-font-en);font-size:12px;letter-spacing:.04em}
   .atlas-hero{padding:104px 0 26px}
   .atlas-eyebrow{font-family:var(--ps-font-en);font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--ps-primary)}
@@ -901,15 +884,37 @@ section.in-view, .hero.in-view {
   .atlas-tagline{margin:22px 0 0;max-width:560px;font-size:15px;line-height:1.75;color:#EDEDED;font-weight:300}
   .atlas-tagline .amber{color:var(--ps-primary);font-weight:500}
   .atlas-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}
-  .atlas-pill{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:100px;font-size:14px;font-weight:600;
-    font-family:var(--ps-font-body);transition:all .2s var(--ps-ease-out)}
+  .atlas-pill{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:100px;font-size:14px;font-weight:600;font-family:var(--ps-font-body);transition:all .2s var(--ps-ease-out)}
   .atlas-pill.solid{background:var(--ps-primary);color:#000}
   .atlas-pill.solid:hover{background:var(--ps-primary-dark);transform:translateY(-2px)}
   .atlas-pill.ghost{border:1px solid var(--ps-surface-cinematic-3);color:#fff}
   .atlas-pill.ghost:hover{border-color:var(--ps-primary);color:var(--ps-primary)}
-  .subject-emoji{margin-right:8px;font-size:.85em}
-  #explore{padding-top:8px}
   .atlas-hint{font-size:13px;color:var(--ps-text-cinematic-secondary);margin:-6px 0 18px}
+  #explore{padding-top:8px}
+
+  /* 컴팩트 썸네일 카드 */
+  .act-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:2px}
+  @media(min-width:640px){.act-grid{grid-template-columns:1fr 1fr}}
+  .act-card{display:flex;gap:15px;padding:15px;border-radius:14px;background:var(--ps-surface-cinematic-1);border:1px solid var(--ps-surface-cinematic-3);text-decoration:none;transition:transform .22s var(--ps-ease-out),border-color .22s,box-shadow .22s}
+  .act-card:hover{border-color:var(--ps-primary);transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.35),0 0 22px rgba(255,177,26,.1)}
+  .act-thumb{flex:0 0 66px;width:66px;height:66px;border-radius:12px;display:grid;place-items:center;font-size:32px;background:radial-gradient(at 30% 25%,rgba(255,177,26,.2),transparent 62%),var(--ps-surface-cinematic-2);border:1px solid var(--ps-surface-cinematic-3)}
+  .act-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+  .act-type{align-self:flex-start;font-family:var(--ps-font-en);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ps-primary);border:1px solid rgba(255,177,26,.35);padding:2px 8px;border-radius:100px}
+  .act-title{margin:3px 0 0;font-size:15px;font-weight:700;color:#fff;line-height:1.3}
+  .act-desc{margin:0;font-size:12px;line-height:1.55;color:var(--ps-text-cinematic-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .act-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+  .tag-pill.sm{font-size:10px;padding:2px 8px}
+  .act-card.placeholder{align-items:center;justify-content:center;min-height:96px;border-style:dashed;opacity:.55}
+  .act-card.placeholder span{font-size:12.5px;color:var(--ps-text-cinematic-secondary)}
+
+  /* 타입 카테고리 헤더 */
+  .type-section{margin-bottom:34px}
+  .type-head{display:flex;align-items:center;gap:9px;margin:0 0 14px;padding-bottom:11px;border-bottom:1px solid var(--ps-surface-cinematic-2)}
+  .type-head .emoji{font-size:20px;line-height:1}
+  .type-head .ko{font-size:17px;font-weight:700;color:#fff}
+  .type-head .en{font-family:var(--ps-font-en);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ps-text-cinematic-secondary)}
+  .type-head .cnt{margin-left:auto;font-family:var(--ps-font-en);font-size:11px;color:var(--ps-text-cinematic-secondary)}
+  .type-head .cnt b{color:var(--ps-primary)}
 
 </style>
 </head>
@@ -924,10 +929,11 @@ section.in-view, .hero.in-view {
     <h1 class="atlas-wordmark">ATLAS <span class="g">GEARS</span></h1>
     <p class="atlas-tagline">
       교실에서 바로 꺼내 쓰는 <span class="amber">교육 활동 자료</span> 모음이에요. ⚙️<br>
-      위에서 검색해 오늘 수업에 딱 맞는 걸 골라보세요.
+      게임 · 활동지 · 커리큘럼 · 인터랙티브를 검색해 오늘 수업에 딱 맞는 걸 골라보세요.
     </p>
     <div class="atlas-actions">
       <a href="#explore" class="atlas-pill solid">자료 검색하러 가기 <span>↓</span></a>
+      <a href="/library/" class="atlas-pill ghost">강의 자료 · LIBRARY →</a>
       <a href="/" class="atlas-pill ghost">← parcyun studio 메인</a>
     </div>
   </div>
@@ -940,70 +946,68 @@ section.in-view, .hero.in-view {
       <h2 class="ko">활동 자료 찾기</h2>
       <span class="en">Search</span>
     </header>
-    <p class="atlas-hint">키워드나 태그로 검색하면 아래에서 바로 찾아줘요. (예: 맞춤법, 부피, 지도)</p>
-    <ResourceExplorer client:load resources={activities} showCategoryTabs={false} placeholder="활동 자료 검색 — 과목·주제·태그 (예: 국어, 부피, 세계지도)" unit="활동" />
+    <p class="atlas-hint">키워드로 검색하거나 카테고리·태그로 골라보세요. (예: 맞춤법, 부피, 지도)</p>
+    <ActivityExplorer client:load resources={activities} types={ACTIVITY_TYPES} />
   </div>
 </section>
 
-<!-- ===== 전체 활동 (과목별) ===== -->
-<section id="activities">
+<!-- ===== 카테고리별 모아보기 (게임·활동지·커리큘럼·인터랙티브) ===== -->
+<section id="categories">
   <div class="wrap">
     <header class="section-header">
-      <h2 class="ko">과목별 모아보기</h2>
-      <span class="en">By Subject</span>
+      <h2 class="ko">카테고리별 모아보기</h2>
+      <span class="en">By Category</span>
     </header>
 
-    <!-- ── 국어 ── -->
-    <div class="lecture-section">
-      <header class="lecture-subsection-header">
-        <h3 class="ko"><span class="subject-emoji">📖</span>국어</h3>
-        <span class="en">Korean</span>
+    <div class="type-section">
+      <header class="type-head">
+        <span class="emoji">🎮</span>
+        <span class="ko">게임</span>
+        <span class="en">Game</span>
+        <span class="cnt"><b>{byType('게임').length}</b>개</span>
       </header>
-      <div class="lecture-grid">
-        {bySubject('국어').map((r) => <ResourceCard r={r} />)}
-        <div class="lecture-card placeholder"><p class="topic">국어 활동 자료 추가 예정</p><span class="cs-label">Coming Soon</span></div>
-        <div class="lecture-card placeholder"><p class="topic">국어 활동 자료 추가 예정</p><span class="cs-label">Coming Soon</span></div>
+      <div class="act-grid">
+        {byType('게임').map((r) => <ActivityCard r={r} />)}
+        <div class="act-card placeholder"><span>새 게임 준비 중</span></div>
       </div>
     </div>
 
-    <!-- ── 수학 ── -->
-    <div class="lecture-section">
-      <header class="lecture-subsection-header">
-        <h3 class="ko"><span class="subject-emoji">📐</span>수학</h3>
-        <span class="en">Math</span>
+    <div class="type-section">
+      <header class="type-head">
+        <span class="emoji">📄</span>
+        <span class="ko">활동지</span>
+        <span class="en">Worksheet</span>
+        <span class="cnt"><b>{byType('활동지').length}</b>개</span>
       </header>
-      <header class="lecture-subsubsection-header">
-        <h4 class="ko">도형과 기하</h4>
-        <span class="en">Geometry</span>
-      </header>
-      <div class="lecture-grid">
-        {bySubject('수학 · 도형과 기하').map((r) => <ResourceCard r={r} />)}
-        <div class="lecture-card placeholder"><p class="topic">도형과 기하 활동 자료 추가 예정</p><span class="cs-label">Coming Soon</span></div>
-        <div class="lecture-card placeholder"><p class="topic">도형과 기하 활동 자료 추가 예정</p><span class="cs-label">Coming Soon</span></div>
+      <div class="act-grid">
+        {byType('활동지').map((r) => <ActivityCard r={r} />)}
+        <div class="act-card placeholder"><span>새 활동지 준비 중</span></div>
       </div>
     </div>
 
-    <!-- ── 사회 ── -->
-    <div class="lecture-section">
-      <header class="lecture-subsection-header">
-        <h3 class="ko"><span class="subject-emoji">🌍</span>사회</h3>
-        <span class="en">Social Studies</span>
+    <div class="type-section">
+      <header class="type-head">
+        <span class="emoji">🗂️</span>
+        <span class="ko">커리큘럼</span>
+        <span class="en">Curriculum</span>
+        <span class="cnt"><b>{byType('커리큘럼').length}</b>개</span>
       </header>
-      <div class="lecture-grid">
-        {bySubject('사회').map((r) => <ResourceCard r={r} />)}
-        <div class="lecture-card placeholder"><p class="topic">사회 활동 자료 추가 예정</p><span class="cs-label">Coming Soon</span></div>
-        <div class="lecture-card placeholder"><p class="topic">사회 활동 자료 추가 예정</p><span class="cs-label">Coming Soon</span></div>
+      <div class="act-grid">
+        {byType('커리큘럼').map((r) => <ActivityCard r={r} />)}
+        <div class="act-card placeholder"><span>새 커리큘럼 준비 중</span></div>
       </div>
     </div>
 
-    <!-- ── AI 활용 수업 ── -->
-    <div class="lecture-section">
-      <header class="lecture-subsection-header">
-        <h3 class="ko"><span class="subject-emoji">🤖</span>AI 활용 수업</h3>
-        <span class="en">AI in Classroom</span>
+    <div class="type-section">
+      <header class="type-head">
+        <span class="emoji">🕹️</span>
+        <span class="ko">인터랙티브</span>
+        <span class="en">Interactive</span>
+        <span class="cnt"><b>{byType('인터랙티브').length}</b>개</span>
       </header>
-      <div class="lecture-grid">
-        {bySubject('AI 활용 수업').map((r) => <ResourceCard r={r} />)}
+      <div class="act-grid">
+        {byType('인터랙티브').map((r) => <ActivityCard r={r} />)}
+        <div class="act-card placeholder"><span>새 인터랙티브 자료 준비 중</span></div>
       </div>
     </div>
   </div>
@@ -1022,17 +1026,11 @@ section.in-view, .hero.in-view {
 
 <script is:inline>
 (function(){
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.querySelectorAll('section').forEach(function(el){ el.classList.add('in-view'); });
-    return;
-  }
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); } });
-  }, { rootMargin: '0px 0px -15% 0px', threshold: 0.05 });
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { document.querySelectorAll('section').forEach(function(el){ el.classList.add('in-view'); }); return; }
+  var io = new IntersectionObserver(function(entries){ entries.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -15% 0px', threshold: 0.05 });
   document.querySelectorAll('section').forEach(function(el){ io.observe(el); });
 })();
 </script>
-
 <script is:inline src="/share-widget.js" defer></script>
 <script is:inline src="/visitor-counter.js" defer></script>
 </body>

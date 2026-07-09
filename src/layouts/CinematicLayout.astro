@@ -22,6 +22,7 @@ const { title, description = '', ogTitle = '', ogDescription = '', ogUrl = '', l
 {ogDescription && <meta property="og:description" content={ogDescription} />}
 <meta property="og:type" content="website" />
 {ogUrl && <meta property="og:url" content={ogUrl} />}
+{ogUrl && <link rel="canonical" href={ogUrl} />}
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />

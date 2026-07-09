@@ -1,0 +1,53 @@
+---
+// GitHub Pages는 알 수 없는 경로에 대해 /404.html을 자동 서빙한다.
+// Astro는 404.astro를 dist/404.html로 방출(디렉토리 포맷에서도 예외 처리).
+// 아일랜드/외부 스크립트 없이 자립형 — QR·북마크 오타로 죽은 링크에 도달해도 홈으로 유도.
+---
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>404 · 페이지를 찾을 수 없어요 | parcyun studio</title>
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+  :root{--ps-primary:#FFB11A;--ps-primary-dark:#E89500;--ps-sec:#8C8C8C;
+    --ps-body:'Pretendard Variable','Pretendard','Montserrat',-apple-system,sans-serif;
+    --ps-en:'Montserrat','Pretendard Variable',sans-serif;--ps-sig:'Covered By Your Grace',cursive;
+    --ps-ease:cubic-bezier(.16,1,.3,1)}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{min-height:100vh;background:#000;color:#fff;font-family:var(--ps-body);font-weight:300;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    padding:32px 24px;word-break:keep-all;-webkit-font-smoothing:antialiased}
+  .code{font-family:var(--ps-en);font-weight:700;font-size:clamp(72px,20vw,180px);line-height:.9;
+    letter-spacing:-.04em;color:var(--ps-primary);text-shadow:0 0 46px rgba(255,177,26,.35)}
+  .msg{margin:18px 0 4px;font-size:clamp(16px,2.6vw,20px);color:#EDEDED}
+  .sub{margin:0 0 32px;font-size:13px;color:var(--ps-sec);line-height:1.7}
+  .cta{display:inline-flex;align-items:center;gap:8px;font-family:var(--ps-body);font-size:14px;
+    font-weight:600;color:#000;background:var(--ps-primary);border:0;border-radius:100px;
+    padding:13px 24px;text-decoration:none;transition:background .18s var(--ps-ease),transform .18s var(--ps-ease)}
+  .cta:hover{background:var(--ps-primary-dark);transform:translateY(-2px)}
+  .links{margin-top:22px;display:flex;flex-wrap:wrap;gap:0 4px;justify-content:center;font-family:var(--ps-en);font-size:12px}
+  .links a{color:var(--ps-sec);text-decoration:none;padding:4px 10px;border-right:1px solid rgba(255,255,255,.14);transition:color .18s}
+  .links a:last-child{border-right:0}
+  .links a:hover{color:#fff}
+  .sig{margin-top:40px;font-family:var(--ps-sig);font-size:18px;color:var(--ps-primary)}
+</style>
+</head>
+<body>
+  <div class="code">404</div>
+  <p class="msg">이 페이지는 찾을 수 없어요.</p>
+  <p class="sub">주소가 바뀌었거나 사라진 자료일 수 있어요.<br>아래에서 다시 찾아보세요.</p>
+  <a class="cta" href="/">홈으로 돌아가기 →</a>
+  <nav class="links" aria-label="바로가기">
+    <a href="/academica/">강의 자료</a>
+    <a href="/atlas-gears/">교육 활동 자료</a>
+    <a href="/works/">Works</a>
+  </nav>
+  <div class="sig">parcyun studio</div>
+</body>
+</html>

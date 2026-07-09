@@ -1,6 +1,21 @@
 ---
 import CinematicLayout from '../layouts/CinematicLayout.astro';
 import { icon } from '../lib/icons';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: '박창현',
+  alternateName: 'parcyun',
+  url: 'https://parcyun.github.io/',
+  jobTitle: '초등교사 · 프롬프트 엔지니어 · 디자이너',
+  sameAs: [
+    'https://www.instagram.com/parcyun',
+    'https://github.com/parcyun',
+    'https://linktr.ee/parcyun',
+  ],
+  knowsAbout: ['교육', '생성형 AI', '프롬프트 엔지니어링', 'UIUX·WEB 디자인', '디지털 미디어 교육'],
+};
 ---
 <CinematicLayout
   title="parcyun studio · 강의 자료 허브"
@@ -9,6 +24,8 @@ import { icon } from '../lib/icons';
   ogDescription="초등교사 · 프롬프트 엔지니어 · 디자이너. 교육과 AI를 잇는 강의 자료 허브."
   ogUrl="https://parcyun.github.io/"
 >
+<script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)}></script>
+
 <!-- ===== HERO ===== -->
 <section class="hero">
   <div class="hero-inner">

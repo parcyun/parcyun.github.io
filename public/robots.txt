@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# 내부 문서는 색인 제외 권장(각 파일 <meta robots> 병행)
+Disallow: /dashboard.html
+Disallow: /mongdang-production-schedule.html
+
+Sitemap: https://parcyun.github.io/sitemap.xml

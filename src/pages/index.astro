@@ -9,6 +9,11 @@ import { icon } from '../lib/icons';
   ogDescription="초등교사 · 프롬프트 엔지니어 · 디자이너. 교육과 AI를 잇는 강의 자료 허브."
   ogUrl="https://parcyun.github.io/"
 >
+<div class="hub-quicknav">
+  <a href="/academica/" class="hub-qn">강의 자료 <span class="ico" set:html={icon('arrowUpRight', 14)}></span></a>
+  <a href="/atlas-gears/" class="hub-qn">교육 활동 자료 <span class="ico" set:html={icon('arrowUpRight', 14)}></span></a>
+</div>
+
 <!-- ===== HERO ===== -->
 <section class="hero">
   <div class="hero-inner">
@@ -153,14 +158,12 @@ import { icon } from '../lib/icons';
     </header>
     <div class="collections-grid">
       <a href="/academica/" class="collection-card">
-        <span class="cc-ico ico" set:html={icon('books', 26)}></span>
         <span class="cc-brand">ACADEMICA</span>
         <span class="cc-ko">강의 자료</span>
         <span class="cc-desc">교육 · AI · 디자인 강의 자료를 카테고리별로 모아뒀어요.</span>
         <span class="cc-go">서가 열기 <span class="ico" set:html={icon('arrowRight', 15)}></span></span>
       </a>
       <a href="/atlas-gears/" class="collection-card">
-        <span class="cc-ico ico" set:html={icon('gears', 26)}></span>
         <span class="cc-brand">ATLAS GEARS</span>
         <span class="cc-ko">교육 활동 자료</span>
         <span class="cc-desc">게임 · 활동지 · 커리큘럼 · 인터랙티브를 검색해서 바로.</span>
@@ -177,9 +180,16 @@ import { icon } from '../lib/icons';
     background:var(--ps-surface-cinematic-1);border:1px solid var(--ps-surface-cinematic-3);
     transition:transform .2s var(--ps-ease-out),border-color .2s var(--ps-ease-out)}
   .collection-card:hover{transform:translateY(-3px);border-color:var(--ps-primary)}
-  .cc-ico{color:var(--ps-primary)}
-  .cc-brand{font-family:var(--ps-font-en);font-weight:800;font-size:26px;letter-spacing:-.01em;color:#fff;margin-top:14px}
+  .cc-brand{font-family:var(--ps-font-en);font-weight:800;font-size:26px;letter-spacing:-.01em;color:#fff}
   .collection-card:hover .cc-brand{color:var(--ps-primary)}
+  /* 우상단 플로팅 바로가기 */
+  .hub-quicknav{position:fixed;top:16px;right:20px;z-index:90;display:flex;gap:8px}
+  .hub-qn{font-family:var(--ps-font-body);font-size:12.5px;font-weight:600;color:#fff;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:100px;border:1px solid var(--ps-surface-cinematic-3);background:rgba(0,0,0,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);text-decoration:none;transition:all .18s var(--ps-ease-out)}
+  .hub-qn:hover{border-color:var(--ps-primary);color:var(--ps-primary)}
+  .hub-qn .ico{color:var(--ps-primary)}
+  .ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}
+  .ico svg{display:block}
+  @media(max-width:560px){.hub-qn{font-size:11px;padding:7px 11px}}
   .cc-ko{font-size:14px;font-weight:600;color:var(--ps-primary);margin-top:2px}
   .cc-desc{font-size:13.5px;line-height:1.65;color:var(--ps-text-cinematic-secondary);margin-top:8px}
   .cc-go{margin-top:16px;font-family:var(--ps-font-en);font-size:13px;font-weight:600;letter-spacing:.02em;color:#fff;display:inline-flex;align-items:center;gap:6px}

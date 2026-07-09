@@ -1,10 +1,8 @@
 ---
-import ActivityExplorer from '../components/ActivityExplorer.tsx';
-import ActivityCard from '../components/ActivityCard.astro';
+import ActivityBrowser from '../components/ActivityBrowser.tsx';
 import { resources, ACTIVITY_TYPES } from '../data/resources';
-import { icon, typeIcon } from '../lib/icons';
+import { icon } from '../lib/icons';
 const activities = resources.filter((r) => r.category === '교육 활동 자료');
-const byType = (t: string) => activities.filter((r) => r.type === t);
 ---
 <!DOCTYPE html>
 <html lang="ko">
@@ -12,7 +10,7 @@ const byType = (t: string) => activities.filter((r) => r.type === t);
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ATLAS GEARS · 교육 활동 자료 · parcyun studio</title>
-<meta name="description" content="교실에서 바로 꺼내 쓰는 교육 활동 자료 모음. 게임·활동지·커리큘럼·인터랙티브를 검색해 오늘 수업에 딱 맞는 자료를 찾아보세요. Designed by parcyun studio." />
+<meta name="description" content="교실에서 바로 꺼내 쓰는 교육 활동 자료 모음. 게임·인터랙티브·활동지·커리큘럼을 검색해 오늘 수업에 딱 맞는 자료를 찾아보세요. Designed by parcyun studio." />
 <meta property="og:title" content="ATLAS GEARS · parcyun studio" />
 <meta property="og:description" content="교실에서 바로 꺼내 쓰는 교육 활동 자료 모음." />
 <meta property="og:type" content="website" />
@@ -285,624 +283,54 @@ section.in-view, .hero.in-view {
 .coffee-label { font-family: var(--ps-font-signature); font-size: 20px; color: var(--ps-primary); }
 
 
-  .collections-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:6px}
-  @media(min-width:720px){.collections-grid{grid-template-columns:1fr 1fr}}
-  .collection-card{position:relative;display:flex;flex-direction:column;gap:2px;padding:34px 30px 30px;border-radius:20px;overflow:hidden;
-    background:linear-gradient(160deg,var(--ps-surface-cinematic-1),#0c0c0c);border:1px solid var(--ps-surface-cinematic-3);
-    transition:transform .24s var(--ps-ease-out),border-color .24s var(--ps-ease-out),box-shadow .24s}
-  .collection-card::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;
-    background:radial-gradient(circle,rgba(255,177,26,.12),transparent 70%);pointer-events:none}
-  .collection-card:hover{transform:translateY(-4px);border-color:var(--ps-primary);box-shadow:0 18px 40px rgba(0,0,0,.4),0 0 30px rgba(255,177,26,.14)}
-  .cc-emoji{font-size:34px;line-height:1}
-  .cc-brand{font-family:var(--ps-font-en);font-weight:800;font-size:26px;letter-spacing:-.01em;color:#fff;margin-top:12px}
-  .collection-card:hover .cc-brand{color:var(--ps-primary)}
-  .cc-ko{font-size:14px;font-weight:600;color:var(--ps-primary);margin-top:2px}
-  .cc-desc{font-size:13.5px;line-height:1.65;color:var(--ps-text-cinematic-secondary);margin-top:8px}
-  .cc-go{margin-top:16px;font-family:var(--ps-font-en);font-size:13px;font-weight:600;letter-spacing:.02em;color:#fff}
-  .collection-card:hover .cc-go{color:var(--ps-primary)}
-
-
-/* ===== Hero ===== */
-.hero {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 120px 24px 80px;
-  position: relative;
-}
-@media (min-width: 768px) {
-  .hero { padding: 120px 48px 80px; }
-}
-.hero-inner {
-  max-width: 1108px;
-  margin: 0 auto;
-  width: 100%;
-}
-.hero-eyebrow {
-  font-family: var(--ps-font-en);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: var(--ps-primary);
-  margin-bottom: 32px;
-}
-.hero-wordmark {
-  font-family: var(--ps-font-signature);
-  font-size: clamp(72px, 14vw, 180px);
-  font-weight: 400;
-  letter-spacing: -2px;
-  line-height: 1.15;
-  margin: 0 0 24px;
-  color: var(--ps-primary);
-}
-.hero-name {
-  font-family: var(--ps-font-en);
-  font-size: clamp(13px, 1.3vw, 16px);
-  font-weight: 300;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: var(--ps-text-cinematic-secondary);
-  margin: 0 0 48px;
-}
-.hero-tagline {
-  font-size: clamp(20px, 2.5vw, 32px);
-  font-weight: 300;
-  letter-spacing: -0.8px;
-  line-height: 1.4;
-  max-width: 720px;
-  margin: 0 0 48px;
-  color: #FFFFFF;
-}
-.hero-tagline strong {
-  font-weight: 500;
-  color: var(--ps-primary);
-}
-.hero-ctas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 24px;
-  font-family: var(--ps-font-en);
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  border-radius: 100px;
-  transition: all 240ms var(--ps-ease-out);
-  cursor: pointer;
-  border: 1px solid transparent;
-}
-.btn.primary {
-  background: var(--ps-primary);
-  color: #000;
-}
-.btn.primary:hover {
-  background: var(--ps-primary-dark);
-  transform: translateY(-2px);
-}
-.btn.ghost {
-  background: transparent;
-  border-color: var(--ps-surface-cinematic-3);
-  color: #FFFFFF;
-}
-.btn.ghost:hover {
-  border-color: var(--ps-primary);
-  color: var(--ps-primary);
-}
-.btn .arrow {
-  font-size: 16px;
-  line-height: 1;
-}
-
-/* ===== About / Manifesto ===== */
-.about {
-  border-top: 1px solid var(--ps-surface-cinematic-3);
-  border-bottom: 1px solid var(--ps-surface-cinematic-3);
-}
-.manifesto {
-  font-size: clamp(22px, 2.5vw, 32px);
-  font-weight: 300;
-  letter-spacing: -0.6px;
-  line-height: 1.5;
-  max-width: 840px;
-  margin: 0;
-  color: #FFFFFF;
-}
-.manifesto .highlight {
-  color: var(--ps-primary);
-  font-weight: 500;
-}
-.identity-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 48px;
-}
-.tag-pill {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--ps-font-en);
-  font-size: 11px;
-  font-weight: 400;
-  color: #FFFFFF;
-  background: transparent;
-  border: 1px solid var(--ps-surface-cinematic-3);
-  border-radius: 100px;
-  padding: 5px 12px 6px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-/* ===== Lectures grid ===== */
-.lecture-section {
-  margin-bottom: 80px;
-}
-.lecture-section:last-child {
-  margin-bottom: 0;
-}
-.lecture-subsection-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 28px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--ps-surface-cinematic-3);
-}
-@media (min-width: 640px) {
-  .lecture-subsection-header {
-    flex-direction: row;
-    align-items: baseline;
-    gap: 14px;
-  }
-}
-.lecture-subsection-header .ko {
-  font-size: clamp(20px, 2vw, 24px);
-  font-weight: 400;
-  letter-spacing: -0.5px;
-  line-height: 1.3;
-  margin: 0;
-  color: #FFFFFF;
-}
-.lecture-subsection-header .en {
-  font-family: var(--ps-font-en);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 1.8px;
-  text-transform: uppercase;
-  color: var(--ps-text-cinematic-secondary);
-}
-
-.lecture-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-}
-@media (min-width: 768px) {
-  .lecture-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
-}
-@media (min-width: 1024px) {
-  .lecture-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-.lecture-card {
-  display: block;
-  text-decoration: none;
-  color: #FFFFFF;
-  border: 1px solid var(--ps-surface-cinematic-3);
-  border-radius: 16px;
-  overflow: hidden;
-  transition: border-color 320ms var(--ps-ease-out), transform 320ms var(--ps-ease-out);
-}
-.lecture-card:hover {
-  border-color: var(--ps-primary);
-  transform: translateY(-4px);
-}
-.lecture-card-poster {
-  aspect-ratio: 370 / 220;
-  background: var(--ps-surface-cinematic-1);
-  position: relative;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  overflow: hidden;
-}
-/* Typographic poster (no external image needed) */
-.lecture-card-poster::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(at 80% 20%, rgba(255, 177, 26, 0.08) 0%, transparent 50%),
-    radial-gradient(at 20% 80%, rgba(255, 177, 26, 0.04) 0%, transparent 50%);
-  pointer-events: none;
-}
-.lecture-card-poster .lid {
-  position: relative;
-  font-family: var(--ps-font-en);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--ps-primary);
-}
-.lecture-card-poster .ptitle {
-  position: relative;
-  font-size: clamp(18px, 1.8vw, 22px);
-  font-weight: 300;
-  letter-spacing: -0.6px;
-  line-height: 1.25;
-  color: #FFFFFF;
-  margin: 0;
-}
-.lecture-card-poster .ptitle strong {
-  font-weight: 700;
-  color: var(--ps-primary);
-}
-.lecture-card-body {
-  padding: 20px 24px 24px;
-  background: var(--ps-bg-cinematic);
-}
-.lecture-card-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--ps-font-en);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 1px;
-  color: var(--ps-text-cinematic-secondary);
-  margin-bottom: 12px;
-}
-.lecture-card-meta .dot {
-  width: 4px; height: 4px;
-  background: var(--ps-text-cinematic-secondary);
-  border-radius: 50%;
-}
-.lecture-card-title {
-  font-size: 17px;
-  font-weight: 500;
-  letter-spacing: -0.4px;
-  margin: 0 0 12px;
-  color: #FFFFFF;
-  line-height: 1.4;
-}
-.lecture-card-desc {
-  font-size: 13px;
-  font-weight: 300;
-  line-height: 1.6;
-  color: var(--ps-text-cinematic-secondary);
-  margin: 0 0 16px;
-}
-.lecture-card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-/* Coming soon placeholder card */
-.lecture-card.placeholder {
-  border-style: dashed;
-  border-color: rgba(255, 255, 255, 0.12);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 280px;
-  text-align: center;
-  padding: 32px 24px;
-  gap: 12px;
-}
-.lecture-card.placeholder:hover {
-  transform: none;
-  border-color: var(--ps-text-cinematic-secondary);
-  cursor: default;
-}
-.lecture-card.placeholder .topic {
-  font-size: 16px;
-  font-weight: 400;
-  letter-spacing: -0.3px;
-  color: #FFFFFF;
-  margin: 0;
-  line-height: 1.4;
-  word-break: keep-all;
-}
-.lecture-card.placeholder .cs-label {
-  font-family: var(--ps-font-en);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: var(--ps-text-cinematic-secondary);
-}
-
-/* ===== Career / Timeline ===== */
-.career-list {
-  margin-top: 48px;
-  border-top: 1px solid var(--ps-surface-cinematic-3);
-  padding-top: 8px;
-}
-.career-item {
-  display: grid;
-  grid-template-columns: 72px 1fr auto;
-  align-items: baseline;
-  gap: 0 24px;
-  padding: 18px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-.career-item:last-child { border-bottom: none; }
-.career-category-header {
-  font-family: var(--ps-font-en);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--ps-text-cinematic-secondary);
-  padding: 28px 0 10px;
-  border-bottom: 1px solid var(--ps-surface-cinematic-3);
-}
-.career-category-header:first-child { padding-top: 8px; }
-.career-year {
-  font-family: var(--ps-font-en);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 1px;
-  color: var(--ps-primary);
-}
-.career-role {
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: -0.3px;
-  color: #FFFFFF;
-}
-.career-org {
-  font-family: var(--ps-font-en);
-  font-size: 11px;
-  font-weight: 300;
-  letter-spacing: 0.5px;
-  color: var(--ps-text-cinematic-secondary);
-  text-align: right;
-}
-@media (max-width: 639px) {
-  .career-item { grid-template-columns: 64px 1fr; grid-template-rows: auto auto; }
-  .career-org { grid-column: 2; text-align: left; padding-top: 2px; }
-}
-
-/* ===== Connect ===== */
-.connect-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-@media (min-width: 640px) {
-  .connect-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (min-width: 1024px) {
-  .connect-grid { grid-template-columns: repeat(4, 1fr); }
-}
-.connect-link {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 32px 28px;
-  border: 1px solid var(--ps-surface-cinematic-3);
-  border-radius: 16px;
-  transition: border-color 240ms var(--ps-ease-out), background 240ms var(--ps-ease-out);
-}
-.connect-link:hover {
-  border-color: var(--ps-primary);
-  background: var(--ps-surface-cinematic-1);
-}
-.connect-link .label {
-  font-family: var(--ps-font-en);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 1.8px;
-  text-transform: uppercase;
-  color: var(--ps-primary);
-}
-.connect-link .handle {
-  font-family: var(--ps-font-en);
-  font-size: 20px;
-  font-weight: 500;
-  letter-spacing: -0.3px;
-  color: #FFFFFF;
-}
-.connect-link .desc {
-  font-size: 13px;
-  font-weight: 300;
-  color: var(--ps-text-cinematic-secondary);
-  margin-top: auto;
-}
-
-/* ===== Hero CTAs (multi-row) ===== */
-.hero-ctas + .hero-ctas { margin-top: 12px; }
-
-/* ===== Arcade CTA (below activities) ===== */
-.arcade-cta {
-  margin-top: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  flex-wrap: wrap;
-  padding: 28px 32px;
-  border: 1px solid var(--ps-surface-cinematic-3);
-  border-radius: 16px;
-  background:
-    repeating-linear-gradient(90deg, transparent 0 6px, rgba(255,177,26,.03) 6px 7px),
-    var(--ps-surface-cinematic-1);
-  position: relative;
-  overflow: hidden;
-  transition: border-color 320ms var(--ps-ease-out), transform 320ms var(--ps-ease-out);
-}
-.arcade-cta::before {
-  content: '';
-  position: absolute; left: 0; top: 0; height: 3px; width: 100%;
-  background: repeating-linear-gradient(90deg, var(--ps-primary) 0 12px, transparent 12px 20px);
-  opacity: .5;
-}
-.arcade-cta:hover { border-color: var(--ps-primary); transform: translateY(-3px); }
-.arcade-cta-inner { display: flex; flex-direction: column; gap: 8px; }
-.arcade-cta-eyebrow {
-  font-family: 'JetBrains Mono', var(--ps-font-en), monospace;
-  font-size: 11px; font-weight: 700; letter-spacing: 2px;
-  color: var(--ps-primary);
-  animation: arcadeBlink 1.6s steps(1) infinite;
-}
-@keyframes arcadeBlink { 0%,60%{opacity:1} 61%,100%{opacity:.35} }
-.arcade-cta-title {
-  font-family: 'JetBrains Mono', var(--ps-font-en), monospace;
-  font-size: clamp(22px, 3vw, 30px); font-weight: 400; letter-spacing: -0.5px; color: #FFFFFF;
-}
-.arcade-cta-title strong { color: var(--ps-primary); font-weight: 700; }
-.arcade-cta-desc { font-size: 13px; font-weight: 300; color: var(--ps-text-cinematic-secondary); max-width: 520px; }
-.arcade-cta-play {
-  font-family: 'JetBrains Mono', var(--ps-font-en), monospace;
-  font-size: 14px; font-weight: 700; letter-spacing: 1px;
-  color: #000; background: var(--ps-primary);
-  padding: 14px 24px; border-radius: 100px; white-space: nowrap;
-  transition: background 240ms var(--ps-ease-out);
-}
-.arcade-cta:hover .arcade-cta-play { background: var(--ps-primary-dark); }
-@media (prefers-reduced-motion: reduce) {
-  .arcade-cta-eyebrow { animation: none; }
-}
-
-/* ===== Career section · collapsible ===== */
-.career-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: transparent;
-  border: 1px solid var(--ps-surface-cinematic-3);
-  color: var(--ps-text-cinematic-secondary);
-  font-family: var(--ps-font-en);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  border-radius: 100px;
-  padding: 8px 16px;
-  cursor: pointer;
-  margin-top: 32px;
-  transition: border-color 240ms var(--ps-ease-out), color 240ms var(--ps-ease-out);
-}
-.career-toggle:hover { border-color: var(--ps-primary); color: var(--ps-primary); }
-.career-toggle .chev {
-  display: inline-block;
-  transition: transform 240ms var(--ps-ease-out);
-  font-size: 12px;
-  line-height: 1;
-}
-.career-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
-.career-list.collapsed .career-category-header,
-.career-list.collapsed .career-item { display: none; }
-.career-list.collapsed { border-top: none; padding-top: 0; margin-top: 0; }
-
-/* ===== List-style compact lecture card (for featured archive link) ===== */
-.lecture-card.compact {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 18px 24px;
-  border-radius: 12px;
-  background: var(--ps-surface-cinematic-1);
-}
-.lecture-card.compact:hover { transform: none; }
-.lecture-card.compact .lc-id {
-  flex: 0 0 auto;
-  font-family: var(--ps-font-en);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--ps-primary);
-  min-width: 92px;
-}
-.lecture-card.compact .lc-title {
-  flex: 1 1 auto;
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: -0.3px;
-  color: #FFFFFF;
-  line-height: 1.4;
-}
-.lecture-card.compact .lc-title strong { font-weight: 600; color: var(--ps-primary); }
-.lecture-card.compact .lc-arrow {
-  flex: 0 0 auto;
-  font-family: var(--ps-font-en);
-  font-size: 14px;
-  color: var(--ps-text-cinematic-secondary);
-  transition: color 240ms var(--ps-ease-out), transform 240ms var(--ps-ease-out);
-}
-.lecture-card.compact:hover .lc-arrow { color: var(--ps-primary); transform: translateX(4px); }
-@media (max-width: 639px) {
-  .lecture-card.compact { gap: 14px; padding: 14px 18px; }
-  .lecture-card.compact .lc-id { min-width: 0; }
-}
-
-/* ===== Sub-sub-section header (under a subsection) ===== */
-.lecture-subsubsection-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin: 8px 0 18px;
-}
-@media (min-width: 640px) {
-  .lecture-subsubsection-header { flex-direction: row; align-items: baseline; gap: 12px; }
-}
-.lecture-subsubsection-header .ko {
-  font-size: 16px;
-  font-weight: 500;
-  letter-spacing: -0.3px;
-  color: #FFFFFF;
-  margin: 0;
-}
-.lecture-subsubsection-header .en {
-  font-family: var(--ps-font-en);
-  font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--ps-text-cinematic-secondary);
-}
-
-
-
-  /* ===== 글로벌 · 우상단 그레이스케일 네비 + 라인 아이콘 ===== */
+  /* ===== 글로벌 · 우상단 네비 + 라인 아이콘 ===== */
   .ps-topnav{position:fixed;top:16px;right:20px;z-index:90;font-family:var(--ps-font-en);font-size:12px;letter-spacing:.04em;color:#8C8C8C;display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:100px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:color .18s,border-color .18s;text-decoration:none}
   .ps-topnav:hover{color:#fff;border-color:rgba(255,255,255,.25)}
   .ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}
   .ico svg{display:block}
+  .ps-footer-coffee .ico{margin-right:1px}
 
-  /* ===== ATLAS GEARS · 캐주얼 + 컴팩트 카드 ===== */
-  .atlas-hero{padding:100px 0 26px}
+  /* ===== ATLAS GEARS · 히어로 ===== */
+  .atlas-hero{padding:100px 0 22px}
   .atlas-eyebrow{font-family:var(--ps-font-en);font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--ps-primary)}
   .atlas-wordmark{font-family:var(--ps-font-en);font-weight:800;font-size:clamp(52px,13vw,140px);line-height:.86;letter-spacing:-.035em;margin:16px 0 0;text-transform:uppercase}
   .atlas-wordmark .g{color:var(--ps-primary);text-shadow:0 0 46px rgba(255,177,26,.42)}
   .atlas-tagline{margin:22px 0 0;max-width:560px;font-size:15px;line-height:1.75;color:#EDEDED;font-weight:300}
   .atlas-tagline .amber{color:var(--ps-primary);font-weight:500}
   .atlas-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
-  .atlas-pill{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;font-size:14px;font-weight:600;font-family:var(--ps-font-body);transition:all .2s var(--ps-ease-out)}
-  .atlas-pill.solid{background:var(--ps-primary);color:#000}
-  .atlas-pill.solid:hover{background:var(--ps-primary-dark);transform:translateY(-2px)}
-  .atlas-pill.ghost{border:1px solid var(--ps-surface-cinematic-3);color:#fff}
-  .atlas-pill.ghost:hover{border-color:var(--ps-primary);color:var(--ps-primary)}
-  .atlas-hint{font-size:13px;color:var(--ps-text-cinematic-secondary);margin:-6px 0 18px}
-  #explore{padding-top:8px}
+  .atlas-pill{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;font-size:14px;font-weight:600;font-family:var(--ps-font-body);border:1px solid var(--ps-surface-cinematic-3);color:#fff;transition:all .2s var(--ps-ease-out)}
+  .atlas-pill:hover{border-color:var(--ps-primary);color:var(--ps-primary)}
+  .atlas-hint{font-size:13px;color:var(--ps-text-cinematic-secondary);margin:-4px 0 20px}
 
-  /* 컴팩트 카드 (썸네일=라인 아이콘) */
+  /* ===== 검색/필터 (톤 통일 · 플랫) ===== */
+  .ab-controls{display:flex;flex-direction:column;gap:12px;margin-bottom:6px}
+  .rx-row{display:flex;flex-direction:column;gap:10px}
+  .rx-search{position:relative;display:flex;align-items:center}
+  .rx-search-icon{position:absolute;left:15px;color:var(--ps-text-cinematic-secondary);pointer-events:none;display:inline-flex}
+  .rx-input{width:100%;padding:13px 16px 13px 44px;border-radius:12px;background:var(--ps-surface-cinematic-1);border:1px solid var(--ps-surface-cinematic-3);color:#fff;font-family:var(--ps-font-body);font-size:14px;font-weight:300;transition:border-color .2s var(--ps-ease-out)}
+  .rx-input::placeholder{color:var(--ps-text-cinematic-secondary)}
+  .rx-input:focus{outline:none;border-color:var(--ps-primary)}
+  .rx-reset{position:absolute;right:9px;padding:6px 12px;border:0;border-radius:100px;cursor:pointer;background:var(--ps-surface-cinematic-3);color:#fff;font-size:12px;font-family:var(--ps-font-body);white-space:nowrap;transition:all .18s var(--ps-ease-out)}
+  .rx-reset:hover{background:var(--ps-primary);color:#000}
+  .rx-tabs{display:flex;gap:7px;flex-wrap:wrap}
+  .rx-tab{padding:8px 15px;border-radius:100px;cursor:pointer;font-size:13px;font-weight:500;background:transparent;border:1px solid var(--ps-surface-cinematic-3);color:var(--ps-text-cinematic-secondary);font-family:var(--ps-font-body);transition:all .18s var(--ps-ease-out)}
+  .rx-tab:hover{border-color:var(--ps-primary);color:#fff}
+  .rx-tab.on{background:var(--ps-primary);border-color:var(--ps-primary);color:#000;font-weight:700}
+  .rx-tags{display:flex;gap:6px;flex-wrap:wrap}
+  .rx-chip{padding:5px 11px;border-radius:100px;cursor:pointer;font-size:11.5px;background:transparent;border:1px solid var(--ps-surface-cinematic-2);color:var(--ps-text-cinematic-secondary);font-family:var(--ps-font-en);transition:all .16s var(--ps-ease-out)}
+  .rx-chip:hover{border-color:var(--ps-primary);color:#fff}
+  .rx-chip.on{background:rgba(255,177,26,.14);border-color:var(--ps-primary);color:var(--ps-primary);font-weight:700}
+  .rx-count{font-family:var(--ps-font-en);font-size:12px;letter-spacing:.08em;color:var(--ps-text-cinematic-secondary);text-transform:uppercase;margin:16px 0 4px}
+  .rx-count b{color:var(--ps-primary);font-weight:700;font-size:14px;margin-right:4px}
+  .rx-empty{text-align:center;padding:48px 20px;border:1px dashed var(--ps-surface-cinematic-3);border-radius:14px;margin-top:10px}
+  .rx-empty-big{font-family:var(--ps-font-en);font-size:18px;font-weight:600;color:#fff;margin:0 0 8px}
+  .rx-empty-sub{font-size:13px;color:var(--ps-text-cinematic-secondary);margin:0 0 18px}
+
+  /* ===== 컴팩트 카드 (썸네일=라인 아이콘) ===== */
   .act-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:2px}
   @media(min-width:640px){.act-grid{grid-template-columns:1fr 1fr}}
-  .act-card{display:flex;gap:15px;padding:15px;border-radius:14px;background:var(--ps-surface-cinematic-1);border:1px solid var(--ps-surface-cinematic-3);text-decoration:none;transition:transform .22s var(--ps-ease-out),border-color .22s,box-shadow .22s}
-  .act-card:hover{border-color:var(--ps-primary);transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.35)}
+  .act-card{display:flex;gap:15px;padding:15px;border-radius:14px;background:var(--ps-surface-cinematic-1);border:1px solid var(--ps-surface-cinematic-3);text-decoration:none;transition:transform .22s var(--ps-ease-out),border-color .22s}
+  .act-card:hover{border-color:var(--ps-primary);transform:translateY(-3px)}
   .act-thumb{flex:0 0 60px;width:60px;height:60px;border-radius:12px;display:grid;place-items:center;color:var(--ps-primary);background:var(--ps-surface-cinematic-2);border:1px solid var(--ps-surface-cinematic-3)}
   .act-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
   .act-type{align-self:flex-start;font-family:var(--ps-font-en);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ps-primary);border:1px solid rgba(255,177,26,.35);padding:2px 8px;border-radius:100px}
@@ -910,11 +338,12 @@ section.in-view, .hero.in-view {
   .act-desc{margin:0;font-size:12px;line-height:1.55;color:var(--ps-text-cinematic-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .act-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
   .tag-pill.sm{font-size:10px;padding:2px 8px}
-  .act-card.placeholder{align-items:center;justify-content:center;min-height:90px;border-style:dashed;opacity:.55}
+  .act-card.placeholder{align-items:center;justify-content:center;min-height:90px;border-style:dashed;opacity:.5}
   .act-card.placeholder span{font-size:12.5px;color:var(--ps-text-cinematic-secondary)}
 
-  /* 타입 카테고리 헤더 */
-  .type-section{margin-bottom:34px}
+  /* ===== 타입 카테고리 헤더 ===== */
+  .type-section{margin-bottom:32px}
+  .ab .type-section:first-of-type{margin-top:20px}
   .type-head{display:flex;align-items:center;gap:9px;margin:0 0 14px;padding-bottom:11px;border-bottom:1px solid var(--ps-surface-cinematic-2)}
   .type-head .type-ico{color:var(--ps-primary)}
   .type-head .ko{font-size:17px;font-weight:700;color:#fff}
@@ -935,92 +364,29 @@ section.in-view, .hero.in-view {
     <h1 class="atlas-wordmark">ATLAS <span class="g">GEARS</span></h1>
     <p class="atlas-tagline">
       교실에서 바로 꺼내 쓰는 <span class="amber">교육 활동 자료</span> 모음이에요.<br>
-      게임 · 활동지 · 커리큘럼 · 인터랙티브를 검색해 오늘 수업에 딱 맞는 걸 골라보세요.
+      게임 · 인터랙티브 · 활동지 · 커리큘럼을 검색해 오늘 수업에 딱 맞는 걸 골라보세요.
     </p>
     <div class="atlas-actions">
-      <a href="#explore" class="atlas-pill solid">자료 검색하러 가기 <span class="ico" set:html={icon('search', 16)}></span></a>
-      <a href="/academica/" class="atlas-pill ghost">강의 자료 · ACADEMICA <span class="ico" set:html={icon('arrowRight', 16)}></span></a>
+      <a href="/academica/" class="atlas-pill">강의 자료 · ACADEMICA <span class="ico" set:html={icon('arrowRight', 16)}></span></a>
     </div>
   </div>
 </section>
 
-<!-- ===== EXPLORE (활동 자료 검색 · React 아일랜드) ===== -->
-<section id="explore">
+<!-- ===== 활동 자료 (검색 + 카테고리별 · 단일 아일랜드) ===== -->
+<section id="browse">
   <div class="wrap">
     <header class="section-header">
-      <h2 class="ko">활동 자료 찾기</h2>
-      <span class="en">Search</span>
+      <h2 class="ko">활동 자료</h2>
+      <span class="en">Activities</span>
     </header>
-    <p class="atlas-hint">키워드로 검색하거나 카테고리·태그로 골라보세요. (예: 맞춤법, 부피, 지도)</p>
-    <ActivityExplorer client:load resources={activities} types={ACTIVITY_TYPES} />
+    <p class="atlas-hint">검색하거나 카테고리·태그로 골라보세요. 아래 목록이 바로 필터돼요.</p>
+    <ActivityBrowser client:load resources={activities} types={ACTIVITY_TYPES} />
   </div>
 </section>
 
-<!-- ===== 카테고리별 모아보기 ===== -->
-<section id="categories">
-  <div class="wrap">
-    <header class="section-header">
-      <h2 class="ko">카테고리별 모아보기</h2>
-      <span class="en">By Category</span>
-    </header>
-
-    <div class="type-section">
-      <header class="type-head">
-        <span class="ico type-ico" set:html={icon(typeIcon['게임'], 20)}></span>
-        <span class="ko">게임</span>
-        <span class="en">Game</span>
-        <span class="cnt"><b>{byType('게임').length}</b>개</span>
-      </header>
-      <div class="act-grid">
-        {byType('게임').map((r) => <ActivityCard r={r} />)}
-        <div class="act-card placeholder"><span>새 게임 준비 중</span></div>
-      </div>
-    </div>
-
-    <div class="type-section">
-      <header class="type-head">
-        <span class="ico type-ico" set:html={icon(typeIcon['활동지'], 20)}></span>
-        <span class="ko">활동지</span>
-        <span class="en">Worksheet</span>
-        <span class="cnt"><b>{byType('활동지').length}</b>개</span>
-      </header>
-      <div class="act-grid">
-        {byType('활동지').map((r) => <ActivityCard r={r} />)}
-        <div class="act-card placeholder"><span>새 활동지 준비 중</span></div>
-      </div>
-    </div>
-
-    <div class="type-section">
-      <header class="type-head">
-        <span class="ico type-ico" set:html={icon(typeIcon['커리큘럼'], 20)}></span>
-        <span class="ko">커리큘럼</span>
-        <span class="en">Curriculum</span>
-        <span class="cnt"><b>{byType('커리큘럼').length}</b>개</span>
-      </header>
-      <div class="act-grid">
-        {byType('커리큘럼').map((r) => <ActivityCard r={r} />)}
-        <div class="act-card placeholder"><span>새 커리큘럼 준비 중</span></div>
-      </div>
-    </div>
-
-    <div class="type-section">
-      <header class="type-head">
-        <span class="ico type-ico" set:html={icon(typeIcon['인터랙티브'], 20)}></span>
-        <span class="ko">인터랙티브</span>
-        <span class="en">Interactive</span>
-        <span class="cnt"><b>{byType('인터랙티브').length}</b>개</span>
-      </header>
-      <div class="act-grid">
-        {byType('인터랙티브').map((r) => <ActivityCard r={r} />)}
-        <div class="act-card placeholder"><span>새 인터랙티브 자료 준비 중</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== footer ===== -->
+<!-- ===== footer (플로팅) ===== -->
 <footer class="ps-footer">
-  <a href="/" class="ps-footer-link">← parcyun studio</a>
+  <button class="ps-footer-coffee" id="ps-coffee"><span class="ico" set:html={icon('coffee', 15)}></span> 커피 사주기</button>
   Designed by
   <span class="ps-signature">parcyun studio</span>
   <a href="https://www.instagram.com/parcyun" class="ps-ig" target="_blank" rel="noopener">
@@ -1029,7 +395,22 @@ section.in-view, .hero.in-view {
   </a>
 </footer>
 
+<!-- 커피 후원 QR 팝업 -->
+<div class="coffee-modal" id="coffee-modal" hidden>
+  <div class="coffee-backdrop" data-coffee-close></div>
+  <div class="coffee-card" role="dialog" aria-modal="true" aria-labelledby="coffee-title">
+    <button class="coffee-close" id="coffee-close" type="button" aria-label="닫기">×</button>
+    <div class="coffee-emoji ico" set:html={icon('coffee', 40)}></div>
+    <h3 class="coffee-title" id="coffee-title">개발자에게 커피 한 잔</h3>
+    <p class="coffee-sub">QR을 스캔해 후원할 수 있어요. 감사합니다!</p>
+    <img class="coffee-qr" src="/images/coffee-qr.png" alt="parcyun studio 후원 QR" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+    <div class="coffee-qr-fallback">QR 이미지를 불러올 수 없습니다.</div>
+    <div class="coffee-label">parcyun studio</div>
+  </div>
+</div>
+
 <script is:inline>
+(function(){var m=document.getElementById('coffee-modal');function o(){m.hidden=false}function c(){m.hidden=true}document.getElementById('ps-coffee').addEventListener('click',o);document.getElementById('coffee-close').addEventListener('click',c);m.addEventListener('click',function(e){if(e.target.hasAttribute('data-coffee-close'))c()});document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!m.hidden)c()});})();
 (function(){
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { document.querySelectorAll('section').forEach(function(el){ el.classList.add('in-view'); }); return; }
   var io = new IntersectionObserver(function(entries){ entries.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -15% 0px', threshold: 0.05 });

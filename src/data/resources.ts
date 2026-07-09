@@ -149,4 +149,4 @@ export const resources: Resource[] = [
 ];
 
 // 활동 타입 순서 (ATLAS GEARS 카테고리 표시 순)
-export const ACTIVITY_TYPES: ResourceType[] = ['게임', '활동지', '커리큘럼', '인터랙티브'];
+export const ACTIVITY_TYPES: ResourceType[] = ['게임', '인터랙티브', '활동지', '커리큘럼'];

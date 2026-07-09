@@ -14,6 +14,7 @@ const PATHS: Record<string, string> = {
   arrowRight: '<line x1="5" y1="12" x2="19" y2="12"/><path d="m13 6 6 6-6 6"/>',
   arrowUpRight: '<path d="M7 17 17 7"/><path d="M8 7h9v9"/>',
   home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/>',
+  coffee: '<path d="M17 8h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M3 8h14v6.5A4.5 4.5 0 0 1 12.5 19h-5A4.5 4.5 0 0 1 3 14.5Z"/><line x1="7" y1="2.5" x2="7" y2="4.5"/><line x1="11" y1="2.5" x2="11" y2="4.5"/>',
 };
 
 export function icon(name: string, size = 22): string {

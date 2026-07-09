@@ -134,7 +134,7 @@ void main(){ vUv=uv; if(morph>0.001&&straddle3(aTriLon,uLonC)){gl_Position=vec4(
   vec3 p=project(uv,position,morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
 // 원본 oceanGrad 정확 재현: 화면공간 radial gradient (cx50% cy42% r75%), stops #0A1322/#060B16/#04060B.
 // gl_FragCoord(디바이스px, 원점=좌하단)라 y=42%(위)→sc.y 0.58. dc.a로 육지(1)/바다(0) 구분.
-const OCEANGRAD=`vec3 oceanGrad(vec2 fc, vec2 res){ vec2 sc=fc/res; float d=clamp(length((sc-vec2(0.5,0.58))/0.75),0.0,1.0);
+const OCEANGRAD=`vec3 oceanGrad(vec2 fc, vec2 res){ vec2 sc=fc/res; float d=clamp(length((sc-vec2(0.5,0.58))/1.5),0.0,1.0);
   vec3 g0=vec3(10.0,19.0,34.0)/255.0,g1=vec3(6.0,11.0,22.0)/255.0,g2=vec3(4.0,6.0,11.0)/255.0;
   return d<0.55?mix(g0,g1,d/0.55):mix(g1,g2,(d-0.55)/0.45);} `;
 const meshFrag=OCEANGRAD+`uniform sampler2D dayTex,nightTex,overlayTex; uniform float sunLon,sunLat,nightBoost,dayNightOn,lens,uLon0,uLat0; uniform vec2 uScreen; varying vec2 vUv;
@@ -300,8 +300,8 @@ export default function GlobeLab(){
       // 격자 세트(중심 offX=0은 항상, 평면 타일용 ±WORLD_W는 gridFlat에). 구/렌즈에선 중심만 → 중복선 없음(#7)
       const IDL=[[180,90],[180,73],[190.5,68],[190.5,65],[192.5,60],[180,53],[180,50],[180,7],[203,7],[203,-9],[188,-13],[180,-16],[180,-47],[180,-90]]; // 실제 날짜변경선 근사(#1)
       const makeGridSet=(offX,stp)=>{const grat=new THREE.Group();
-        for(let lon=-180;lon<180;lon+=stp){const p=[];for(let la=-90;la<=90;la+=3)p.push([lon,la]);grat.add(morphLine(p,0xffffff,0.30,U,offX));} // lon<180: 대척자오선 중복선 제거(#1c)
-        for(let lat=-90+stp;lat<90;lat+=stp){const p=[];for(let lo=-180;lo<=180;lo+=3)p.push([lo,lat]);grat.add(morphLine(p,0xffffff,0.30,U,offX));}
+        for(let lon=-180;lon<180;lon+=stp){const p=[];for(let la=-90;la<=90;la+=3)p.push([lon,la]);grat.add(morphLine(p,0x8A909C,0.5,U,offX));} // lon<180: 대척자오선 중복선 제거(#1c)
+        for(let lat=-90+stp;lat<90;lat+=stp){const p=[];for(let lo=-180;lo<=180;lo+=3)p.push([lo,lat]);grat.add(morphLine(p,0x8A909C,0.5,U,offX));}
         const eqP=[];for(let lo=-180;lo<=180;lo+=3)eqP.push([lo,0]);const eq=makeFatLine(eqP,1.5,0xFF7B7B,0.72,U,uRes,offX);
         const pmP=[];for(let la=-90;la<=90;la+=3)pmP.push([0,la]);const pm=makeFatLine(pmP,1.3,0xFFB270,0.7,U,uRes,offX);
         const dl=makeFatLine(densify(IDL),1.4,0x38E0D0,0.9,U,uRes,offX);
@@ -311,7 +311,7 @@ export default function GlobeLab(){
       const borderMat=(()=>{const pos=[],geo=[],geoB=[];const addRing=(ring)=>{for(let i=0;i<ring.length-1;i++){const a=ring[i],b=ring[i+1];if(Math.abs(a[0]-b[0])>180)continue;const va=lonLatToVec3(a[0],a[1],1.0045),vb=lonLatToVec3(b[0],b[1],1.0045);pos.push(va.x,va.y,va.z,vb.x,vb.y,vb.z);geo.push(a[0],a[1],b[0],b[1]);geoB.push(b[0],b[1],a[0],a[1]);}}; // aGeoB=짝 끝점 → seam 걸친 세그먼트 셰이더 붕괴(러시아·피지 등 lon180 횡단 스미어 방지)
         for(const f of world.features){const g=f.geometry,polys=g.type==='Polygon'?[g.coordinates]:g.coordinates;for(const poly of polys)for(const ring of poly)addRing(ring);}
         const bg=new THREE.BufferGeometry();bg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));bg.setAttribute('aGeo',new THREE.Float32BufferAttribute(geo,2));bg.setAttribute('aGeoB',new THREE.Float32BufferAttribute(geoB,2));
-        const bm=new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:0},uColor:{value:new THREE.Color(0x04060B)},uOp:{value:0.85}},vertexShader:lineVert,fragmentShader:lineFrag});
+        const bm=new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:0},uColor:{value:new THREE.Color(0x04060B)},uOp:{value:0.6}},vertexShader:lineVert,fragmentShader:lineFrag});
         const bls=new THREE.LineSegments(bg,bm);bls.renderOrder=1;scene.add(bls);return bm;})();
       const BORDER_DARK=new THREE.Color(0x04060B),BORDER_LIT=new THREE.Color(0x46586e);
       // #5 벡터 대륙 채움 빌드: 각 폴리곤(외곽+구멍)을 ShapeGeometry(내부 earcut)로 삼각분할 → aGeo/aColor.

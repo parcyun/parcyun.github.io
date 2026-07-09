@@ -4,6 +4,7 @@ import { useWorks } from '../lib/useWorks';
 import { useAdminSession } from '../lib/useAdminSession';
 import { sbDelete } from '../lib/supabase';
 import WorkEditModal from './admin/WorkEditModal';
+import { sanitizeInlineHtml } from '../lib/sanitize';
 
 type StatusFilter = '전체' | 'live' | 'soon';
 const STATUS_TABS: { key: StatusFilter; label: string }[] = [
@@ -124,7 +125,7 @@ export default function WorksFilter() {
                   <div className="work-poster">
                     <span className="status live">Live</span>
                     <span className="pnum">{w.num}</span>
-                    <span className="ptitle" dangerouslySetInnerHTML={{ __html: w.titleHtml }} />
+                    <span className="ptitle" dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(w.titleHtml) }} />
                   </div>
                   <div className="work-body">
                     <span className="work-week">{w.week}</span>
@@ -144,7 +145,7 @@ export default function WorksFilter() {
                   <div className="work-poster">
                     <span className="status soon">Soon</span>
                     <span className="pnum">{w.num}</span>
-                    <span className="ptitle" dangerouslySetInnerHTML={{ __html: w.titleHtml }} />
+                    <span className="ptitle" dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(w.titleHtml) }} />
                   </div>
                   <div className="work-body">
                     <span className="work-week">{w.week}</span>

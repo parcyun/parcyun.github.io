@@ -52,11 +52,12 @@ function buildBase({world,night}){
   for(const [c,feats] of Object.entries(byC)){ctx.beginPath();for(const f of feats)path(f);const col=(CONT[c]||{}).color||'#888';ctx.fillStyle=night?shade(col,-0.6):col;ctx.fill();ctx.lineWidth=0.5;ctx.strokeStyle=night?'rgba(255,255,255,0.06)':'#04060B';ctx.stroke();}
   return rawTex(cv);
 }
-function featherOcean(baseCtx,geom,color,world){
+const OCEAN_LAT_CLIP={pacific:{smin:-60},atlantic:{smin:-60},indian:{smin:-60},southern:{smax:-60}}; // 대양 영역 분할: 개방 3대양은 60°S 위(smin)만, 남극해는 60°S 아래(smax)만 → −60에서 깔끔히 만남(IHO 정의)
+const latRow=(lat)=>RES/4-(RES/(2*Math.PI))*(lat*D2R);                                              // projFor(equirect) 위도→텍스처 y (equator=RES/4, 남쪽일수록 큼)
+function featherOcean(baseCtx,geom,color,world,key){
   // 안개형 페더: 대양색은 폴리곤 깊은 안쪽만 solid, 모든 경계(대양-대양·대양-육지)로 갈수록 배경으로 소멸.
-  // 방법 — solid 마스크에서 ①육지를 빼고(대양-육지 경계 확보: 남극해가 남극 대륙을 안 덮고, 해안선도 함께 페이드)
-  //   ②안쪽으로 erode(마스크를 모든 경계에서 안으로 당김 → 이웃 대양 경계를 넘지 않음: 태평양이 남극해로 침범 방지)
-  //   ③blur(그 경계를 안개처럼 페이드 → 알파 0%로 사라짐). 아래엔 base oceanGrad(배경)이라 색이 배경으로 녹는다.
+  // 방법 — solid 마스크에서 ①육지를 빼고(대양-육지 경계 확보) ②60°S 위/아래로 대양 영역 클립(태평양이 남극해로 −72까지 침범하던 겹침 제거)
+  //   ③안쪽으로 erode(모든 경계에서 안으로) ④blur(그 경계를 안개처럼 알파 0%로). 아래엔 base oceanGrad(배경)이라 색이 배경으로 녹는다.
   // 반자오선(lon180) 래핑: ±W 복사로 캔버스를 주기적으로 만들어 seam 연속 — erode/blur도 wide 마스크 위에서 수행.
   const W=RES,H=RES/2;
   const ER=Math.round(RES/360*1.7);   // 안쪽 침식(~1.7°): 페이드 시작점 + 이웃 대양 경계 넘침 방지
@@ -71,6 +72,9 @@ function featherOcean(baseCtx,geom,color,world){
   if(world){a.globalCompositeOperation='destination-out'; // 육지 제거 → 대양-육지 경계가 마스크 경계가 되어 erode/blur가 함께 페이드
     for(const dx of [-W,0,W]){a.save();a.translate(PAD+dx,0);a.beginPath();for(const f of world.features)ap(f);a.fill();a.restore();}
     a.globalCompositeOperation='source-over';}
+  const clip=OCEAN_LAT_CLIP[key]; // 60°S 위도 클립: erode 전에 잘라 클립 경계도 함께 안개 페이드
+  if(clip){if(clip.smin!=null)a.clearRect(0,Math.round(latRow(clip.smin)),WW,H);   // smin 아래(더 남쪽) 제거 — 개방대양이 남극해 영역 침범 방지
+    if(clip.smax!=null)a.clearRect(0,0,WW,Math.round(latRow(clip.smax)));}          // smax 위(더 북쪽) 제거 — 남극해가 타 대양 영역 침범 방지
   // 3) erode: snapshot(B)을 8방향(대각선은 1/√2)으로 shift해 destination-in — min-filter 근사(마스크를 모든 경계에서 안으로)
   const B=document.createElement('canvas');B.width=WW;B.height=H;B.getContext('2d').drawImage(A,0,0);
   const dg=Math.round(ER/Math.SQRT2);
@@ -82,12 +86,12 @@ function featherOcean(baseCtx,geom,color,world){
   mc.filter=`blur(${BL}px)`;mc.drawImage(A,-PAD,0);mc.filter='none';
   // 5) 색에 마스크 적용(destination-in 1회) — 안쪽 solid, 가장자리 알파 0%
   o.globalCompositeOperation='destination-in';o.drawImage(mk,0,0);o.globalCompositeOperation='source-over';
-  baseCtx.save();baseCtx.globalAlpha=0.62;baseCtx.drawImage(off,0,0);baseCtx.restore();
+  baseCtx.save();baseCtx.globalAlpha=0.68;baseCtx.drawImage(off,0,0);baseCtx.restore(); // 채움 강도(0.62→0.68, 이전보다 ~10%↑)
 }
 
 function buildOverlay({sel,world,oceans,oceansFill}){
   const W=RES,H=RES/2,cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');const path=geoPath(projFor(ctx),ctx);
-  if(sel){ if(sel.type==='ocean'&&oceans[sel.key]) featherOcean(ctx,{type:'Feature',geometry:(oceansFill&&oceansFill[sel.key])||oceans[sel.key]},(OCEAN[sel.key]||{}).color||'#3E8FB0',world); // 채움은 매끈하게 정리된 폴리곤(있으면), 클릭 판정은 원본. world=육지 빼기용(안개 페더)
+  if(sel){ if(sel.type==='ocean'&&oceans[sel.key]) featherOcean(ctx,{type:'Feature',geometry:(oceansFill&&oceansFill[sel.key])||oceans[sel.key]},(OCEAN[sel.key]||{}).color||'#3E8FB0',world,sel.key); // 채움은 매끈하게 정리된 폴리곤(있으면), 클릭 판정은 원본. world=육지 빼기용(안개 페더)
     else if(sel.type==='continent'||sel.type==='country'){
       const drawSel=()=>{ctx.beginPath();for(const f of world.features){const m=sel.type==='continent'?f.properties.c===sel.key:f.properties.n===sel.name;if(m)path(f);}};
       ctx.fillStyle='rgba(3,5,10,0.6)';ctx.fillRect(0,0,W,H);             // 나머지 대륙 dim

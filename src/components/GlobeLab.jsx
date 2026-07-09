@@ -315,11 +315,14 @@ export default function GlobeLab(){
       const tileL=new THREE.Mesh(mesh.geometry,cloneMat(-WORLD_W)),tileR=new THREE.Mesh(mesh.geometry,cloneMat(WORLD_W));
       tileL.frustumCulled=tileR.frustumCulled=false;tileL.visible=tileR.visible=false;scene.add(tileL,tileR);
       let borderClones=null,fillClones=null; // 국경·벡터채움의 ±WORLD_W 클론(아래서 채워짐) — 클론 타일 영역에서도 크리스프 렌더 유지
-      // 평면 seam 패치: uLonC=π 복사본(콘텐츠 동일, seam만 lon180→lon0). 정상상태 평면(uLonC=0)의 lon180 seam 갭을 덮어 검은선·지도 잘림 제거. base 메쉬(바다+선택 오버레이) + 좌우 타일 각각.
-      const patchU=Object.assign({},u,{uLonC:{value:Math.PI}});
+      // 평면 seam 패치: uLonC+π 복사본(콘텐츠 동일, seam만 반대편으로). uLonCPatch는 고정값이 아니라 매 프레임
+      // "center의 현재 uLonC + π"로 갱신되는 라이브 유니폼(아래 루프) — center의 seam이 카메라를 따라 동적으로
+      // 움직여도(파킹) 두 사본이 항상 180° 떨어져 서로의 빈틈을 덮는 관계가 깨지지 않아, 어떤 팬/줌에서도 seam이 안 보임.
+      const uLonCPatch={value:Math.PI};
+      const patchU=Object.assign({},u,{uLonC:uLonCPatch});
       const meshPatch=new THREE.Mesh(mesh.geometry,new THREE.ShaderMaterial({vertexShader:meshVert,fragmentShader:meshFrag,uniforms:patchU,side:THREE.DoubleSide}));
       const clonePatchMat=(off)=>new THREE.ShaderMaterial({vertexShader:cloneVert,fragmentShader:cloneFrag,side:THREE.DoubleSide,transparent:true,
-        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:{value:Math.PI},uOffsetX:{value:off},uCloneAmt,uScreen}});
+        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:uLonCPatch,uOffsetX:{value:off},uCloneAmt,uScreen}});
       const tileLp=new THREE.Mesh(mesh.geometry,clonePatchMat(-WORLD_W)),tileRp=new THREE.Mesh(mesh.geometry,clonePatchMat(WORLD_W));
       meshPatch.frustumCulled=tileLp.frustumCulled=tileRp.frustumCulled=false;meshPatch.visible=tileLp.visible=tileRp.visible=false;scene.add(meshPatch,tileLp,tileRp);
 
@@ -409,8 +412,10 @@ export default function GlobeLab(){
         else if(l>0.5){clR=U.uLon0.value;claR=U.uLat0.value;}                                                   // 렌즈=시선중심(rad)
         else if(m>0.5){clR=controls.target.x/MS;claR=2*Math.atan(Math.exp(controls.target.y/MS))-Math.PI/2;}    // 평면
         else{const fr=camera.position.clone().sub(controls.target).normalize();const g=vec3ToLonLat(rotY(rotX(fr,-U.uRotX.value),-U.uRotY.value));clR=g[0]*D2R;claR=g[1]*D2R;} // 지구본
-        // uLonC는 이제 항상 0 고정(중심 카피)+π 고정(패치 카피)이라 seam이 파킹 없이 상시 이중 커버됨 — clR을 중심 카피의 유효범위(-π,π]로 감싸기만 하면 됨(렌즈 드래그 누적 등으로 clR이 범위 밖이어도 안전).
-        const toLonC=Math.atan2(Math.sin(clR),Math.cos(clR));
+        // seam 파킹(카메라 반대편으로 이동): uLonC를 현재값(fromLonC)에서 목적지(clR)까지 최단호로 전환.
+        // patch(uLonCPatch)가 매 프레임 "center uLonC + π"로 함께 따라가므로(아래 루프) 전환 도중에도 두 사본이
+        // 항상 180° 떨어져 서로의 빈틈을 덮음 — seam이 어디로 움직이든 화면엔 절대 안 보임(예전 검은선 버그 재발 안 함).
+        const fromLonC=U.uLonC.value;let dLonC=clR-fromLonC;dLonC=Math.atan2(Math.sin(dLonC),Math.cos(dLonC));const toLonC=fromLonC+dLonC;
         // 평면행 카메라 타깃은 toLonC 기준(clR과 2πk 차이 가능) → 메쉬 중심과 일치, settle 후 isFlat 랩이 카메라와 함께 재중심화(무점프)
         const tx=(v==='flat'?toLonC:clR)*MS,ty=Math.log(Math.tan(Math.PI/4+THREE.MathUtils.clamp(claR,-1.4,1.4)/2))*MS;
         // #1 자연 전환(스핀·지구본 생성 없음): 해당 항이 화면에 안 보이는 시점에 방향/중심을 즉시 세팅,
@@ -432,8 +437,8 @@ export default function GlobeLab(){
           if(v==='lens') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom/STE,VIEW.lens.zmin,VIEW.lens.zmax);
           else if(v==='globe') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom,VIEW.globe.zmin,VIEW.globe.zmax); // 지구본 월드스케일=1
           else toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom*cosLat/MS,VIEW.flat.zmin,VIEW.flat.zmax); }        // 평면 월드스케일=MS/cos
-        tr={t:0,dur:0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:fromRotY,rotX:fromRotX,lon0:fromLon0,lat0:fromLat0,lonC:0,zoom:camera.zoom,pos:camera.position.clone(),tgt:controls.target.clone()},
-          to:{morph:to.morph,lens:to.lens,rotY:toRotY,rotX:toRotXv,lon0:toLon0,lat0:toLat0,lonC:0,zoom:toZoomv,pos:toPos,tgt:toTgt}};controls.enabled=false;}; // uLonC는 전환 내내 0 고정(패치가 항상 π를 커버) — toLonC(clR 래핑값)는 tx 계산에만 쓰고 uLonC 애니메이션엔 안 씀
+        tr={t:0,dur:0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:fromRotY,rotX:fromRotX,lon0:fromLon0,lat0:fromLat0,lonC:fromLonC,zoom:camera.zoom,pos:camera.position.clone(),tgt:controls.target.clone()},
+          to:{morph:to.morph,lens:to.lens,rotY:toRotY,rotX:toRotXv,lon0:toLon0,lat0:toLat0,lonC:toLonC,zoom:toZoomv,pos:toPos,tgt:toTgt}};controls.enabled=false;}; // uLonC를 fromLonC→toLonC 최단호로 애니메이션(seam이 카메라 반대편을 따라 이동), patch가 매 프레임 동기화되어 항상 안 보임
       const settleView=(v)=>{const p=VIEW[v];controls.enabled=true;controls.enableRotate=p.rotate;controls.enablePan=p.pan;controls.minZoom=p.zmin;controls.maxZoom=p.zmax;
         if(v==='globe'){controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};}
         else if(v==='flat'){controls.mouseButtons={LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN};}
@@ -530,8 +535,9 @@ export default function GlobeLab(){
           if(controls.target.x>WORLD_W/2){controls.target.x-=WORLD_W;camera.position.x-=WORLD_W;}else if(controls.target.x<-WORLD_W/2){controls.target.x+=WORLD_W;camera.position.x+=WORLD_W;}
           const hh=1/camera.zoom, lim=Math.max(0,MAP_HALF-hh);   // 직교: 보이는 월드 반높이
           const cy=THREE.MathUtils.clamp(controls.target.y,-lim,lim), dy=cy-controls.target.y; if(dy){controls.target.y=cy;camera.position.y+=dy;}
-          U.uLonC.value=0; // 정상상태 평면: seam(모프 갭)을 경도 180°(태평양)에 고정 → 육지 안 지남 + oceanGrad 배경이 갭을 바다색으로 채워 검은선 소멸. uLonC는 seam 위치만 바꾸고 콘텐츠 위치는 불변.
+          U.uLonC.value=controls.target.x/MS; // 정상상태 평면: seam을 항상 카메라(팬 중심) 반대편에 파킹 → 화면 시야각(<180°)보다 seam이 항상 더 멀리 있어 안 보임
         }
+        uLonCPatch.value=U.uLonC.value+Math.PI; // patch를 매 프레임 "center uLonC + π"로 동기화 — 전환 중·정상상태 모두, seam이 어디로 움직이든 두 사본이 항상 서로의 빈틈을 덮음
         renderer.render(scene,camera);
         const globeish=U.morph.value<0.5&&U.lens.value<0.5;
         for(const key in labels){const {el,anchor}=labels[key];const w3=projectJS(anchor[0],anchor[1]);let faceOk=true;

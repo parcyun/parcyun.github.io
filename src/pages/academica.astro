@@ -1,6 +1,7 @@
 ---
 import { resources } from '../data/resources';
 import { icon, typeIcon } from '../lib/icons';
+import PsFooter from '../components/PsFooter.astro';
 const lectures = resources.filter((r) => r.category === '강의 자료');
 const subjectEn = {"연수 아카이브":"Training Archive","LLM · Harness Agent":"LLM & Harness","Notion 활용":"Notion"};
 // 카테고리(소분류)별로 나눔 — 등장 순서 유지 (연수 아카이브가 먼저)
@@ -292,8 +293,8 @@ section.in-view, .hero.in-view {
     border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     transition:color .18s,border-color .18s;text-decoration:none}
   .ps-topnav:hover{color:#fff;border-color:rgba(255,255,255,.25)}
-  .ps-back{position:fixed;top:16px;left:20px;z-index:91;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#8C8C8C;cursor:pointer;padding:0;transition:color .18s,border-color .18s}
-  .ps-back:hover{color:#fff;border-color:rgba(255,255,255,.25)}
+  .ps-back{position:fixed;top:14px;left:16px;z-index:91;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:0;padding:6px;color:#8C8C8C;cursor:pointer;line-height:0;transition:color .18s}
+  .ps-back:hover{color:#fff}
   .ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}
   .ico svg{display:block}
 
@@ -332,7 +333,7 @@ section.in-view, .hero.in-view {
 </head>
 <body>
 
-<button type="button" class="ps-back" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}"><span class="ico" set:html={icon('arrowLeft', 18)}></span></button>
+<button type="button" class="ps-back" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}"><span class="ico" set:html={icon('arrowLeft', 20)}></span></button>
 
 <a href="/" class="ps-topnav"><span class="ico" set:html={icon('home', 15)}></span> parcyun studio</a>
 
@@ -384,33 +385,9 @@ section.in-view, .hero.in-view {
 </section>
 
 <!-- ===== footer (플로팅) ===== -->
-<footer class="ps-footer">
-  <button class="ps-footer-coffee" id="ps-coffee"><span class="ico" set:html={icon('coffee', 15)}></span> 커피 사주기</button>
-  Designed by
-  <span class="ps-signature">parcyun studio</span>
-  <a href="https://www.instagram.com/parcyun" class="ps-ig" target="_blank" rel="noopener">
-    <svg class="ps-ig-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4 1 .5.4.8.8 1 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-1 1.4-.4.5-.8.8-1.4 1-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-1-.5-.4-.8-.8-1-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 1-1.4.4-.5.8-.8 1.4-1 .4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.4-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/></svg>
-    @parcyun
-  </a>
-</footer>
+<PsFooter />
 
-<!-- 커피 후원 QR 팝업 -->
-<div class="coffee-modal" id="coffee-modal" hidden>
-  <div class="coffee-backdrop" data-coffee-close></div>
-  <div class="coffee-card" role="dialog" aria-modal="true" aria-labelledby="coffee-title">
-    <button class="coffee-close" id="coffee-close" type="button" aria-label="닫기">×</button>
-    <div class="coffee-emoji ico" set:html={icon('coffee', 40)}></div>
-    <h3 class="coffee-title" id="coffee-title">개발자에게 커피 한 잔</h3>
-    <p class="coffee-sub">QR을 스캔해 후원할 수 있어요. 감사합니다!</p>
-    <img class="coffee-qr" src="/images/coffee-qr.png" alt="parcyun studio 후원 QR" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
-    <div class="coffee-qr-fallback">QR 이미지를 불러올 수 없습니다.</div>
-    <div class="coffee-label">parcyun studio</div>
-  </div>
-</div>
 
-<script is:inline>
-(function(){var m=document.getElementById('coffee-modal');function o(){m.hidden=false}function c(){m.hidden=true}document.getElementById('ps-coffee').addEventListener('click',o);document.getElementById('coffee-close').addEventListener('click',c);m.addEventListener('click',function(e){if(e.target.hasAttribute('data-coffee-close'))c()});document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!m.hidden)c()});})();
-</script>
 <script is:inline>
 (function(){
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { document.querySelectorAll('section').forEach(function(el){ el.classList.add('in-view'); }); return; }

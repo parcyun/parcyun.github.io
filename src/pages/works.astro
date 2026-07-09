@@ -2,6 +2,7 @@
 import WorksFilter from '../components/WorksFilter.tsx';
 import { works } from '../data/works';
 import { icon } from '../lib/icons';
+import PsFooter from '../components/PsFooter.astro';
 ---
 <!DOCTYPE html>
 <html lang="ko">
@@ -420,8 +421,8 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
   .wf-empty-big{font-family:var(--ps-font-en);font-size:18px;font-weight:600;color:#fff;margin:0 0 16px}
   .ps-topnav{position:fixed;top:16px;right:20px;z-index:90;font-family:var(--ps-font-en);font-size:12px;letter-spacing:.04em;color:#8C8C8C;display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:100px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:color .18s,border-color .18s;text-decoration:none}
   .ps-topnav:hover{color:#fff;border-color:rgba(255,255,255,.25)}
-  .ps-back{position:fixed;top:16px;left:20px;z-index:91;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#8C8C8C;cursor:pointer;padding:0;transition:color .18s,border-color .18s}
-  .ps-back:hover{color:#fff;border-color:rgba(255,255,255,.25)}
+  .ps-back{position:fixed;top:14px;left:16px;z-index:91;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:0;padding:6px;color:#8C8C8C;cursor:pointer;line-height:0;transition:color .18s}
+  .ps-back:hover{color:#fff}
   .ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}
   .ico svg{display:block}
 </style>
@@ -429,7 +430,7 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
 
 <body>
 
-<button type="button" class="ps-back" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}"><span class="ico" set:html={icon('arrowLeft', 18)}></span></button>
+<button type="button" class="ps-back" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}"><span class="ico" set:html={icon('arrowLeft', 20)}></span></button>
 
 <a href="/" class="ps-topnav"><span class="ico" set:html={icon('home', 15)}></span> parcyun studio</a>
 
@@ -468,16 +469,7 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
 </section>
 
 <!-- ===== Mandatory parcyun footer ===== -->
-<footer class="ps-footer">
-  Designed by
-  <span class="ps-signature">parcyun studio</span>
-  <a href="https://www.instagram.com/parcyun" class="ps-ig" target="_blank" rel="noopener">
-    <svg class="ps-ig-icon" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4 1 .5.4.8.8 1 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-1 1.4-.4.5-.8.8-1.4 1-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-1-.5-.4-.8-.8-1-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 1-1.4.4-.5.8-.8 1.4-1 .4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.4-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/>
-    </svg>
-    @parcyun
-  </a>
-</footer>
+<PsFooter />
 
 <!-- ===== Entry animation ===== -->
 <script is:inline>

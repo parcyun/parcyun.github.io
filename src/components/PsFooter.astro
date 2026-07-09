@@ -48,8 +48,8 @@ import AdminAuth from './AdminAuth.tsx';
 
 <style>
 .ps-footer{position:static;flex-shrink:0;margin-top:auto;width:100%;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.08)}
-.ps-footer-inner{max-width:1108px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px}
-@media(min-width:768px){.ps-footer-inner{padding:11px 48px}}
+.ps-footer-inner{max-width:1108px;margin:0 auto;padding:16px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px}
+@media(min-width:768px){.ps-footer-inner{padding:18px 48px}}
 .ps-flinks{display:flex;flex-wrap:wrap;align-items:center;gap:0;row-gap:4px}
 .ps-flink{font-family:var(--ps-font-en);font-size:11px;font-weight:400;letter-spacing:.3px;color:var(--ps-text-cinematic-secondary);text-decoration:none;background:transparent;border:0;cursor:pointer;padding:0 10px;margin-right:0;border-right:1px solid rgba(255,255,255,.14);transition:color .18s}
 .ps-flink:last-of-type{border-right:0}
@@ -93,13 +93,14 @@ body{display:flex;flex-direction:column;min-height:100vh}
 <script is:inline>
 (function(){var m=document.getElementById('coffee-modal');if(!m)return;function o(){m.hidden=false}function c(){m.hidden=true}var b=document.getElementById('ps-coffee');if(b)b.addEventListener('click',o);var x=document.getElementById('coffee-close');if(x)x.addEventListener('click',c);m.addEventListener('click',function(e){if(e.target.hasAttribute('data-coffee-close'))c()});document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!m.hidden)c()});})();
 (function(){
-  function setFooterVar(){
+  function setVars(){
     var f = document.querySelector('.ps-footer');
-    if (!f) return;
-    document.documentElement.style.setProperty('--ps-footer-h', f.getBoundingClientRect().height + 'px');
+    if (f) document.documentElement.style.setProperty('--ps-footer-h', f.getBoundingClientRect().height + 'px');
+    var b = document.querySelector('.ps-brand-fixed');
+    if (b) document.documentElement.style.setProperty('--ps-brand-left', b.getBoundingClientRect().left + 'px');
   }
-  setFooterVar();
-  window.addEventListener('resize', setFooterVar);
+  setVars();
+  window.addEventListener('resize', setVars);
 })();
 </script>
 <script is:inline src="/ps-track.js" defer></script>

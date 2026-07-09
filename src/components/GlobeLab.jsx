@@ -60,9 +60,11 @@ function featherOcean(baseCtx,geom,color,world,key){
   //   ③안쪽으로 erode(모든 경계에서 안으로) ④blur(그 경계를 안개처럼 알파 0%로). 아래엔 base oceanGrad(배경)이라 색이 배경으로 녹는다.
   // 반자오선(lon180) 래핑: ±W 복사로 캔버스를 주기적으로 만들어 seam 연속 — erode/blur도 wide 마스크 위에서 수행.
   const W=RES,H=RES/2;
+  const BIG=key==='pacific'||key==='atlantic'||key==='indian'; // 큰 개방대양: 해안 글로우 밴드(깊은 내부 투명). 남극해·북극해는 이미 얇은 밴드라 그대로.
   const ER=Math.round(RES/360*1.7);   // 안쪽 침식(~1.7°): 페이드 시작점 + 이웃 대양 경계 넘침 방지
   const BL=RES/360*2.8;               // 페더 반경(~2.8°): 경계를 배경으로 소멸시키는 안개 프로파일
-  const PAD=Math.ceil(ER+BL*4);       // wide 마스크 좌우 여백(erode 이동 + 블러 지원폭)
+  const RFAR=Math.round(RES/360*14);  // 큰 대양 글로우가 해안에서 안쪽으로 뻗는 폭(~14°). 이보다 깊은 중심은 투명 → 남극해처럼 해안을 감싸는 밴드
+  const PAD=Math.ceil(ER+(BIG?RFAR:0)+BL*4); // wide 마스크 좌우 여백(erode·RFAR 이동 + 블러 지원폭)
   // 1) 색 채움(±W 래핑 복사)
   const off=document.createElement('canvas');off.width=W;off.height=H;const o=off.getContext('2d');const op=geoPath(projFor(o),o);
   o.fillStyle=color;for(const dx of [-W,0,W]){o.save();o.translate(dx,0);o.beginPath();op(geom);o.fill();o.restore();}
@@ -75,12 +77,18 @@ function featherOcean(baseCtx,geom,color,world,key){
   const clip=OCEAN_LAT_CLIP[key]; // 60°S 위도 클립: erode 전에 잘라 클립 경계도 함께 안개 페이드
   if(clip){if(clip.smin!=null)a.clearRect(0,Math.round(latRow(clip.smin)),WW,H);   // smin 아래(더 남쪽) 제거 — 개방대양이 남극해 영역 침범 방지
     if(clip.smax!=null)a.clearRect(0,0,WW,Math.round(latRow(clip.smax)));}          // smax 위(더 북쪽) 제거 — 남극해가 타 대양 영역 침범 방지
-  // 3) erode: snapshot(B)을 8방향(대각선은 1/√2)으로 shift해 destination-in — min-filter 근사(마스크를 모든 경계에서 안으로)
-  const B=document.createElement('canvas');B.width=WW;B.height=H;B.getContext('2d').drawImage(A,0,0);
-  const dg=Math.round(ER/Math.SQRT2);
-  a.globalCompositeOperation='destination-in';
-  for(const [sx,sy] of [[ER,0],[-ER,0],[0,ER],[0,-ER],[dg,dg],[dg,-dg],[-dg,dg],[-dg,-dg]]) a.drawImage(B,sx,sy);
-  a.globalCompositeOperation='source-over';
+  // 3) erode: 마스크의 스냅샷을 8방향(대각선은 1/√2)으로 shift해 destination-in — min-filter 근사(마스크를 모든 경계에서 안으로)
+  const erode8=(R)=>{const S=document.createElement('canvas');S.width=WW;S.height=H;S.getContext('2d').drawImage(A,0,0);
+    const d=Math.round(R/Math.SQRT2);a.globalCompositeOperation='destination-in';
+    for(const [sx,sy] of [[R,0],[-R,0],[0,R],[0,-R],[d,d],[d,-d],[-d,d],[-d,-d]]) a.drawImage(S,sx,sy);
+    a.globalCompositeOperation='source-over';};
+  erode8(ER); // 해안 인셋(색이 해안선에 안 닿게 + 페이드 시작점)
+  // 3b) 큰 개방대양은 해안 글로우 밴드로: 깊은 내부(해안에서 RFAR 이상)를 투명화 → 남극해처럼 해안을 감싸는 표현
+  if(BIG){const INT=document.createElement('canvas');INT.width=WW;INT.height=H;const ic=INT.getContext('2d');ic.drawImage(A,0,0); // A(해안 인셋) 복사
+    const d=Math.round(RFAR/Math.SQRT2);ic.globalCompositeOperation='destination-in';                                          // INT를 RFAR만큼 침식 = 깊은 내부만 남김
+    for(const [sx,sy] of [[RFAR,0],[-RFAR,0],[0,RFAR],[0,-RFAR],[d,d],[d,-d],[-d,d],[-d,-d]]) ic.drawImage(A,sx,sy);
+    ic.globalCompositeOperation='source-over';
+    a.globalCompositeOperation='destination-out';a.drawImage(INT,0,0);a.globalCompositeOperation='source-over';}              // A = 해안링 = A − 깊은내부
   // 4) gaussian blur → W폭으로 crop(여백 덕에 seam 페이드 없음). 이 블러가 가장자리→0% 안개 알파 프로파일.
   const mk=document.createElement('canvas');mk.width=W;mk.height=H;const mc=mk.getContext('2d');
   mc.filter=`blur(${BL}px)`;mc.drawImage(A,-PAD,0);mc.filter='none';

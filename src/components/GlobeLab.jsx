@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { COUNTRY, flagEmoji } from './globeCountryData.js';
+import { countryInfo } from './globeCountryData.js';
 import { STR, MONTHS_I18N } from './globeI18n.js';
 import { GLSL, STRADDLE, LENSCLIP, meshVert, cloneVert, OCEANGRAD, meshFrag, cloneFrag, lineVert, lineFrag, fatLineVert, fatLineFrag, fillVert, fillFrag } from './globeShaders.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -673,16 +673,16 @@ export default function GlobeLab(){
     if(sel.type==='ocean'){const o=OCEAN[sel.key];info={kind:'ocean',color:o.color,title:EN?o.en:o.ko,sub:EN?o.ko:o.en,fact:o.fact};}
     else if(sel.type==='continent'){const c=CONT[sel.key];info={kind:'continent',color:c.color,title:EN?c.en:c.ko,sub:EN?c.ko:c.en,fact:c.fact};}
     else { // 국가
-      const cont=CONT[sel.key]||{}; const d=COUNTRY[sel.name];
+      const cont=CONT[sel.key]||{}; const d=countryInfo(sel.name,lang); // 이중언어 해석(globeCountryData)
       const contKo=cont.ko?`${cont.ko}`:''; const contEn=cont.en?cont.en.split(' ')[0]:'';
       info={kind:'country',color:cont.color||'#888',
-        flag:d?flagEmoji(d.iso2):'',
-        title:d?(EN?d.en:d.ko):sel.name,
-        sub:d?(EN?d.ko:d.en):sel.name,
+        flag:d?d.flag:'',
+        title:d?d.name:sel.name,
+        sub:d?d.official:sel.name,
         contLabel:EN?(contEn?`${contEn} · `:''):(contKo?`${contKo} · `:''),
-        langs:d&&d.langs?d.langs.slice(0,3):[],
+        langs:d?d.langs:[],
         gov:d?d.gov:'', econ:d?d.econ:'',
-        desc:d?d.desc:(cont.ko?`${cont.ko} 대륙의 나라예요.`:'')};
+        desc:d?d.desc:(EN?(cont.en?`A country in ${cont.en.split(' ')[0]}.`:''):(cont.ko?`${cont.ko} 대륙의 나라예요.`:''))};
     }
   }
 

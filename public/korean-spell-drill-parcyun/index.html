@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>맞춤법 고치기 — Arcade Bold v2.1.1 · parcyun studio</title>
+<title>맞춤법 고치기 — Arcade Bold v2.1.2 · parcyun studio</title>
 <meta name="description" content="틀린 문장을 바르게 고쳐 타이핑하는 콤보형 맞춤법·문법 드릴 게임. 한국어·영어(북미) 모드. Designed by parcyun studio.">
 <!-- 공유 미리보기 (게임 첫 화면 커버) -->
 <meta property="og:type" content="website">
@@ -353,7 +353,7 @@
 <div class="lightning-flash" id="flash"></div>
 <div class="float-tag" id="float-tag"></div>
 <div id="version-tip">
-  <b id="version-tip-title">v2.1.1 업데이트</b>
+  <b id="version-tip-title">v2.1.2 업데이트</b>
   <ul id="version-tip-list">
     <li>문항 대폭 확충 — 한국어·영어 각 1,000문항으로 확대</li>
     <li>초급 난이도 재배치 — 짧고 자주 쓰는 문장 위주로 개선</li>
@@ -362,38 +362,25 @@
 </div>
 
 <div class="app">
-  <div class="topbar">
-    <div class="left">
-      <div class="logo">
-        <span class="dot"></span> SPELL DRILL // v2.1.1
-        <span class="version-note" tabindex="0">
-          <span class="vq">i</span>
-        </span>
-      </div>
-      <nav class="topnav" aria-label="돌아가기">
-        <a href="/atlas-gears/">← ATLAS GEARS</a>
-        <a href="/">← parcyun studio</a>
-      </nav>
-    </div>
-    <div class="right">
-      <a class="topbar-link" href="https://tt.hancomtaja.com/ko" target="_blank" rel="noopener">한컴타자연습 ↗</a>
-      <div class="toggle lang-toggle" id="lang-toggle">
-        <button class="on" data-lang="ko">한국어</button>
-        <button data-lang="en">EN</button>
-      </div>
-      <button class="sound-toggle on" id="sound-toggle"><span class="icon"></span><span id="sound-label">SOUND ON</span></button>
-      <span>parcyun studio <span class="k">// arcade bold</span></span>
-    </div>
-  </div>
-
   <div class="stage">
 
     <section class="screen active" id="home">
-      <div class="marquee">
-        <span class="pill" id="marquee-pill">★ Korean Orthography</span>
-      </div>
       <h1 class="hero-title"><span class="y" id="hero-y">맞춤법</span> <span class="stroke" id="hero-stroke">고치기</span></h1>
       <p class="hero-sub" id="hero-sub">› 위에 틀린 문장이 뜨면, 아래에 정확한 문장을 처음부터 타이핑해서 ENTER. 콤보를 쌓아 최고기록을 부숴라.</p>
+
+      <div class="hero-meta">
+        <div class="logo"><span class="dot"></span> SPELL DRILL // v2.1.2
+          <span class="version-note" tabindex="0"><span class="vq">i</span></span>
+        </div>
+        <div class="hero-meta-right">
+          <a class="topbar-link" href="https://tt.hancomtaja.com/ko" target="_blank" rel="noopener">한컴타자연습 ↗</a>
+          <div class="toggle lang-toggle" id="lang-toggle">
+            <button class="on" data-lang="ko">한국어</button>
+            <button data-lang="en">EN</button>
+          </div>
+          <button class="sound-toggle on" id="sound-toggle"><span class="icon"></span><span id="sound-label">SOUND ON</span></button>
+        </div>
+      </div>
 
       <div class="ctrl-grid">
         <div class="ctrl">
@@ -513,18 +500,15 @@
 
   </div>
 
-  <div class="foot">
-    <div class="foot-actions">
-      <a class="foot-btn" href="https://parcyun.github.io/" target="_blank" rel="noopener" id="foot-more">더 많은 자료 보러가기 ↗</a>
-      <button class="foot-btn" type="button" id="foot-report">버그 · 개선 아이디어 제보 ✉</button>
-      <button class="foot-btn coffee-trigger" type="button" id="foot-coffee">☕ 개발자에게 커피 사주기</button>
-    </div>
-    <div class="foot-credit">
-      Designed by parcyun studio
-      <span class="sep">//</span>
-      <a href="https://www.instagram.com/parcyun" target="_blank" rel="noopener">@parcyun</a>
-    </div>
-  </div>
+  <footer class="ps-footer">
+    <button type="button" class="ps-footer-coffee coffee-trigger" id="foot-coffee">☕ 커피 사주기</button>
+    <button type="button" class="ps-footer-report" id="foot-report">제보 ✉</button>
+    Designed by <span class="ps-signature">parcyun studio</span>
+    <a href="https://www.instagram.com/parcyun" class="ps-ig" target="_blank" rel="noopener">
+      <svg class="ps-ig-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4 1 .5.4.8.8 1 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-1 1.4-.4.5-.8.8-1.4 1-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-1-.5-.4-.8-.8-1-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 1-1.4.4-.5.8-.8 1.4-1 .4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.4-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/></svg>
+      @parcyun
+    </a>
+  </footer>
 </div>
 
 <!-- 커피 후원 QR 팝업 -->
@@ -11180,7 +11164,7 @@ document.addEventListener('keydown',e=>{
 /* ────────────────────────── i18n ────────────────────────── */
 const I18N = {
   ko: {
-    docTitle: '맞춤법 고치기 — Arcade Bold v2.1.1 · parcyun studio',
+    docTitle: '맞춤법 고치기 — Arcade Bold v2.1.2 · parcyun studio',
     marqueePill: '★ Korean Orthography',
     heroY: '맞춤법', heroStroke: '고치기',
     heroSub: '› 위에 틀린 문장이 뜨면, 아래에 정확한 문장을 처음부터 타이핑해서 ENTER. 콤보를 쌓아 최고기록을 부숴라.',
@@ -11193,8 +11177,8 @@ const I18N = {
     homeBtn: '홈', clearRecordsBtn: '기록 초기화', backHomeBtn: '홈으로',
     confirmClear: '모든 기록을 지울까요?',
     spamTitle: '너무 빨라요!', spamSub: '제출·패스를 너무 빠르게 연타하고 있어요. 문장을 읽고 천천히 진행해 주세요.', spamBlackout: '잠시 멈춰 주세요',
-    footMore: '더 많은 자료 보러가기 ↗', footReport: '버그 · 개선 아이디어 제보 ✉',
-    footCoffee: '☕ 개발자에게 커피 사주기', shareResultBtn: '결과 이미지 저장',
+    footMore: '더 많은 자료 보러가기 ↗', footReport: '제보 ✉',
+    footCoffee: '☕ 커피 사주기', shareResultBtn: '결과 이미지 저장',
     coffeeTitle: '개발자에게 커피 한 잔', coffeeSub: 'QR을 스캔해 후원할 수 있어요. 감사합니다!',
     coffeeFallback: 'QR 이미지를 불러올 수 없습니다.',
     reportTitle: '버그 · 개선 아이디어 제보', reportSub: '아래 메일 주소로 자유롭게 보내주세요. 감사합니다!',
@@ -11202,7 +11186,7 @@ const I18N = {
     resultLabels: { correct:'맞힌 개수', attempts:'시도', combo:'최고 콤보', time:'클리어 시간' },
     bestLabels: { easy:'초급 best', med:'중급 best', hard:'고급 best', solved:'누적 정답' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
-    versionTitle: 'v2.1.1 업데이트',
+    versionTitle: 'v2.1.2 업데이트',
     versionItems: [
       '문항 대폭 확충 — 한국어·영어 각 1,000문항으로 확대',
       '초급 난이도 재배치 — 짧고 자주 쓰는 문장 위주로 개선',
@@ -11210,7 +11194,7 @@ const I18N = {
     ]
   },
   en: {
-    docTitle: 'Grammar Fixer — Arcade Bold v2.1.1 · parcyun studio',
+    docTitle: 'Grammar Fixer — Arcade Bold v2.1.2 · parcyun studio',
     marqueePill: '★ American English',
     heroY: 'Grammar', heroStroke: 'Fixer',
     heroSub: '› When the wrong sentence appears above, type the correct sentence from scratch below and hit ENTER. Chain combos to smash your high score.',
@@ -11223,8 +11207,8 @@ const I18N = {
     homeBtn: 'Home', clearRecordsBtn: 'Clear Records', backHomeBtn: 'Back Home',
     confirmClear: 'Clear all records?',
     spamTitle: 'Too fast!', spamSub: "You're hitting Submit/Skip way too fast. Read the sentence and slow down.", spamBlackout: 'Take a short break',
-    footMore: 'Explore More Resources ↗', footReport: 'Report a Bug · Idea ✉',
-    footCoffee: '☕ Buy the dev a coffee', shareResultBtn: 'Save Result Image',
+    footMore: 'Explore More Resources ↗', footReport: 'Report ✉',
+    footCoffee: '☕ Buy a coffee', shareResultBtn: 'Save Result Image',
     coffeeTitle: 'Buy the dev a coffee', coffeeSub: 'Scan the QR to send your support. Thank you!',
     coffeeFallback: 'Could not load the QR image.',
     reportTitle: 'Report a Bug · Idea', reportSub: 'Send it to the email below anytime. Thank you!',
@@ -11232,7 +11216,7 @@ const I18N = {
     resultLabels: { correct:'Correct', attempts:'Attempts', combo:'Max Combo', time:'Clear Time' },
     bestLabels: { easy:'Beginner Best', med:'Intermediate Best', hard:'Advanced Best', solved:'Total Solved' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
-    versionTitle: 'v2.1.1 Update',
+    versionTitle: 'v2.1.2 Update',
     versionItems: [
       'Major expansion — 1,000 items each for Korean & English',
       'Beginner level rebalanced — shorter, everyday sentences',
@@ -11247,7 +11231,6 @@ function setLanguage(lang){
   document.documentElement.lang = lang;
   const t = I18N[lang];
   document.title = t.docTitle;
-  $('#marquee-pill').textContent = t.marqueePill;
   $('#hero-y').textContent = t.heroY;
   $('#hero-stroke').textContent = t.heroStroke;
   $('#hero-sub').textContent = t.heroSub;
@@ -11265,7 +11248,6 @@ function setLanguage(lang){
   $('#back-home-text').textContent = t.homeBtn;
   $('#rank-clear-text').textContent = t.clearRecordsBtn;
   $('#rank-back-text').textContent = t.backHomeBtn;
-  $('#foot-more').textContent = t.footMore;
   $('#foot-report').textContent = t.footReport;
   $('#foot-coffee').textContent = t.footCoffee;
   $('#share-result-text').textContent = t.shareResultBtn;
@@ -11303,6 +11285,26 @@ function setLanguage(lang){
 <script src="/share-widget.js" defer></script>
 <script src="/visitor-counter.js" defer></script>
 <button type="button" id="ps-back-btn" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}" style="position:fixed;top:14px;left:14px;z-index:99999;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#8C8C8C;cursor:pointer;padding:0" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.28)'" onmouseout="this.style.color='#8C8C8C';this.style.borderColor='rgba(255,255,255,.12)'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><path d="m11 6-6 6 6 6"/></svg></button>
-<style>.topnav{display:none!important}.topbar .left{padding-left:50px}@media(max-width:600px){.topbar .left{padding-left:46px}}</style>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&display=swap');
+.topnav{display:none!important}
+.hero-meta{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:22px 0 2px}
+.hero-meta-right{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.hero-meta .logo{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.hero-meta .logo .dot{width:10px;height:10px;background:var(--amber);box-shadow:0 0 12px var(--amber)}
+.hero-meta .topbar-link,.hero-meta .sound-toggle,.hero-meta .lang-toggle{height:34px}
+.hero-meta .lang-toggle button{height:100%;padding-top:0;padding-bottom:0}
+@media(max-width:600px){.hero-meta{gap:10px}.hero-meta-right{gap:8px}}
+/* 하단 플로팅(메인 ps-footer 동일 스타일) */
+.ps-footer{position:fixed;bottom:16px;right:20px;font-family:'Montserrat',sans-serif;font-weight:300;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:8px;z-index:9999;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:6px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.08)}
+.ps-signature{font-family:'Covered By Your Grace',cursive;font-size:15px;color:var(--amber);line-height:1}
+.ps-footer-coffee{font-family:'Montserrat',sans-serif;font-size:11px;color:var(--amber);background:transparent;border:0;padding:0 10px 0 0;margin-right:2px;border-right:1px solid rgba(255,255,255,.14);cursor:pointer}
+.ps-footer-report{font-family:'Montserrat',sans-serif;font-size:11px;color:var(--muted);background:transparent;border:0;padding:0 10px 0 0;margin-right:2px;border-right:1px solid rgba(255,255,255,.14);cursor:pointer}
+.ps-footer-coffee:hover,.ps-footer-report:hover{color:var(--amber)}
+.ps-ig{display:inline-flex;align-items:center;gap:3px;color:inherit;text-decoration:none;margin-left:2px}
+.ps-ig:hover{color:var(--amber)}
+.ps-ig-icon{width:10px;height:10px;vertical-align:middle}
+@media(max-width:600px){.ps-footer{bottom:12px;right:12px;font-size:10px;gap:6px}}
+</style>
 </body>
 </html>

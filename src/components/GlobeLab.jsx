@@ -709,6 +709,7 @@ export default function GlobeLab(){
         <label className="tg tg-sep"><input type="checkbox" checked={sat} onChange={e=>setSat(e.target.checked)} /><span>{T.sat}</span></label>
         <label className="tg"><input type="checkbox" checked={dayNight} onChange={e=>setDayNight(e.target.checked)} /><span>{T.dayNight}</span></label>
         <div className="lang-seg tg-sep"><span className="lang-lbl">{T.langLabel}</span><div className="lang-btns"><button className={lang==='ko'?'on':''} onClick={()=>setLang('ko')}>한국어</button><button className={lang==='en'?'on':''} onClick={()=>setLang('en')}>ENG</button></div></div>
+        <a className="earth-link tg-sep" href="https://earth.google.com/web/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18"/></svg><span>{T.earth}</span><span className="earth-ext">↗</span></a>
         </div>
       </div>
       {/* #4 대륙/대양 상자 + 국가 카드: 우상단 고정 스택. 상자 접으면 아래 국가 카드가 따라 올라감 */}
@@ -832,6 +833,10 @@ export default function GlobeLab(){
         .lang-btns{margin-left:auto;display:flex;gap:2px;background:var(--surface-2);border-radius:8px;padding:2px}
         .lang-btns button{border:0;background:transparent;color:var(--text-2);font-family:var(--font-kr);font-size:11px;font-weight:500;padding:3px 9px;border-radius:6px;cursor:pointer;transition:all .16s var(--ease)}
         .lang-btns button.on{background:var(--ps-primary);color:#0A0C10;font-weight:600}
+        .earth-link{display:flex;align-items:center;gap:8px;margin-top:8px;border-top:1px solid var(--border);padding-top:9px;color:var(--text);font-size:12px;font-weight:400;text-decoration:none;cursor:pointer;transition:color .16s var(--ease)}
+        .earth-link svg{color:var(--ps-primary);flex-shrink:0}
+        .earth-link .earth-ext{margin-left:auto;color:var(--text-2);font-size:11px}
+        .earth-link:hover{color:var(--ps-primary)}
         .legend-cols{display:flex;gap:16px}.legend-col{display:flex;flex-direction:column;gap:6px;min-width:104px}
         .legend h4{font-family:var(--font-en);font-size:9px;letter-spacing:.22em;color:var(--text-2);font-weight:600;text-transform:uppercase;margin-bottom:3px}
         .chip{display:flex;align-items:center;gap:9px;cursor:pointer;border:none;background:none;padding:3px 4px;border-radius:8px;width:100%;text-align:left;transition:background .2s}

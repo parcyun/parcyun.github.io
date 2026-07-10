@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { sbInsert, sbUpdate } from '../../lib/supabase';
+import { adminSaveWork } from '../../lib/adminPw';
 import type { Work, WorkStatus } from '../../data/works';
 
 interface Props {
-  accessToken: string;
+  pw: string;
   initial?: Work;
   nextNum: string;
   onClose: () => void;
   onSaved: () => void;
 }
 
-export default function WorkEditModal({ accessToken, initial, nextNum, onClose, onSaved }: Props) {
+export default function WorkEditModal({ pw, initial, nextNum, onClose, onSaved }: Props) {
   const isEdit = !!initial;
   const [num] = useState(initial?.num || nextNum);
   const [title, setTitle] = useState(initial?.title || '');
@@ -50,11 +50,8 @@ export default function WorkEditModal({ accessToken, initial, nextNum, onClose, 
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
     };
     try {
-      if (isEdit) {
-        await sbUpdate('works', `?num=eq.${encodeURIComponent(num)}`, payload, accessToken);
-      } else {
-        await sbInsert('works', { num, sort: Number(num) * 10 || 999, ...payload }, accessToken);
-      }
+      const row = isEdit ? { num, ...payload } : { num, sort: Number(num) * 10 || 999, ...payload };
+      await adminSaveWork(pw, row);
       onSaved();
       onClose();
     } catch (e: any) {

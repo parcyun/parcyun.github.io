@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { sbInsert, sbUpdate } from '../../lib/supabase';
+import { adminSaveResource } from '../../lib/adminPw';
 import type { Category, Resource, ResourceType } from '../../data/resources';
 
 const TYPES_BY_CATEGORY: Record<Category, ResourceType[]> = {
   '강의 자료': ['강의', '실습', '가이드', '아카이브'],
-  '교육 활동 자료': ['게임', '활동지', '커리큘럼', '인터랙티브'],
+  '교육 활동 자료': ['게임', '활동지', '커리큘럼', '인터랙티브', '수업 보조 도구'],
 };
 
 function slugify(title: string): string {
@@ -18,13 +18,13 @@ function slugify(title: string): string {
 
 interface Props {
   category: Category;
-  accessToken: string;
+  pw: string;
   initial?: Resource;
   onClose: () => void;
   onSaved: () => void;
 }
 
-export default function ResourceEditModal({ category, accessToken, initial, onClose, onSaved }: Props) {
+export default function ResourceEditModal({ category, pw, initial, onClose, onSaved }: Props) {
   const isEdit = !!initial;
   const [id] = useState(initial?.id || '');
   const [title, setTitle] = useState(initial?.title || '');
@@ -72,11 +72,8 @@ export default function ResourceEditModal({ category, accessToken, initial, onCl
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
     };
     try {
-      if (isEdit) {
-        await sbUpdate('resources', `?id=eq.${encodeURIComponent(id)}`, payload, accessToken);
-      } else {
-        await sbInsert('resources', { id: slugify(title), sort: 999, ...payload }, accessToken);
-      }
+      const row = isEdit ? { id, ...payload } : { id: slugify(title), sort: 999, ...payload };
+      await adminSaveResource(pw, row);
       onSaved();
       onClose();
     } catch (e: any) {

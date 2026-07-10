@@ -3,7 +3,7 @@
 export type Category = '강의 자료' | '교육 활동 자료';
 // 활동 타입: 게임 · 활동지 · 커리큘럼 · 인터랙티브
 // 강의 타입: 강의 · 실습 · 가이드 · 아카이브
-export type ResourceType = '게임' | '활동지' | '커리큘럼' | '인터랙티브' | '강의' | '실습' | '가이드' | '아카이브';
+export type ResourceType = '게임' | '활동지' | '커리큘럼' | '인터랙티브' | '수업 보조 도구' | '강의' | '실습' | '가이드' | '아카이브';
 
 export interface Resource {
   id: string;
@@ -153,7 +153,7 @@ export const resources: Resource[] = [
     url: 'https://kocoafab.cc/edu/kocomate',
     external: true,
     category: '교육 활동 자료',
-    type: '인터랙티브',
+    type: '수업 보조 도구',
     subject: '수업 도구',
     thumb: '🧰',
     lid: 'Tool · Teaching',
@@ -165,4 +165,4 @@ export const resources: Resource[] = [
 ];
 
 // 활동 타입 순서 (ATLAS GEARS 카테고리 표시 순)
-export const ACTIVITY_TYPES: ResourceType[] = ['게임', '인터랙티브', '활동지', '커리큘럼'];
+export const ACTIVITY_TYPES: ResourceType[] = ['게임', '인터랙티브', '활동지', '커리큘럼', '수업 보조 도구'];

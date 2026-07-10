@@ -1,57 +1,75 @@
 import { useEffect, useState } from 'react';
-import { supabase, ADMIN_EMAIL, isAdminEmail } from '../lib/supabaseClient';
+import { getAdminPw, setAdminPw, clearAdminPw, passwordExists, checkPassword, setPassword } from '../lib/adminPw';
 
-// /admin 비밀번호 로그인 — 이메일 매직링크 대체.
-// 고정 관리자 계정(ADMIN_EMAIL)에 비밀번호로 로그인 → Supabase 세션(RLS 통과) 확보.
-// 세션은 localStorage에 저장돼 전 페이지·게이트가 공유한다.
+// /admin 비밀번호 로그인 — 이메일/계정 없음.
+// 최초 방문(비번 미설정) 시엔 "비밀번호 설정" 폼, 그 후엔 "비밀번호 입력" 폼.
 export default function AdminLogin() {
-  const [email, setEmail] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [exists, setExists] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [pw, setPw] = useState('');
-  const [status, setStatus] = useState<'idle' | 'sending' | 'error'>('idle');
+  const [pw2, setPw2] = useState('');
+  const [status, setStatus] = useState<'idle' | 'busy'>('idle');
   const [err, setErr] = useState('');
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => { setEmail(data.session?.user?.email ?? null); setReady(true); });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setEmail(s?.user?.email ?? null));
-    return () => sub.subscription.unsubscribe();
+    (async () => {
+      setLoggedIn(!!getAdminPw());
+      setExists(await passwordExists());
+      setReady(true);
+    })();
   }, []);
 
-  async function login(e: React.FormEvent) {
-    e.preventDefault();
-    setStatus('sending'); setErr('');
-    const { error } = await supabase.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pw });
-    if (error) {
-      setStatus('error');
-      setErr(/Invalid login/i.test(error.message) ? '비밀번호가 틀렸어요.' : error.message);
-    } else {
-      setStatus('idle'); setPw('');
-    }
+  async function doLogin(e: React.FormEvent) {
+    e.preventDefault(); setErr(''); setStatus('busy');
+    const ok = await checkPassword(pw);
+    setStatus('idle');
+    if (ok) { setAdminPw(pw); setLoggedIn(true); setPw(''); }
+    else setErr('비밀번호가 올바르지 않아요.');
   }
-  async function logout() { await supabase.auth.signOut(); }
-
-  const isAdmin = isAdminEmail(email);
+  async function doSet(e: React.FormEvent) {
+    e.preventDefault(); setErr('');
+    if (pw.length < 6) { setErr('비밀번호는 6자 이상이어야 해요.'); return; }
+    if (pw !== pw2) { setErr('두 비밀번호가 달라요.'); return; }
+    setStatus('busy');
+    try { await setPassword('', pw); setAdminPw(pw); setLoggedIn(true); setExists(true); }
+    catch (ex: any) { setErr(ex?.message || '설정에 실패했어요.'); }
+    finally { setStatus('idle'); }
+  }
+  function logout() { clearAdminPw(); setLoggedIn(false); setPw(''); setPw2(''); }
 
   return (
     <div className="al">
       {!ready ? (
         <p className="al-muted">확인 중…</p>
-      ) : isAdmin ? (
+      ) : loggedIn ? (
         <div className="al-in">
           <div className="al-badge">● 관리자 로그인됨</div>
-          <p className="al-muted">라이브 페이지로 가서 카드의 수정·삭제·＋추가 버튼으로 편집하세요. (인라인 편집은 다음 단계에서 추가됩니다.)</p>
+          <p className="al-muted">라이브 페이지로 가서 카드의 수정·삭제·＋추가로 편집하세요. (텍스트 인라인 편집은 다음 단계에서 추가됩니다.)</p>
           <div className="al-links">
             <a className="al-go" href="/atlas-gears/">교육 활동 자료 편집 →</a>
             <a className="al-go" href="/academica/">강의 자료 편집 →</a>
             <a className="al-go" href="/works/">Works 편집 →</a>
           </div>
+          <div className="al-tools">
+            <span className="al-tools-label">관리자 도구</span>
+            <a className="al-tool" href="/dashboard.html">업무 대시보드 ↗</a>
+          </div>
           <button type="button" className="al-out" onClick={logout}>로그아웃</button>
         </div>
+      ) : !exists ? (
+        <form className="al-form" onSubmit={doSet}>
+          <p className="al-muted">최초 접속입니다. 관리자 비밀번호를 설정하세요.</p>
+          <input className="al-input" type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoFocus autoComplete="new-password" placeholder="새 비밀번호 (6자 이상)" />
+          <input className="al-input" type="password" value={pw2} onChange={(e) => setPw2(e.target.value)} autoComplete="new-password" placeholder="비밀번호 확인" />
+          <button className="al-submit" type="submit" disabled={status === 'busy' || !pw}>{status === 'busy' ? '설정 중…' : '비밀번호 설정하고 입장'}</button>
+          {err && <p className="al-err">{err}</p>}
+        </form>
       ) : (
-        <form className="al-form" onSubmit={login}>
+        <form className="al-form" onSubmit={doLogin}>
           <label className="al-label">관리자 비밀번호</label>
           <input className="al-input" type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoFocus autoComplete="current-password" placeholder="비밀번호" />
-          <button className="al-submit" type="submit" disabled={status === 'sending' || !pw}>{status === 'sending' ? '로그인 중…' : '로그인'}</button>
+          <button className="al-submit" type="submit" disabled={status === 'busy' || !pw}>{status === 'busy' ? '확인 중…' : '입장'}</button>
           {err && <p className="al-err">{err}</p>}
         </form>
       )}
@@ -72,6 +90,10 @@ export default function AdminLogin() {
         .al-links{display:flex;flex-direction:column;gap:8px}
         .al-go{font-family:var(--ps-font-body);font-size:14px;font-weight:600;color:#fff;background:var(--ps-surface-cinematic-1);border:1px solid var(--ps-surface-cinematic-3);border-radius:10px;padding:12px 16px;text-decoration:none;transition:border-color .18s}
         .al-go:hover{border-color:var(--ps-primary);color:var(--ps-primary)}
+        .al-tools{display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid var(--ps-surface-cinematic-3)}
+        .al-tools-label{font-family:var(--ps-font-en);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ps-text-cinematic-secondary)}
+        .al-tool{font-family:var(--ps-font-body);font-size:13px;font-weight:500;color:var(--ps-text-cinematic-secondary);text-decoration:none;transition:color .18s}
+        .al-tool:hover{color:var(--ps-primary)}
         .al-out{align-self:flex-start;font-family:var(--ps-font-en);font-size:12px;color:var(--ps-text-cinematic-secondary);background:transparent;border:1px solid var(--ps-surface-cinematic-3);border-radius:100px;padding:8px 16px;cursor:pointer;transition:color .18s,border-color .18s}
         .al-out:hover{color:#fff;border-color:rgba(255,255,255,.3)}
       `}</style>

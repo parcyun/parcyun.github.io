@@ -8,25 +8,25 @@
 <!-- 관리자 전용 게이트: 관리자 세션이 아니면 콘텐츠를 감추고 안내로 대체. 확인 전엔 렌더 숨김(fail-closed). -->
 <script>document.documentElement.style.visibility='hidden'</script>
 <script type="module">
-  const ADMIN='pen.layered@gmail.com';
   const show=()=>{document.documentElement.style.visibility=''};
   const deny=()=>{document.documentElement.style.visibility='';document.body.innerHTML='<div style="min-height:100vh;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:32px;background:#000;color:#fff;font-family:-apple-system,Pretendard,sans-serif"><div style="font-family:\'Covered By Your Grace\',cursive;font-size:40px;color:#FFB11A">parcyun studio</div><h1 style="font-size:22px;font-weight:600;margin:0">관리자 전용 페이지</h1><p style="color:#8C8C8C;font-size:14px;max-width:360px;line-height:1.7;margin:0">이 페이지는 parcyun studio 관리자만 볼 수 있어요. 메인에서 관리자로 로그인한 뒤 다시 열어주세요.</p><a href="/" style="margin-top:8px;background:#FFB11A;color:#000;font-weight:600;font-size:14px;padding:12px 22px;border-radius:100px;text-decoration:none">홈으로 →</a></div>'};
   let done=false; const finish=(ok)=>{if(done)return;done=true;ok?show():deny();};
-  setTimeout(()=>finish(false),6500);
-  try{
-    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-    const sb=createClient('https://myeouecgpjxcddemexcg.supabase.co','sb_publishable_qHxQM-Z6vVAk9YKMluyFSw_0_fo9sKY');
-    const { data } = await sb.auth.getSession();
-    const isAdmin=(data.session?.user?.email||'').toLowerCase()===ADMIN;
-    if(isAdmin){
-      // 실명은 관리자 세션에서만 mongdang_people(RLS)로 채운다. 공개 HTML엔 토큰만 존재.
-      try{
-        const { data: people } = await sb.from('mongdang_people').select('id,name');
-        if(people){ const m={}; people.forEach(p=>{m[p.id]=p.name;}); document.querySelectorAll('.pn[data-p]').forEach(el=>{ el.textContent = m[el.getAttribute('data-p')] || el.textContent; }); }
-      }catch(e){}
-    }
-    finish(isAdmin);
-  }catch(e){ finish(false); }
+  setTimeout(()=>finish(false),6000);
+  // 비밀번호-시크릿 모델: sessionStorage의 관리자 비번을 서버 RPC(admin_check)로 검증.
+  const SUP='https://myeouecgpjxcddemexcg.supabase.co', KEY='sb_publishable_qHxQM-Z6vVAk9YKMluyFSw_0_fo9sKY';
+  const pw=(()=>{try{return sessionStorage.getItem('ps_admin_pw')}catch(e){return null}})();
+  const rpc=(fn,body)=>fetch(SUP+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.ok?r.json():null);
+  (async()=>{
+    if(!pw){ finish(false); return; }
+    try{
+      const ok = await rpc('admin_check',{p_pw:pw});
+      if(ok===true){
+        // 실명은 관리자 인증 후 admin_get_people RPC로만 받아 채운다. 공개 HTML엔 토큰만 존재.
+        try{ const people=await rpc('admin_get_people',{p_pw:pw}); if(Array.isArray(people)){ const m={}; people.forEach(p=>{m[p.id]=p.name;}); document.querySelectorAll('.pn[data-p]').forEach(el=>{ el.textContent = m[el.getAttribute('data-p')] || el.textContent; }); } }catch(e){}
+        finish(true);
+      } else finish(false);
+    }catch(e){ finish(false); }
+  })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

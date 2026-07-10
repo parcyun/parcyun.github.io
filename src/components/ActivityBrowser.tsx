@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import type { Category, Resource } from '../data/resources';
 import { icon, typeIcon } from '../lib/icons';
 import { useResources } from '../lib/useResources';
-import { useAdminSession } from '../lib/useAdminSession';
-import { sbDelete } from '../lib/supabase';
+import { useAdmin } from '../lib/useAdmin';
+import { adminDeleteResource } from '../lib/adminPw';
 import ResourceEditModal from './admin/ResourceEditModal';
 
 const TYPE_META: Record<string, { en: string; ph: string }> = {
@@ -11,6 +11,7 @@ const TYPE_META: Record<string, { en: string; ph: string }> = {
   '인터랙티브': { en: 'Interactive', ph: '새 인터랙티브 자료 준비 중' },
   '활동지': { en: 'Worksheet', ph: '새 활동지 준비 중' },
   '커리큘럼': { en: 'Curriculum', ph: '새 커리큘럼 준비 중' },
+  '수업 보조 도구': { en: 'Teaching Tools', ph: '새 수업 보조 도구 준비 중' },
 };
 
 function norm(s: string) {
@@ -21,7 +22,7 @@ const CATEGORY: Category = '교육 활동 자료';
 
 export default function ActivityBrowser({ types }: { types: string[] }) {
   const { items: resources, reload } = useResources(CATEGORY);
-  const { isAdmin, accessToken } = useAdminSession();
+  const { isAdmin, pw } = useAdmin();
   const [query, setQuery] = useState('');
   const [type, setType] = useState<string>('전체');
   const [activeTags, setActiveTags] = useState<string[]>([]);
@@ -59,10 +60,10 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
   };
 
   async function remove(r: Resource) {
-    if (!accessToken) return;
+    if (!pw) return;
     if (!confirm(`"${r.title}" 자료를 삭제할까요?`)) return;
     try {
-      await sbDelete('resources', `?id=eq.${encodeURIComponent(r.id)}`, accessToken);
+      await adminDeleteResource(pw, r.id);
       reload();
     } catch (e: any) {
       alert('삭제 실패: ' + (e?.message || '알 수 없는 오류'));
@@ -192,11 +193,11 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
         })
       )}
 
-      {editing && accessToken && (
+      {editing && pw && (
         <ResourceEditModal
           key={editing === 'new' ? 'new' : editing.id}
           category={CATEGORY}
-          accessToken={accessToken}
+          pw={pw}
           initial={editing === 'new' ? undefined : editing}
           onClose={() => setEditing(null)}
           onSaved={reload}

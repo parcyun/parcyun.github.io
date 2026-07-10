@@ -66,6 +66,12 @@ export async function sbRpc<T = any>(fn: string, args?: Record<string, unknown>,
     headers: headers(accessToken),
     body: JSON.stringify(args || {}),
   });
-  if (!res.ok) throw new Error(`rpc ${fn} → ${res.status}`);
-  return res.status === 204 ? null : res.json();
+  const text = await res.text();
+  if (!res.ok) {
+    // PostgREST는 raise exception 메시지를 JSON message 필드로 담아 온다 → 사용자에게 그대로 표시
+    let msg = text;
+    try { const j = JSON.parse(text); msg = j.message || j.hint || text; } catch {}
+    throw new Error(msg || `rpc ${fn} → ${res.status}`);
+  }
+  return text ? JSON.parse(text) : null;
 }

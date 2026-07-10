@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import type { Work } from '../data/works';
 import { useWorks } from '../lib/useWorks';
-import { useAdminSession } from '../lib/useAdminSession';
-import { sbDelete } from '../lib/supabase';
+import { useAdmin } from '../lib/useAdmin';
+import { adminDeleteWork } from '../lib/adminPw';
 import WorkEditModal from './admin/WorkEditModal';
 import { sanitizeInlineHtml } from '../lib/sanitize';
 
@@ -15,7 +15,7 @@ const STATUS_TABS: { key: StatusFilter; label: string }[] = [
 
 export default function WorksFilter() {
   const { items: works, reload, source } = useWorks();
-  const { isAdmin, accessToken } = useAdminSession();
+  const { isAdmin, pw } = useAdmin();
   const [status, setStatus] = useState<StatusFilter>('전체');
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [editing, setEditing] = useState<Work | 'new' | null>(null);
@@ -52,10 +52,10 @@ export default function WorksFilter() {
   ).padStart(3, '0');
 
   async function remove(w: Work) {
-    if (!accessToken) return;
+    if (!pw) return;
     if (!confirm(`Work ${w.num} "${w.title}"를 삭제할까요?`)) return;
     try {
-      await sbDelete('works', `?num=eq.${encodeURIComponent(w.num)}`, accessToken);
+      await adminDeleteWork(pw, w.num);
       reload();
     } catch (e: any) {
       alert('삭제 실패: ' + (e?.message || '알 수 없는 오류'));
@@ -173,10 +173,10 @@ export default function WorksFilter() {
         </div>
       )}
 
-      {editing && accessToken && (
+      {editing && pw && (
         <WorkEditModal
           key={editing === 'new' ? 'new' : editing.num}
-          accessToken={accessToken}
+          pw={pw}
           initial={editing === 'new' ? undefined : editing}
           nextNum={nextNum}
           onClose={() => setEditing(null)}

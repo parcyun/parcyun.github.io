@@ -29,6 +29,7 @@ export const typeIcon: Record<string, string> = {
   '활동지': 'worksheet',
   '커리큘럼': 'curriculum',
   '인터랙티브': 'interactive',
+  '수업 보조 도구': 'gears',
   '강의': 'lecture',
   '실습': 'handson',
   '가이드': 'guide',

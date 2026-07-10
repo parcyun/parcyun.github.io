@@ -762,8 +762,14 @@ export default function GlobeLab(){
       {/* #5 방문자 카운터: 푸터 대신 플로팅 pill(좌하단)로 — visitor-counter.js가 #visitor-stats를 채움 */}
       <div className="visitor-float"><span id="visitor-stats" className="ps-visits" /></div>
       <footer className="ps-footer">
+        <nav className="ps-flinks">
+          <a href="/dashboard.html" className="ps-footer-link">{T.dashboard}</a>
+          <a href="https://linktr.ee/parcyun" className="ps-footer-link" target="_blank" rel="noopener">Linktree</a>
+          <a href="https://github.com/parcyun" className="ps-footer-link" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://padlet.com/penlayered/parcyun-studio-19rq7rovocsv24vr" className="ps-footer-link" target="_blank" rel="noopener">Padlet</a>
+          <a href="/admin" className="ps-footer-link">admin</a>
+        </nav>
         <button type="button" className="ps-footer-coffee no-drag" onClick={()=>setCoffee(true)}>☕ {T.coffee}</button>
-        <a href="/dashboard.html" className="ps-footer-link">{T.dashboard} ↗</a>
         {T.designedBy} <span className="ps-signature">parcyun studio</span>
         <a href="https://www.instagram.com/parcyun" className="ps-ig" target="_blank" rel="noopener"><svg className="ps-ig-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4 1 .5.4.8.8 1 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-1 1.4-.4.5-.8.8-1.4 1-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-1-.5-.4-.8-.8-1-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 1-1.4.4-.5.8-.8 1.4-1 .4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.4-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/></svg>@parcyun</a>
       </footer>
@@ -923,8 +929,11 @@ export default function GlobeLab(){
         /* 메인 페이지 푸터와 동일: 커피 후원·업무 대시보드·방문자 카운터(푸터 내부 우측) */
         .ps-footer-coffee{font-family:var(--font-en);font-size:11px;font-weight:400;color:var(--ps-primary);background:transparent;border:0;padding:0 10px 0 0;margin-right:2px;border-right:1px solid rgba(255,255,255,.14);cursor:pointer;transition:color .2s}
         .ps-footer-coffee:hover{filter:brightness(1.15)}
-        .ps-footer-link{font-family:var(--font-en);font-size:11px;font-weight:400;color:var(--text-2);text-decoration:none;padding-right:10px;margin-right:2px;border-right:1px solid rgba(255,255,255,.14);transition:color .2s}
+        .ps-flinks{display:flex;align-items:center;flex-wrap:wrap;row-gap:2px}
+        .ps-footer-link{font-family:var(--font-en);font-size:11px;font-weight:400;color:var(--text-2);text-decoration:none;padding:0 10px;border-right:1px solid rgba(255,255,255,.14);transition:color .2s}
+        .ps-flinks .ps-footer-link:first-child{padding-left:0}
         .ps-footer-link:hover{color:var(--ps-primary)}
+        .ps-footer .ps-footer-coffee{margin-left:2px}
         .ps-visits-infooter{padding-right:10px;margin-right:2px;border-right:1px solid rgba(255,255,255,.14)}
         .ps-visits-infooter:empty{display:none}
         /* 혹시 카운터가 푸터 밖 플로트로 뜨면 좌하단 대신 우하단(푸터 위)로 */

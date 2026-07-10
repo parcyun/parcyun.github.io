@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>맞춤법 고치기 — Arcade Bold v2.1.0 · parcyun studio</title>
+<title>맞춤법 고치기 — Arcade Bold v2.1.1 · parcyun studio</title>
 <meta name="description" content="틀린 문장을 바르게 고쳐 타이핑하는 콤보형 맞춤법·문법 드릴 게임. 한국어·영어(북미) 모드. Designed by parcyun studio.">
 <!-- 공유 미리보기 (게임 첫 화면 커버) -->
 <meta property="og:type" content="website">
@@ -353,11 +353,11 @@
 <div class="lightning-flash" id="flash"></div>
 <div class="float-tag" id="float-tag"></div>
 <div id="version-tip">
-  <b id="version-tip-title">v2.1.0 업데이트</b>
+  <b id="version-tip-title">v2.1.1 업데이트</b>
   <ul id="version-tip-list">
-    <li>문항 대폭 확충 — 한국어·영어 563문항 신규 추가 (총 737문항)</li>
-    <li>초급·중급·고급 전 난이도 보강: 맞춤법·띄어쓰기·문법 오류 유형 확대</li>
-    <li>모든 신규 문항 맞춤법·문법 교차 검증 완료</li>
+    <li>문항 대폭 확충 — 한국어·영어 각 1,000문항으로 확대</li>
+    <li>초급 난이도 재배치 — 짧고 자주 쓰는 문장 위주로 개선</li>
+    <li>전 문항 맞춤법·문법 교차 검증</li>
   </ul>
 </div>
 
@@ -365,7 +365,7 @@
   <div class="topbar">
     <div class="left">
       <div class="logo">
-        <span class="dot"></span> SPELL DRILL // v2.1.0
+        <span class="dot"></span> SPELL DRILL // v2.1.1
         <span class="version-note" tabindex="0">
           <span class="vq">i</span>
         </span>
@@ -11180,7 +11180,7 @@ document.addEventListener('keydown',e=>{
 /* ────────────────────────── i18n ────────────────────────── */
 const I18N = {
   ko: {
-    docTitle: '맞춤법 고치기 — Arcade Bold v2.1.0 · parcyun studio',
+    docTitle: '맞춤법 고치기 — Arcade Bold v2.1.1 · parcyun studio',
     marqueePill: '★ Korean Orthography',
     heroY: '맞춤법', heroStroke: '고치기',
     heroSub: '› 위에 틀린 문장이 뜨면, 아래에 정확한 문장을 처음부터 타이핑해서 ENTER. 콤보를 쌓아 최고기록을 부숴라.',
@@ -11202,15 +11202,15 @@ const I18N = {
     resultLabels: { correct:'맞힌 개수', attempts:'시도', combo:'최고 콤보', time:'클리어 시간' },
     bestLabels: { easy:'초급 best', med:'중급 best', hard:'고급 best', solved:'누적 정답' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
-    versionTitle: 'v2.1.0 업데이트',
+    versionTitle: 'v2.1.1 업데이트',
     versionItems: [
-      '문항 대폭 확충 — 한국어·영어 563문항 신규 추가 (총 737문항)',
-      '초급·중급·고급 전 난이도 보강: 맞춤법·띄어쓰기·문법 오류 유형 확대',
-      '모든 신규 문항 맞춤법·문법 교차 검증 완료'
+      '문항 대폭 확충 — 한국어·영어 각 1,000문항으로 확대',
+      '초급 난이도 재배치 — 짧고 자주 쓰는 문장 위주로 개선',
+      '전 문항 맞춤법·문법 교차 검증'
     ]
   },
   en: {
-    docTitle: 'Grammar Fixer — Arcade Bold v2.1.0 · parcyun studio',
+    docTitle: 'Grammar Fixer — Arcade Bold v2.1.1 · parcyun studio',
     marqueePill: '★ American English',
     heroY: 'Grammar', heroStroke: 'Fixer',
     heroSub: '› When the wrong sentence appears above, type the correct sentence from scratch below and hit ENTER. Chain combos to smash your high score.',
@@ -11232,11 +11232,11 @@ const I18N = {
     resultLabels: { correct:'Correct', attempts:'Attempts', combo:'Max Combo', time:'Clear Time' },
     bestLabels: { easy:'Beginner Best', med:'Intermediate Best', hard:'Advanced Best', solved:'Total Solved' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
-    versionTitle: 'v2.1.0 Update',
+    versionTitle: 'v2.1.1 Update',
     versionItems: [
-      'Big content update — 563 new Korean & English items (737 total)',
-      'All levels expanded: more spelling, spacing, and grammar error types',
-      'Every new sentence cross-checked for correctness'
+      'Major expansion — 1,000 items each for Korean & English',
+      'Beginner level rebalanced — shorter, everyday sentences',
+      'All items cross-checked for correctness'
     ]
   }
 };

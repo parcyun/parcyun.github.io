@@ -1,6 +1,7 @@
 ---
 // 공개 /world-map/ — GlobeLab(WebGL 지구본·메르카토르·렌즈) 인터랙티브 세계지도
 import GlobeLab from '../components/GlobeLab.jsx';
+import PsFooter from '../components/WorldMapFooter.astro';
 ---
 <!doctype html>
 <html lang="ko">
@@ -22,10 +23,23 @@ import GlobeLab from '../components/GlobeLab.jsx';
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;700&family=Covered+By+Your+Grace&display=swap" />
-  <style>html,body{overscroll-behavior:none;background:#000;height:100%;margin:0;padding:0}</style>
+  <style>
+    html,body{overscroll-behavior:none;background:#000;height:100%;margin:0;padding:0}
+    /* 공용 PsFooter가 참조하는 parcyun studio 디자인 토큰(메인 CinematicLayout과 동일 값) */
+    :root{
+      --ps-primary:#FFB11A;--ps-primary-dark:#E89500;
+      --ps-surface-cinematic-1:#141414;--ps-surface-cinematic-2:#222;--ps-surface-cinematic-3:#333;
+      --ps-text-cinematic-secondary:#8C8C8C;
+      --ps-font-en:'Montserrat','Pretendard Variable','Pretendard',sans-serif;
+      --ps-font-signature:'Covered By Your Grace',cursive;
+      --ps-ease-out:cubic-bezier(0.16,1,0.3,1);
+    }
+  </style>
 </head>
 <body>
   <GlobeLab client:only="react" />
+  <!-- 메인 사이트 공용 푸터/공유/방문자 컴포넌트 그대로 사용 -->
+  <PsFooter />
   <script is:inline src="/share-widget.js" defer></script>
   <script is:inline src="/visitor-counter.js" defer></script>
 </body>

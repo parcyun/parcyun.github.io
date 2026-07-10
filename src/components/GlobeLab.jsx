@@ -254,7 +254,6 @@ export default function GlobeLab(){
   const [panels,setPanels]=useState({tools:'tl',legend:'tr'}); // #6 기본: 도구=좌상, 대륙/대양=우상 · #5 드래그로 이동/스냅
   const [toolsCollapsed,setToolsCollapsed]=useState(false); // 도구 상자 접힘
   const [legendCollapsed,setLegendCollapsed]=useState(false); // 대륙/대양 상자 접힘
-  const [coffee,setCoffee]=useState(false); // 커피 후원 QR 모달(메인 푸터와 동일)
   const [lang,setLang]=useState('ko'); // #10 언어 토글(한국어/영어)
   const [northUp,setNorthUp]=useState(false); // #2 정북 고정(지구본에서 북극이 항상 위)
   const [hint,setHint]=useState(true); // 힌트=일시 온보딩(원본과 동일): 7초 또는 첫 조작 시 사라짐, 뷰 전환 시 잠깐 재표시
@@ -759,28 +758,7 @@ export default function GlobeLab(){
         <button className="ts-popup-close" onClick={()=>setTsInfo(false)}>{T.close}</button>
       </div></div>}
       <div className="watermark">{(lang==='en'?{flat:T.wmFlat,lens:T.wmLens,globe:T.wmGlobe}:MODE_WM)[view]}</div>
-      {/* #5 방문자 카운터: 푸터 대신 플로팅 pill(좌하단)로 — visitor-counter.js가 #visitor-stats를 채움 */}
-      <div className="visitor-float"><span id="visitor-stats" className="ps-visits" /></div>
-      <footer className="ps-footer">
-        <nav className="ps-flinks">
-          <a href="/dashboard.html" className="ps-footer-link">{T.dashboard}</a>
-          <a href="https://linktr.ee/parcyun" className="ps-footer-link" target="_blank" rel="noopener">Linktree</a>
-          <a href="https://github.com/parcyun" className="ps-footer-link" target="_blank" rel="noopener">GitHub</a>
-          <a href="https://padlet.com/penlayered/parcyun-studio-19rq7rovocsv24vr" className="ps-footer-link" target="_blank" rel="noopener">Padlet</a>
-          <a href="/admin" className="ps-footer-link">admin</a>
-        </nav>
-        <button type="button" className="ps-footer-coffee no-drag" onClick={()=>setCoffee(true)}>☕ {T.coffee}</button>
-        {T.designedBy} <span className="ps-signature">parcyun studio</span>
-        <a href="https://www.instagram.com/parcyun" className="ps-ig" target="_blank" rel="noopener"><svg className="ps-ig-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4 1 .5.4.8.8 1 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-1 1.4-.4.5-.8.8-1.4 1-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-1-.5-.4-.8-.8-1-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 1-1.4.4-.5.8-.8 1.4-1 .4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.4-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/></svg>@parcyun</a>
-      </footer>
-      {coffee && <div className="coffee-modal" onClick={()=>setCoffee(false)}><div className="coffee-card" onClick={e=>e.stopPropagation()}>
-        <button className="coffee-close" onClick={()=>setCoffee(false)} aria-label={T.close}>×</button>
-        <div className="coffee-emoji">☕</div>
-        <h3 className="coffee-title">{T.coffeeTitle}</h3>
-        <p className="coffee-sub">{T.coffeeSub}</p>
-        <img className="coffee-qr" src="/images/coffee-qr.png" alt="parcyun studio 후원 QR" />
-        <div className="coffee-label">parcyun studio</div>
-      </div></div>}
+      {/* 푸터/공유/방문자/커피는 공용 컴포넌트(PsFooter.astro + share-widget.js + visitor-counter.js)를 world-map.astro에서 렌더 */}
       {/* #13 가이드 리워크: 모달 대신 옅은 쉐이드로 화면을 덮되 도구 상자는 덮지 않고, 각 기능 옆에 한 줄 설명 */}
       {guide && <div className="guide-shade" onClick={()=>setGuide(false)}>
         <div className="gtip gtip-tools">{T.gTools}</div>
@@ -921,29 +899,6 @@ export default function GlobeLab(){
         .projseg button{border:0;background:transparent;color:var(--text-2);font-family:var(--font-kr);font-size:12px;font-weight:500;padding:6px 13px;border-radius:9px;cursor:pointer;transition:all .18s var(--ease);white-space:nowrap}
         .projseg button:hover{color:#fff}.projseg button.on{background:var(--ps-primary);color:#0A0C10;font-weight:600}
         .watermark{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);z-index:5;font-family:var(--font-en);font-size:9px;letter-spacing:.4em;color:#323a4a;text-transform:uppercase;pointer-events:none}
-        .ps-footer{position:fixed;bottom:16px;right:20px;font-family:var(--font-en);font-weight:300;font-size:11px;color:var(--text-2);display:flex;align-items:center;gap:8px;z-index:9999;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:6px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.08)}
-        .ps-signature{font-family:var(--font-sig);font-size:15px;color:var(--ps-primary);line-height:1}.ps-ig{display:inline-flex;align-items:center;gap:3px;color:inherit;text-decoration:none}.ps-ig:hover{color:var(--ps-primary)}.ps-ig-icon{width:10px;height:10px;vertical-align:middle}
-        /* #5 방문자 카운터 플로팅 pill(좌하단) */
-        .visitor-float{position:fixed;left:20px;bottom:18px;z-index:32;background:rgba(16,19,25,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:100px;padding:7px 14px}
-        .visitor-float:has(.ps-visits:empty){display:none}
-        /* 메인 페이지 푸터와 동일: 커피 후원·업무 대시보드·방문자 카운터(푸터 내부 우측) */
-        .ps-footer-coffee{font-family:var(--font-en);font-size:11px;font-weight:400;color:var(--ps-primary);background:transparent;border:0;padding:0 10px 0 0;margin-right:2px;border-right:1px solid rgba(255,255,255,.14);cursor:pointer;transition:color .2s}
-        .ps-footer-coffee:hover{filter:brightness(1.15)}
-        .ps-flinks{display:flex;align-items:center;flex-wrap:wrap;row-gap:2px}
-        .ps-footer-link{font-family:var(--font-en);font-size:11px;font-weight:400;color:var(--text-2);text-decoration:none;padding:0 10px;border-right:1px solid rgba(255,255,255,.14);transition:color .2s}
-        .ps-flinks .ps-footer-link:first-child{padding-left:0}
-        .ps-footer-link:hover{color:var(--ps-primary)}
-        .ps-footer .ps-footer-coffee{margin-left:2px}
-        .ps-visits-infooter{padding-right:10px;margin-right:2px;border-right:1px solid rgba(255,255,255,.14)}
-        .ps-visits-infooter:empty{display:none}
-        /* 혹시 카운터가 푸터 밖 플로트로 뜨면 좌하단 대신 우하단(푸터 위)로 */
-        .ps-visits-float{left:auto !important;right:20px !important;bottom:58px !important}
-        .coffee-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(4,6,11,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-        .coffee-card{position:relative;width:min(320px,88vw);background:rgba(16,19,25,.96);border:1px solid var(--border);border-radius:20px;padding:26px 24px 20px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.5)}
-        .coffee-close{position:absolute;top:12px;right:14px;background:transparent;border:0;color:var(--text-2);font-size:20px;cursor:pointer;line-height:1}.coffee-close:hover{color:#fff}
-        .coffee-emoji{font-size:34px}.coffee-title{font-size:17px;font-weight:700;margin:8px 0 4px;color:#fff}.coffee-sub{font-size:12px;color:var(--text-2);font-weight:300;margin:0 0 16px}
-        .coffee-qr{width:180px;height:180px;object-fit:contain;border-radius:12px;background:#fff;padding:8px}.coffee-label{margin-top:12px;font-family:var(--font-sig);font-size:16px;color:var(--ps-primary)}
-        @media(max-width:640px){.ps-footer{flex-wrap:wrap;max-width:calc(100vw - 40px);justify-content:flex-end}}
         @media(max-width:640px){.info{width:200px;padding:16px}.info .kr{font-size:24px}.legend{max-width:200px;padding:11px 13px}.legend-col{min-width:88px}.controls{right:14px;bottom:48px}.topbar{padding:14px 16px}.title{font-size:16px}.title .en{display:none}.grid-panel{min-width:0;padding:10px 12px}}
       `}</style>
     </div>

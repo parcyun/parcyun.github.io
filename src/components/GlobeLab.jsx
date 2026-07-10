@@ -857,7 +857,7 @@ export default function GlobeLab(){
         .daynight-ctl input[type=range]{width:min(46vw,420px);height:3px;accent-color:var(--ps-primary);cursor:pointer}
         .dn-lbl{font-size:12px;color:var(--ps-primary);min-width:30px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600;flex-shrink:0}
         @media(max-width:640px){.daynight-ctl{bottom:92px;gap:8px;padding:8px 12px}.daynight-ctl input[type=range]{width:44vw}}
-        .controls{position:fixed;right:22px;bottom:92px;z-index:31;display:flex;flex-direction:column;gap:8px}
+        .controls{position:fixed;right:22px;top:18px;z-index:31;display:flex;flex-direction:row;gap:8px}
         .ctrl{width:42px;height:42px;border-radius:12px;border:1px solid var(--border);background:rgba(16,19,25,.72);backdrop-filter:blur(14px);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s var(--ease);font-family:var(--font-en)}
         .ctrl:hover{border-color:var(--ps-primary);color:var(--ps-primary)}.ctrl:active{transform:scale(.93)}.ctrl.home{font-size:15px}
         .ctrl.on{border-color:var(--ps-primary);color:#0A0C10;background:var(--ps-primary);font-weight:700}
@@ -878,7 +878,7 @@ export default function GlobeLab(){
         .gtip-tools{left:220px;top:96px}
         .gtip-proj{left:50%;top:66px;transform:translateX(-50%);text-align:center}
         .gtip-legend{right:372px;top:120px;text-align:right}
-        .gtip-ctrl{right:78px;bottom:150px;text-align:right}
+        .gtip-ctrl{right:214px;top:24px;text-align:right}
         .gtip-center{left:50%;top:52%;transform:translate(-50%,-50%);text-align:center;font-size:15px;color:#fff;font-weight:500}
         .gtip-center span{display:block;margin-top:6px;font-size:11.5px;color:var(--text-2);font-weight:300}
         @media(max-width:760px){.gtip-tools,.gtip-legend,.gtip-ctrl,.gtip-proj{display:none}}
@@ -899,7 +899,7 @@ export default function GlobeLab(){
         .projseg button{border:0;background:transparent;color:var(--text-2);font-family:var(--font-kr);font-size:12px;font-weight:500;padding:6px 13px;border-radius:9px;cursor:pointer;transition:all .18s var(--ease);white-space:nowrap}
         .projseg button:hover{color:#fff}.projseg button.on{background:var(--ps-primary);color:#0A0C10;font-weight:600}
         .watermark{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);z-index:5;font-family:var(--font-en);font-size:9px;letter-spacing:.4em;color:#323a4a;text-transform:uppercase;pointer-events:none}
-        @media(max-width:640px){.info{width:200px;padding:16px}.info .kr{font-size:24px}.legend{max-width:200px;padding:11px 13px}.legend-col{min-width:88px}.controls{right:14px;bottom:48px}.topbar{padding:14px 16px}.title{font-size:16px}.title .en{display:none}.grid-panel{min-width:0;padding:10px 12px}}
+        @media(max-width:640px){.info{width:200px;padding:16px}.info .kr{font-size:24px}.legend{max-width:200px;padding:11px 13px}.legend-col{min-width:88px}.controls{right:14px;top:14px}.topbar{padding:14px 16px}.title{font-size:16px}.title .en{display:none}.grid-panel{min-width:0;padding:10px 12px}}
       `}</style>
     </div>
   );

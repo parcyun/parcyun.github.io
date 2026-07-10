@@ -33,6 +33,12 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
     return [...count.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([t]) => t);
   }, [resources]);
 
+  // 렌더 타입 = 기본 4종 + 데이터에 있는 미지 타입(Supabase 직접 추가분 등) → 조용히 사라지지 않게
+  const renderTypes = useMemo(() => {
+    const extra = [...new Set(resources.map((r) => r.type))].filter((t) => !types.includes(t));
+    return [...types, ...extra];
+  }, [resources, types]);
+
   const match = (r: Resource) => {
     if (type !== '전체' && r.type !== type) return false;
     if (activeTags.length && !activeTags.every((t) => r.tags.includes(t))) return false;
@@ -163,14 +169,14 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
           <button type="button" className="rx-reset" onClick={reset}>필터 초기화 ✕</button>
         </div>
       ) : (
-        types.map((t) => {
+        renderTypes.map((t) => {
           const cards = filtered.filter((r) => r.type === t);
           if (filtering && cards.length === 0) return null;
           const total = resources.filter((r) => r.type === t).length;
           return (
             <div className="type-section" key={t}>
               <header className="type-head">
-                <span className="ico type-ico" dangerouslySetInnerHTML={{ __html: icon(typeIcon[t], 20) }} />
+                <span className="ico type-ico" dangerouslySetInnerHTML={{ __html: icon(typeIcon[t] || 'guide', 20) }} />
                 <span className="ko">{t}</span>
                 <span className="en">{TYPE_META[t]?.en}</span>
                 <span className="cnt"><b>{total}</b>개</span>
@@ -203,6 +209,7 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
         .act-card-wrap{position:relative}
         .act-admin{position:absolute;top:8px;right:8px;display:flex;gap:5px;z-index:2}
         .act-admin-btn{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.65);color:#B8B8B8;cursor:pointer;font-size:12px;line-height:1;padding:0}
+        @media(max-width:767px){.act-admin{gap:8px}.act-admin-btn{width:34px;height:34px;font-size:15px}}
         .act-admin-btn:hover{color:#fff;border-color:rgba(255,255,255,.4)}
         .act-admin-btn.danger:hover{color:#ff8080}
       `}</style>

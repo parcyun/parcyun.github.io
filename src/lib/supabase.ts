@@ -45,13 +45,18 @@ export async function sbUpdate<T = any>(table: string, query: string, patch: unk
   return res.json();
 }
 
-/** PK 조건으로 delete. query 예: "?id=eq.spell-drill" */
+/** PK 조건으로 delete. query 예: "?id=eq.spell-drill"
+ *  return=representation으로 실제 삭제 행을 받아 0행(RLS 필터·대상없음)이면 에러 → "삭제됐다 부활" 방지. */
 export async function sbDelete(table: string, query: string, accessToken?: string): Promise<void> {
   const res = await fetch(`${REST}/${table}${query}`, {
     method: 'DELETE',
-    headers: headers(accessToken),
+    headers: headers(accessToken, { Prefer: 'return=representation' }),
   });
   if (!res.ok) throw new Error(`delete ${table} → ${res.status} ${await res.text()}`);
+  const rows = await res.json().catch(() => []);
+  if (Array.isArray(rows) && rows.length === 0) {
+    throw new Error(`delete ${table} → 0 rows (권한 없음 또는 대상 없음)`);
+  }
 }
 
 /** RPC 호출 (예: bump_resource). 204 면 null. */

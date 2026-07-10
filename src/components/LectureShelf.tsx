@@ -90,6 +90,7 @@ export default function LectureShelf() {
         .hbook-row{position:relative}
         .hbook-admin{position:absolute;top:50%;right:44px;transform:translateY(-50%);display:flex;gap:5px;z-index:2}
         .hbook-admin-btn{width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.7);color:#B8B8B8;cursor:pointer;font-size:11px;line-height:1;padding:0}
+        @media(max-width:767px){.hbook-admin{right:40px;gap:8px}.hbook-admin-btn{width:32px;height:32px;font-size:14px}}
         .hbook-admin-btn:hover{color:#fff;border-color:rgba(255,255,255,.4)}
         .hbook-admin-btn.danger:hover{color:#ff8080}
       `}</style>

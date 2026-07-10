@@ -5,11 +5,12 @@ export interface Props {
   ogTitle?: string;
   ogDescription?: string;
   ogUrl?: string;
+  ogImage?: string;
   lang?: string;
 }
 import { icon } from '../lib/icons';
 import PsFooter from '../components/PsFooter.astro';
-const { title, description = '', ogTitle = '', ogDescription = '', ogUrl = '', lang = 'ko' } = Astro.props;
+const { title, description = '', ogTitle = '', ogDescription = '', ogUrl = '', ogImage = 'https://parcyun.github.io/images/og-card.png', lang = 'ko' } = Astro.props;
 ---
 <!doctype html>
 <html lang={lang}>
@@ -23,6 +24,11 @@ const { title, description = '', ogTitle = '', ogDescription = '', ogUrl = '', l
 <meta property="og:type" content="website" />
 {ogUrl && <meta property="og:url" content={ogUrl} />}
 {ogUrl && <link rel="canonical" href={ogUrl} />}
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content={ogImage} />
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />

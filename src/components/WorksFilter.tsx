@@ -14,7 +14,7 @@ const STATUS_TABS: { key: StatusFilter; label: string }[] = [
 ];
 
 export default function WorksFilter() {
-  const { items: works, reload } = useWorks();
+  const { items: works, reload, source } = useWorks();
   const { isAdmin, accessToken } = useAdminSession();
   const [status, setStatus] = useState<StatusFilter>('전체');
   const [activeTags, setActiveTags] = useState<string[]>([]);
@@ -74,7 +74,9 @@ export default function WorksFilter() {
     <div className="wf">
       <div className="wf-controls">
         {isAdmin && (
-          <button type="button" className="wf-add" onClick={() => setEditing('new')}>+ Work 추가</button>
+          source === 'db'
+            ? <button type="button" className="wf-add" onClick={() => setEditing('new')}>+ Work 추가</button>
+            : <span className="wf-add wf-add-off" title="목록을 불러오지 못해 번호 충돌 위험이 있어요. 새로고침 후 시도하세요.">+ Work 추가 (DB 로드 대기)</span>
         )}
         <div className="wf-tabs" role="group" aria-label="상태">
           {STATUS_TABS.map((s) => (
@@ -185,11 +187,13 @@ export default function WorksFilter() {
       <style>{`
         .wf-add{align-self:flex-start;font-family:var(--ps-font-body);font-size:12.5px;font-weight:600;color:#000;background:#B8B8B8;border:0;border-radius:100px;padding:8px 16px;cursor:pointer;margin-bottom:12px;transition:background .18s}
         .wf-add:hover{background:#fff}
+        .wf-add-off{align-self:flex-start;font-family:var(--ps-font-body);font-size:12.5px;font-weight:600;border-radius:100px;padding:8px 16px;margin-bottom:12px;opacity:.55;cursor:not-allowed;color:#8C8C8C;background:transparent;border:1px solid var(--ps-surface-cinematic-3)}
         .work-card-wrap{position:relative}
         .work-admin{position:absolute;top:10px;right:10px;display:flex;gap:5px;z-index:2}
         .work-admin-btn{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.65);color:#B8B8B8;cursor:pointer;font-size:12px;line-height:1;padding:0}
         .work-admin-btn:hover{color:#fff;border-color:rgba(255,255,255,.4)}
         .work-admin-btn.danger:hover{color:#ff8080}
+        @media(max-width:767px){.work-admin{gap:8px}.work-admin-btn{width:34px;height:34px;font-size:15px}}
       `}</style>
     </div>
   );

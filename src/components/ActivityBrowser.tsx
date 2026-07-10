@@ -75,8 +75,8 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
         href={r.url}
         className="act-card"
         data-res-id={r.id}
-        target={r.external ? '_blank' : undefined}
-        rel={r.external ? 'noopener' : undefined}
+        target="_blank"
+        rel="noopener"
       >
         <div className="act-thumb ico" dangerouslySetInnerHTML={{ __html: icon(typeIcon[r.type], 28) }} />
         <div className="act-body">

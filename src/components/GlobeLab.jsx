@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { COUNTRY, flagEmoji } from './globeCountryData.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { geoEquirectangular, geoPath, geoContains } from 'd3-geo';
 
@@ -342,8 +343,12 @@ function DraggablePanel({corner,onDock,otherCorner,className,children,collapsed,
   const measure=()=>{const el=ref.current;if(!el)return[220,200];const r=el.getBoundingClientRect();return[r.width,r.height];};
   const applyCorner=(c)=>{const el=ref.current;if(!el)return;const [bw,bh]=measure();const [x,y]=cornerXY(c,bw,bh,window.innerWidth,window.innerHeight);posRef.current={x,y};el.style.transform=`translate(${x}px,${y}px)`;};
   useLayoutEffect(()=>{applyCorner(corner);},[corner]);
-  // 접힘/펼침으로 높이가 바뀌면(특히 하단 모서리 bl은 하단 기준 앵커라) 전환 종료 후 위치 재계산 → 접어도 모서리에 딱 붙어있게.
-  useEffect(()=>{const t=setTimeout(()=>applyCorner(corner),430);return()=>clearTimeout(t);},[collapsed,corner]);
+  // 접힘/펼침으로 높이가 바뀌는 동안 매 프레임 코너 재계산 → 하단 도킹 패널(bl/br)은 아래 모서리에 고정된 채
+  // "위로 올라가며" 펼쳐짐(요청 #7). transform 전환을 잠시 꺼서 프레임마다 즉시 추종(높이만 max-height로 부드럽게 애니메이션).
+  useEffect(()=>{const el=ref.current;if(!el)return;let raf,stop=false;let t0=null;const prev=el.style.transition;el.style.transition='none';
+    const tick=(now)=>{if(stop)return;if(t0==null)t0=now;applyCorner(corner);if(now-t0<470){raf=requestAnimationFrame(tick);}else{el.style.transition=prev||'';}};
+    raf=requestAnimationFrame(tick);
+    return()=>{stop=true;cancelAnimationFrame(raf);el.style.transition=prev||'';};},[collapsed]);
   useEffect(()=>{const on=()=>applyCorner(corner);window.addEventListener('resize',on);return()=>window.removeEventListener('resize',on);},[corner]);
   const onDown=(e)=>{ if(e.target.closest('input,button,a,select,textarea,.no-drag'))return; // 인터랙션 요소에서 시작한 드래그는 무시
     const el=ref.current,r=el.getBoundingClientRect(),ox=e.clientX-r.left,oy=e.clientY-r.top,startX=e.clientX,startY=e.clientY;
@@ -370,12 +375,14 @@ export default function GlobeLab(){
   const [sel,setSel]=useState(null),[status,setStatus]=useState('로딩 중…');
   const [sat,setSat]=useState(false); // #2 위성 사진 보기
   const [satBusy,setSatBusy]=useState(null); // {pct,label} 위성 타일 로딩 진행 or null
-  const [hiresModal,setHiresModal]=useState(false); // #3 고화질 위성 렌더 안내 모달
-  const [hiresDone,setHiresDone]=useState(false); // 고화질 적용 완료(버튼 상태)
   const [trueSize,setTrueSize]=useState(false); // #5 실제 크기 비교(평면 전용)
   const [tsInfo,setTsInfo]=useState(false); // 실제 크기 비교 설명 팝업
   const [panels,setPanels]=useState({tools:'tl',legend:'tr'}); // #6 기본: 도구=좌상, 대륙/대양=우상 · #5 드래그로 이동/스냅
   const [toolsCollapsed,setToolsCollapsed]=useState(false); // 도구 상자 접힘
+  const [legendCollapsed,setLegendCollapsed]=useState(false); // 대륙/대양 상자 접힘
+  const [coffee,setCoffee]=useState(false); // 커피 후원 QR 모달(메인 푸터와 동일)
+  const [lang,setLang]=useState('ko'); // #10 언어 토글(한국어/영어)
+  const [northUp,setNorthUp]=useState(false); // #2 정북 고정(지구본에서 북극이 항상 위)
   const [hint,setHint]=useState(true); // 힌트=일시 온보딩(원본과 동일): 7초 또는 첫 조작 시 사라짐, 뷰 전환 시 잠깐 재표시
   useEffect(()=>{setHint(true);const t=setTimeout(()=>setHint(false),7000);return()=>clearTimeout(t);},[view]);
   const [guide,setGuide]=useState(true); // #6 접속(새로고침) 시 사용 가이드 오버레이 — 클릭해서 닫기
@@ -387,6 +394,7 @@ export default function GlobeLab(){
   useEffect(()=>{if(api.current.onDN)api.current.onDN(dayNight);},[dayNight]);
   useEffect(()=>{S.current.sat=sat;if(api.current.applySat)api.current.applySat(sat);},[sat]);
   useEffect(()=>{S.current.trueSize=trueSize;if(api.current.refreshTrueSize)api.current.refreshTrueSize();},[trueSize,sel,view]);
+  useEffect(()=>{S.current.northUp=northUp;if(api.current.applyNorthUp)api.current.applyNorthUp(northUp);},[northUp,view]);
 
   useEffect(()=>{
     const mount=mountRef.current;let raf,renderer,controls,cleanupFn=null,disposed=false;
@@ -509,21 +517,23 @@ export default function GlobeLab(){
         fmeshL.frustumCulled=fmeshR.frustumCulled=false;fmeshL.renderOrder=fmeshR.renderOrder=0.5;fmeshL.visible=fmeshR.visible=false;scene.add(fmeshL,fmeshR);
         fillClones={fmeshL,fmeshR};
         })();
-      // #2 줌 적응형 격자: 확대할수록 중심 격자를 더 촘촘히(딥줌에서 위경도선 유지). 중심 세트만 세분(성능), 평면 클론은 사용자 간격 유지.
-      const NICE=[90,45,30,20,15,10,5,3,2,1,0.5]; // 깊은 줌에서 더 촘촘히 → 격자선 사라짐 방지(뷰 폭보다 간격이 커지지 않게)
-      const adaptiveStep=(base)=>{const z0={flat:0.74,globe:0.92,lens:0.285}[S.current.view]||0.74;
-        const lv=Math.max(0,Math.floor(Math.log2(Math.max(1,camera.zoom/z0))));let i=NICE.findIndex(v=>v<=base);if(i<0)i=0;return NICE[Math.min(NICE.length-1,i+lv)];};
-      let curEff=S.current.step;
+      // #8 격자는 사용자 설정 간격(step, 기본 20°)에 고정 — 위경도는 지구 표면의 정해진 좌표라 줌에 따라 개수/간격이 바뀌면 안 됨.
+      // (예전 줌 적응형 세분을 제거) 사용자가 간격 값을 바꿀 때만 재빌드.
+      let curEff=Math.max(5,Math.min(90,S.current.step));
       let center=makeGridSet(0,curEff);
-      // 평면 클론 타일(±WORLD_W)도 center와 동일한 적응형 간격(curEff) 사용 — 예전엔 클론이 고정 curStep(사용자 설정값,
-      // 기본 20°)만 써서 딥줌 시 center는 촘촘해지는데 클론 쪽(팬 위치에 따라 화면에 보일 수 있음)은 그대로라
-      // "격자가 반응형으로 확대되지 않고 고정된" 것처럼 보이던 버그의 원인.
       let gridFlat=new THREE.Group();gridFlat.add(makeGridSet(-WORLD_W,curEff),makeGridSet(WORLD_W,curEff));
       scene.add(center,gridFlat);
       const setGridVis=()=>{const st=S.current;for(const s of [center,...gridFlat.children]){const u2=s.userData;u2.grat.visible=st.grat;u2.eq.visible=st.eq;u2.pm.visible=st.prime;u2.dl.visible=st.dateline;}};
+      // #8 위경도 도수 라벨: 격자선마다 몇 도 선인지 DOM 라벨로 표기(매 프레임 뷰 중심 경/위도에 샘플점을 잡아 투영).
+      let gridLabels=[];
+      const buildGridLabels=(stp)=>{ for(const g of gridLabels)if(g.el.parentNode)g.el.parentNode.removeChild(g.el); gridLabels=[];
+        const mk=(kind,v)=>{const el=document.createElement('div');el.className='gl-lbl grid';el.textContent=(kind==='lat'?(v>0?v+'°N':v<0?(-v)+'°S':'0°'):(v>0?v+'°E':v<0?(-v)+'°W':(v===180?'180°':'0°')));labelRef.current&&labelRef.current.appendChild(el);gridLabels.push({kind,v,el});};
+        for(let lon=-180;lon<180;lon+=stp)mk('lon',lon);
+        for(let lat=-90+stp;lat<90;lat+=stp)mk('lat',lat); };
+      buildGridLabels(curEff);
       const applyGrid=()=>{const st=S.current;
-        const eff=adaptiveStep(st.step);
-        if(eff!==curEff){curEff=eff;scene.remove(center,gridFlat);center=makeGridSet(0,curEff);gridFlat=new THREE.Group();gridFlat.add(makeGridSet(-WORLD_W,curEff),makeGridSet(WORLD_W,curEff));scene.add(center,gridFlat);}
+        const eff=Math.max(5,Math.min(90,st.step));
+        if(eff!==curEff){curEff=eff;scene.remove(center,gridFlat);center=makeGridSet(0,curEff);gridFlat=new THREE.Group();gridFlat.add(makeGridSet(-WORLD_W,curEff),makeGridSet(WORLD_W,curEff));scene.add(center,gridFlat);buildGridLabels(curEff);}
         setGridVis();};
       // #4 줌 적응형 국경·해안선 디테일: 격자와 동일한 log2 레벨(확대 1단계당 2배)로 세분 간격을 절반씩 줄임.
       // 레벨당 정점 수가 기하급수로 늘어나므로(특히 채움 ShapeGeometry 삼각분할 비용) 최대 3레벨(0.25°)로 캡.
@@ -540,6 +550,7 @@ export default function GlobeLab(){
         const oc=!!s&&s.type==='ocean';
         for(const {el,o} of oceanLblEls){el.classList.toggle('active',oc&&o===s.key);el.classList.toggle('dim',oc&&o!==s.key);}};
       const centerLonRad=()=>U.lens.value>0.5?U.uLon0.value:(U.morph.value>0.5?controls.target.x/MS:-Math.PI/2-U.uRotY.value);
+      const centerLatRad=()=>U.lens.value>0.5?U.uLat0.value:(U.morph.value>0.5?(2*Math.atan(Math.exp(controls.target.y/MS))-Math.PI/2):U.uRotX.value); // #8 격자 라벨 배치용 뷰 중심 위도
       const onDN=(on)=>{if(on)S.current.sunLon=R2D*centerLonRad()-90;u.dayNightOn.value=on?1:0;}; // 켤 때 명암 경계선이 현재 뷰에 걸치게(원본과 동일)
       const dolly=(f)=>{camera.zoom=THREE.MathUtils.clamp(camera.zoom/f,controls.minZoom,controls.maxZoom);camera.updateProjectionMatrix();controls.update();};
       // 평면 seam은 항상 화면 중심 대척점(WORLD_W/2 거리)에 파킹되지만, 그 가정은 "화면 반너비(월드단위) < WORLD_W/2"일 때만 성립.
@@ -587,29 +598,22 @@ export default function GlobeLab(){
         if(v==='globe'){controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};}
         else if(v==='flat'){controls.mouseButtons={LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN};}
         else{controls.mouseButtons={LEFT:-1,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:-1};controls.touches={ONE:-1,TWO:THREE.TOUCH.DOLLY_PAN};} // 렌즈=시선 커스텀 드래그
-        controls.update();};
-      // ===== 위성 사진(#2,3) =====
-      let satReady=false,satBaseTex=null,satHiresTex=null; // satReady: 텍스처 준비돼 uSat 크로스페이드 허용
-      const SATDB='geolab-sat',SATKEY_HI='esri-hires-z4'; // 고화질은 사용자 브라우저 IndexedDB에만 캐시(내 서버 저장 안 함)
-      const idbOpen=()=>new Promise((res,rej)=>{const r=indexedDB.open(SATDB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('t'))r.result.createObjectStore('t');};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});
-      const idbGet=async(key)=>{try{const db=await idbOpen();return await new Promise((res)=>{const g=db.transaction('t','readonly').objectStore('t').get(key);g.onsuccess=()=>res(g.result||null);g.onerror=()=>res(null);});}catch(e){return null;}};
-      const idbSet=async(key,blob)=>{try{const db=await idbOpen();return await new Promise((res)=>{const p=db.transaction('t','readwrite').objectStore('t').put(blob,key);p.onsuccess=()=>res(true);p.onerror=()=>res(false);});}catch(e){return false;}};
-      const canvasToBlob=(cv)=>new Promise((res)=>cv.toBlob(res,'image/jpeg',0.85));
-      const blobToTex=(blob)=>new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const cv=document.createElement('canvas');cv.width=im.naturalWidth;cv.height=im.naturalHeight;cv.getContext('2d').drawImage(im,0,0);res(rawTex(cv));};im.onerror=rej;im.src=URL.createObjectURL(blob);});
+        applyNorthUp(S.current.northUp); controls.update();};
+      // #2 정북 고정: 지구본에서 극축(북극)이 항상 화면 위를 향하도록 세로(위도) 틸트를 잠금 — 수평 자전만 허용.
+      const applyNorthUp=(on)=>{ if(!controls)return;
+        if(S.current.view==='globe'&&on){ // 카메라를 적도면(북극 위) 시점으로 정렬 + polar 각 고정
+          const sph=new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target)); sph.phi=Math.PI/2;
+          camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(sph)); camera.up.set(0,1,0); camera.lookAt(controls.target);
+          controls.minPolarAngle=Math.PI/2; controls.maxPolarAngle=Math.PI/2; }
+        else { controls.minPolarAngle=0; controls.maxPolarAngle=Math.PI; }
+        controls.update(); };
+      // ===== 위성 사진(#2) — Esri World Imagery z4(등장방형 재투영) =====
+      let satReady=false,satBaseTex=null; // satReady: 텍스처 준비돼 uSat 크로스페이드 허용
       const applySat=async(on)=>{ if(!on){satReady=false;return;} // 끄기: uSat 페이드아웃(loop), 텍스처는 유지(재토글 즉시)
-        if(satBaseTex||satHiresTex){satTexU.value=satHiresTex||satBaseTex;satReady=true;return;} // 이미 있으면 즉시
+        if(satBaseTex){satTexU.value=satBaseTex;satReady=true;return;} // 이미 있으면 즉시
         setSatBusy({pct:0,label:'위성 사진 불러오는 중…'});
-        const r=await buildSatelliteTexture(3,(d,t)=>setSatBusy({pct:Math.round(d/t*100),label:'위성 사진 불러오는 중…'}),()=>disposed);
+        const r=await buildSatelliteTexture(4,(d,t)=>setSatBusy({pct:Math.round(d/t*100),label:'위성 사진 불러오는 중…'}),()=>disposed);
         setSatBusy(null); if(!r||disposed)return; satBaseTex=r.tex;satTexU.value=satBaseTex;satReady=true; };
-      const loadHires=async()=>{ setHiresModal(false);
-        // 캐시 우선(사용자 브라우저)
-        const cached=await idbGet(SATKEY_HI);
-        if(cached){try{const tex=await blobToTex(cached);satHiresTex=tex;satTexU.value=tex;satReady=true;if(!S.current.sat)setSat(true);setHiresDone(true);return;}catch(e){/* 손상 캐시 무시 */}}
-        setSatBusy({pct:0,label:'고화질 위성 사진 렌더링 중…'});
-        const r=await buildSatelliteTexture(4,(d,t)=>setSatBusy({pct:Math.round(d/t*100),label:'고화질 위성 사진 렌더링 중…'}),()=>disposed);
-        if(!r||disposed){setSatBusy(null);return;} satHiresTex=r.tex;satTexU.value=r.tex;satReady=true;
-        if(!S.current.sat)setSat(true); setHiresDone(true); setSatBusy(null);
-        try{const blob=await canvasToBlob(r.canvas);if(blob)await idbSet(SATKEY_HI,blob);}catch(e){/* 캐시 실패 무시 */} };
       // ===== 실제 크기 비교(#5) =====
       let tsShape=null,tsGhost=null,tsFillGeo=null,tsLineGeos=[],tsDragging=false;
       const removeGhost=()=>{if(tsGhost){scene.remove(tsGhost);tsGhost.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});}tsGhost=null;tsShape=null;tsLineGeos=[];tsFillGeo=null;tsDragging=false;if(controls&&S.current.view==='flat')controls.enablePan=true;};
@@ -630,7 +634,7 @@ export default function GlobeLab(){
         if(sel.type==='country')feats=world.features.filter(f=>f.properties.n===sel.name);
         else if(sel.type==='continent')feats=world.features.filter(f=>f.properties.c===sel.key);
         if(feats&&feats.length)buildGhost(feats); else removeGhost(); };
-      api.current={applyGrid,applySel,onDN,dolly,goView,applySat,loadHires,refreshTrueSize,
+      api.current={applyGrid,applySel,onDN,dolly,goView,applySat,refreshTrueSize,applyNorthUp,
         tsDrag:{begin:()=>{if(tsGhost&&S.current.trueSize&&S.current.view==='flat'){tsDragging=true;return true;}return false;},
           move:(wx,wy)=>{if(tsDragging)updateGhost(wx,wy);},end:()=>{tsDragging=false;},active:()=>tsDragging},
         pickContinent:(k)=>setSel(sameSel(S.current.sel,{type:'continent',key:k})?null:{type:'continent',key:k}),
@@ -674,7 +678,7 @@ export default function GlobeLab(){
         if(st.view==='flat'){const wpp=2/(camera.zoom*mount.clientHeight);controls.target.x+=e.deltaX*wpp;camera.position.x+=e.deltaX*wpp;controls.target.y-=e.deltaY*wpp;camera.position.y-=e.deltaY*wpp;}
         else if(st.view==='lens'){const k=0.28*D2R;U.uLon0.value+=e.deltaX*k;U.uLat0.value=THREE.MathUtils.clamp(U.uLat0.value-e.deltaY*k,-1.45,1.45);}
         else{const sph=new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
-          sph.theta-=e.deltaX*0.005;sph.phi=THREE.MathUtils.clamp(sph.phi+e.deltaY*0.005,0.05,Math.PI-0.05);
+          sph.theta-=e.deltaX*0.005;if(!st.northUp)sph.phi=THREE.MathUtils.clamp(sph.phi+e.deltaY*0.005,0.05,Math.PI-0.05); // 정북 고정 시 세로 틸트 잠금
           camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(sph));camera.lookAt(controls.target);}
       },{passive:false,capture:true});
       dom.addEventListener('pointerup',e=>{if(!downXY)return;const mv=Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1]);downXY=null;if(mv>6||tr)return;
@@ -747,6 +751,14 @@ export default function GlobeLab(){
           const p=w3.clone().project(camera);
           if(!faceOk||p.z>1||Math.abs(p.x)>1.06||Math.abs(p.y)>1.06){el.style.display='none';continue;}
           el.style.display='block';el.style.left=((p.x*0.5+0.5)*mount.clientWidth)+'px';el.style.top=((-p.y*0.5+0.5)*mount.clientHeight)+'px';}
+        // #8 격자 도수 라벨: 격자가 켜져 있고 전환 중이 아닐 때만. 경선은 뷰 중심 위도에, 위선은 뷰 중심 경도에 샘플점을 잡아 투영.
+        const showGrid=S.current.grat&&!tr; const cLon=R2D*centerLonRad(),cLat=THREE.MathUtils.clamp(R2D*centerLatRad(),-80,80);
+        for(const gl of gridLabels){ if(!showGrid){gl.el.style.display='none';continue;}
+          const alon=gl.kind==='lon'?gl.v:cLon, alat=gl.kind==='lat'?gl.v:cLat; const w3=projectJS(alon,alat);let faceOk=true;
+          if(globeish){const nrm=rotX(rotY(lonLatToVec3(alon,alat,1),U.uRotY.value),U.uRotX.value);faceOk=nrm.dot(v3.copy(camera.position).sub(w3).normalize())>0.02;}
+          const p=w3.clone().project(camera);
+          if(!faceOk||p.z>1||Math.abs(p.x)>1.02||Math.abs(p.y)>1.02){gl.el.style.display='none';continue;}
+          gl.el.style.display='block';gl.el.style.left=((p.x*0.5+0.5)*mount.clientWidth)+'px';gl.el.style.top=((-p.y*0.5+0.5)*mount.clientHeight)+'px';}
       };
       loop();setStatus('');
       cleanupFn=()=>{window.removeEventListener('resize',onResize);cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
@@ -755,24 +767,36 @@ export default function GlobeLab(){
     return ()=>{disposed=true;cancelAnimationFrame(raf);if(cleanupFn)cleanupFn();};
   },[]);
 
-  const info=sel&&(sel.type==='ocean'?{sw:OCEAN[sel.key].color,en:OCEAN[sel.key].en,kr:OCEAN[sel.key].ko,fact:OCEAN[sel.key].fact}
-    :sel.type==='continent'?{sw:CONT[sel.key].color,en:CONT[sel.key].en,kr:CONT[sel.key].ko,fact:CONT[sel.key].fact}
-    :{sw:(CONT[sel.key]||{}).color||'#888',en:sel.name,kr:sel.name,fact:CONT[sel.key]?`${CONT[sel.key].ko} 대륙`:''});
+  const EN=lang==='en'; // 영어 모드
+  let info=null;
+  if(sel){
+    if(sel.type==='ocean'){const o=OCEAN[sel.key];info={kind:'ocean',color:o.color,title:EN?o.en:o.ko,sub:EN?o.ko:o.en,fact:o.fact};}
+    else if(sel.type==='continent'){const c=CONT[sel.key];info={kind:'continent',color:c.color,title:EN?c.en:c.ko,sub:EN?c.ko:c.en,fact:c.fact};}
+    else { // 국가
+      const cont=CONT[sel.key]||{}; const d=COUNTRY[sel.name];
+      const contKo=cont.ko?`${cont.ko}`:''; const contEn=cont.en?cont.en.split(' ')[0]:'';
+      info={kind:'country',color:cont.color||'#888',
+        flag:d?flagEmoji(d.iso2):'',
+        title:d?(EN?d.en:d.ko):sel.name,
+        sub:d?(EN?d.ko:d.en):sel.name,
+        contLabel:EN?(contEn?`${contEn} · `:''):(contKo?`${contKo} · `:''),
+        langs:d&&d.langs?d.langs.slice(0,3):[],
+        gov:d?d.gov:'', econ:d?d.econ:'',
+        desc:d?d.desc:(cont.ko?`${cont.ko} 대륙의 나라예요.`:'')};
+    }
+  }
 
   return (
     <div id="app" className="gl-app">
-      <div className="topbar"><div className="title-wrap"><div className="kicker">World Map · Interactive</div><div className="title">세계 지도<span className="en">6대륙 5대양</span></div></div></div>
+      <div className="topbar">
+        <a className="home-fab" href="/" title="parcyun studio 홈으로" aria-label="홈으로"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
+        <div className="title-wrap"><div className="kicker">World Map · Interactive</div><div className="title">세계 지도<span className="en">6대륙 5대양</span></div></div>
+      </div>
       <div id="stage" onPointerDownCapture={()=>setHint(false)}><div ref={mountRef} className="gl-canvas" /><div ref={labelRef} className="gl-labels" /></div>
       {status && <div className="gl-status">{status}</div>}
-      <div className={'info'+(info?' show':'')}>{info&&<><div className="swatch" style={{background:info.sw}} /><div className="en">{info.en}</div><div className="kr">{info.kr}</div><div className="fact">{info.fact}</div></>}</div>
-      <DraggablePanel corner={panels.legend} otherCorner={panels.tools} onDock={c=>setPanels(p=>({...p,legend:c}))} className="legend">
-        <div className="floaty-head legend-head" title="드래그해서 이동"><div className="drag-grip"><span/><span/></div></div>
-        <div className="legend-cols">
-        <div className="legend-col"><h4>6 Continents</h4>{CONT_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='continent'&&sel.key===k?' on':'')} onClick={()=>api.current.pickContinent&&api.current.pickContinent(k)}><span className="dot" style={{background:CONT[k].color}} /><span>{CONT[k].ko}</span><small>{CONT[k].en.split(' ')[0]}</small></button>))}</div>
-        <div className="legend-col"><h4>5 Oceans</h4>{OCEAN_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='ocean'&&sel.key===k?' on':'')} onClick={()=>api.current.pickOcean&&api.current.pickOcean(k)}><span className="dot" style={{background:OCEAN[k].color}} /><span>{OCEAN[k].ko}</span><small>{OCEAN[k].en.split(' ')[0]}</small></button>))}</div>
-      </div><div className="note">남극(Antarctica)은 6대륙에서 제외</div></DraggablePanel>
-      <DraggablePanel corner={panels.tools} otherCorner={panels.legend} onDock={c=>setPanels(p=>({...p,tools:c}))} collapsed={toolsCollapsed} onHeaderTap={()=>setToolsCollapsed(v=>!v)} className="grid-panel">
-        <div className="floaty-head" data-collapse title="클릭하면 접기 · 드래그하면 이동"><div className="drag-grip"><span/><span/></div><span className="floaty-head-lbl">도구 상자</span><span className="collapse-chev">{toolsCollapsed?'▸':'▾'}</span></div>
+      {/* #4 도구 상자: 좌상단 고정, 접힘/펼침만(드래그 제거) */}
+      <div className={'floaty grid-panel tools-fixed'+(toolsCollapsed?' collapsed':'')+(guide?' guide-lift':'')}>
+        <div className="floaty-head" onClick={()=>setToolsCollapsed(v=>!v)} title="클릭하면 접기/펼치기"><div className="drag-grip"><span/><span/></div><span className="collapse-chev">{toolsCollapsed?'▸':'▾'}</span></div>
         <div className="panel-body">
         <h4>Grid</h4>
         <label className="tg"><input type="checkbox" checked={grat} onChange={e=>setGrat(e.target.checked)} /><span>위경도 격자</span></label>
@@ -781,18 +805,46 @@ export default function GlobeLab(){
         <label className="tg"><input type="checkbox" checked={dateline} onChange={e=>setDateline(e.target.checked)} /><span>날짜변경선</span></label>
         <div className="step"><span>간격</span><input type="number" min="5" max="90" step="5" value={step} onChange={e=>setStep(e.target.value)} /><span>°</span></div>
         <label className="tg tg-sep"><input type="checkbox" checked={country} onChange={e=>{setCountry(e.target.checked);setSel(null);}} /><span>국가 선택</span></label>
-        <label className="tg"><input type="checkbox" checked={dayNight} onChange={e=>setDayNight(e.target.checked)} /><span>낮과 밤</span></label>
+        <label className="tg"><input type="checkbox" checked={trueSize} disabled={view!=='flat'} onChange={e=>setTrueSize(e.target.checked)} /><span>실제 크기 비교{view!=='flat'&&<small style={{color:'var(--text-2)',marginLeft:4,fontSize:9}}>평면 전용</small>}<button className="ts-info-btn" onClick={e=>{e.preventDefault();setTsInfo(v=>!v);}} title="실제 크기 비교 설명">!</button></span></label>
         <label className="tg tg-sep"><input type="checkbox" checked={sat} onChange={e=>setSat(e.target.checked)} /><span>위성 사진</span></label>
-        {sat && <button className="sat-hires" onClick={()=>hiresDone?null:setHiresModal(true)} disabled={hiresDone}>{hiresDone?'✓ 고화질 적용됨':'고화질 위성 사진 ↑'}</button>}
-        <label className="tg"><input type="checkbox" checked={trueSize} disabled={view!=='flat'} onChange={e=>{const on=e.target.checked;setTrueSize(on);if(on)setCountry(true);}} /><span>실제 크기 비교{view!=='flat'&&<small style={{color:'var(--text-2)',marginLeft:4,fontSize:9}}>평면 전용</small>}<button className="ts-info-btn no-drag" onClick={e=>{e.preventDefault();setTsInfo(v=>!v);}} title="실제 크기 비교 설명">!</button></span></label>
+        <label className="tg"><input type="checkbox" checked={dayNight} onChange={e=>setDayNight(e.target.checked)} /><span>낮과 밤</span></label>
+        <div className="lang-seg tg-sep"><span className="lang-lbl">언어</span><div className="lang-btns"><button className={lang==='ko'?'on':''} onClick={()=>setLang('ko')}>한국어</button><button className={lang==='en'?'on':''} onClick={()=>setLang('en')}>ENG</button></div></div>
         </div>
-      </DraggablePanel>
+      </div>
+      {/* #4 대륙/대양 상자 + 국가 카드: 우상단 고정 스택. 상자 접으면 아래 국가 카드가 따라 올라감 */}
+      <div className="right-stack">
+        <div className={'floaty legend'+(legendCollapsed?' collapsed':'')}>
+          <div className="floaty-head legend-head" onClick={()=>setLegendCollapsed(v=>!v)} title="클릭하면 접기/펼치기"><div className="drag-grip"><span/><span/></div><span className="collapse-chev">{legendCollapsed?'▸':'▾'}</span></div>
+          <div className="panel-body">
+          <div className="legend-cols">
+          <div className="legend-col"><h4>6 Continents</h4>{CONT_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='continent'&&sel.key===k?' on':'')} onClick={()=>api.current.pickContinent&&api.current.pickContinent(k)}><span className="dot" style={{background:CONT[k].color}} /><span>{EN?CONT[k].en.split(' ')[0]:CONT[k].ko}</span><small>{EN?'':CONT[k].en.split(' ')[0]}</small></button>))}</div>
+          <div className="legend-col"><h4>5 Oceans</h4>{OCEAN_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='ocean'&&sel.key===k?' on':'')} onClick={()=>api.current.pickOcean&&api.current.pickOcean(k)}><span className="dot" style={{background:OCEAN[k].color}} /><span>{EN?OCEAN[k].en.split(' ')[0]:OCEAN[k].ko}</span><small>{EN?'':OCEAN[k].en.split(' ')[0]}</small></button>))}</div>
+        </div><div className="note">{EN?'Antarctica is excluded from the 6 continents':'남극(Antarctica)은 6대륙에서 제외'}</div></div>
+        </div>
+        {info && <div className={'info-card '+info.kind} style={{borderColor:info.color}}>
+          <div className="ic-head">
+            {info.kind==='country'
+              ? <span className="ic-flag">{info.flag||'🏳️'}</span>
+              : <span className="ic-swatch" style={{background:info.color}} />}
+            <div className="ic-titles"><div className="ic-title">{info.title}</div><div className="ic-sub">{info.sub}</div></div>
+          </div>
+          {info.kind==='country'
+            ? <>
+                <div className="ic-meta">{info.contLabel}{info.langs.length?info.langs.join(' · '):(EN?'—':'—')}</div>
+                {(info.gov||info.econ)&&<div className="ic-sys">{[info.gov,info.econ].filter(Boolean).join(' · ')}</div>}
+                <div className="ic-hr" />
+                <div className="ic-desc">{info.desc}</div>
+              </>
+            : <div className="ic-desc">{info.fact}</div>}
+        </div>}
+      </div>
       <div className="projseg">
-        <button className={view==='flat'?'on':''} onClick={()=>setView('flat')}>평면</button>
+        <button className={view==='flat'?'on':''} onClick={()=>setView('flat')}>{EN?'Flat':'평면'}</button>
         <button className={view==='lens'?'on':''} onClick={()=>setView('lens')}>Focus Lens</button>
-        <button className={view==='globe'?'on':''} onClick={()=>setView('globe')}>지구본</button>
+        <button className={view==='globe'?'on':''} onClick={()=>setView('globe')}>{EN?'Globe':'지구본'}</button>
       </div>
       <div className="controls">
+        {view==='globe' && <button className={'ctrl'+(northUp?' on':'')} aria-label="정북 고정" title="정북 고정" onClick={()=>setNorthUp(v=>!v)}>ᴺ</button>}
         <button className="ctrl" aria-label="확대" onClick={()=>api.current.dolly&&api.current.dolly(0.8)}>+</button>
         <button className="ctrl" aria-label="축소" onClick={()=>api.current.dolly&&api.current.dolly(1.25)}>−</button>
         <button className="ctrl home" aria-label="처음으로" onClick={()=>{setSel(null);S.current.homeReq=true;if(view==='flat')api.current.goView&&api.current.goView('flat');else setView('flat');}}>⟳</button>
@@ -806,40 +858,36 @@ export default function GlobeLab(){
         <button className="ts-popup-close" onClick={()=>setTsInfo(false)}>닫기</button>
       </div></div>}
       <div className="watermark">{MODE_WM[view]}</div>
-      <footer className="ps-footer">Designed by <span className="ps-signature">parcyun studio</span> · <a href="https://www.instagram.com/parcyun" className="ps-ig" target="_blank" rel="noopener"><svg className="ps-ig-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4 1 .5.4.8.8 1 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-1 1.4-.4.5-.8.8-1.4 1-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-1-.5-.4-.8-.8-1-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 1-1.4.4-.5.8-.8 1.4-1 .4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.4-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/></svg>@parcyun</a> · <span style={{color:'var(--ps-primary)'}}>#3 개발자 뷰</span> · <span className="ps-ver">v1.0.1</span></footer>
-      {guide && <div className="guide" onClick={()=>setGuide(false)}>
-        <div className="guide-card" onClick={e=>e.stopPropagation()}>
-          <div className="guide-kicker">World Map · Interactive</div>
-          <h2>세계 지도 사용법</h2>
-          <ul className="guide-list">
-            <li><b>도법 전환</b> — 상단 <em>평면 · Focus Lens · 지구본</em>으로 3가지 시점을 오갑니다.</li>
-            <li><b>탐색</b> — 드래그로 이동·회전, 휠/핀치로 확대·축소, <em>+ − ⟳</em>로 정밀 조작.</li>
-            <li><b>선택</b> — 대륙·대양을 클릭하면 강조·정보 표시, 다시 클릭하면 해제됩니다.</li>
-            <li><b>격자</b> — 좌측 패널에서 위경도·적도·본초자오선·날짜변경선·낮과 밤을 켤 수 있어요.</li>
-          </ul>
-          <button className="guide-btn" onClick={()=>setGuide(false)}>시작하기</button>
-          <div className="guide-hint">화면 아무 곳이나 눌러도 닫혀요</div>
-        </div>
+      <footer className="ps-footer">
+        <span id="visitor-stats" className="ps-visits ps-visits-infooter" />
+        <button type="button" className="ps-footer-coffee no-drag" onClick={()=>setCoffee(true)}>☕ 커피 사주기</button>
+        <a href="/dashboard.html" className="ps-footer-link">업무 대시보드 ↗</a>
+        Designed by <span className="ps-signature">parcyun studio</span>
+        <a href="https://www.instagram.com/parcyun" className="ps-ig" target="_blank" rel="noopener"><svg className="ps-ig-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4 1 .5.4.8.8 1 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-1 1.4-.4.5-.8.8-1.4 1-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-1-.5-.4-.8-.8-1-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 1-1.4.4-.5.8-.8 1.4-1 .4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.4-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/></svg>@parcyun</a>
+      </footer>
+      {coffee && <div className="coffee-modal" onClick={()=>setCoffee(false)}><div className="coffee-card" onClick={e=>e.stopPropagation()}>
+        <button className="coffee-close" onClick={()=>setCoffee(false)} aria-label="닫기">×</button>
+        <div className="coffee-emoji">☕</div>
+        <h3 className="coffee-title">개발자에게 커피 한 잔</h3>
+        <p className="coffee-sub">QR을 스캔해 후원할 수 있어요. 감사합니다!</p>
+        <img className="coffee-qr" src="/images/coffee-qr.png" alt="parcyun studio 후원 QR" />
+        <div className="coffee-label">parcyun studio</div>
+      </div></div>}
+      {/* #13 가이드 리워크: 모달 대신 옅은 쉐이드로 화면을 덮되 도구 상자는 덮지 않고, 각 기능 옆에 한 줄 설명 */}
+      {guide && <div className="guide-shade" onClick={()=>setGuide(false)}>
+        <div className="gtip gtip-tools">← 지도 도구: 격자·위성사진·낮과 밤·실제 크기 비교</div>
+        <div className="gtip gtip-proj">위 버튼으로 평면·렌즈·지구본 도법을 전환해요 ↑</div>
+        <div className="gtip gtip-legend">대륙·대양·국가를 클릭하면 정보 카드가 떠요 →</div>
+        <div className="gtip gtip-ctrl">확대 · 축소 · 정북 고정 · 처음으로 →</div>
+        <div className="gtip gtip-center">지도를 드래그·클릭하며 탐색해 보세요<br/><span>아무 곳이나 누르면 닫혀요</span></div>
       </div>}
       {satBusy && <div className="sat-busy"><div className="sat-busy-bar"><div className="sat-busy-fill" style={{width:satBusy.pct+'%'}} /></div><div className="sat-busy-lbl">{satBusy.label} {satBusy.pct}%</div></div>}
-      {hiresModal && <div className="guide" onClick={()=>setHiresModal(false)}>
-        <div className="guide-card" onClick={e=>e.stopPropagation()}>
-          <div className="guide-kicker">High-Resolution Satellite</div>
-          <h2>고화질 위성 사진</h2>
-          <ul className="guide-list">
-            <li>수백 개의 고해상도 위성 타일을 내려받아 지구본에 입힙니다. <b>수십 초의 렌더링 시간</b>이 걸릴 수 있어요.</li>
-            <li>결과는 <b>이 브라우저에만</b> 저장(캐시)되어 다음 접속 때 즉시 불러옵니다. 서버에는 저장되지 않아요.</li>
-            <li>데이터: <em>Esri World Imagery</em></li>
-          </ul>
-          <button className="guide-btn" onClick={()=>api.current.loadHires&&api.current.loadHires()}>시작하기</button>
-          <div className="guide-hint">바깥을 누르면 취소돼요</div>
-        </div>
-      </div>}
       <style>{`
         .gl-app{--ps-primary:#FFB11A;--bg:#04060B;--surface-1:#101319;--surface-2:#191D26;--border:#2A2F3A;--text:#fff;--text-2:#8C93A1;--font-kr:'Pretendard Variable','Pretendard','Montserrat',system-ui,sans-serif;--font-en:'Montserrat',sans-serif;--font-sig:'Covered By Your Grace',cursive;--ease:cubic-bezier(0.16,1,0.3,1);position:fixed;inset:0;background:var(--bg);color:var(--text);font-family:var(--font-kr);user-select:none;overflow:hidden}
         .gl-canvas{position:absolute;inset:0}.gl-labels{position:absolute;inset:0;pointer-events:none}#stage{position:absolute;inset:0;cursor:grab}
         .gl-lbl{position:absolute;transform:translate(-50%,-50%);letter-spacing:.02em;text-shadow:0 0 3px #000,0 0 3px #000,0 1px 4px #000;white-space:nowrap;text-align:center}
         .gl-lbl.cont{font-weight:600;color:#fff}
+        .gl-lbl.grid{font-family:var(--font-en);font-size:9px;font-weight:500;letter-spacing:.04em;color:#7E8798;text-shadow:0 0 3px #000,0 1px 3px #000;background:rgba(4,6,11,.35);padding:1px 4px;border-radius:4px;pointer-events:none}
         .gl-lbl.ocn .kr{color:#9DB0D6;font-weight:300;font-size:14px;letter-spacing:.18em}
         .gl-lbl.ocn .en{font-family:var(--font-en);font-weight:300;color:#56627E;font-size:8.5px;letter-spacing:.32em;text-transform:uppercase;margin-top:2px}
         .gl-lbl.ocn{transition:opacity .25s var(--ease),filter .25s var(--ease)}
@@ -848,21 +896,41 @@ export default function GlobeLab(){
         .gl-lbl.ocn.active .kr{color:var(--ps-primary);font-weight:500}
         .gl-lbl.ocn.active .en{color:var(--ps-primary)}
         .gl-status{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--ps-primary);font-size:14px;z-index:40}
-        .topbar{position:absolute;top:0;left:0;right:0;z-index:30;display:flex;padding:18px 22px;pointer-events:none}.title-wrap{pointer-events:auto}
+        .topbar{position:absolute;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;gap:12px;padding:16px 22px;pointer-events:none}.title-wrap{pointer-events:auto}
+        .home-fab{pointer-events:auto;flex-shrink:0;width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:rgba(16,19,25,.72);backdrop-filter:blur(14px);color:#fff;display:flex;align-items:center;justify-content:center;transition:all .18s var(--ease)}
+        .home-fab svg{width:18px;height:18px}.home-fab:hover{border-color:var(--ps-primary);color:var(--ps-primary);transform:translateY(-1px)}
         .kicker{font-family:var(--font-en);font-size:10px;letter-spacing:.28em;color:var(--ps-primary);font-weight:600;text-transform:uppercase}
         .title{font-size:19px;font-weight:600;letter-spacing:-.01em;margin-top:3px}.title .en{font-family:var(--font-en);color:var(--text-2);font-weight:300;font-size:13px;margin-left:8px}
-        .floaty{position:fixed;left:0;top:0;z-index:30;will-change:transform;cursor:grab;touch-action:none;transition:transform .5s cubic-bezier(.34,1.56,.64,1)}
-        .floaty.dragging{cursor:grabbing;z-index:41;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+        .floaty{z-index:30}
+        .tools-fixed{position:fixed;left:20px;top:64px}
+        .right-stack{position:fixed;right:20px;top:64px;z-index:30;display:flex;flex-direction:column;gap:10px;align-items:stretch;width:340px;max-width:calc(100vw - 40px)}
         .drag-grip{display:flex;flex-direction:column;align-items:center;gap:2px;opacity:.4;transition:opacity .2s;flex-shrink:0}
-        .floaty:hover .drag-grip{opacity:.75}.drag-grip span{width:22px;height:2px;border-radius:2px;background:var(--text-2)}
+        .floaty:hover .drag-grip{opacity:.7}.drag-grip span{width:22px;height:2px;border-radius:2px;background:var(--text-2)}
         .floaty-head{display:flex;align-items:center;gap:8px;padding:2px 2px 8px;margin:-3px -4px 0;cursor:pointer;user-select:none}
-        .floaty-head-lbl{font-family:var(--font-en);font-size:9px;letter-spacing:.2em;color:var(--text-2);font-weight:600;text-transform:uppercase}
         .collapse-chev{margin-left:auto;font-size:10px;color:var(--text-2);transition:color .2s}.floaty:hover .collapse-chev{color:var(--ps-primary)}
-        .legend-head{justify-content:center;padding:0 0 6px;margin:-2px 0 0}
+        .legend-head{padding:2px 2px 8px;margin:-3px -4px 0}
         .panel-body{display:flex;flex-direction:column;gap:7px;overflow:hidden;max-height:640px;opacity:1;transition:max-height .42s cubic-bezier(.34,1.42,.64,1),opacity .28s ease,margin-top .42s cubic-bezier(.34,1.42,.64,1)}
-        .grid-panel.collapsed .panel-body{max-height:0;opacity:0;margin-top:-4px}
-        .grid-panel.collapsed{padding-bottom:9px}
-        .legend{display:flex;flex-direction:column;gap:9px;background:rgba(16,19,25,.72);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:16px;padding:12px 16px 14px;max-width:340px}
+        .floaty.collapsed .panel-body{max-height:0;opacity:0;margin-top:-4px}
+        .floaty.collapsed{padding-bottom:9px}
+        .legend{display:flex;flex-direction:column;gap:9px;background:rgba(16,19,25,.72);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:16px;padding:12px 16px 14px}
+        /* #4~9 국가/선택 카드 — 대륙 색 테두리, 국기, 공식명, 언어, 정치·경제, 헤어라인, 한 줄 설명 */
+        .info-card{background:rgba(16,19,25,.86);backdrop-filter:blur(16px);border:1.5px solid var(--border);border-radius:16px;padding:15px 16px;box-shadow:0 12px 40px rgba(0,0,0,.35);animation:cardIn .34s var(--ease)}
+        @keyframes cardIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+        .ic-head{display:flex;align-items:center;gap:11px;margin-bottom:9px}
+        .ic-flag{font-size:30px;line-height:1;width:40px;text-align:center;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+        .ic-swatch{width:34px;height:34px;border-radius:9px;flex-shrink:0}
+        .ic-titles{min-width:0}.ic-title{font-size:21px;font-weight:700;letter-spacing:-.02em;line-height:1.15;color:#fff}
+        .ic-sub{font-family:var(--font-en);font-size:11px;color:var(--text-2);font-weight:400;margin-top:2px;letter-spacing:.01em}
+        .ic-meta{font-size:12px;color:#C5CAD4;font-weight:300;line-height:1.5}
+        .ic-sys{font-size:12px;color:var(--ps-primary);font-weight:500;margin-top:3px}
+        .ic-hr{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);margin:10px 0}
+        .ic-desc{font-size:12.5px;line-height:1.6;color:#AEB4C0;font-weight:300}
+        .info-card.continent .ic-desc,.info-card.ocean .ic-desc{color:#C5CAD4}
+        .lang-seg{display:flex;align-items:center;gap:8px;margin-top:8px;border-top:1px solid var(--border);padding-top:9px}
+        .lang-lbl{font-size:12px;color:var(--text-2);font-weight:300}
+        .lang-btns{margin-left:auto;display:flex;gap:2px;background:var(--surface-2);border-radius:8px;padding:2px}
+        .lang-btns button{border:0;background:transparent;color:var(--text-2);font-family:var(--font-kr);font-size:11px;font-weight:500;padding:3px 9px;border-radius:6px;cursor:pointer;transition:all .16s var(--ease)}
+        .lang-btns button.on{background:var(--ps-primary);color:#0A0C10;font-weight:600}
         .legend-cols{display:flex;gap:16px}.legend-col{display:flex;flex-direction:column;gap:6px;min-width:104px}
         .legend h4{font-family:var(--font-en);font-size:9px;letter-spacing:.22em;color:var(--text-2);font-weight:600;text-transform:uppercase;margin-bottom:3px}
         .chip{display:flex;align-items:center;gap:9px;cursor:pointer;border:none;background:none;padding:3px 4px;border-radius:8px;width:100%;text-align:left;transition:background .2s}
@@ -899,14 +967,26 @@ export default function GlobeLab(){
         .daynight-ctl input[type=range]{width:min(46vw,420px);height:3px;accent-color:var(--ps-primary);cursor:pointer}
         .dn-lbl{font-size:12px;color:var(--ps-primary);min-width:30px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600;flex-shrink:0}
         @media(max-width:640px){.daynight-ctl{bottom:92px;gap:8px;padding:8px 12px}.daynight-ctl input[type=range]{width:44vw}}
-        .controls{position:absolute;right:22px;bottom:54px;z-index:30;display:flex;flex-direction:column;gap:8px}
+        .controls{position:fixed;right:22px;bottom:92px;z-index:31;display:flex;flex-direction:column;gap:8px}
         .ctrl{width:42px;height:42px;border-radius:12px;border:1px solid var(--border);background:rgba(16,19,25,.72);backdrop-filter:blur(14px);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s var(--ease);font-family:var(--font-en)}
         .ctrl:hover{border-color:var(--ps-primary);color:var(--ps-primary)}.ctrl:active{transform:scale(.93)}.ctrl.home{font-size:15px}
+        .ctrl.on{border-color:var(--ps-primary);color:#0A0C10;background:var(--ps-primary);font-weight:700}
         .info{position:absolute;bottom:54px;left:22px;z-index:29;width:248px;background:rgba(16,19,25,.82);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:20px;padding:20px;opacity:0;transform:translateY(8px);pointer-events:none;transition:all .3s var(--ease)}
         .info.show{opacity:1;transform:translateY(0)}.info .swatch{width:34px;height:34px;border-radius:9px;margin-bottom:12px}.info .en{font-family:var(--font-en);font-size:10px;letter-spacing:.22em;color:var(--text-2);font-weight:600;text-transform:uppercase}
         .info .kr{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:2px 0 10px}.info .fact{font-size:13px;line-height:1.6;color:#C5CAD4;font-weight:300}
         .hint{position:absolute;bottom:54px;left:50%;transform:translateX(-50%);z-index:25;font-size:11px;color:var(--text-2);font-weight:300;text-align:center;background:rgba(4,6,11,.5);padding:6px 14px;border-radius:9999px;transition:opacity .4s}
         .hint.off{opacity:0;pointer-events:none}
+        /* #13 가이드 쉐이드: 화면을 옅게 덮되 도구 상자(.guide-lift, z55)는 위로 띄워 안 덮음. 팁은 쉐이드 위(z51). */
+        .guide-shade{position:fixed;inset:0;z-index:50;background:rgba(4,6,11,.5);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);animation:guideIn .3s var(--ease);cursor:pointer}
+        .tools-fixed.guide-lift{z-index:55}
+        .gtip{position:absolute;z-index:51;font-size:12.5px;line-height:1.5;color:#EAECF0;font-weight:400;text-shadow:0 1px 6px rgba(0,0,0,.9);max-width:230px}
+        .gtip-tools{left:220px;top:96px}
+        .gtip-proj{left:50%;top:66px;transform:translateX(-50%);text-align:center}
+        .gtip-legend{right:372px;top:120px;text-align:right}
+        .gtip-ctrl{right:78px;bottom:150px;text-align:right}
+        .gtip-center{left:50%;top:52%;transform:translate(-50%,-50%);text-align:center;font-size:15px;color:#fff;font-weight:500}
+        .gtip-center span{display:block;margin-top:6px;font-size:11.5px;color:var(--text-2);font-weight:300}
+        @media(max-width:760px){.gtip-tools,.gtip-legend,.gtip-ctrl,.gtip-proj{display:none}}
         .guide{position:absolute;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(4,6,11,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:guideIn .3s var(--ease)}
         @keyframes guideIn{from{opacity:0}to{opacity:1}}
         .guide-card{width:min(440px,90vw);background:rgba(16,19,25,.94);border:1px solid var(--border);border-radius:22px;padding:30px 30px 24px;box-shadow:0 24px 70px rgba(0,0,0,.5);animation:guideCard .4s var(--ease)}
@@ -925,7 +1005,22 @@ export default function GlobeLab(){
         .projseg button:hover{color:#fff}.projseg button.on{background:var(--ps-primary);color:#0A0C10;font-weight:600}
         .watermark{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);z-index:5;font-family:var(--font-en);font-size:9px;letter-spacing:.4em;color:#323a4a;text-transform:uppercase;pointer-events:none}
         .ps-footer{position:fixed;bottom:16px;right:20px;font-family:var(--font-en);font-weight:300;font-size:11px;color:var(--text-2);display:flex;align-items:center;gap:8px;z-index:9999;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:6px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.08)}
-        .ps-signature{font-family:var(--font-sig);font-size:15px;color:var(--ps-primary);line-height:1}.ps-ig{display:inline-flex;align-items:center;gap:3px;color:inherit;text-decoration:none}.ps-ig:hover{color:var(--ps-primary)}.ps-ig-icon{width:10px;height:10px;vertical-align:middle}.ps-ver{color:var(--text-2);font-variant-numeric:tabular-nums;opacity:.8}
+        .ps-signature{font-family:var(--font-sig);font-size:15px;color:var(--ps-primary);line-height:1}.ps-ig{display:inline-flex;align-items:center;gap:3px;color:inherit;text-decoration:none}.ps-ig:hover{color:var(--ps-primary)}.ps-ig-icon{width:10px;height:10px;vertical-align:middle}
+        /* 메인 페이지 푸터와 동일: 커피 후원·업무 대시보드·방문자 카운터(푸터 내부 우측) */
+        .ps-footer-coffee{font-family:var(--font-en);font-size:11px;font-weight:400;color:var(--ps-primary);background:transparent;border:0;padding:0 10px 0 0;margin-right:2px;border-right:1px solid rgba(255,255,255,.14);cursor:pointer;transition:color .2s}
+        .ps-footer-coffee:hover{filter:brightness(1.15)}
+        .ps-footer-link{font-family:var(--font-en);font-size:11px;font-weight:400;color:var(--text-2);text-decoration:none;padding-right:10px;margin-right:2px;border-right:1px solid rgba(255,255,255,.14);transition:color .2s}
+        .ps-footer-link:hover{color:var(--ps-primary)}
+        .ps-visits-infooter{padding-right:10px;margin-right:2px;border-right:1px solid rgba(255,255,255,.14)}
+        .ps-visits-infooter:empty{display:none}
+        /* 혹시 카운터가 푸터 밖 플로트로 뜨면 좌하단 대신 우하단(푸터 위)로 */
+        .ps-visits-float{left:auto !important;right:20px !important;bottom:58px !important}
+        .coffee-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(4,6,11,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+        .coffee-card{position:relative;width:min(320px,88vw);background:rgba(16,19,25,.96);border:1px solid var(--border);border-radius:20px;padding:26px 24px 20px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.5)}
+        .coffee-close{position:absolute;top:12px;right:14px;background:transparent;border:0;color:var(--text-2);font-size:20px;cursor:pointer;line-height:1}.coffee-close:hover{color:#fff}
+        .coffee-emoji{font-size:34px}.coffee-title{font-size:17px;font-weight:700;margin:8px 0 4px;color:#fff}.coffee-sub{font-size:12px;color:var(--text-2);font-weight:300;margin:0 0 16px}
+        .coffee-qr{width:180px;height:180px;object-fit:contain;border-radius:12px;background:#fff;padding:8px}.coffee-label{margin-top:12px;font-family:var(--font-sig);font-size:16px;color:var(--ps-primary)}
+        @media(max-width:640px){.ps-footer{flex-wrap:wrap;max-width:calc(100vw - 40px);justify-content:flex-end}}
         @media(max-width:640px){.info{width:200px;padding:16px}.info .kr{font-size:24px}.legend{max-width:200px;padding:11px 13px}.legend-col{min-width:88px}.controls{right:14px;bottom:48px}.topbar{padding:14px 16px}.title{font-size:16px}.title .en{display:none}.grid-panel{min-width:0;padding:10px 12px}}
       `}</style>
     </div>

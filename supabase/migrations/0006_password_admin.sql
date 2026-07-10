@@ -83,18 +83,6 @@ grant execute on function
   public.admin_get_people(text)
   to anon, authenticated;
 
--- ===== KOCOMATE (수업 보조 도구) 등록 =====
-insert into public.resources
-  (id, category, type, subject, title, description, url, external, thumb, lid, poster_title, date, meta, tags, sort)
-values
-  ('kocomate','교육 활동 자료','수업 보조 도구','수업 도구',
-   'KOCOMATE · 수업 보조 도구',
-   '네패스(kocoafab)가 만든 교사용 수업 보조 도구. 교실 수업을 돕는 기능을 웹에서 바로 활용할 수 있어요.',
-   'https://kocoafab.cc/edu/kocomate', true, '🧰', 'Tool · Teaching',
-   '<strong>KOCOMATE</strong><br>수업 보조 도구', '2026.07.10',
-   '["2026.07.10","KOCOAFAB ↗","교사용"]', '["수업도구","보조도구","kocoafab"]', 90)
-on conflict (id) do update set
-  category=excluded.category, type=excluded.type, subject=excluded.subject, title=excluded.title,
-  description=excluded.description, url=excluded.url, external=excluded.external, thumb=excluded.thumb,
-  lid=excluded.lid, poster_title=excluded.poster_title, date=excluded.date, meta=excluded.meta,
-  tags=excluded.tags, sort=excluded.sort;
+-- KOCOMATE 는 정적 resources.ts(수업 보조 도구)에서만 관리 → DB엔 넣지 않음.
+-- 과거 잘못 들어간 행이 있으면 제거(정적의 올바른 값이 병합돼 보이도록).
+delete from public.resources where id = 'kocomate';

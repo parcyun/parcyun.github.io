@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { COUNTRY, flagEmoji } from './globeCountryData.js';
+import { STR, MONTHS_I18N } from './globeI18n.js';
+import { GLSL, STRADDLE, LENSCLIP, meshVert, cloneVert, OCEANGRAD, meshFrag, cloneFrag, lineVert, lineFrag, fatLineVert, fatLineFrag, fillVert, fillFrag } from './globeShaders.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { geoEquirectangular, geoPath, geoContains } from 'd3-geo';
 
@@ -137,135 +139,7 @@ async function buildSatelliteTexture(z,onProgress,shouldAbort){
   return {tex:rawTex(out),canvas:out};
 }
 
-const GLSL=`const float PI=3.141592653589793; const float MS=0.6366197723675814; const float STE=1.0;
-float wrapLon(float x){ return x-2.0*PI*floor(x/(2.0*PI)); } // [0,2π) 안전 래핑(seam 상대좌표·straddle 판정 공용)
-vec3 project(vec2 uv, vec3 sphere, float morph, float lens, float rotY, float rotX, float lon0, float lat0, float lonC, float offX){
-  float lon=(uv.x-0.5)*2.0*PI; float lat=(uv.y-0.5)*PI; float latC=clamp(lat,-1.4661,1.4661);
-  float lonRel=wrapLon(lon-lonC+PI)-PI;                                    // (-π,π], seam=lonC+π(시선 대척점) — 메르카토 이음새가 뷰 중심을 따라다님
-  vec3 pl=vec3((lonC+lonRel)*MS+offX, log(tan(PI/4.0+latC/2.0))*MS, 0.0);
-  // 렌즈 = stereographic(방위·등각 도법, 원본 HTML과 동일): 중앙 실제비율·형태보존, 가장자리로 갈수록 확대. lon0,lat0=시선중심(rad)
-  float slon=lon-lon0, sl0=sin(lat0), cl0=cos(lat0);
-  float cosc=sl0*sin(lat)+cl0*cos(lat)*cos(slon);
-  // 대척점 근접 시 ks가 무제한 발산 → 방향(방위각)은 정확히 보존한 채 거리만 항상 화면 밖인 값(30)으로 클램프.
-  // 등각도법이라 방위각이 대척점 바로 그 지점 외엔 연속이라, "먼 모서리 하나 때문에 삼각형 전체를 껐다 켰다"하던
-  // 깜빡임(#4 이후 드래그 중 화면이 툭툭 끊기던 버그)을 없애고, 큰 삼각형의 나머지 두 꼭짓점은 정상 렌더 유지.
-  float ks=min(STE*2.0/(1.0+max(cosc,-0.985)),30.0);
-  vec3 st=vec3(ks*cos(lat)*sin(slon), ks*(cl0*sin(lat)-sl0*cos(lat)*cos(slon)), 0.0);
-  // 구 회전: Y(경도) 후 X(위도 틸트)
-  float cy=cos(rotY), sy=sin(rotY); vec3 s1=vec3(sphere.x*cy+sphere.z*sy, sphere.y, -sphere.x*sy+sphere.z*cy);
-  float cx=cos(rotX), sx=sin(rotX); vec3 sph=vec3(s1.x, s1.y*cx-s1.z*sx, s1.y*sx+s1.z*cx);
-  return sph*(1.0-morph-lens)+pl*morph+st*lens;
-}`;
-// seam(lonC+π) 걸친 삼각형 판정: 세 꼭짓점 경도를 lonC 기준 [0,2π)로 래핑 → span>π면 straddle → 정점 전부 클립 밖으로(파생함수 없이 결정적 붕괴)
-const STRADDLE=`bool straddle3(vec3 tl,float lonC){ float w0=wrapLon(tl.x-lonC+PI),w1=wrapLon(tl.y-lonC+PI),w2=wrapLon(tl.z-lonC+PI);
-  return max(w0,max(w1,w2))-min(w0,min(w1,w2))>PI; }`;
-// 렌즈(스테레오그래픽) 대척점 "정확히 걸친" 삼각형만 붕괴: project()의 ks 클램프(위)가 거리 폭주 자체를 이미 막아주므로
-// (먼 꼭짓점은 항상 화면 밖 반경 30에 고정 → 나머지 두 꼭짓점은 정상 렌더, 깜빡임 없음), 여기선 방위각이 실제로
-// 불연속(등각도법 특이점 그 자체를 관통)이 되는 극히 드문 경우만 잡으면 됨 — 임계값을 -0.9→-0.995로 좁혀
-// "화면에 살짝이라도 걸치는 큰 삼각형"이 일반 드래그 중에 오탐(=화면 깜빡임)되는 빈도를 최소화.
-const LENSCLIP=`bool lensTriBad(vec3 tlon,vec3 tlat,float lon0,float lat0){
-  float c0=sin(lat0)*sin(tlat.x)+cos(lat0)*cos(tlat.x)*cos(tlon.x-lon0);
-  float c1=sin(lat0)*sin(tlat.y)+cos(lat0)*cos(tlat.y)*cos(tlon.y-lon0);
-  float c2=sin(lat0)*sin(tlat.z)+cos(lat0)*cos(tlat.z)*cos(tlon.z-lon0);
-  return min(c0,min(c1,c2))<-0.995; }`;
-const meshVert=GLSL+STRADDLE+LENSCLIP+`attribute vec3 aTriLon; attribute vec3 aTriLat; uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC; varying vec2 vUv;
-void main(){ vUv=uv; if(morph>0.001&&straddle3(aTriLon,uLonC)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;}
-  if(lens>0.001&&lensTriBad(aTriLon,aTriLat,uLon0,uLat0)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;}
-  vec3 p=project(uv,position,morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,0.0); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
-// 클론 타일: 중심 메쉬와 동일하게 모핑(morph/lens/rot 공유) + 경도 오프셋. seam 상대 pl이라 타일끼리 연속 — 평면 무한스크롤 전용.
-const cloneVert=GLSL+STRADDLE+LENSCLIP+`attribute vec3 aTriLon; attribute vec3 aTriLat; uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX; varying vec2 vUv;
-void main(){ vUv=uv; if(morph>0.001&&straddle3(aTriLon,uLonC)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;}
-  if(lens>0.001&&lensTriBad(aTriLon,aTriLat,uLon0,uLat0)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;}
-  vec3 p=project(uv,position,morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
-// 원본 oceanGrad 정확 재현: 화면공간 radial gradient (cx50% cy42% r75%), stops #0A1322/#060B16/#04060B.
-// gl_FragCoord(디바이스px, 원점=좌하단)라 y=42%(위)→sc.y 0.58. dc.a로 육지(1)/바다(0) 구분.
-const OCEANGRAD=`vec3 oceanGrad(vec2 fc, vec2 res){ vec2 sc=fc/res; float d=clamp(length((sc-vec2(0.5,0.58))/1.5),0.0,1.0);
-  vec3 g0=vec3(10.0,19.0,34.0)/255.0,g1=vec3(6.0,11.0,22.0)/255.0,g2=vec3(4.0,6.0,11.0)/255.0;
-  return d<0.55?mix(g0,g1,d/0.55):mix(g1,g2,(d-0.55)/0.45);} `;
-const meshFrag=OCEANGRAD+`uniform sampler2D dayTex,nightTex,overlayTex,satTex; uniform float sunLon,sunLat,nightBoost,dayNightOn,lens,uLon0,uLat0,uSat; uniform vec2 uScreen; varying vec2 vUv;
-void main(){ float lon=(vUv.x-0.5)*360.0, lat=(vUv.y-0.5)*180.0;
-  if(lens>0.5){ float cc=sin(uLat0)*sin(radians(lat))+cos(uLat0)*cos(radians(lat))*cos(radians(lon)-uLon0); if(cc<-0.985) discard; } // stereographic: 대척점 근방만 미렌더
-  float rl=radians(lat),ro=radians(lon),sa=radians(sunLat),so=radians(sunLon);
-  float cz=sin(rl)*sin(sa)+cos(rl)*cos(sa)*cos(ro-so); float t=mix(1.0,smoothstep(-0.10,0.12,cz),dayNightOn);
-  vec4 dc=texture2D(dayTex,vUv),nc=texture2D(nightTex,vUv);
-  vec3 land=mix(nc.rgb*nightBoost, dc.rgb, t);
-  vec3 ocean=oceanGrad(gl_FragCoord.xy,uScreen)*mix(0.32,1.0,t);          // 바다=원본 그라디언트(밤엔 어둡게)
-  vec3 base=mix(ocean, land, dc.a);                                       // dc.a: 육지 1 / 바다 0
-  if(uSat>0.5){ vec3 sc=texture2D(satTex,vUv).rgb; base=mix(base, mix(sc*0.32, sc, t), uSat); } // 위성: 표면 전체를 실사 위성사진으로(밤엔 어둡게), uSat로 크로스페이드
-  vec4 ov=texture2D(overlayTex,vUv);
-  gl_FragColor=vec4(mix(base,ov.rgb,ov.a),1.0);} `;
-// 클론 프래그먼트: 중심과 동일 셰이딩 + 알파=uCloneAmt(평면=1, 전환 중엔 morph≥0.8에서만 페이드 — 가장자리 커버용, seam 마스킹 아님)
-const cloneFrag=OCEANGRAD+`uniform sampler2D dayTex,nightTex,overlayTex,satTex; uniform float sunLon,sunLat,nightBoost,dayNightOn,uCloneAmt,uSat; uniform vec2 uScreen; varying vec2 vUv;
-void main(){ float rl=radians((vUv.y-0.5)*180.0),ro=radians((vUv.x-0.5)*360.0),sa=radians(sunLat),so=radians(sunLon);
-  float cz=sin(rl)*sin(sa)+cos(rl)*cos(sa)*cos(ro-so); float t=mix(1.0,smoothstep(-0.10,0.12,cz),dayNightOn);
-  vec4 dc=texture2D(dayTex,vUv),nc=texture2D(nightTex,vUv);
-  vec3 land=mix(nc.rgb*nightBoost, dc.rgb, t); vec3 ocean=oceanGrad(gl_FragCoord.xy,uScreen)*mix(0.32,1.0,t);
-  vec3 base=mix(ocean, land, dc.a);
-  if(uSat>0.5){ vec3 sc=texture2D(satTex,vUv).rgb; base=mix(base, mix(sc*0.32, sc, t), uSat); }
-  vec4 ov=texture2D(overlayTex,vUv);
-  gl_FragColor=vec4(mix(base,ov.rgb,ov.a), clamp(uCloneAmt,0.0,1.0));} `;
-const lineVert=GLSL+`attribute vec2 aGeo; attribute vec2 aGeoB; uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX; varying float vCosc,vFrontZ,vSphereW;
-void main(){ // seam 걸친 세그먼트 붕괴(국경 LineSegments용 — 짝 끝점 aGeoB와 비교; 라인스트립은 aGeoB=aGeo라 절대 미발동)
-  if(morph>0.001){ float wa=wrapLon(radians(aGeo.x)-uLonC+PI),wb=wrapLon(radians(aGeoB.x)-uLonC+PI); if(abs(wa-wb)>PI){gl_Position=vec4(2.0,2.0,2.0,1.0);return;} }
-  vec2 uv=vec2((aGeo.x+180.0)/360.0,(aGeo.y+90.0)/180.0); vec3 nn=normalize(vec3(-cos(uv.x*2.0*PI)*sin((1.0-uv.y)*PI),cos((1.0-uv.y)*PI),sin(uv.x*2.0*PI)*sin((1.0-uv.y)*PI)));
-  float glon=(uv.x-0.5)*2.0*PI, glat=(uv.y-0.5)*PI; vCosc=sin(uLat0)*sin(glat)+cos(uLat0)*cos(glat)*cos(glon-uLon0); // 렌즈 대척점 클립용
-  vec3 p=project(uv,nn*1.003,morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX);
-  // 구 뒷면 컬: 실제 카메라 위치(cameraPosition, Three가 자동 주입) 기준으로 판정 — 지구본 뷰 드래그 회전은 OrbitControls가
-  // 카메라를 궤도이동시키는 것이라 uRotY/uRotX(고정 카메라 가정, 씬 전환 때만 바뀜)만으로 계산하면 사용자가 돌린 만큼 어긋나
-  // 정확히 절반이 잘못 잘리는 버그가 있었음(회전 각도가 클수록 어긋남 커짐). p는 project()의 최종 위치라 카메라 상대 벡터도 정확.
-  vFrontZ=dot(normalize(p),normalize(cameraPosition-p)); vSphereW=1.0-morph-lens;
-  p.z+=0.006; gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);} `;
-const lineFrag=`uniform vec3 uColor; uniform float uOp,lens; varying float vCosc,vFrontZ,vSphereW;
-void main(){ if(vSphereW>0.5&&vFrontZ<-0.02) discard; if(lens>0.5&&vCosc<-0.72) discard; gl_FragColor=vec4(uColor,uOp);} `;
-// 화면공간 일정굵기 선(#2 오버레이): 두 끝점을 클립공간으로 투영 → 화면 수직으로 uPx만큼 오프셋.
-// 도법·줌 무관하게 항상 같은 px 두께. depthTest off + 구 뒷면/렌즈 대척점 컬로 오버레이처럼 항상 위에.
-const fatLineVert=GLSL+`attribute vec2 aGeoA,aGeoB; attribute float aEnd,aSide;
-uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX,uPx; uniform vec2 uRes; varying float vCosc,vFrontZ,vSphereW;
-vec3 uSph(vec2 g){vec2 uv=vec2((g.x+180.0)/360.0,(g.y+90.0)/180.0);return normalize(vec3(-cos(uv.x*2.0*PI)*sin((1.0-uv.y)*PI),cos((1.0-uv.y)*PI),sin(uv.x*2.0*PI)*sin((1.0-uv.y)*PI)));}
-vec3 posOf(vec2 g){vec2 uv=vec2((g.x+180.0)/360.0,(g.y+90.0)/180.0);return project(uv,uSph(g)*1.003,morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX);}
-// 실제 카메라 위치(cameraPosition) 기준 뒷면 판정 — 지구본 드래그 회전은 OrbitControls가 카메라를 옮기는 것이라
-// uRotY/uRotX(전환 때만 바뀌는 고정 카메라 가정)만으로 계산하면 회전한 만큼 어긋나 절반이 잘못 컬링되던 버그의 원인이었음.
-float frontZOf(vec2 g){vec3 p=posOf(g);return dot(normalize(p),normalize(cameraPosition-p));}
-vec4 clipOf(vec2 g){vec3 p=posOf(g);p.z+=0.009;return projectionMatrix*modelViewMatrix*vec4(p,1.0);}
-void main(){ // seam 걸친 세그먼트 붕괴(양 끝점 모두 정점에 있음 → 결정적)
-  if(morph>0.001){ float wa=wrapLon(radians(aGeoA.x)-uLonC+PI),wb=wrapLon(radians(aGeoB.x)-uLonC+PI); if(abs(wa-wb)>PI){gl_Position=vec4(2.0,2.0,2.0,1.0);return;} }
-  // 구 뒷면(림) 경계 걸친 세그먼트 붕괴: 두 끝점이 전면/후면으로 갈리면 화면공간 리본 방향(dir)이 두 클립좌표 차로 계산되는데
-  // 후면 점의 직교투영 좌표가 전면과 무관하게 튀어 dir이 폭주 → 적도선이 화면을 가로지르는 고리로 뻗치는 버그의 원인.
-  // 프래그먼트 discard(vFrontZ)는 이미 있지만 그건 정점이 만들어진 *뒤*라 리본 폭 계산 자체를 못 막음 — 정점 단계에서 미리 끊어야 함.
-  if(1.0-morph-lens>0.5){ bool visA=frontZOf(aGeoA)>-0.02, visB=frontZOf(aGeoB)>-0.02; if(visA!=visB){gl_Position=vec4(2.0,2.0,2.0,1.0);return;} }
-  vec4 cA=clipOf(aGeoA),cB=clipOf(aGeoB); vec4 cT=(aEnd<0.5)?cA:cB;
-  vec2 sA=cA.xy/cA.w,sB=cB.xy/cB.w; vec2 diff=(sB-sA)*uRes; float dl=length(diff);
-  // dl≈0(두 끝점이 화면상 같은 점에 투영)이면 normalize가 NaN → perp도 NaN이 되어 리본이 화면을 가로지르는 스파이크로 폭주.
-  // 안전 폴백(가로 방향 dir)으로 대체 — 폭 계산만 무해해지고(폭 0에 가까운 리본), 위치 자체는 정상 유지.
-  vec2 dir=dl>1e-4?diff/dl:vec2(1.0,0.0); vec2 perp=vec2(-dir.y,dir.x);
-  cT.xy+=perp*(2.0*uPx)/uRes*aSide*cT.w;
-  vec2 g=(aEnd<0.5)?aGeoA:aGeoB; float glon=g.x*PI/180.0,glat=g.y*PI/180.0;
-  vCosc=sin(uLat0)*sin(glat)+cos(uLat0)*cos(glat)*cos(glon-uLon0);
-  vFrontZ=frontZOf(g); vSphereW=1.0-morph-lens;
-  gl_Position=cT;}`;
-const fatLineFrag=`uniform vec3 uColor; uniform float uOp,lens; varying float vCosc,vFrontZ,vSphereW;
-void main(){ if(vSphereW>0.5&&vFrontZ<-0.02) discard; if(lens>0.5&&vCosc<-0.72) discard; gl_FragColor=vec4(uColor,uOp);}`;
 const densify=(pts,maxStep=3)=>{const out=[pts[0]];for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],n=Math.max(1,Math.ceil(Math.max(Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1]))/maxStep));for(let j=1;j<=n;j++)out.push([a[0]+(b[0]-a[0])*j/n,a[1]+(b[1]-a[1])*j/n]);}return out;};
-// #5 벡터 대륙 채움(딥줌 선명): 폴리곤을 lon/lat 공간에서 삼각분할→aGeo 모핑 셰이더로 투영. 텍스처 대신 벡터라 어느 배율에도 안 깨짐.
-// 채색·낮밤·선택 dim은 meshFrag와 동일 로직 재현(vCol 베이스 + overlayTex 블렌드). 대척점/구 뒷면 컬 포함.
-const fillVert=GLSL+STRADDLE+LENSCLIP+`attribute vec2 aGeo; attribute vec3 aColor; attribute vec3 aTriLon; attribute vec3 aTriLat; uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX;
-varying vec2 vUv; varying vec3 vCol; varying float vCosc,vFrontZ,vSphereW;
-void main(){ vUv=vec2((aGeo.x+180.0)/360.0,(aGeo.y+90.0)/180.0); vCol=aColor;
-  if(morph>0.001&&straddle3(aTriLon,uLonC)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;} // seam 걸친 삼각형 붕괴(빠진 곳은 아래 텍스처 메쉬가 동일색 폴백)
-  if(lens>0.001&&lensTriBad(aTriLon,aTriLat,uLon0,uLat0)){gl_Position=vec4(2.0,2.0,2.0,1.0);return;} // 렌즈 대척점 근처 삼각형 사전 붕괴(#4)
-  vec3 nn=normalize(vec3(-cos(vUv.x*2.0*PI)*sin((1.0-vUv.y)*PI),cos((1.0-vUv.y)*PI),sin(vUv.x*2.0*PI)*sin((1.0-vUv.y)*PI)));
-  float glon=(vUv.x-0.5)*2.0*PI,glat=(vUv.y-0.5)*PI; vCosc=sin(uLat0)*sin(glat)+cos(uLat0)*cos(glat)*cos(glon-uLon0);
-  vec3 p=project(vUv,nn,morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX);
-  vFrontZ=dot(normalize(p),normalize(cameraPosition-p)); vSphereW=1.0-morph-lens; // 실제 카메라 위치 기준(lineVert와 동일 이유)
-  p.z+=0.0025;
-  gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);}`;
-const fillFrag=`uniform sampler2D overlayTex; uniform float sunLon,sunLat,dayNightOn,lens; varying vec2 vUv; varying vec3 vCol; varying float vCosc,vFrontZ,vSphereW;
-void main(){ if(vSphereW>0.5&&vFrontZ<-0.02) discard; if(lens>0.5&&vCosc<-0.985) discard;
-  float lat=(vUv.y-0.5)*180.0,lon=(vUv.x-0.5)*360.0;
-  float rl=radians(lat),ro=radians(lon),sa=radians(sunLat),so=radians(sunLon);
-  float cz=sin(rl)*sin(sa)+cos(rl)*cos(sa)*cos(ro-so); float t=mix(1.0,smoothstep(-0.10,0.12,cz),dayNightOn);
-  vec3 base=mix(vCol*0.4,vCol,t); vec4 ov=texture2D(overlayTex,vUv);
-  gl_FragColor=vec4(mix(base,ov.rgb,ov.a),1.0);}`;
 
 function morphGeom(lonN,latN){const g=new THREE.BufferGeometry();const pos=[],uv=[],tri=[],triLat=[];
   // 논인덱스드(삼각형 전개, 180×90×6≈97k 정점): 삼각형별 aTriLon/aTriLat(세 꼭짓점 경위도 rad, 세 정점 동일값)
@@ -395,6 +269,7 @@ export default function GlobeLab(){
   useEffect(()=>{S.current.sat=sat;if(api.current.applySat)api.current.applySat(sat);},[sat]);
   useEffect(()=>{S.current.trueSize=trueSize;if(api.current.refreshTrueSize)api.current.refreshTrueSize();},[trueSize,sel,view]);
   useEffect(()=>{S.current.northUp=northUp;if(api.current.applyNorthUp)api.current.applyNorthUp(northUp);},[northUp,view]);
+  useEffect(()=>{S.current.lang=lang;if(api.current.setMapLang)api.current.setMapLang(lang);},[lang]); // #3 지도 라벨 언어 동기화
 
   useEffect(()=>{
     const mount=mountRef.current;let raf,renderer,controls,cleanupFn=null,disposed=false;
@@ -558,7 +433,7 @@ export default function GlobeLab(){
       // (벡터 국경/채움 레이어는 텍스처 메쉬 같은 patch 이중화가 없어 그 지점에 얇은 틈으로 드러남). aspect에 맞춰 zmin 하한을 동적으로 올려 원천 차단.
       const flatSafeZmin=()=>{const w=mount.clientWidth,h=mount.clientHeight;if(!(w>0&&h>0))return VIEW.flat.zmin; // mount이 아직 0×0(초기 레이아웃 전)이면 aspect가 NaN → zoom NaN → 화면 blank. 폴백으로 기본 zmin 사용.
         return Math.max(VIEW.flat.zmin,(w/h)*1.08/(Math.PI*MS));};
-      let tr=null,cloneFadeT=0;
+      let tr=null,cloneFadeT=0,nuAnim=null; // nuAnim: 정북 고정 레벨링 애니메이션(#4)
       const goView=(v)=>{const to=VIEW[v];
         // 현재 화면 상태로 소스 중심 경위도(rad) 산출 → 뷰 전환 후에도 같은 지점 유지(#5)
         const m=U.morph.value,l=U.lens.value; let clR,claR;
@@ -599,13 +474,21 @@ export default function GlobeLab(){
         else if(v==='flat'){controls.mouseButtons={LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN};}
         else{controls.mouseButtons={LEFT:-1,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:-1};controls.touches={ONE:-1,TWO:THREE.TOUCH.DOLLY_PAN};} // 렌즈=시선 커스텀 드래그
         applyNorthUp(S.current.northUp); controls.update();};
-      // #2 정북 고정: 지구본에서 극축(북극)이 항상 화면 위를 향하도록 세로(위도) 틸트를 잠금 — 수평 자전만 허용.
+      // #2 정북 고정: "적도로 되돌리는 것"이 아니라, 현재 보고 있는 지점은 그대로 둔 채 지구본의 극축(북극)이 화면 위(정방향)를
+      //   향하도록 레벨링. 원리: uRotX(위도 틸트)를 0으로 만들면 북극이 월드 +Y = 화면 위가 됨. 대신 그 위도를 보기 위해
+      //   카메라를 그 지점 방향으로 옮김(중심 유지). 레벨링 후엔 자유 궤도(수평=경도 자전, 수직=위도 이동)로도 북극이 계속 위.
       const applyNorthUp=(on)=>{ if(!controls)return;
-        if(S.current.view==='globe'&&on){ // 카메라를 적도면(북극 위) 시점으로 정렬 + polar 각 고정
-          const sph=new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target)); sph.phi=Math.PI/2;
-          camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(sph)); camera.up.set(0,1,0); camera.lookAt(controls.target);
-          controls.minPolarAngle=Math.PI/2; controls.maxPolarAngle=Math.PI/2; }
-        else { controls.minPolarAngle=0; controls.maxPolarAngle=Math.PI; }
+        controls.minPolarAngle=0; controls.maxPolarAngle=Math.PI; // polar 잠금 없음(자유 궤도)
+        if(S.current.view==='globe'&&on){
+          const tgt=controls.target;
+          const fr=camera.position.clone().sub(tgt).normalize();
+          const g=vec3ToLonLat(rotY(rotX(fr,-U.uRotX.value),-U.uRotY.value)); // 현재 화면 중심 경위도(deg)
+          const dist=camera.position.distanceTo(tgt);
+          const destDir=rotY(lonLatToVec3(g[0],g[1],1),U.uRotY.value).normalize(); // uRotX=0에서 같은 지점의 방향
+          const destPos=tgt.clone().add(destDir.multiplyScalar(dist));
+          nuAnim={t:0,dur:0.55,fromRotX:U.uRotX.value,fromPos:camera.position.clone(),toPos:destPos,tgt:tgt.clone()};
+          camera.up.set(0,1,0); controls.enabled=false; // 애니메이션 동안 컨트롤 정지
+        } else { nuAnim=null; if(S.current.view==='globe'&&!tr)controls.enabled=true; }
         controls.update(); };
       // ===== 위성 사진(#2) — Esri World Imagery z4(등장방형 재투영) =====
       let satReady=false,satBaseTex=null; // satReady: 텍스처 준비돼 uSat 크로스페이드 허용
@@ -642,8 +525,15 @@ export default function GlobeLab(){
       applyGrid();settleView('flat');
 
       const labels={};
-      for(const [k,d] of Object.entries(CONT)){const el=document.createElement('div');el.className='gl-lbl cont';el.textContent=d.ko;el.style.fontSize=d.s+'px';labelRef.current.appendChild(el);labels['c'+k]={el,anchor:d.ll};}
-      OCEAN_LABELS.forEach((L,i)=>{const el=document.createElement('div');el.className='gl-lbl ocn';el.innerHTML=`<div class="kr">${OCEAN[L.o].ko}</div><div class="en">${L.en}</div>`;labelRef.current.appendChild(el);labels['o'+i]={el,anchor:L.ll};oceanLblEls.push({el,o:L.o});});
+      for(const [k,d] of Object.entries(CONT)){const el=document.createElement('div');el.className='gl-lbl cont';el.textContent=d.ko;el.style.fontSize=d.s+'px';labelRef.current.appendChild(el);labels['c'+k]={el,anchor:d.ll,contKey:k};}
+      OCEAN_LABELS.forEach((L,i)=>{const el=document.createElement('div');el.className='gl-lbl ocn';el.innerHTML=`<div class="kr">${OCEAN[L.o].ko}</div><div class="en">${L.en}</div>`;labelRef.current.appendChild(el);labels['o'+i]={el,anchor:L.ll,oceanKey:L.o};oceanLblEls.push({el,o:L.o});});
+      // #3 지도 위 라벨도 서비스 언어에 따라 전환(대륙=한 줄 국문/영문, 대양=국문 강조↔영문 강조)
+      api.current.setMapLang=(lg)=>{const en=lg==='en';
+        for(const key in labels){const L=labels[key];
+          if(L.contKey){L.el.textContent=en?(CONT[L.contKey].en.split(' ')[0]):CONT[L.contKey].ko;}
+          else if(L.oceanKey){const o=OCEAN[L.oceanKey];const kr=L.el.querySelector('.kr'),eng=L.el.querySelector('.en');if(kr&&eng){if(en){kr.textContent=o.en.split(' ')[0];eng.textContent=o.ko;}else{kr.textContent=o.ko;eng.textContent=o.en.split(' ')[0];}}}
+        }};
+      api.current.setMapLang(S.current.lang||'ko');
 
       // 스테레오/메르카토 위치 계산(라벨용, project()와 동일)
       const projectJS=(lon,lat)=>{const morph=U.morph.value,lens=U.lens.value,rY=U.uRotY.value,rXv=U.uRotX.value,l0=U.uLon0.value,la0=U.uLat0.value;
@@ -678,7 +568,7 @@ export default function GlobeLab(){
         if(st.view==='flat'){const wpp=2/(camera.zoom*mount.clientHeight);controls.target.x+=e.deltaX*wpp;camera.position.x+=e.deltaX*wpp;controls.target.y-=e.deltaY*wpp;camera.position.y-=e.deltaY*wpp;}
         else if(st.view==='lens'){const k=0.28*D2R;U.uLon0.value+=e.deltaX*k;U.uLat0.value=THREE.MathUtils.clamp(U.uLat0.value-e.deltaY*k,-1.45,1.45);}
         else{const sph=new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
-          sph.theta-=e.deltaX*0.005;if(!st.northUp)sph.phi=THREE.MathUtils.clamp(sph.phi+e.deltaY*0.005,0.05,Math.PI-0.05); // 정북 고정 시 세로 틸트 잠금
+          sph.theta-=e.deltaX*0.005;sph.phi=THREE.MathUtils.clamp(sph.phi+e.deltaY*0.005,0.05,Math.PI-0.05); // 정북 고정이어도 세로 이동 허용(uRotX=0이라 북극은 계속 화면 위)
           camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(sph));camera.lookAt(controls.target);}
       },{passive:false,capture:true});
       dom.addEventListener('pointerup',e=>{if(!downXY)return;const mv=Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1]);downXY=null;if(mv>6||tr)return;
@@ -717,6 +607,11 @@ export default function GlobeLab(){
           U.morph.value=tr.from.morph+(tr.to.morph-tr.from.morph)*k;U.lens.value=tr.from.lens+(tr.to.lens-tr.from.lens)*k;U.uRotY.value=tr.from.rotY+(tr.to.rotY-tr.from.rotY)*k;U.uRotX.value=tr.from.rotX+(tr.to.rotX-tr.from.rotX)*k;U.uLon0.value=tr.from.lon0+(tr.to.lon0-tr.from.lon0)*k;U.uLat0.value=tr.from.lat0+(tr.to.lat0-tr.from.lat0)*k;U.uLonC.value=tr.from.lonC+(tr.to.lonC-tr.from.lonC)*k;
           camera.zoom=tr.from.zoom+(tr.to.zoom-tr.from.zoom)*k;camera.updateProjectionMatrix();camera.position.lerpVectors(tr.from.pos,tr.to.pos,k);controls.target.lerpVectors(tr.from.tgt,tr.to.tgt,k);
           if(tr.t>=1){const v=tr.v;tr=null;settleView(v);}}
+        if(nuAnim){ // #4 정북 고정 레벨링: uRotX→0 + 카메라를 같은 지점 방향으로 이동(중심 유지, 북극이 화면 위로)
+          nuAnim.t=Math.min(1,nuAnim.t+dt/nuAnim.dur);const k=ease(nuAnim.t);
+          U.uRotX.value=nuAnim.fromRotX*(1-k);
+          camera.position.lerpVectors(nuAnim.fromPos,nuAnim.toPos,k);camera.up.set(0,1,0);camera.lookAt(nuAnim.tgt);
+          if(nuAnim.t>=1){nuAnim=null;if(S.current.view==='globe')controls.enabled=true;} }
         if(!tr){applyGrid();applyDetail();} // 줌 적응형 격자(#2)·국경/해안선 디테일(#4) 갱신, 둘 다 레벨 바뀔 때만 재빌드
         // 클론 알파: 평면 정상상태에 "막 진입"했을 때만 짧게 페이드인(팝인 완화), 그 외(전환 도중 포함 다른 뷰로 나갈 때)엔 즉시 0 —
         // 예전엔 전환 중 morph≥0.8 구간에서 서서히 페이드했는데, 그 사이 카메라도 같이 움직여서 클론(월드 오프셋 사본)이
@@ -772,6 +667,7 @@ export default function GlobeLab(){
   },[]);
 
   const EN=lang==='en'; // 영어 모드
+  const T=STR[lang]||STR.ko; // #3 전체 UI 문자열
   let info=null;
   if(sel){
     if(sel.type==='ocean'){const o=OCEAN[sel.key];info={kind:'ocean',color:o.color,title:EN?o.en:o.ko,sub:EN?o.ko:o.en,fact:o.fact};}
@@ -794,7 +690,7 @@ export default function GlobeLab(){
     <div id="app" className="gl-app">
       <div className="topbar">
         <a className="home-fab" href="/" title="parcyun studio 홈으로" aria-label="홈으로"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
-        <div className="title-wrap"><div className="kicker">World Map · Interactive</div><div className="title">세계 지도<span className="en">6대륙 5대양</span></div></div>
+        <div className="title-wrap"><div className="kicker">{T.kicker}</div><div className="title">{T.title}<span className="en">{T.subtitle}</span></div></div>
       </div>
       <div id="stage" onPointerDownCapture={()=>setHint(false)}><div ref={mountRef} className="gl-canvas" /><div ref={labelRef} className="gl-labels" /></div>
       {status && <div className="gl-status">{status}</div>}
@@ -802,17 +698,17 @@ export default function GlobeLab(){
       <div className={'floaty grid-panel tools-fixed'+(toolsCollapsed?' collapsed':'')+(guide?' guide-lift':'')}>
         <div className="floaty-head" onClick={()=>setToolsCollapsed(v=>!v)} title="클릭하면 접기/펼치기"><div className="drag-grip"><span/><span/></div><span className="collapse-chev">{toolsCollapsed?'▸':'▾'}</span></div>
         <div className="panel-body">
-        <h4>Grid</h4>
-        <label className="tg"><input type="checkbox" checked={grat} onChange={e=>setGrat(e.target.checked)} /><span>위경도 격자</span></label>
-        <label className="tg"><input type="checkbox" checked={eq} onChange={e=>setEq(e.target.checked)} /><span>적도</span></label>
-        <label className="tg"><input type="checkbox" checked={prime} onChange={e=>setPrime(e.target.checked)} /><span>본초자오선</span></label>
-        <label className="tg"><input type="checkbox" checked={dateline} onChange={e=>setDateline(e.target.checked)} /><span>날짜변경선</span></label>
-        <div className="step"><span>간격</span><input type="number" min="5" max="90" step="5" value={step} onChange={e=>setStep(e.target.value)} /><span>°</span></div>
-        <label className="tg tg-sep"><input type="checkbox" checked={country} onChange={e=>{setCountry(e.target.checked);setSel(null);}} /><span>국가 선택</span></label>
-        <label className="tg"><input type="checkbox" checked={trueSize} disabled={view!=='flat'} onChange={e=>setTrueSize(e.target.checked)} /><span>실제 크기 비교{view!=='flat'&&<small style={{color:'var(--text-2)',marginLeft:4,fontSize:9}}>평면 전용</small>}<button className="ts-info-btn" onClick={e=>{e.preventDefault();setTsInfo(v=>!v);}} title="실제 크기 비교 설명">!</button></span></label>
-        <label className="tg tg-sep"><input type="checkbox" checked={sat} onChange={e=>setSat(e.target.checked)} /><span>위성 사진</span></label>
-        <label className="tg"><input type="checkbox" checked={dayNight} onChange={e=>setDayNight(e.target.checked)} /><span>낮과 밤</span></label>
-        <div className="lang-seg tg-sep"><span className="lang-lbl">언어</span><div className="lang-btns"><button className={lang==='ko'?'on':''} onClick={()=>setLang('ko')}>한국어</button><button className={lang==='en'?'on':''} onClick={()=>setLang('en')}>ENG</button></div></div>
+        <h4>{T.gridTitle}</h4>
+        <label className="tg"><input type="checkbox" checked={grat} onChange={e=>setGrat(e.target.checked)} /><span>{T.grat}</span></label>
+        <label className="tg"><input type="checkbox" checked={eq} onChange={e=>setEq(e.target.checked)} /><span>{T.equator}</span></label>
+        <label className="tg"><input type="checkbox" checked={prime} onChange={e=>setPrime(e.target.checked)} /><span>{T.prime}</span></label>
+        <label className="tg"><input type="checkbox" checked={dateline} onChange={e=>setDateline(e.target.checked)} /><span>{T.dateline}</span></label>
+        <div className="step"><span>{T.interval}</span><input type="number" min="5" max="90" step="5" value={step} onChange={e=>setStep(e.target.value)} /><span>°</span></div>
+        <label className="tg tg-sep"><input type="checkbox" checked={country} onChange={e=>{setCountry(e.target.checked);setSel(null);}} /><span>{T.pickCountry}</span></label>
+        <label className="tg"><input type="checkbox" checked={trueSize} disabled={view!=='flat'} onChange={e=>setTrueSize(e.target.checked)} /><span>{T.trueSize}{view!=='flat'&&<small style={{color:'var(--text-2)',marginLeft:4,fontSize:9}}>{T.flatOnly}</small>}<button className="ts-info-btn" onClick={e=>{e.preventDefault();setTsInfo(v=>!v);}} title={T.tsTitle}>!</button></span></label>
+        <label className="tg tg-sep"><input type="checkbox" checked={sat} onChange={e=>setSat(e.target.checked)} /><span>{T.sat}</span></label>
+        <label className="tg"><input type="checkbox" checked={dayNight} onChange={e=>setDayNight(e.target.checked)} /><span>{T.dayNight}</span></label>
+        <div className="lang-seg tg-sep"><span className="lang-lbl">{T.langLabel}</span><div className="lang-btns"><button className={lang==='ko'?'on':''} onClick={()=>setLang('ko')}>한국어</button><button className={lang==='en'?'on':''} onClick={()=>setLang('en')}>ENG</button></div></div>
         </div>
       </div>
       {/* #4 대륙/대양 상자 + 국가 카드: 우상단 고정 스택. 상자 접으면 아래 국가 카드가 따라 올라감 */}
@@ -821,9 +717,9 @@ export default function GlobeLab(){
           <div className="floaty-head legend-head" onClick={()=>setLegendCollapsed(v=>!v)} title="클릭하면 접기/펼치기"><div className="drag-grip"><span/><span/></div><span className="collapse-chev">{legendCollapsed?'▸':'▾'}</span></div>
           <div className="panel-body">
           <div className="legend-cols">
-          <div className="legend-col"><h4>6 Continents</h4>{CONT_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='continent'&&sel.key===k?' on':'')} onClick={()=>api.current.pickContinent&&api.current.pickContinent(k)}><span className="dot" style={{background:CONT[k].color}} /><span>{EN?CONT[k].en.split(' ')[0]:CONT[k].ko}</span><small>{EN?'':CONT[k].en.split(' ')[0]}</small></button>))}</div>
-          <div className="legend-col"><h4>5 Oceans</h4>{OCEAN_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='ocean'&&sel.key===k?' on':'')} onClick={()=>api.current.pickOcean&&api.current.pickOcean(k)}><span className="dot" style={{background:OCEAN[k].color}} /><span>{EN?OCEAN[k].en.split(' ')[0]:OCEAN[k].ko}</span><small>{EN?'':OCEAN[k].en.split(' ')[0]}</small></button>))}</div>
-        </div><div className="note">{EN?'Antarctica is excluded from the 6 continents':'남극(Antarctica)은 6대륙에서 제외'}</div></div>
+          <div className="legend-col"><h4>{T.contHead}</h4>{CONT_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='continent'&&sel.key===k?' on':'')} onClick={()=>api.current.pickContinent&&api.current.pickContinent(k)}><span className="dot" style={{background:CONT[k].color}} /><span>{EN?CONT[k].en.split(' ')[0]:CONT[k].ko}</span><small>{EN?'':CONT[k].en.split(' ')[0]}</small></button>))}</div>
+          <div className="legend-col"><h4>{T.oceanHead}</h4>{OCEAN_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='ocean'&&sel.key===k?' on':'')} onClick={()=>api.current.pickOcean&&api.current.pickOcean(k)}><span className="dot" style={{background:OCEAN[k].color}} /><span>{EN?OCEAN[k].en.split(' ')[0]:OCEAN[k].ko}</span><small>{EN?'':OCEAN[k].en.split(' ')[0]}</small></button>))}</div>
+        </div><div className="note">{T.antarcticaNote}</div></div>
         </div>
         {info && <div className={'info-card '+info.kind} style={{borderColor:info.color}}>
           <div className="ic-head">
@@ -843,48 +739,48 @@ export default function GlobeLab(){
         </div>}
       </div>
       <div className={'projseg'+(guide?' guide-lift':'')}>
-        <button className={view==='flat'?'on':''} onClick={()=>setView('flat')}>{EN?'Flat':'평면'}</button>
-        <button className={view==='lens'?'on':''} onClick={()=>setView('lens')}>Focus Lens</button>
-        <button className={view==='globe'?'on':''} onClick={()=>setView('globe')}>{EN?'Globe':'지구본'}</button>
+        <button className={view==='flat'?'on':''} onClick={()=>setView('flat')}>{T.flat}</button>
+        <button className={view==='lens'?'on':''} onClick={()=>setView('lens')}>{T.lens}</button>
+        <button className={view==='globe'?'on':''} onClick={()=>setView('globe')}>{T.globe}</button>
       </div>
       <div className={'controls'+(guide?' guide-lift':'')}>
-        {view==='globe' && <button className={'ctrl northup'+(northUp?' on':'')} aria-label="정북 고정" title="정북 고정" onClick={()=>setNorthUp(v=>!v)}><span key={northUp?'on':'off'} className="nu-glyph">N</span></button>}
-        <button className="ctrl" aria-label="확대" onClick={()=>api.current.dolly&&api.current.dolly(0.8)}>+</button>
-        <button className="ctrl" aria-label="축소" onClick={()=>api.current.dolly&&api.current.dolly(1.25)}>−</button>
-        <button className="ctrl home" aria-label="처음으로" onClick={()=>{setSel(null);S.current.homeReq=true;if(view==='flat')api.current.goView&&api.current.goView('flat');else setView('flat');}}>⟳</button>
+        {view==='globe' && <button className={'ctrl northup'+(northUp?' on':'')} aria-label={T.northUp} title={T.northUp} onClick={()=>setNorthUp(v=>!v)}><span key={northUp?'on':'off'} className="nu-glyph">N</span></button>}
+        <button className="ctrl" aria-label={T.zoomIn} onClick={()=>api.current.dolly&&api.current.dolly(0.8)}>+</button>
+        <button className="ctrl" aria-label={T.zoomOut} onClick={()=>api.current.dolly&&api.current.dolly(1.25)}>−</button>
+        <button className="ctrl home" aria-label={T.home} onClick={()=>{setSel(null);S.current.homeReq=true;if(view==='flat')api.current.goView&&api.current.goView('flat');else setView('flat');}}>⟳</button>
       </div>
-      <div className={'hint'+(hint?'':' off')}>{view==='flat'?'드래그하면 지도가 좌우로 끝없이 이어집니다 · 대륙을 클릭해 보세요':view==='lens'?'드래그로 렌즈 회전 · 대륙을 클릭해 보세요':'드래그로 회전 · 휠로 확대 · 대륙을 클릭해 보세요'}</div>
-      {dayNight && <div className="daynight-ctl"><button className={'dn-btn'+(dnPlay?' on':'')} onClick={()=>setDnPlay(p=>!p)}>{dnPlay?'❚❚':'▶'}</button><span className="dn-end">1월</span><input type="range" min="1" max="12" step="1" value={month} onChange={e=>setMonth(+e.target.value)} /><span className="dn-end">12월</span><span className="dn-lbl">{MONTHS[month-1]}</span></div>}
+      <div className={'hint'+(hint?'':' off')}>{view==='flat'?T.hintFlat:view==='lens'?T.hintLens:T.hintGlobe}</div>
+      {dayNight && <div className="daynight-ctl"><button className={'dn-btn'+(dnPlay?' on':'')} onClick={()=>setDnPlay(p=>!p)}>{dnPlay?'❚❚':'▶'}</button><span className="dn-end">{T.janEnd}</span><input type="range" min="1" max="12" step="1" value={month} onChange={e=>setMonth(+e.target.value)} /><span className="dn-end">{T.decEnd}</span><span className="dn-lbl">{(MONTHS_I18N[lang]||MONTHS_I18N.ko)[month-1]}</span></div>}
       {tsInfo && <div className="ts-popup" onClick={()=>setTsInfo(false)}><div className="ts-popup-card" onClick={e=>e.stopPropagation()}>
-        <div className="ts-popup-h">실제 크기 비교</div>
-        <p>메르카토르 도법은 위도가 높을수록 나라를 실제보다 크게 부풀립니다(그린란드가 아프리카만큼 커 보이는 이유예요).</p>
-        <p><b>사용법</b> — 국가(또는 대륙)를 클릭한 뒤 드래그해 다른 위도로 옮겨보세요. 실제(지상) 크기를 유지하도록 자동으로 크기가 재조정됩니다.</p>
-        <button className="ts-popup-close" onClick={()=>setTsInfo(false)}>닫기</button>
+        <div className="ts-popup-h">{T.tsTitle}</div>
+        <p>{T.tsP1}</p>
+        <p><b>{T.tsP2pre}</b>{T.tsP2}</p>
+        <button className="ts-popup-close" onClick={()=>setTsInfo(false)}>{T.close}</button>
       </div></div>}
-      <div className="watermark">{MODE_WM[view]}</div>
+      <div className="watermark">{(lang==='en'?{flat:T.wmFlat,lens:T.wmLens,globe:T.wmGlobe}:MODE_WM)[view]}</div>
       {/* #5 방문자 카운터: 푸터 대신 플로팅 pill(좌하단)로 — visitor-counter.js가 #visitor-stats를 채움 */}
       <div className="visitor-float"><span id="visitor-stats" className="ps-visits" /></div>
       <footer className="ps-footer">
-        <button type="button" className="ps-footer-coffee no-drag" onClick={()=>setCoffee(true)}>☕ 커피 사주기</button>
-        <a href="/dashboard.html" className="ps-footer-link">업무 대시보드 ↗</a>
-        Designed by <span className="ps-signature">parcyun studio</span>
+        <button type="button" className="ps-footer-coffee no-drag" onClick={()=>setCoffee(true)}>☕ {T.coffee}</button>
+        <a href="/dashboard.html" className="ps-footer-link">{T.dashboard} ↗</a>
+        {T.designedBy} <span className="ps-signature">parcyun studio</span>
         <a href="https://www.instagram.com/parcyun" className="ps-ig" target="_blank" rel="noopener"><svg className="ps-ig-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4 1 .5.4.8.8 1 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-1 1.4-.4.5-.8.8-1.4 1-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-1-.5-.4-.8-.8-1-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 1-1.4.4-.5.8-.8 1.4-1 .4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.4-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/></svg>@parcyun</a>
       </footer>
       {coffee && <div className="coffee-modal" onClick={()=>setCoffee(false)}><div className="coffee-card" onClick={e=>e.stopPropagation()}>
-        <button className="coffee-close" onClick={()=>setCoffee(false)} aria-label="닫기">×</button>
+        <button className="coffee-close" onClick={()=>setCoffee(false)} aria-label={T.close}>×</button>
         <div className="coffee-emoji">☕</div>
-        <h3 className="coffee-title">개발자에게 커피 한 잔</h3>
-        <p className="coffee-sub">QR을 스캔해 후원할 수 있어요. 감사합니다!</p>
+        <h3 className="coffee-title">{T.coffeeTitle}</h3>
+        <p className="coffee-sub">{T.coffeeSub}</p>
         <img className="coffee-qr" src="/images/coffee-qr.png" alt="parcyun studio 후원 QR" />
         <div className="coffee-label">parcyun studio</div>
       </div></div>}
       {/* #13 가이드 리워크: 모달 대신 옅은 쉐이드로 화면을 덮되 도구 상자는 덮지 않고, 각 기능 옆에 한 줄 설명 */}
       {guide && <div className="guide-shade" onClick={()=>setGuide(false)}>
-        <div className="gtip gtip-tools">← 지도 도구: 격자·위성사진·낮과 밤·실제 크기 비교</div>
-        <div className="gtip gtip-proj">위 버튼으로 평면·렌즈·지구본 도법을 전환해요 ↑</div>
-        <div className="gtip gtip-legend">대륙·대양·국가를 클릭하면 정보 카드가 떠요 →</div>
-        <div className="gtip gtip-ctrl">확대 · 축소 · 정북 고정 · 처음으로 →</div>
-        <div className="gtip gtip-center">지도를 드래그·클릭하며 탐색해 보세요<br/><span>아무 곳이나 누르면 닫혀요</span></div>
+        <div className="gtip gtip-tools">{T.gTools}</div>
+        <div className="gtip gtip-proj">{T.gProj}</div>
+        <div className="gtip gtip-legend">{T.gLegend}</div>
+        <div className="gtip gtip-ctrl">{T.gCtrl}</div>
+        <div className="gtip gtip-center">{T.gCenter}<br/><span>{T.gCenterSub}</span></div>
       </div>}
       {satBusy && <div className="sat-busy"><div className="sat-busy-bar"><div className="sat-busy-fill" style={{width:satBusy.pct+'%'}} /></div><div className="sat-busy-lbl">{satBusy.label} {satBusy.pct}%</div></div>}
       <style>{`

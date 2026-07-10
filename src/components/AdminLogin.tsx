@@ -1,24 +1,15 @@
 import { useEffect, useState } from 'react';
-import { getAdminPw, setAdminPw, clearAdminPw, passwordExists, checkPassword, setPassword } from '../lib/adminPw';
+import { getAdminPw, setAdminPw, clearAdminPw, checkPassword } from '../lib/adminPw';
 
-// /admin 비밀번호 로그인 — 이메일/계정 없음.
-// 최초 방문(비번 미설정) 시엔 "비밀번호 설정" 폼, 그 후엔 "비밀번호 입력" 폼.
+// /admin 비밀번호 로그인 — 이메일/계정 없음. 사전에 정해둔 비밀번호를 입력하면 편집 메뉴로.
 export default function AdminLogin() {
   const [ready, setReady] = useState(false);
-  const [exists, setExists] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false);
   const [pw, setPw] = useState('');
-  const [pw2, setPw2] = useState('');
   const [status, setStatus] = useState<'idle' | 'busy'>('idle');
   const [err, setErr] = useState('');
 
-  useEffect(() => {
-    (async () => {
-      setLoggedIn(!!getAdminPw());
-      setExists(await passwordExists());
-      setReady(true);
-    })();
-  }, []);
+  useEffect(() => { setLoggedIn(!!getAdminPw()); setReady(true); }, []);
 
   async function doLogin(e: React.FormEvent) {
     e.preventDefault(); setErr(''); setStatus('busy');
@@ -27,16 +18,7 @@ export default function AdminLogin() {
     if (ok) { setAdminPw(pw); setLoggedIn(true); setPw(''); }
     else setErr('비밀번호가 올바르지 않아요.');
   }
-  async function doSet(e: React.FormEvent) {
-    e.preventDefault(); setErr('');
-    if (pw.length < 6) { setErr('비밀번호는 6자 이상이어야 해요.'); return; }
-    if (pw !== pw2) { setErr('두 비밀번호가 달라요.'); return; }
-    setStatus('busy');
-    try { await setPassword('', pw); setAdminPw(pw); setLoggedIn(true); setExists(true); }
-    catch (ex: any) { setErr(ex?.message || '설정에 실패했어요.'); }
-    finally { setStatus('idle'); }
-  }
-  function logout() { clearAdminPw(); setLoggedIn(false); setPw(''); setPw2(''); }
+  function logout() { clearAdminPw(); setLoggedIn(false); setPw(''); }
 
   return (
     <div className="al">
@@ -57,14 +39,6 @@ export default function AdminLogin() {
           </div>
           <button type="button" className="al-out" onClick={logout}>로그아웃</button>
         </div>
-      ) : !exists ? (
-        <form className="al-form" onSubmit={doSet}>
-          <p className="al-muted">최초 접속입니다. 관리자 비밀번호를 설정하세요.</p>
-          <input className="al-input" type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoFocus autoComplete="new-password" placeholder="새 비밀번호 (6자 이상)" />
-          <input className="al-input" type="password" value={pw2} onChange={(e) => setPw2(e.target.value)} autoComplete="new-password" placeholder="비밀번호 확인" />
-          <button className="al-submit" type="submit" disabled={status === 'busy' || !pw}>{status === 'busy' ? '설정 중…' : '비밀번호 설정하고 입장'}</button>
-          {err && <p className="al-err">{err}</p>}
-        </form>
       ) : (
         <form className="al-form" onSubmit={doLogin}>
           <label className="al-label">관리자 비밀번호</label>

@@ -14,14 +14,8 @@ export function clearAdminPw() {
   try { sessionStorage.removeItem(KEY); window.dispatchEvent(new Event('ps-admin-change')); } catch {}
 }
 
-export async function passwordExists(): Promise<boolean> {
-  try { return (await sbRpc<boolean>('admin_password_exists')) === true; } catch { return false; }
-}
 export async function checkPassword(pw: string): Promise<boolean> {
   try { return (await sbRpc<boolean>('admin_check', { p_pw: pw })) === true; } catch { return false; }
-}
-export async function setPassword(current: string, next: string): Promise<void> {
-  await sbRpc('admin_set_password', { p_current: current, p_new: next });
 }
 
 export async function adminSaveResource(pw: string, row: unknown) { await sbRpc('admin_save_resource', { p_pw: pw, p_row: row }); }

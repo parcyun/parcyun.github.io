@@ -1,50 +1,16 @@
--- parcyun studio · 이메일 없는 비밀번호-시크릿 관리자 모델 + KOCOMATE(수업 보조 도구) 추가
--- 이메일/계정 없이: 비밀번호를 bcrypt 해시로 DB 저장하고, 저장/삭제는 비번을 검증하는
--- SECURITY DEFINER RPC로만 수행(RLS 대신). Supabase Auth 불필요.
--- 실행: Supabase 대시보드 > SQL Editor. (idempotent — 재실행 안전)
+-- parcyun studio · 관리자 (고정 비밀번호 1개). 이메일/계정 불필요.
+-- 사용법: 아래 '바꿀비밀번호' 를 원하는 값으로만 고쳐서 Supabase > SQL Editor 에서 실행. (재실행 안전)
+-- 원리: /admin 에서 이 비번을 입력 → admin_check 로 대조 → 통과하면 저장/삭제 RPC 로만 DB 를 씀
+--       (anon 키 직접 쓰기는 RLS 로 막혀 있고, 아래 SECURITY DEFINER 함수만 비번 검증 후 우회).
 
-create extension if not exists pgcrypto;
-
--- ===== 관리자 비밀번호(단일 행) =====
-create table if not exists public.admin_auth (
-  id      int primary key default 1,
-  pw_hash text,
-  constraint admin_auth_single check (id = 1)
-);
-insert into public.admin_auth (id, pw_hash) values (1, null) on conflict (id) do nothing;
-alter table public.admin_auth enable row level security;  -- 정책 없음 = 직접 접근 전면 차단(오직 RPC)
-
--- 비밀번호가 설정돼 있는지(최초 설정 플로우용, 인증 불필요)
-create or replace function public.admin_password_exists()
-returns boolean language sql security definer set search_path = public as $$
-  select coalesce((select pw_hash is not null from public.admin_auth where id = 1), false);
-$$;
-
--- 비밀번호 검증
+-- ▼▼▼ 여기 한 곳만 바꾸면 됨 ▼▼▼
 create or replace function public.admin_check(p_pw text)
-returns boolean language plpgsql security definer set search_path = public as $$
-declare h text;
-begin
-  select pw_hash into h from public.admin_auth where id = 1;
-  if h is null or coalesce(p_pw,'') = '' then return false; end if;
-  return h = crypt(p_pw, h);
-end; $$;
+returns boolean language sql security definer set search_path = public as $$
+  select p_pw = '바꿀비밀번호';
+$$;
+-- ▲▲▲
 
--- 비밀번호 설정/변경 (최초엔 현재 비번 불필요)
-create or replace function public.admin_set_password(p_current text, p_new text)
-returns boolean language plpgsql security definer set search_path = public as $$
-declare h text;
-begin
-  if length(coalesce(p_new,'')) < 6 then raise exception '비밀번호는 6자 이상이어야 합니다'; end if;
-  select pw_hash into h from public.admin_auth where id = 1;
-  if h is not null and h <> crypt(coalesce(p_current,''), h) then
-    raise exception '현재 비밀번호가 올바르지 않습니다';
-  end if;
-  update public.admin_auth set pw_hash = crypt(p_new, gen_salt('bf')) where id = 1;
-  return true;
-end; $$;
-
--- ===== 비번 검증 후 자료 저장/삭제 =====
+-- ===== 비번 검증 후 자료(resources) 저장/삭제 =====
 create or replace function public.admin_save_resource(p_pw text, p_row jsonb)
 returns void language plpgsql security definer set search_path = public as $$
 begin
@@ -72,6 +38,7 @@ begin
   delete from public.resources where id = p_id;
 end; $$;
 
+-- ===== 비번 검증 후 works 저장/삭제 =====
 create or replace function public.admin_save_work(p_pw text, p_row jsonb)
 returns void language plpgsql security definer set search_path = public as $$
 begin
@@ -94,13 +61,13 @@ begin
   delete from public.works where num = p_num;
 end; $$;
 
--- ===== 몽당 실명 (비번 검증 후 반환) — 이메일 RLS 대신 비번 RPC =====
+-- ===== 몽당 실명 (관리자만 조회) =====
 create table if not exists public.mongdang_people (id int primary key, name text not null);
+alter table public.mongdang_people enable row level security;  -- 직접 접근 차단, RPC로만
 insert into public.mongdang_people (id, name) values
   (1,'이선학'),(2,'김희경'),(3,'유지연'),(4,'박주현'),(5,'나효정'),
   (6,'박창현'),(7,'주민환'),(8,'안요한'),(9,'정두린')
 on conflict (id) do update set name = excluded.name;
-alter table public.mongdang_people enable row level security;  -- 직접 접근 차단, RPC로만
 
 create or replace function public.admin_get_people(p_pw text)
 returns setof public.mongdang_people language plpgsql security definer set search_path = public as $$
@@ -110,13 +77,13 @@ begin
 end; $$;
 
 grant execute on function
-  public.admin_password_exists(), public.admin_check(text), public.admin_set_password(text, text),
+  public.admin_check(text),
   public.admin_save_resource(text, jsonb), public.admin_delete_resource(text, text),
   public.admin_save_work(text, jsonb), public.admin_delete_work(text, text),
   public.admin_get_people(text)
   to anon, authenticated;
 
--- ===== KOCOMATE 추가 (수업 보조 도구 카테고리) =====
+-- ===== KOCOMATE (수업 보조 도구) 등록 =====
 insert into public.resources
   (id, category, type, subject, title, description, url, external, thumb, lid, poster_title, date, meta, tags, sort)
 values

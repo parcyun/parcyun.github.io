@@ -753,8 +753,12 @@ export default function GlobeLab(){
           el.style.display='block';el.style.left=((p.x*0.5+0.5)*mount.clientWidth)+'px';el.style.top=((-p.y*0.5+0.5)*mount.clientHeight)+'px';}
         // #8 격자 도수 라벨: 격자가 켜져 있고 전환 중이 아닐 때만. 경선은 뷰 중심 위도에, 위선은 뷰 중심 경도에 샘플점을 잡아 투영.
         const showGrid=S.current.grat&&!tr; const cLon=R2D*centerLonRad(),cLat=THREE.MathUtils.clamp(R2D*centerLatRad(),-80,80);
+        // #4 위도 라벨은 카메라를 따라오도록: 평면에선 화면 좌측 가장자리 근처 경도에 고정(팬하면 함께 이동), 경도 라벨은 상단 근처 위도에.
+        const flatMode=U.morph.value>0.5&&U.lens.value<0.5;
+        const halfLonDeg=flatMode?R2D*(camera.right/camera.zoom)/MS:0; // 화면 반너비의 경도(도)
+        const latSampleLon=flatMode?cLon-halfLonDeg*0.86:cLon; // 좌측 가장자리 근처
         for(const gl of gridLabels){ if(!showGrid){gl.el.style.display='none';continue;}
-          const alon=gl.kind==='lon'?gl.v:cLon, alat=gl.kind==='lat'?gl.v:cLat; const w3=projectJS(alon,alat);let faceOk=true;
+          const alon=gl.kind==='lon'?gl.v:latSampleLon, alat=gl.kind==='lat'?gl.v:cLat; const w3=projectJS(alon,alat);let faceOk=true;
           if(globeish){const nrm=rotX(rotY(lonLatToVec3(alon,alat,1),U.uRotY.value),U.uRotX.value);faceOk=nrm.dot(v3.copy(camera.position).sub(w3).normalize())>0.02;}
           const p=w3.clone().project(camera);
           if(!faceOk||p.z>1||Math.abs(p.x)>1.02||Math.abs(p.y)>1.02){gl.el.style.display='none';continue;}
@@ -812,7 +816,7 @@ export default function GlobeLab(){
         </div>
       </div>
       {/* #4 대륙/대양 상자 + 국가 카드: 우상단 고정 스택. 상자 접으면 아래 국가 카드가 따라 올라감 */}
-      <div className="right-stack">
+      <div className={'right-stack'+(guide?' guide-lift':'')}>
         <div className={'floaty legend'+(legendCollapsed?' collapsed':'')}>
           <div className="floaty-head legend-head" onClick={()=>setLegendCollapsed(v=>!v)} title="클릭하면 접기/펼치기"><div className="drag-grip"><span/><span/></div><span className="collapse-chev">{legendCollapsed?'▸':'▾'}</span></div>
           <div className="panel-body">
@@ -838,13 +842,13 @@ export default function GlobeLab(){
             : <div className="ic-desc">{info.fact}</div>}
         </div>}
       </div>
-      <div className="projseg">
+      <div className={'projseg'+(guide?' guide-lift':'')}>
         <button className={view==='flat'?'on':''} onClick={()=>setView('flat')}>{EN?'Flat':'평면'}</button>
         <button className={view==='lens'?'on':''} onClick={()=>setView('lens')}>Focus Lens</button>
         <button className={view==='globe'?'on':''} onClick={()=>setView('globe')}>{EN?'Globe':'지구본'}</button>
       </div>
-      <div className="controls">
-        {view==='globe' && <button className={'ctrl'+(northUp?' on':'')} aria-label="정북 고정" title="정북 고정" onClick={()=>setNorthUp(v=>!v)}>ᴺ</button>}
+      <div className={'controls'+(guide?' guide-lift':'')}>
+        {view==='globe' && <button className={'ctrl northup'+(northUp?' on':'')} aria-label="정북 고정" title="정북 고정" onClick={()=>setNorthUp(v=>!v)}><span key={northUp?'on':'off'} className="nu-glyph">N</span></button>}
         <button className="ctrl" aria-label="확대" onClick={()=>api.current.dolly&&api.current.dolly(0.8)}>+</button>
         <button className="ctrl" aria-label="축소" onClick={()=>api.current.dolly&&api.current.dolly(1.25)}>−</button>
         <button className="ctrl home" aria-label="처음으로" onClick={()=>{setSel(null);S.current.homeReq=true;if(view==='flat')api.current.goView&&api.current.goView('flat');else setView('flat');}}>⟳</button>
@@ -858,8 +862,9 @@ export default function GlobeLab(){
         <button className="ts-popup-close" onClick={()=>setTsInfo(false)}>닫기</button>
       </div></div>}
       <div className="watermark">{MODE_WM[view]}</div>
+      {/* #5 방문자 카운터: 푸터 대신 플로팅 pill(좌하단)로 — visitor-counter.js가 #visitor-stats를 채움 */}
+      <div className="visitor-float"><span id="visitor-stats" className="ps-visits" /></div>
       <footer className="ps-footer">
-        <span id="visitor-stats" className="ps-visits ps-visits-infooter" />
         <button type="button" className="ps-footer-coffee no-drag" onClick={()=>setCoffee(true)}>☕ 커피 사주기</button>
         <a href="/dashboard.html" className="ps-footer-link">업무 대시보드 ↗</a>
         Designed by <span className="ps-signature">parcyun studio</span>
@@ -971,14 +976,19 @@ export default function GlobeLab(){
         .ctrl{width:42px;height:42px;border-radius:12px;border:1px solid var(--border);background:rgba(16,19,25,.72);backdrop-filter:blur(14px);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s var(--ease);font-family:var(--font-en)}
         .ctrl:hover{border-color:var(--ps-primary);color:var(--ps-primary)}.ctrl:active{transform:scale(.93)}.ctrl.home{font-size:15px}
         .ctrl.on{border-color:var(--ps-primary);color:#0A0C10;background:var(--ps-primary);font-weight:700}
+        /* #3 정북 고정 N: 글리프 정중앙 정렬 + 토글 시 앞뒤·상하 한 바퀴 뒤집힘 */
+        .ctrl.northup{line-height:1;font-weight:700;perspective:120px}
+        .ctrl.northup .nu-glyph{display:inline-flex;align-items:center;justify-content:center;width:100%;height:100%;transform-style:preserve-3d;animation:nuFlip .62s var(--ease)}
+        @keyframes nuFlip{0%{transform:rotateX(0) rotateY(0)}50%{transform:rotateX(180deg) rotateY(180deg)}100%{transform:rotateX(360deg) rotateY(360deg)}}
         .info{position:absolute;bottom:54px;left:22px;z-index:29;width:248px;background:rgba(16,19,25,.82);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:20px;padding:20px;opacity:0;transform:translateY(8px);pointer-events:none;transition:all .3s var(--ease)}
         .info.show{opacity:1;transform:translateY(0)}.info .swatch{width:34px;height:34px;border-radius:9px;margin-bottom:12px}.info .en{font-family:var(--font-en);font-size:10px;letter-spacing:.22em;color:var(--text-2);font-weight:600;text-transform:uppercase}
         .info .kr{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:2px 0 10px}.info .fact{font-size:13px;line-height:1.6;color:#C5CAD4;font-weight:300}
         .hint{position:absolute;bottom:54px;left:50%;transform:translateX(-50%);z-index:25;font-size:11px;color:var(--text-2);font-weight:300;text-align:center;background:rgba(4,6,11,.5);padding:6px 14px;border-radius:9999px;transition:opacity .4s}
         .hint.off{opacity:0;pointer-events:none}
         /* #13 가이드 쉐이드: 화면을 옅게 덮되 도구 상자(.guide-lift, z55)는 위로 띄워 안 덮음. 팁은 쉐이드 위(z51). */
-        .guide-shade{position:fixed;inset:0;z-index:50;background:rgba(4,6,11,.5);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);animation:guideIn .3s var(--ease);cursor:pointer}
-        .tools-fixed.guide-lift{z-index:55}
+        .guide-shade{position:fixed;inset:0;z-index:50;background:rgba(4,6,11,.72);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);animation:guideIn .3s var(--ease);cursor:pointer}
+        /* #1 가이드: 도구·대륙대양·도법·컨트롤 상자 전부 쉐이드 위로(안 덮음), 나머지 영역만 어둡게 */
+        .tools-fixed.guide-lift,.right-stack.guide-lift,.projseg.guide-lift,.controls.guide-lift{z-index:55}
         .gtip{position:absolute;z-index:51;font-size:12.5px;line-height:1.5;color:#EAECF0;font-weight:400;text-shadow:0 1px 6px rgba(0,0,0,.9);max-width:230px}
         .gtip-tools{left:220px;top:96px}
         .gtip-proj{left:50%;top:66px;transform:translateX(-50%);text-align:center}
@@ -1006,6 +1016,9 @@ export default function GlobeLab(){
         .watermark{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);z-index:5;font-family:var(--font-en);font-size:9px;letter-spacing:.4em;color:#323a4a;text-transform:uppercase;pointer-events:none}
         .ps-footer{position:fixed;bottom:16px;right:20px;font-family:var(--font-en);font-weight:300;font-size:11px;color:var(--text-2);display:flex;align-items:center;gap:8px;z-index:9999;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:6px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.08)}
         .ps-signature{font-family:var(--font-sig);font-size:15px;color:var(--ps-primary);line-height:1}.ps-ig{display:inline-flex;align-items:center;gap:3px;color:inherit;text-decoration:none}.ps-ig:hover{color:var(--ps-primary)}.ps-ig-icon{width:10px;height:10px;vertical-align:middle}
+        /* #5 방문자 카운터 플로팅 pill(좌하단) */
+        .visitor-float{position:fixed;left:20px;bottom:18px;z-index:32;background:rgba(16,19,25,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:100px;padding:7px 14px}
+        .visitor-float:has(.ps-visits:empty){display:none}
         /* 메인 페이지 푸터와 동일: 커피 후원·업무 대시보드·방문자 카운터(푸터 내부 우측) */
         .ps-footer-coffee{font-family:var(--font-en);font-size:11px;font-weight:400;color:var(--ps-primary);background:transparent;border:0;padding:0 10px 0 0;margin-right:2px;border-right:1px solid rgba(255,255,255,.14);cursor:pointer;transition:color .2s}
         .ps-footer-coffee:hover{filter:brightness(1.15)}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { geoEquirectangular, geoPath, geoContains } from 'd3-geo';
@@ -109,6 +109,33 @@ function glowTexture(){const S=512,cv=document.createElement('canvas');cv.width=
   g.addColorStop(0,'rgba(120,150,210,0)');g.addColorStop(0.30,'rgba(120,150,210,0)');g.addColorStop(0.38,'rgba(120,150,210,0.16)');g.addColorStop(0.50,'rgba(120,150,210,0)');g.addColorStop(1,'rgba(120,150,210,0)');
   c.fillStyle=g;c.fillRect(0,0,S,S);return rawTex(cv);}
 
+// 위성 사진(#2,3): Esri World Imagery XYZ 타일(웹 메르카토르)을 받아 mosaic로 합친 뒤 등장방형(equirectangular)으로 재투영.
+// 무료·API키 불필요·상업적 사용 가능(사용자 선택). 웹메르카토르는 위도 ±85.05°까지만 커버 → 극지방은 검정으로 남김(우리 지형도 ±84 클립이라 무해).
+const WEBMERC_LAT=85.05112878;
+const ESRI_URL=(z,x,y)=>`https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+function loadTileImg(src){return new Promise((res,rej)=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>res(im);im.onerror=()=>rej(new Error('tile fail '+src));im.src=src;});}
+// z=줌레벨(타일=2^z×2^z). onProgress(done,total). 반환: {tex, canvas}. 실패 타일은 건너뜀(검정).
+async function buildSatelliteTexture(z,onProgress,shouldAbort){
+  const n=1<<z, TS=256, mosaicW=n*TS, mosaicH=n*TS;
+  const mos=document.createElement('canvas');mos.width=mosaicW;mos.height=mosaicH;const mc=mos.getContext('2d');
+  mc.fillStyle='#0a0f18';mc.fillRect(0,0,mosaicW,mosaicH);
+  const coords=[];for(let y=0;y<n;y++)for(let x=0;x<n;x++)coords.push([x,y]);
+  let done=0;const CONC=8; // 동시 8개 fetch(브라우저 커넥션 한도 내)
+  let idx=0;
+  const worker=async()=>{while(idx<coords.length){if(shouldAbort&&shouldAbort())return;const i=idx++;const [x,y]=coords[i];
+    try{const im=await loadTileImg(ESRI_URL(z,x,y));mc.drawImage(im,x*TS,y*TS,TS,TS);}catch(e){/* 실패 타일=검정 유지 */}
+    done++;if(onProgress)onProgress(done,coords.length);}};
+  await Promise.all(Array.from({length:CONC},()=>worker()));
+  if(shouldAbort&&shouldAbort())return null;
+  // 재투영: x(경도)는 메르카토르·등장방형 둘 다 선형이라 그대로, y(위도)만 비선형 리매핑 → 출력 행마다 mosaic 1행을 수평 슬라이스 복사.
+  const OW=mosaicW, OH=OW/2, out=document.createElement('canvas');out.width=OW;out.height=OH;const oc=out.getContext('2d');
+  oc.fillStyle='#0a0f18';oc.fillRect(0,0,OW,OH);
+  for(let py=0;py<OH;py++){const lat=90-(py+0.5)/OH*180;if(Math.abs(lat)>WEBMERC_LAT)continue; // 극지방=검정
+    const latR=lat*D2R,myN=(1-Math.log(Math.tan(Math.PI/4+latR/2))/Math.PI)/2; // 0(북)..1(남)
+    oc.drawImage(mos,0,myN*mosaicH,mosaicW,1,0,py,OW,1);}
+  return {tex:rawTex(out),canvas:out};
+}
+
 const GLSL=`const float PI=3.141592653589793; const float MS=0.6366197723675814; const float STE=1.0;
 float wrapLon(float x){ return x-2.0*PI*floor(x/(2.0*PI)); } // [0,2π) 안전 래핑(seam 상대좌표·straddle 판정 공용)
 vec3 project(vec2 uv, vec3 sphere, float morph, float lens, float rotY, float rotX, float lon0, float lat0, float lonC, float offX){
@@ -154,7 +181,7 @@ void main(){ vUv=uv; if(morph>0.001&&straddle3(aTriLon,uLonC)){gl_Position=vec4(
 const OCEANGRAD=`vec3 oceanGrad(vec2 fc, vec2 res){ vec2 sc=fc/res; float d=clamp(length((sc-vec2(0.5,0.58))/1.5),0.0,1.0);
   vec3 g0=vec3(10.0,19.0,34.0)/255.0,g1=vec3(6.0,11.0,22.0)/255.0,g2=vec3(4.0,6.0,11.0)/255.0;
   return d<0.55?mix(g0,g1,d/0.55):mix(g1,g2,(d-0.55)/0.45);} `;
-const meshFrag=OCEANGRAD+`uniform sampler2D dayTex,nightTex,overlayTex; uniform float sunLon,sunLat,nightBoost,dayNightOn,lens,uLon0,uLat0; uniform vec2 uScreen; varying vec2 vUv;
+const meshFrag=OCEANGRAD+`uniform sampler2D dayTex,nightTex,overlayTex,satTex; uniform float sunLon,sunLat,nightBoost,dayNightOn,lens,uLon0,uLat0,uSat; uniform vec2 uScreen; varying vec2 vUv;
 void main(){ float lon=(vUv.x-0.5)*360.0, lat=(vUv.y-0.5)*180.0;
   if(lens>0.5){ float cc=sin(uLat0)*sin(radians(lat))+cos(uLat0)*cos(radians(lat))*cos(radians(lon)-uLon0); if(cc<-0.985) discard; } // stereographic: 대척점 근방만 미렌더
   float rl=radians(lat),ro=radians(lon),sa=radians(sunLat),so=radians(sunLon);
@@ -163,15 +190,18 @@ void main(){ float lon=(vUv.x-0.5)*360.0, lat=(vUv.y-0.5)*180.0;
   vec3 land=mix(nc.rgb*nightBoost, dc.rgb, t);
   vec3 ocean=oceanGrad(gl_FragCoord.xy,uScreen)*mix(0.32,1.0,t);          // 바다=원본 그라디언트(밤엔 어둡게)
   vec3 base=mix(ocean, land, dc.a);                                       // dc.a: 육지 1 / 바다 0
+  if(uSat>0.5){ vec3 sc=texture2D(satTex,vUv).rgb; base=mix(base, mix(sc*0.32, sc, t), uSat); } // 위성: 표면 전체를 실사 위성사진으로(밤엔 어둡게), uSat로 크로스페이드
   vec4 ov=texture2D(overlayTex,vUv);
   gl_FragColor=vec4(mix(base,ov.rgb,ov.a),1.0);} `;
 // 클론 프래그먼트: 중심과 동일 셰이딩 + 알파=uCloneAmt(평면=1, 전환 중엔 morph≥0.8에서만 페이드 — 가장자리 커버용, seam 마스킹 아님)
-const cloneFrag=OCEANGRAD+`uniform sampler2D dayTex,nightTex,overlayTex; uniform float sunLon,sunLat,nightBoost,dayNightOn,uCloneAmt; uniform vec2 uScreen; varying vec2 vUv;
+const cloneFrag=OCEANGRAD+`uniform sampler2D dayTex,nightTex,overlayTex,satTex; uniform float sunLon,sunLat,nightBoost,dayNightOn,uCloneAmt,uSat; uniform vec2 uScreen; varying vec2 vUv;
 void main(){ float rl=radians((vUv.y-0.5)*180.0),ro=radians((vUv.x-0.5)*360.0),sa=radians(sunLat),so=radians(sunLon);
   float cz=sin(rl)*sin(sa)+cos(rl)*cos(sa)*cos(ro-so); float t=mix(1.0,smoothstep(-0.10,0.12,cz),dayNightOn);
   vec4 dc=texture2D(dayTex,vUv),nc=texture2D(nightTex,vUv);
   vec3 land=mix(nc.rgb*nightBoost, dc.rgb, t); vec3 ocean=oceanGrad(gl_FragCoord.xy,uScreen)*mix(0.32,1.0,t);
-  vec3 base=mix(ocean, land, dc.a); vec4 ov=texture2D(overlayTex,vUv);
+  vec3 base=mix(ocean, land, dc.a);
+  if(uSat>0.5){ vec3 sc=texture2D(satTex,vUv).rgb; base=mix(base, mix(sc*0.32, sc, t), uSat); }
+  vec4 ov=texture2D(overlayTex,vUv);
   gl_FragColor=vec4(mix(base,ov.rgb,ov.a), clamp(uCloneAmt,0.0,1.0));} `;
 const lineVert=GLSL+`attribute vec2 aGeo; attribute vec2 aGeoB; uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX; varying float vCosc,vFrontZ,vSphereW;
 void main(){ // seam 걸친 세그먼트 붕괴(국경 LineSegments용 — 짝 끝점 aGeoB와 비교; 라인스트립은 aGeoB=aGeo라 절대 미발동)
@@ -279,6 +309,57 @@ const VIEW={
 };
 const MODE_WM={flat:'Mercator Projection',lens:'Focus Lens View',globe:'Orthographic Globe'};
 const ease=(t)=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+// #5 실제 크기 비교(thetruesize.com): 메르카토르는 위도가 높을수록 면적을 과장. 나라를 다른 위도로 끌면
+// 실제(지상) 크기를 유지하도록 렌더 크기를 sec(위도)에 맞춰 재조정 → 위도별 왜곡을 눈으로 비교.
+const tsMercY=(latDeg)=>{const l=THREE.MathUtils.clamp(latDeg,-84,84)*D2R;return Math.log(Math.tan(Math.PI/4+l/2))*MS;};
+function buildTrueSizeShape(features){ // features=선택된 대륙/국가의 GeoJSON feature 배열. 반환: {lat0, x0,y0, fill(merc 상대 삼각형 xy쌍), outlines[각 링 세그먼트 xy쌍]}
+  const polys=[];for(const f of features){const g=f.geometry;const ps=g.type==='Polygon'?[g.coordinates]:g.coordinates;for(const p of ps)polys.push(p);}
+  let best=null,bestA=-1; // 가장 큰 외곽링으로 중심 위도 산출
+  for(const poly of polys){const o=poly[0];if(!o||o.length<4)continue;let a=0;for(let i=0;i<o.length-1;i++)a+=o[i][0]*o[i+1][1]-o[i+1][0]*o[i][1];a=Math.abs(a);if(a>bestA){bestA=a;best=o;}}
+  if(!best)return null;
+  let clon=0,clat=0;for(const p of best){clon+=p[0];clat+=p[1];}clon/=best.length;clat/=best.length;
+  const MX=(lonDeg)=>lonDeg*D2R*MS; // 경도(도)→월드 x: 지도 평면과 동일하게 라디안·MS. (이전엔 도×MS라 x가 ~57배 늘어나 좌우로 극단 스트레치됐음 #4)
+  const x0=MX(clon),y0=tsMercY(clat),lat0=clat*D2R;
+  const fill=[],outlines=[];
+  for(const poly of polys){const o=poly[0];if(!o||o.length<4)continue;
+    let mn=180,mx=-180;for(const p of o){if(p[0]<mn)mn=p[0];if(p[0]>mx)mx=p[0];}if(mx-mn>180)continue; // 반자오선 횡단 스킵
+    const shape=new THREE.Shape(o.map(p=>new THREE.Vector2(MX(p[0])-x0,tsMercY(p[1])-y0)));
+    for(let h=1;h<poly.length;h++){const r=poly[h];if(r&&r.length>=4)shape.holes.push(new THREE.Path(r.map(p=>new THREE.Vector2(MX(p[0])-x0,tsMercY(p[1])-y0))));}
+    let sg;try{sg=new THREE.ShapeGeometry(shape);}catch(e){continue;}
+    const ps=sg.attributes.position.array,ix=sg.index?sg.index.array:null;if(ix)for(let i=0;i<ix.length;i++)fill.push(ps[ix[i]*3],ps[ix[i]*3+1]);sg.dispose();
+    for(const ring of poly){if(ring.length<2)continue;const seg=[];for(let i=0;i<ring.length-1;i++)seg.push(MX(ring[i][0])-x0,tsMercY(ring[i][1])-y0,MX(ring[i+1][0])-x0,tsMercY(ring[i+1][1])-y0);outlines.push(new Float32Array(seg));}}
+  return {lat0,x0,y0,fill:new Float32Array(fill),outlines};
+}
+
+// #5 드래그 가능한 플로팅 패널(모서리 자석 스냅). 4개 모서리 중 br(우하)은 확대/축소 컨트롤·푸터가 차지 → 후보에서 제외.
+// 다른 패널이 이미 차지한 모서리도 제외해 겹침 방지. 놓으면 가장 가까운 후보 모서리로 오버슛(바운스) 애니메이션.
+const PANEL_M=20, PANEL_TOP=64, PANEL_BOT=64;
+const CORNER_IDS=['tl','tr','bl']; // br 예약(컨트롤/푸터)
+function cornerXY(corner,bw,bh,W,H){const m=PANEL_M;
+  switch(corner){case 'tl':return [m,PANEL_TOP];case 'tr':return [W-bw-m,PANEL_TOP];case 'bl':return [m,H-bh-PANEL_BOT];case 'br':return [W-bw-m,H-bh-PANEL_BOT];default:return [m,PANEL_TOP];}}
+function DraggablePanel({corner,onDock,otherCorner,className,children,collapsed,onHeaderTap}){
+  const ref=useRef(null),posRef=useRef({x:PANEL_M,y:PANEL_TOP}),[dragging,setDragging]=useState(false);
+  const measure=()=>{const el=ref.current;if(!el)return[220,200];const r=el.getBoundingClientRect();return[r.width,r.height];};
+  const applyCorner=(c)=>{const el=ref.current;if(!el)return;const [bw,bh]=measure();const [x,y]=cornerXY(c,bw,bh,window.innerWidth,window.innerHeight);posRef.current={x,y};el.style.transform=`translate(${x}px,${y}px)`;};
+  useLayoutEffect(()=>{applyCorner(corner);},[corner]);
+  // 접힘/펼침으로 높이가 바뀌면(특히 하단 모서리 bl은 하단 기준 앵커라) 전환 종료 후 위치 재계산 → 접어도 모서리에 딱 붙어있게.
+  useEffect(()=>{const t=setTimeout(()=>applyCorner(corner),430);return()=>clearTimeout(t);},[collapsed,corner]);
+  useEffect(()=>{const on=()=>applyCorner(corner);window.addEventListener('resize',on);return()=>window.removeEventListener('resize',on);},[corner]);
+  const onDown=(e)=>{ if(e.target.closest('input,button,a,select,textarea,.no-drag'))return; // 인터랙션 요소에서 시작한 드래그는 무시
+    const el=ref.current,r=el.getBoundingClientRect(),ox=e.clientX-r.left,oy=e.clientY-r.top,startX=e.clientX,startY=e.clientY;
+    const headerTap=!!e.target.closest('[data-collapse]'); let moved=false; el.style.transition='none';
+    const move=(ev)=>{const dx=ev.clientX-startX,dy=ev.clientY-startY;if(!moved&&Math.hypot(dx,dy)>4){moved=true;setDragging(true);}
+      if(moved){const x=ev.clientX-ox,y=ev.clientY-oy;posRef.current={x,y};el.style.transform=`translate(${x}px,${y}px)`;}};
+    const up=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);el.style.transition='';
+      if(!moved){setDragging(false);applyCorner(corner);if(headerTap&&onHeaderTap)onHeaderTap();return;} // 이동 없음=클릭: 헤더면 접기 토글, 도킹 변경 없음
+      setDragging(false);
+      const [bw,bh]=measure(),cx=posRef.current.x+bw/2,cy=posRef.current.y+bh/2;
+      const cands=CORNER_IDS.filter(c=>c!==otherCorner);let best=cands[0],bd=1e18;
+      for(const c of cands){const [x,y]=cornerXY(c,bw,bh,window.innerWidth,window.innerHeight);const d=(x+bw/2-cx)**2+(y+bh/2-cy)**2;if(d<bd){bd=d;best=c;}}
+      if(best===corner)applyCorner(corner); onDock(best);};
+    window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);};
+  return <div ref={ref} className={'floaty'+(dragging?' dragging':'')+(collapsed?' collapsed':'')+(className?' '+className:'')} onPointerDown={onDown}>{children}</div>;
+}
 
 export default function GlobeLab(){
   const mountRef=useRef(null),labelRef=useRef(null),api=useRef({});
@@ -287,6 +368,14 @@ export default function GlobeLab(){
   const [country,setCountry]=useState(false),[dayNight,setDayNight]=useState(false),[dnPlay,setDnPlay]=useState(true),[month,setMonth]=useState(6);
   const [grat,setGrat]=useState(true),[eq,setEq]=useState(true),[prime,setPrime]=useState(false),[dateline,setDateline]=useState(false),[step,setStep]=useState(20);
   const [sel,setSel]=useState(null),[status,setStatus]=useState('로딩 중…');
+  const [sat,setSat]=useState(false); // #2 위성 사진 보기
+  const [satBusy,setSatBusy]=useState(null); // {pct,label} 위성 타일 로딩 진행 or null
+  const [hiresModal,setHiresModal]=useState(false); // #3 고화질 위성 렌더 안내 모달
+  const [hiresDone,setHiresDone]=useState(false); // 고화질 적용 완료(버튼 상태)
+  const [trueSize,setTrueSize]=useState(false); // #5 실제 크기 비교(평면 전용)
+  const [tsInfo,setTsInfo]=useState(false); // 실제 크기 비교 설명 팝업
+  const [panels,setPanels]=useState({tools:'tl',legend:'tr'}); // #6 기본: 도구=좌상, 대륙/대양=우상 · #5 드래그로 이동/스냅
+  const [toolsCollapsed,setToolsCollapsed]=useState(false); // 도구 상자 접힘
   const [hint,setHint]=useState(true); // 힌트=일시 온보딩(원본과 동일): 7초 또는 첫 조작 시 사라짐, 뷰 전환 시 잠깐 재표시
   useEffect(()=>{setHint(true);const t=setTimeout(()=>setHint(false),7000);return()=>clearTimeout(t);},[view]);
   const [guide,setGuide]=useState(true); // #6 접속(새로고침) 시 사용 가이드 오버레이 — 클릭해서 닫기
@@ -296,6 +385,8 @@ export default function GlobeLab(){
   useEffect(()=>{api.current.applyGrid&&api.current.applyGrid();},[grat,eq,prime,dateline,step]);
   useEffect(()=>{S.current.sel=sel;api.current.applySel&&api.current.applySel(sel);},[sel]);
   useEffect(()=>{if(api.current.onDN)api.current.onDN(dayNight);},[dayNight]);
+  useEffect(()=>{S.current.sat=sat;if(api.current.applySat)api.current.applySat(sat);},[sat]);
+  useEffect(()=>{S.current.trueSize=trueSize;if(api.current.refreshTrueSize)api.current.refreshTrueSize();},[trueSize,sel,view]);
 
   useEffect(()=>{
     const mount=mountRef.current;let raf,renderer,controls,cleanupFn=null,disposed=false;
@@ -319,8 +410,12 @@ export default function GlobeLab(){
       const uRes={value:new THREE.Vector2(mount.clientWidth,mount.clientHeight)}; // 화면공간 fat-line용(CSS px)
       const uScreen={value:new THREE.Vector2(renderer.domElement.width,renderer.domElement.height)}; // gl_FragCoord용(디바이스 px) — 화면공간 oceanGrad
       const uCloneAmt={value:1}; // 클론 타일 알파(정상상태 평면 무한스크롤 전용 — 전환 중엔 seam이 뷰 대척점에 파킹돼 마스킹 불필요)
+      // 위성 사진(#2,3): satTexU=Esri 위성 타일을 등장방형(equirectangular)으로 재투영한 텍스처(첫 토글 시 생성), uSat=0→1 크로스페이드.
+      // 초기엔 1×1 회색 플레이스홀더(로딩 전 uSat=0이라 실제로 샘플되진 않지만 유효 텍스처 필요).
+      const phCv=document.createElement('canvas');phCv.width=phCv.height=1;{const pc=phCv.getContext('2d');pc.fillStyle='#0a0f18';pc.fillRect(0,0,1,1);}
+      const satTexU={value:rawTex(phCv)};const uSat={value:0};
       let overlayTex=buildOverlay({sel:null,world,oceans});
-      const u={dayTex:{value:vDay},nightTex:{value:vNight},overlayTex:{value:overlayTex},...U,sunLon:{value:S.current.sunLon},sunLat:{value:solarDeclDeg(6)},nightBoost:{value:1},dayNightOn:{value:0},uScreen};
+      const u={dayTex:{value:vDay},nightTex:{value:vNight},overlayTex:{value:overlayTex},satTex:satTexU,uSat,...U,sunLon:{value:S.current.sunLon},sunLat:{value:solarDeclDeg(6)},nightBoost:{value:1},dayNightOn:{value:0},uScreen};
       const mesh=new THREE.Mesh(morphGeom(180,90),new THREE.ShaderMaterial({vertexShader:meshVert,fragmentShader:meshFrag,uniforms:u,side:THREE.DoubleSide}));
       mesh.frustumCulled=false; // 커스텀 회전 셰이더 공통 규칙(아래 grat/border와 동일 이유) — 전체 구 형상이라 우연히 안 걸렸을 뿐, 명시적으로 방지
       scene.add(mesh);
@@ -330,10 +425,12 @@ export default function GlobeLab(){
       bgMesh.frustumCulled=false;bgMesh.renderOrder=-3;bgMesh.visible=false;scene.add(bgMesh);
       // 평면 좌우 순환용 클론 타일(±월드폭)
       const cloneMat=(off)=>new THREE.ShaderMaterial({vertexShader:cloneVert,fragmentShader:cloneFrag,side:THREE.DoubleSide,transparent:true,
-        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},uCloneAmt,uScreen}});
+        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,satTex:satTexU,uSat,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},uCloneAmt,uScreen}});
       const tileL=new THREE.Mesh(mesh.geometry,cloneMat(-WORLD_W)),tileR=new THREE.Mesh(mesh.geometry,cloneMat(WORLD_W));
       tileL.frustumCulled=tileR.frustumCulled=false;tileL.visible=tileR.visible=false;scene.add(tileL,tileR);
       let borderClones=null,fillClones=null; // 국경·벡터채움의 ±WORLD_W 클론(아래서 채워짐) — 클론 타일 영역에서도 크리스프 렌더 유지
+      let borderGeoRef=null,fillGeoRef=null,curDetailStep=2; // #4 줌 적응형 디테일이 재사용할 geometry 참조 + 현재 세분 간격(°)
+      let fillMain=null; // 위성 모드에서 숨길 벡터 대륙 채움 메쉬(#2) — 숨겨야 실사 위성 육지가 보임(borders·labels는 유지)
       // 평면 seam 패치: uLonC+π 복사본(콘텐츠 동일, seam만 반대편으로). uLonCPatch는 고정값이 아니라 매 프레임
       // "center의 현재 uLonC + π"로 갱신되는 라이브 유니폼(아래 루프) — center의 seam이 카메라를 따라 동적으로
       // 움직여도(파킹) 두 사본이 항상 180° 떨어져 서로의 빈틈을 덮는 관계가 깨지지 않아, 어떤 팬/줌에서도 seam이 안 보임.
@@ -341,7 +438,7 @@ export default function GlobeLab(){
       const patchU=Object.assign({},u,{uLonC:uLonCPatch});
       const meshPatch=new THREE.Mesh(mesh.geometry,new THREE.ShaderMaterial({vertexShader:meshVert,fragmentShader:meshFrag,uniforms:patchU,side:THREE.DoubleSide}));
       const clonePatchMat=(off)=>new THREE.ShaderMaterial({vertexShader:cloneVert,fragmentShader:cloneFrag,side:THREE.DoubleSide,transparent:true,
-        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:uLonCPatch,uOffsetX:{value:off},uCloneAmt,uScreen}});
+        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,satTex:satTexU,uSat,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:uLonCPatch,uOffsetX:{value:off},uCloneAmt,uScreen}});
       const tileLp=new THREE.Mesh(mesh.geometry,clonePatchMat(-WORLD_W)),tileRp=new THREE.Mesh(mesh.geometry,clonePatchMat(WORLD_W));
       meshPatch.frustumCulled=tileLp.frustumCulled=tileRp.frustumCulled=false;meshPatch.visible=tileLp.visible=tileRp.visible=false;scene.add(meshPatch,tileLp,tileRp);
 
@@ -356,13 +453,19 @@ export default function GlobeLab(){
         const g=new THREE.Group();g.add(grat,eq,pm,dl);g.userData={grat,eq,pm,dl};return g;};
       // 크리스프 벡터 국경/해안선(#4 심층줌): 채움은 텍스처(솔리드색), 경계선만 벡터라 딥줌에서 선명.
       // 평상시엔 원본과 동일한 어두운 스트로크(#04060B) → 딥줌에서만 밝게 블렌드(텍스처 픽셀레이션 보완).
-      const borderMat=(()=>{const pos=[],geo=[],geoB=[];const addRing=(ring)=>{for(let i=0;i<ring.length-1;i++){const a=ring[i],b=ring[i+1];if(Math.abs(a[0]-b[0])>180)continue;
-          const n=Math.max(1,Math.ceil(Math.max(Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1]))/2)); // 원본 정점 간격이 넓은 구간(사막 한가운데 직선 국경 등) 세분 — 딥줌에서 직선 각짐(저해상도) 방지
+      // #4 줌 적응형 국경·해안선 디테일: 격자(applyGrid)와 동일한 log2 줌레벨 방식으로, 확대 단계가 오를 때마다
+      // 세분 간격(maxStep)을 절반으로(=정점밀도 2배) 줄여 bg/fg geometry를 재생성 — geometry 객체 참조는 그대로 유지한 채
+      // setAttribute만 교체하므로 bls/blsL/blsR/blsPatch 등 이를 공유하는 모든 메쉬가 자동으로 새 디테일을 반영.
+      const buildBorderArrays=(maxStep)=>{const pos=[],geo=[],geoB=[];const addRing=(ring)=>{for(let i=0;i<ring.length-1;i++){const a=ring[i],b=ring[i+1];if(Math.abs(a[0]-b[0])>180)continue;
+          const n=Math.max(1,Math.ceil(Math.max(Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1]))/maxStep)); // 원본 정점 간격이 넓은 구간(사막 한가운데 직선 국경 등) 세분 — 딥줌에서 직선 각짐(저해상도) 방지
           let pa=a;for(let j=1;j<=n;j++){const pb=j===n?b:[a[0]+(b[0]-a[0])*j/n,a[1]+(b[1]-a[1])*j/n];
             const va=lonLatToVec3(pa[0],pa[1],1.0045),vb=lonLatToVec3(pb[0],pb[1],1.0045);pos.push(va.x,va.y,va.z,vb.x,vb.y,vb.z);geo.push(pa[0],pa[1],pb[0],pb[1]);geoB.push(pb[0],pb[1],pa[0],pa[1]);pa=pb;}
         }}; // aGeoB=짝 끝점 → seam 걸친 세그먼트 셰이더 붕괴(러시아·피지 등 lon180 횡단 스미어 방지)
         for(const f of world.features){const g=f.geometry,polys=g.type==='Polygon'?[g.coordinates]:g.coordinates;for(const poly of polys)for(const ring of poly)addRing(ring);}
+        return {pos,geo,geoB};};
+      const borderMat=(()=>{const {pos,geo,geoB}=buildBorderArrays(2);
         const bg=new THREE.BufferGeometry();bg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));bg.setAttribute('aGeo',new THREE.Float32BufferAttribute(geo,2));bg.setAttribute('aGeoB',new THREE.Float32BufferAttribute(geoB,2));
+        borderGeoRef=bg;
         const bm=new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:0},uColor:{value:new THREE.Color(0x04060B)},uOp:{value:0.42}},vertexShader:lineVert,fragmentShader:lineFrag});
         const bls=new THREE.LineSegments(bg,bm);bls.renderOrder=1;bls.frustumCulled=false;scene.add(bls);
         // 평면 좌우 무한스크롤 클론 타일(±WORLD_W)에도 벡터 국경 복제 — 없으면 클론 타일 영역(팬 위치에 따라 항상 보일 수 있음)에서
@@ -374,25 +477,32 @@ export default function GlobeLab(){
         return bm;})();
       const BORDER_DARK=new THREE.Color(0x04060B),BORDER_LIT=new THREE.Color(0x46586e);
       // #5 벡터 대륙 채움 빌드: 각 폴리곤(외곽+구멍)을 ShapeGeometry(내부 earcut)로 삼각분할 → aGeo/aColor.
-      (()=>{const aGeo=[],aCol=[],aTri=[],aTriLat=[],tmp=new THREE.Color();
+      // #4 국경과 동일하게 densify(maxStep)로 링을 먼저 세분한 뒤 삼각분할 — 이미 직선인 변을 나누는 것 자체는
+      // 모양을 바꾸지 않지만, project()가 매 정점을 구면/렌즈로 휘게 투영하므로 정점이 촘촘할수록 그 곡률이 매끈해짐
+      // (국경 라인과 같은 이유로 딥줌에서 해안선이 각지지 않게).
+      const buildFillArrays=(maxStep)=>{const aGeo=[],aCol=[],aTri=[],aTriLat=[],tmp=new THREE.Color();
         for(const f of world.features){const col=(CONT[f.properties.c]||{}).color||'#888';tmp.set(col);
           const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
-          for(const poly of polys){const outer=poly[0];if(!outer||outer.length<4)continue;
-            let mn=180,mx=-180;for(const p of outer){if(p[0]<mn)mn=p[0];if(p[0]>mx)mx=p[0];}
+          for(const poly of polys){const outer0=poly[0];if(!outer0||outer0.length<4)continue;
+            let mn=180,mx=-180;for(const p of outer0){if(p[0]<mn)mn=p[0];if(p[0]>mx)mx=p[0];}
             if(mx-mn>180)continue; // 반자오선 횡단 폴리곤 스킵(삼각분할 왜곡 방지 — 딥줌에선 텍스처 폴백)
+            const outer=densify(outer0,maxStep);
             const shape=new THREE.Shape(outer.map(p=>new THREE.Vector2(p[0],p[1])));
-            for(let h=1;h<poly.length;h++){const r=poly[h];if(r&&r.length>=4)shape.holes.push(new THREE.Path(r.map(p=>new THREE.Vector2(p[0],p[1]))));}
+            for(let h=1;h<poly.length;h++){const r0=poly[h];if(r0&&r0.length>=4){const r=densify(r0,maxStep);shape.holes.push(new THREE.Path(r.map(p=>new THREE.Vector2(p[0],p[1]))));}}
             let sg;try{sg=new THREE.ShapeGeometry(shape);}catch(e){continue;}
             const ps=sg.attributes.position.array,ix=sg.index?sg.index.array:null;if(!ix){sg.dispose();continue;}
             for(let i=0;i<ix.length;i+=3){const i0=ix[i],i1=ix[i+1],i2=ix[i+2],l0=ps[i0*3]*D2R,l1=ps[i1*3]*D2R,l2=ps[i2*3]*D2R; // aTriLon=삼각형 세 꼭짓점 경도(rad, 세 정점 동일) → straddle 붕괴
               const a0=ps[i0*3+1]*D2R,a1=ps[i1*3+1]*D2R,a2=ps[i2*3+1]*D2R; // aTriLat=세 꼭짓점 위도(rad) → 렌즈 대척점 사전 붕괴(#4)
               for(const vi of [i0,i1,i2]){aGeo.push(ps[vi*3],ps[vi*3+1]);aCol.push(tmp.r,tmp.g,tmp.b);aTri.push(l0,l1,l2);aTriLat.push(a0,a1,a2);}}
             sg.dispose();}}
-        const fg=new THREE.BufferGeometry();fg.setAttribute('aGeo',new THREE.Float32BufferAttribute(aGeo,2));fg.setAttribute('aColor',new THREE.Float32BufferAttribute(aCol,3));fg.setAttribute('aTriLon',new THREE.Float32BufferAttribute(aTri,3));fg.setAttribute('aTriLat',new THREE.Float32BufferAttribute(aTriLat,3));
         const pos=new Float32Array(aGeo.length/2*3);for(let i=0;i<aGeo.length/2;i++){const v=lonLatToVec3(aGeo[i*2],aGeo[i*2+1],1);pos[i*3]=v.x;pos[i*3+1]=v.y;pos[i*3+2]=v.z;}
+        return {aGeo,aCol,aTri,aTriLat,pos};};
+      (()=>{const {aGeo,aCol,aTri,aTriLat,pos}=buildFillArrays(2);
+        const fg=new THREE.BufferGeometry();fg.setAttribute('aGeo',new THREE.Float32BufferAttribute(aGeo,2));fg.setAttribute('aColor',new THREE.Float32BufferAttribute(aCol,3));fg.setAttribute('aTriLon',new THREE.Float32BufferAttribute(aTri,3));fg.setAttribute('aTriLat',new THREE.Float32BufferAttribute(aTriLat,3));
         fg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+        fillGeoRef=fg;
         const fm=new THREE.ShaderMaterial({side:THREE.DoubleSide,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:0},overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,dayNightOn:u.dayNightOn},vertexShader:fillVert,fragmentShader:fillFrag});
-        const fmesh=new THREE.Mesh(fg,fm);fmesh.frustumCulled=false;fmesh.renderOrder=0.5;scene.add(fmesh);
+        const fmesh=new THREE.Mesh(fg,fm);fmesh.frustumCulled=false;fmesh.renderOrder=0.5;scene.add(fmesh);fillMain=fmesh;
         // 클론 타일용 벡터 대륙 채움 복제(국경과 동일 이유 — 클론 영역에서 텍스처 폴백만 남는 저해상도 버그 방지)
         const cloneFillMat=(off)=>new THREE.ShaderMaterial({side:THREE.DoubleSide,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,dayNightOn:u.dayNightOn},vertexShader:fillVert,fragmentShader:fillFrag});
         const fmeshL=new THREE.Mesh(fg,cloneFillMat(-WORLD_W)),fmeshR=new THREE.Mesh(fg,cloneFillMat(WORLD_W));
@@ -415,6 +525,15 @@ export default function GlobeLab(){
         const eff=adaptiveStep(st.step);
         if(eff!==curEff){curEff=eff;scene.remove(center,gridFlat);center=makeGridSet(0,curEff);gridFlat=new THREE.Group();gridFlat.add(makeGridSet(-WORLD_W,curEff),makeGridSet(WORLD_W,curEff));scene.add(center,gridFlat);}
         setGridVis();};
+      // #4 줌 적응형 국경·해안선 디테일: 격자와 동일한 log2 레벨(확대 1단계당 2배)로 세분 간격을 절반씩 줄임.
+      // 레벨당 정점 수가 기하급수로 늘어나므로(특히 채움 ShapeGeometry 삼각분할 비용) 최대 3레벨(0.25°)로 캡.
+      const detailStep=()=>{const z0={flat:0.74,globe:0.92,lens:0.285}[S.current.view]||0.74;
+        const lv=THREE.MathUtils.clamp(Math.floor(Math.log2(Math.max(1,camera.zoom/z0))),0,3);return 2/Math.pow(2,lv);};
+      const applyDetail=()=>{const d=detailStep();if(d===curDetailStep)return;curDetailStep=d;
+        if(borderGeoRef){const {pos,geo,geoB}=buildBorderArrays(d);
+          borderGeoRef.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));borderGeoRef.setAttribute('aGeo',new THREE.Float32BufferAttribute(geo,2));borderGeoRef.setAttribute('aGeoB',new THREE.Float32BufferAttribute(geoB,2));}
+        if(fillGeoRef){const {aGeo,aCol,aTri,aTriLat,pos}=buildFillArrays(d);
+          fillGeoRef.setAttribute('aGeo',new THREE.Float32BufferAttribute(aGeo,2));fillGeoRef.setAttribute('aColor',new THREE.Float32BufferAttribute(aCol,3));fillGeoRef.setAttribute('aTriLon',new THREE.Float32BufferAttribute(aTri,3));fillGeoRef.setAttribute('aTriLat',new THREE.Float32BufferAttribute(aTriLat,3));fillGeoRef.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));}};
 
       const oceanLblEls=[]; // 대양 라벨 활성/딤 상태용(원본 .ocean-label.active/.dim)
       const applySel=(s)=>{overlayTex.dispose();overlayTex=buildOverlay({sel:s,world,oceans,oceansFill});u.overlayTex.value=overlayTex;
@@ -426,8 +545,9 @@ export default function GlobeLab(){
       // 평면 seam은 항상 화면 중심 대척점(WORLD_W/2 거리)에 파킹되지만, 그 가정은 "화면 반너비(월드단위) < WORLD_W/2"일 때만 성립.
       // 와이드 화면에서 zmin(0.64)까지 축소하면 aspect/zoom이 WORLD_W/2(=π·MS)를 넘어 seam이 좌우 가장자리로 들어와 보였음
       // (벡터 국경/채움 레이어는 텍스처 메쉬 같은 patch 이중화가 없어 그 지점에 얇은 틈으로 드러남). aspect에 맞춰 zmin 하한을 동적으로 올려 원천 차단.
-      const flatSafeZmin=()=>Math.max(VIEW.flat.zmin,(mount.clientWidth/mount.clientHeight)*1.08/(Math.PI*MS));
-      let tr=null;
+      const flatSafeZmin=()=>{const w=mount.clientWidth,h=mount.clientHeight;if(!(w>0&&h>0))return VIEW.flat.zmin; // mount이 아직 0×0(초기 레이아웃 전)이면 aspect가 NaN → zoom NaN → 화면 blank. 폴백으로 기본 zmin 사용.
+        return Math.max(VIEW.flat.zmin,(w/h)*1.08/(Math.PI*MS));};
+      let tr=null,cloneFadeT=0;
       const goView=(v)=>{const to=VIEW[v];
         // 현재 화면 상태로 소스 중심 경위도(rad) 산출 → 뷰 전환 후에도 같은 지점 유지(#5)
         const m=U.morph.value,l=U.lens.value; let clR,claR;
@@ -468,7 +588,51 @@ export default function GlobeLab(){
         else if(v==='flat'){controls.mouseButtons={LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN};}
         else{controls.mouseButtons={LEFT:-1,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:-1};controls.touches={ONE:-1,TWO:THREE.TOUCH.DOLLY_PAN};} // 렌즈=시선 커스텀 드래그
         controls.update();};
-      api.current={applyGrid,applySel,onDN,dolly,goView,
+      // ===== 위성 사진(#2,3) =====
+      let satReady=false,satBaseTex=null,satHiresTex=null; // satReady: 텍스처 준비돼 uSat 크로스페이드 허용
+      const SATDB='geolab-sat',SATKEY_HI='esri-hires-z4'; // 고화질은 사용자 브라우저 IndexedDB에만 캐시(내 서버 저장 안 함)
+      const idbOpen=()=>new Promise((res,rej)=>{const r=indexedDB.open(SATDB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('t'))r.result.createObjectStore('t');};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});
+      const idbGet=async(key)=>{try{const db=await idbOpen();return await new Promise((res)=>{const g=db.transaction('t','readonly').objectStore('t').get(key);g.onsuccess=()=>res(g.result||null);g.onerror=()=>res(null);});}catch(e){return null;}};
+      const idbSet=async(key,blob)=>{try{const db=await idbOpen();return await new Promise((res)=>{const p=db.transaction('t','readwrite').objectStore('t').put(blob,key);p.onsuccess=()=>res(true);p.onerror=()=>res(false);});}catch(e){return false;}};
+      const canvasToBlob=(cv)=>new Promise((res)=>cv.toBlob(res,'image/jpeg',0.85));
+      const blobToTex=(blob)=>new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const cv=document.createElement('canvas');cv.width=im.naturalWidth;cv.height=im.naturalHeight;cv.getContext('2d').drawImage(im,0,0);res(rawTex(cv));};im.onerror=rej;im.src=URL.createObjectURL(blob);});
+      const applySat=async(on)=>{ if(!on){satReady=false;return;} // 끄기: uSat 페이드아웃(loop), 텍스처는 유지(재토글 즉시)
+        if(satBaseTex||satHiresTex){satTexU.value=satHiresTex||satBaseTex;satReady=true;return;} // 이미 있으면 즉시
+        setSatBusy({pct:0,label:'위성 사진 불러오는 중…'});
+        const r=await buildSatelliteTexture(3,(d,t)=>setSatBusy({pct:Math.round(d/t*100),label:'위성 사진 불러오는 중…'}),()=>disposed);
+        setSatBusy(null); if(!r||disposed)return; satBaseTex=r.tex;satTexU.value=satBaseTex;satReady=true; };
+      const loadHires=async()=>{ setHiresModal(false);
+        // 캐시 우선(사용자 브라우저)
+        const cached=await idbGet(SATKEY_HI);
+        if(cached){try{const tex=await blobToTex(cached);satHiresTex=tex;satTexU.value=tex;satReady=true;if(!S.current.sat)setSat(true);setHiresDone(true);return;}catch(e){/* 손상 캐시 무시 */}}
+        setSatBusy({pct:0,label:'고화질 위성 사진 렌더링 중…'});
+        const r=await buildSatelliteTexture(4,(d,t)=>setSatBusy({pct:Math.round(d/t*100),label:'고화질 위성 사진 렌더링 중…'}),()=>disposed);
+        if(!r||disposed){setSatBusy(null);return;} satHiresTex=r.tex;satTexU.value=r.tex;satReady=true;
+        if(!S.current.sat)setSat(true); setHiresDone(true); setSatBusy(null);
+        try{const blob=await canvasToBlob(r.canvas);if(blob)await idbSet(SATKEY_HI,blob);}catch(e){/* 캐시 실패 무시 */} };
+      // ===== 실제 크기 비교(#5) =====
+      let tsShape=null,tsGhost=null,tsFillGeo=null,tsLineGeos=[],tsDragging=false;
+      const removeGhost=()=>{if(tsGhost){scene.remove(tsGhost);tsGhost.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});}tsGhost=null;tsShape=null;tsLineGeos=[];tsFillGeo=null;tsDragging=false;if(controls&&S.current.view==='flat')controls.enablePan=true;};
+      const updateGhost=(wx,wy)=>{ if(!tsShape||!tsGhost)return;
+        const latC=2*Math.atan(Math.exp(wy/MS))-Math.PI/2, s=Math.cos(tsShape.lat0)/Math.max(0.02,Math.cos(latC)); // sec(위도) 비율로 실제크기 유지
+        const fp=tsFillGeo.attributes.position.array,src=tsShape.fill;
+        for(let i=0;i<src.length/2;i++){fp[i*3]=wx+s*src[i*2];fp[i*3+1]=wy+s*src[i*2+1];fp[i*3+2]=0.07;}tsFillGeo.attributes.position.needsUpdate=true;
+        for(let li=0;li<tsLineGeos.length;li++){const g=tsLineGeos[li],ss=tsShape.outlines[li],lp=g.attributes.position.array;for(let i=0;i<ss.length/2;i++){lp[i*3]=wx+s*ss[i*2];lp[i*3+1]=wy+s*ss[i*2+1];lp[i*3+2]=0.07;}g.attributes.position.needsUpdate=true;} };
+      const buildGhost=(feats)=>{ removeGhost(); const sh=buildTrueSizeShape(feats); if(!sh)return; tsShape=sh;
+        const grp=new THREE.Group();
+        tsFillGeo=new THREE.BufferGeometry();tsFillGeo.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(sh.fill.length/2*3),3));
+        const fillMesh=new THREE.Mesh(tsFillGeo,new THREE.MeshBasicMaterial({color:0xFFB11A,transparent:true,opacity:0.34,depthTest:false,side:THREE.DoubleSide}));fillMesh.frustumCulled=false;fillMesh.renderOrder=5;grp.add(fillMesh);
+        tsLineGeos=[];for(const seg of sh.outlines){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(seg.length/2*3),3));tsLineGeos.push(g);const lm=new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0xFFB11A,transparent:true,opacity:0.95,depthTest:false}));lm.frustumCulled=false;lm.renderOrder=6;grp.add(lm);}
+        scene.add(grp);tsGhost=grp; updateGhost(sh.x0,sh.y0); controls.enablePan=false; }; // 처음엔 원위치(원래 나라 위에 겹침); 팬 비활성화(드래그=고스트 이동)
+      const refreshTrueSize=()=>{ if(!S.current.trueSize||S.current.view!=='flat'){removeGhost();return;}
+        const sel=S.current.sel; if(!sel){removeGhost();return;}
+        let feats=null;
+        if(sel.type==='country')feats=world.features.filter(f=>f.properties.n===sel.name);
+        else if(sel.type==='continent')feats=world.features.filter(f=>f.properties.c===sel.key);
+        if(feats&&feats.length)buildGhost(feats); else removeGhost(); };
+      api.current={applyGrid,applySel,onDN,dolly,goView,applySat,loadHires,refreshTrueSize,
+        tsDrag:{begin:()=>{if(tsGhost&&S.current.trueSize&&S.current.view==='flat'){tsDragging=true;return true;}return false;},
+          move:(wx,wy)=>{if(tsDragging)updateGhost(wx,wy);},end:()=>{tsDragging=false;},active:()=>tsDragging},
         pickContinent:(k)=>setSel(sameSel(S.current.sel,{type:'continent',key:k})?null:{type:'continent',key:k}),
         pickOcean:(k)=>setSel(sameSel(S.current.sel,{type:'ocean',key:k})?null:{type:'ocean',key:k})};
       applyGrid();settleView('flat');
@@ -489,11 +653,16 @@ export default function GlobeLab(){
 
       const ray=new THREE.Raycaster(),ptr=new THREE.Vector2(),plane0=new THREE.Plane(new THREE.Vector3(0,0,1),0),unit=new THREE.Sphere(new THREE.Vector3(),1);
       let downXY=null,dragLens=null,ptrDown=false;const dom=renderer.domElement;
-      dom.addEventListener('pointerdown',e=>{downXY=[e.clientX,e.clientY];ptrDown=true;if(S.current.view==='lens')dragLens=[e.clientX,e.clientY];});
-      dom.addEventListener('pointermove',e=>{if(dragLens&&(e.buttons&1)){ // 렌즈: 시선(중심) 회전 = 구 안에서 둘러보기(원본 0.28°/px)
+      const ghostHit=(e)=>{const rect=dom.getBoundingClientRect();ptr.x=((e.clientX-rect.left)/rect.width)*2-1;ptr.y=-((e.clientY-rect.top)/rect.height)*2+1;ray.setFromCamera(ptr,camera);return ray.ray.intersectPlane(plane0,new THREE.Vector3());};
+      dom.addEventListener('pointerdown',e=>{downXY=[e.clientX,e.clientY];ptrDown=true;
+        if(S.current.view==='lens')dragLens=[e.clientX,e.clientY];
+        else if(tsGhost&&S.current.trueSize&&S.current.view==='flat'&&(e.buttons&1))tsDragging=true;}); // #5: 실제크기 고스트 드래그(팬은 refreshTrueSize에서 비활성화됨)
+      dom.addEventListener('pointermove',e=>{
+        if(tsDragging&&(e.buttons&1)){const hit=ghostHit(e);if(hit)updateGhost(hit.x,hit.y);return;} // #5 고스트 이동
+        if(dragLens&&(e.buttons&1)){ // 렌즈: 시선(중심) 회전 = 구 안에서 둘러보기(원본 0.28°/px)
         const k=0.30*D2R,dx=e.clientX-dragLens[0],dy=e.clientY-dragLens[1];
         U.uLon0.value-=dx*k;U.uLat0.value=THREE.MathUtils.clamp(U.uLat0.value+dy*k,-1.45,1.45);dragLens=[e.clientX,e.clientY];}});
-      window.addEventListener('pointerup',()=>{dragLens=null;ptrDown=false;});
+      window.addEventListener('pointerup',()=>{dragLens=null;ptrDown=false;tsDragging=false;});
       // 트랙패드 제스처(원본 v15): 핀치(ctrlKey wheel)=줌, 두 손가락 스크롤=이동/회전, 마우스 휠(가로0+큰 세로델타)=줌.
       // mount 캡처 단계에서 가로채 OrbitControls(canvas 리스너)보다 먼저 분기.
       mount.addEventListener('wheel',e=>{const st=S.current;
@@ -532,10 +701,10 @@ export default function GlobeLab(){
       const clock=new THREE.Clock(),v3=new THREE.Vector3();
       const loop=()=>{if(disposed)return;raf=requestAnimationFrame(loop);const dt=clock.getDelta();const st=S.current;
         u.sunLat.value=solarDeclDeg(st.month);
-        if(st.dayNight&&st.dnPlay&&!ptrDown&&!tr){ // 원본 v24: 평면=시간 흐름(12°/s), 구·렌즈=지구 자전(8°/s, 그림자는 지리에 부착돼 함께 회전)
-          if(st.view==='flat')st.sunLon=((st.sunLon-dt*12+540)%360)-180;
-          else if(st.view==='globe')U.uRotY.value-=dt*8*D2R;
-          else U.uLon0.value=((U.uLon0.value+dt*8*D2R+Math.PI*3)%(Math.PI*2))-Math.PI;
+        if(st.dayNight&&st.dnPlay&&!ptrDown&&!tr){ // 낮과 밤: 태양 경도(sunLon)를 흘려보내 명암 경계선(터미네이터)이 지표를 가로질러 이동.
+          // 지구본도 이제 지구를 자전시키지 않고 sunLon만 이동 → 그림자가 표면에 붙어 함께 도는 게 아니라 표면 위를 따로 지나감(요청 #3).
+          if(st.view==='lens')U.uLon0.value=((U.uLon0.value+dt*8*D2R+Math.PI*3)%(Math.PI*2))-Math.PI; // 렌즈=시선 자전(원본 유지)
+          else st.sunLon=((st.sunLon-dt*12+540)%360)-180; // 평면·지구본=터미네이터 이동(12°/s)
         }
         u.sunLon.value=st.sunLon;
         const bt=THREE.MathUtils.clamp((camera.zoom-3)/6,0,1);borderMat.uniforms.uColor.value.copy(BORDER_DARK).lerp(BORDER_LIT,bt); // 딥줌에서만 경계선 밝게
@@ -544,20 +713,25 @@ export default function GlobeLab(){
           U.morph.value=tr.from.morph+(tr.to.morph-tr.from.morph)*k;U.lens.value=tr.from.lens+(tr.to.lens-tr.from.lens)*k;U.uRotY.value=tr.from.rotY+(tr.to.rotY-tr.from.rotY)*k;U.uRotX.value=tr.from.rotX+(tr.to.rotX-tr.from.rotX)*k;U.uLon0.value=tr.from.lon0+(tr.to.lon0-tr.from.lon0)*k;U.uLat0.value=tr.from.lat0+(tr.to.lat0-tr.from.lat0)*k;U.uLonC.value=tr.from.lonC+(tr.to.lonC-tr.from.lonC)*k;
           camera.zoom=tr.from.zoom+(tr.to.zoom-tr.from.zoom)*k;camera.updateProjectionMatrix();camera.position.lerpVectors(tr.from.pos,tr.to.pos,k);controls.target.lerpVectors(tr.from.tgt,tr.to.tgt,k);
           if(tr.t>=1){const v=tr.v;tr=null;settleView(v);}}
-        if(!tr) applyGrid(); // 줌 적응형 격자 갱신(#2, 레벨 바뀔 때만 재빌드)
-        // 클론 알파: 정상상태 평면=1(무한스크롤), 그 외(전환 도중 포함)엔 즉시 0 — 예전엔 전환 중 morph≥0.8 구간에서
-        // 서서히 페이드했는데, 그 사이 카메라도 같이 움직여서 클론(월드 오프셋 사본)이 화면을 가로질러 슬라이드해
-        // 지나가는 것처럼 보였음(평면↔렌즈 전환 시 특히 눈에 띔). 즉시 꺼서 슬라이드 아티팩트 제거 — settle 순간
-        // 살짝 팝인하지만 1프레임이라 슬라이드보다 훨씬 덜 거슬림.
-        uCloneAmt.value = (!tr && st.view==='flat') ? 1 : 0;
+        if(!tr){applyGrid();applyDetail();} // 줌 적응형 격자(#2)·국경/해안선 디테일(#4) 갱신, 둘 다 레벨 바뀔 때만 재빌드
+        // 클론 알파: 평면 정상상태에 "막 진입"했을 때만 짧게 페이드인(팝인 완화), 그 외(전환 도중 포함 다른 뷰로 나갈 때)엔 즉시 0 —
+        // 예전엔 전환 중 morph≥0.8 구간에서 서서히 페이드했는데, 그 사이 카메라도 같이 움직여서 클론(월드 오프셋 사본)이
+        // 화면을 가로질러 슬라이드해 지나가는 것처럼 보였음(평면↔렌즈 전환 시 특히 눈에 띔). 나갈 때는 여전히 즉시 0으로
+        // 슬라이드 아티팩트를 막고, 들어올 때만 0.25초 페이드로 settle 순간의 딱딱한 팝인을 부드럽게.
+        if(!tr&&st.view==='flat')cloneFadeT=Math.min(1,cloneFadeT+dt/0.25);else cloneFadeT=0;
+        uCloneAmt.value=cloneFadeT;
+        const satWant=(st.sat&&satReady)?1:0;uSat.value+=(satWant-uSat.value)*Math.min(1,dt*4); // 위성 크로스페이드(#2)
         const isFlat=st.view==='flat'&&!tr;tileL.visible=tileR.visible=uCloneAmt.value>0.004;gridFlat.visible=isFlat;
+        const satShown=uSat.value>0.5; // 위성 모드 절반 이상: 솔리드 대륙 채움 숨겨 실사 위성 육지 노출(#2). 국경·라벨·선택 강조는 유지.
         if(borderClones)borderClones.blsL.visible=borderClones.blsR.visible=tileL.visible;
-        if(fillClones)fillClones.fmeshL.visible=fillClones.fmeshR.visible=tileL.visible;
+        if(fillMain)fillMain.visible=!satShown;
+        if(fillClones){fillClones.fmeshL.visible=fillClones.fmeshR.visible=tileL.visible&&!satShown;}
         // seam 패치는 morph>0(평면 성분이 조금이라도 섞인 모든 상태: 정상상태 평면 + 전환 도중)에서 항상 표시 — 전환 중에만 꺼두면
         // (구·렌즈↔평면 전환이 uLonC 아는 것 없이 그 순간 seam이 화면에 걸쳐 뜯겨 보임: "태평양에서 전환 시 지도가 뜯기는" 버그의 원인이었음.
         const morphOn=U.morph.value>0.001;
         bgMesh.visible=meshPatch.visible=morphOn; tileLp.visible=tileL.visible; tileRp.visible=tileR.visible;
         glow.material.opacity=0.9*Math.max(0,1-U.morph.value-U.lens.value);glow.visible=glow.material.opacity>0.02;
+        if(tsGhost)tsGhost.visible=(st.view==='flat'&&!tr); // #5 실제크기 고스트는 평면 정상상태에서만
         controls.update();
         if(isFlat){ // 좌우 무한 순환 + 세로 레터박스 방지
           if(controls.target.x>WORLD_W/2){controls.target.x-=WORLD_W;camera.position.x-=WORLD_W;}else if(controls.target.x<-WORLD_W/2){controls.target.x+=WORLD_W;camera.position.x+=WORLD_W;}
@@ -577,7 +751,7 @@ export default function GlobeLab(){
       loop();setStatus('');
       cleanupFn=()=>{window.removeEventListener('resize',onResize);cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
       if(disposed)cleanupFn();
-    })();
+    })().catch(e=>{console.error('GLOBE_MOUNT_ERROR',e);});
     return ()=>{disposed=true;cancelAnimationFrame(raf);if(cleanupFn)cleanupFn();};
   },[]);
 
@@ -591,11 +765,15 @@ export default function GlobeLab(){
       <div id="stage" onPointerDownCapture={()=>setHint(false)}><div ref={mountRef} className="gl-canvas" /><div ref={labelRef} className="gl-labels" /></div>
       {status && <div className="gl-status">{status}</div>}
       <div className={'info'+(info?' show':'')}>{info&&<><div className="swatch" style={{background:info.sw}} /><div className="en">{info.en}</div><div className="kr">{info.kr}</div><div className="fact">{info.fact}</div></>}</div>
-      <div className="legend"><div className="legend-cols">
+      <DraggablePanel corner={panels.legend} otherCorner={panels.tools} onDock={c=>setPanels(p=>({...p,legend:c}))} className="legend">
+        <div className="floaty-head legend-head" title="드래그해서 이동"><div className="drag-grip"><span/><span/></div></div>
+        <div className="legend-cols">
         <div className="legend-col"><h4>6 Continents</h4>{CONT_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='continent'&&sel.key===k?' on':'')} onClick={()=>api.current.pickContinent&&api.current.pickContinent(k)}><span className="dot" style={{background:CONT[k].color}} /><span>{CONT[k].ko}</span><small>{CONT[k].en.split(' ')[0]}</small></button>))}</div>
         <div className="legend-col"><h4>5 Oceans</h4>{OCEAN_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='ocean'&&sel.key===k?' on':'')} onClick={()=>api.current.pickOcean&&api.current.pickOcean(k)}><span className="dot" style={{background:OCEAN[k].color}} /><span>{OCEAN[k].ko}</span><small>{OCEAN[k].en.split(' ')[0]}</small></button>))}</div>
-      </div><div className="note">남극(Antarctica)은 6대륙에서 제외</div></div>
-      <div className="grid-panel">
+      </div><div className="note">남극(Antarctica)은 6대륙에서 제외</div></DraggablePanel>
+      <DraggablePanel corner={panels.tools} otherCorner={panels.legend} onDock={c=>setPanels(p=>({...p,tools:c}))} collapsed={toolsCollapsed} onHeaderTap={()=>setToolsCollapsed(v=>!v)} className="grid-panel">
+        <div className="floaty-head" data-collapse title="클릭하면 접기 · 드래그하면 이동"><div className="drag-grip"><span/><span/></div><span className="floaty-head-lbl">도구 상자</span><span className="collapse-chev">{toolsCollapsed?'▸':'▾'}</span></div>
+        <div className="panel-body">
         <h4>Grid</h4>
         <label className="tg"><input type="checkbox" checked={grat} onChange={e=>setGrat(e.target.checked)} /><span>위경도 격자</span></label>
         <label className="tg"><input type="checkbox" checked={eq} onChange={e=>setEq(e.target.checked)} /><span>적도</span></label>
@@ -604,8 +782,11 @@ export default function GlobeLab(){
         <div className="step"><span>간격</span><input type="number" min="5" max="90" step="5" value={step} onChange={e=>setStep(e.target.value)} /><span>°</span></div>
         <label className="tg tg-sep"><input type="checkbox" checked={country} onChange={e=>{setCountry(e.target.checked);setSel(null);}} /><span>국가 선택</span></label>
         <label className="tg"><input type="checkbox" checked={dayNight} onChange={e=>setDayNight(e.target.checked)} /><span>낮과 밤</span></label>
-        {dayNight && <div className="daynight-ctl"><button className={'dn-btn'+(dnPlay?' on':'')} onClick={()=>setDnPlay(p=>!p)}>{dnPlay?'❚❚':'▶'}</button><input type="range" min="1" max="12" step="1" value={month} onChange={e=>setMonth(+e.target.value)} /><span className="dn-lbl">{MONTHS[month-1]}</span></div>}
-      </div>
+        <label className="tg tg-sep"><input type="checkbox" checked={sat} onChange={e=>setSat(e.target.checked)} /><span>위성 사진</span></label>
+        {sat && <button className="sat-hires" onClick={()=>hiresDone?null:setHiresModal(true)} disabled={hiresDone}>{hiresDone?'✓ 고화질 적용됨':'고화질 위성 사진 ↑'}</button>}
+        <label className="tg"><input type="checkbox" checked={trueSize} disabled={view!=='flat'} onChange={e=>{const on=e.target.checked;setTrueSize(on);if(on)setCountry(true);}} /><span>실제 크기 비교{view!=='flat'&&<small style={{color:'var(--text-2)',marginLeft:4,fontSize:9}}>평면 전용</small>}<button className="ts-info-btn no-drag" onClick={e=>{e.preventDefault();setTsInfo(v=>!v);}} title="실제 크기 비교 설명">!</button></span></label>
+        </div>
+      </DraggablePanel>
       <div className="projseg">
         <button className={view==='flat'?'on':''} onClick={()=>setView('flat')}>평면</button>
         <button className={view==='lens'?'on':''} onClick={()=>setView('lens')}>Focus Lens</button>
@@ -617,8 +798,15 @@ export default function GlobeLab(){
         <button className="ctrl home" aria-label="처음으로" onClick={()=>{setSel(null);S.current.homeReq=true;if(view==='flat')api.current.goView&&api.current.goView('flat');else setView('flat');}}>⟳</button>
       </div>
       <div className={'hint'+(hint?'':' off')}>{view==='flat'?'드래그하면 지도가 좌우로 끝없이 이어집니다 · 대륙을 클릭해 보세요':view==='lens'?'드래그로 렌즈 회전 · 대륙을 클릭해 보세요':'드래그로 회전 · 휠로 확대 · 대륙을 클릭해 보세요'}</div>
+      {dayNight && <div className="daynight-ctl"><button className={'dn-btn'+(dnPlay?' on':'')} onClick={()=>setDnPlay(p=>!p)}>{dnPlay?'❚❚':'▶'}</button><span className="dn-end">1월</span><input type="range" min="1" max="12" step="1" value={month} onChange={e=>setMonth(+e.target.value)} /><span className="dn-end">12월</span><span className="dn-lbl">{MONTHS[month-1]}</span></div>}
+      {tsInfo && <div className="ts-popup" onClick={()=>setTsInfo(false)}><div className="ts-popup-card" onClick={e=>e.stopPropagation()}>
+        <div className="ts-popup-h">실제 크기 비교</div>
+        <p>메르카토르 도법은 위도가 높을수록 나라를 실제보다 크게 부풀립니다(그린란드가 아프리카만큼 커 보이는 이유예요).</p>
+        <p><b>사용법</b> — 국가(또는 대륙)를 클릭한 뒤 드래그해 다른 위도로 옮겨보세요. 실제(지상) 크기를 유지하도록 자동으로 크기가 재조정됩니다.</p>
+        <button className="ts-popup-close" onClick={()=>setTsInfo(false)}>닫기</button>
+      </div></div>}
       <div className="watermark">{MODE_WM[view]}</div>
-      <footer className="ps-footer">Designed by <span className="ps-signature">parcyun studio</span> · <a href="https://www.instagram.com/parcyun" className="ps-ig" target="_blank" rel="noopener">@parcyun</a> · <span style={{color:'var(--ps-primary)'}}>#3 개발자 뷰</span></footer>
+      <footer className="ps-footer">Designed by <span className="ps-signature">parcyun studio</span> · <a href="https://www.instagram.com/parcyun" className="ps-ig" target="_blank" rel="noopener"><svg className="ps-ig-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4 1 .5.4.8.8 1 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-1 1.4-.4.5-.8.8-1.4 1-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-1-.5-.4-.8-.8-1-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 1-1.4.4-.5.8-.8 1.4-1 .4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.4-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/></svg>@parcyun</a> · <span style={{color:'var(--ps-primary)'}}>#3 개발자 뷰</span> · <span className="ps-ver">v1.0.1</span></footer>
       {guide && <div className="guide" onClick={()=>setGuide(false)}>
         <div className="guide-card" onClick={e=>e.stopPropagation()}>
           <div className="guide-kicker">World Map · Interactive</div>
@@ -631,6 +819,20 @@ export default function GlobeLab(){
           </ul>
           <button className="guide-btn" onClick={()=>setGuide(false)}>시작하기</button>
           <div className="guide-hint">화면 아무 곳이나 눌러도 닫혀요</div>
+        </div>
+      </div>}
+      {satBusy && <div className="sat-busy"><div className="sat-busy-bar"><div className="sat-busy-fill" style={{width:satBusy.pct+'%'}} /></div><div className="sat-busy-lbl">{satBusy.label} {satBusy.pct}%</div></div>}
+      {hiresModal && <div className="guide" onClick={()=>setHiresModal(false)}>
+        <div className="guide-card" onClick={e=>e.stopPropagation()}>
+          <div className="guide-kicker">High-Resolution Satellite</div>
+          <h2>고화질 위성 사진</h2>
+          <ul className="guide-list">
+            <li>수백 개의 고해상도 위성 타일을 내려받아 지구본에 입힙니다. <b>수십 초의 렌더링 시간</b>이 걸릴 수 있어요.</li>
+            <li>결과는 <b>이 브라우저에만</b> 저장(캐시)되어 다음 접속 때 즉시 불러옵니다. 서버에는 저장되지 않아요.</li>
+            <li>데이터: <em>Esri World Imagery</em></li>
+          </ul>
+          <button className="guide-btn" onClick={()=>api.current.loadHires&&api.current.loadHires()}>시작하기</button>
+          <div className="guide-hint">바깥을 누르면 취소돼요</div>
         </div>
       </div>}
       <style>{`
@@ -649,14 +851,38 @@ export default function GlobeLab(){
         .topbar{position:absolute;top:0;left:0;right:0;z-index:30;display:flex;padding:18px 22px;pointer-events:none}.title-wrap{pointer-events:auto}
         .kicker{font-family:var(--font-en);font-size:10px;letter-spacing:.28em;color:var(--ps-primary);font-weight:600;text-transform:uppercase}
         .title{font-size:19px;font-weight:600;letter-spacing:-.01em;margin-top:3px}.title .en{font-family:var(--font-en);color:var(--text-2);font-weight:300;font-size:13px;margin-left:8px}
-        .legend{position:absolute;left:22px;bottom:54px;z-index:30;display:flex;flex-direction:column;gap:9px;background:rgba(16,19,25,.72);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:16px;padding:14px 16px;max-width:340px}
+        .floaty{position:fixed;left:0;top:0;z-index:30;will-change:transform;cursor:grab;touch-action:none;transition:transform .5s cubic-bezier(.34,1.56,.64,1)}
+        .floaty.dragging{cursor:grabbing;z-index:41;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+        .drag-grip{display:flex;flex-direction:column;align-items:center;gap:2px;opacity:.4;transition:opacity .2s;flex-shrink:0}
+        .floaty:hover .drag-grip{opacity:.75}.drag-grip span{width:22px;height:2px;border-radius:2px;background:var(--text-2)}
+        .floaty-head{display:flex;align-items:center;gap:8px;padding:2px 2px 8px;margin:-3px -4px 0;cursor:pointer;user-select:none}
+        .floaty-head-lbl{font-family:var(--font-en);font-size:9px;letter-spacing:.2em;color:var(--text-2);font-weight:600;text-transform:uppercase}
+        .collapse-chev{margin-left:auto;font-size:10px;color:var(--text-2);transition:color .2s}.floaty:hover .collapse-chev{color:var(--ps-primary)}
+        .legend-head{justify-content:center;padding:0 0 6px;margin:-2px 0 0}
+        .panel-body{display:flex;flex-direction:column;gap:7px;overflow:hidden;max-height:640px;opacity:1;transition:max-height .42s cubic-bezier(.34,1.42,.64,1),opacity .28s ease,margin-top .42s cubic-bezier(.34,1.42,.64,1)}
+        .grid-panel.collapsed .panel-body{max-height:0;opacity:0;margin-top:-4px}
+        .grid-panel.collapsed{padding-bottom:9px}
+        .legend{display:flex;flex-direction:column;gap:9px;background:rgba(16,19,25,.72);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:16px;padding:12px 16px 14px;max-width:340px}
         .legend-cols{display:flex;gap:16px}.legend-col{display:flex;flex-direction:column;gap:6px;min-width:104px}
         .legend h4{font-family:var(--font-en);font-size:9px;letter-spacing:.22em;color:var(--text-2);font-weight:600;text-transform:uppercase;margin-bottom:3px}
         .chip{display:flex;align-items:center;gap:9px;cursor:pointer;border:none;background:none;padding:3px 4px;border-radius:8px;width:100%;text-align:left;transition:background .2s}
         .chip:hover{background:rgba(255,255,255,.06)}.chip.on{background:rgba(255,177,26,.12)}
         .dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}.chip>span:not(.dot){font-size:13px;color:var(--text);font-weight:300}.chip small{font-family:var(--font-en);font-size:9px;color:var(--text-2);margin-left:auto}
         .legend .note{font-size:10px;color:var(--text-2);line-height:1.45;margin-top:5px;border-top:1px solid var(--border);padding-top:7px}
-        .grid-panel{position:absolute;left:22px;top:74px;z-index:30;display:flex;flex-direction:column;gap:7px;background:rgba(16,19,25,.72);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:16px;padding:13px 15px;min-width:164px}
+        .sat-hires{margin-top:4px;padding:7px 10px;border:1px solid rgba(255,177,26,.32);border-radius:9px;background:rgba(255,177,26,.08);color:var(--ps-primary);font-family:var(--font-kr);font-size:11.5px;font-weight:500;cursor:pointer;transition:all .16s var(--ease);text-align:left}
+        .sat-hires:hover:not(:disabled){background:rgba(255,177,26,.16)}.sat-hires:disabled{opacity:.7;cursor:default;color:#7BC98A;border-color:rgba(123,201,138,.3);background:rgba(123,201,138,.08)}
+        .sat-busy{position:absolute;bottom:96px;left:50%;transform:translateX(-50%);z-index:45;width:min(340px,80vw);background:rgba(16,19,25,.92);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:12px;padding:12px 16px}
+        .sat-busy-bar{height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden}.sat-busy-fill{height:100%;background:var(--ps-primary);border-radius:3px;transition:width .2s var(--ease)}
+        .sat-busy-lbl{margin-top:7px;font-size:11.5px;color:var(--text-2);font-weight:300;text-align:center;font-variant-numeric:tabular-nums}
+        .ts-info-btn{margin-left:6px;width:15px;height:15px;flex-shrink:0;border-radius:50%;border:1px solid rgba(255,177,26,.5);background:rgba(255,177,26,.12);color:var(--ps-primary);font-family:var(--font-en);font-weight:700;font-size:10px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;vertical-align:middle;transition:all .15s var(--ease)}
+        .ts-info-btn:hover{background:var(--ps-primary);color:#0A0C10}
+        .ts-popup{position:fixed;inset:0;z-index:62;display:flex;align-items:center;justify-content:center;background:rgba(4,6,11,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+        .ts-popup-card{width:min(400px,88vw);background:rgba(16,19,25,.96);border:1px solid var(--border);border-radius:18px;padding:24px 24px 18px;box-shadow:0 24px 70px rgba(0,0,0,.5)}
+        .ts-popup-h{font-size:18px;font-weight:700;margin-bottom:12px;color:#fff}
+        .ts-popup-card p{font-size:13px;line-height:1.65;color:#C5CAD4;font-weight:300;margin:0 0 10px}.ts-popup-card p b{color:var(--ps-primary);font-weight:600}
+        .ts-popup-close{margin-top:6px;width:100%;padding:10px;border:0;border-radius:10px;background:var(--ps-primary);color:#0A0C10;font-family:var(--font-kr);font-size:13px;font-weight:700;cursor:pointer}
+        .grid-panel .tg input:disabled{opacity:.4;cursor:not-allowed}
+        .grid-panel{display:flex;flex-direction:column;gap:7px;background:rgba(16,19,25,.72);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:16px;padding:11px 15px 13px;min-width:164px}
         .grid-panel h4{font-family:var(--font-en);font-size:9px;letter-spacing:.22em;color:var(--text-2);font-weight:600;text-transform:uppercase;margin-bottom:2px}
         .grid-panel .tg{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text);font-weight:300;cursor:pointer}
         .grid-panel .tg small{color:var(--text-2)}.tg-sep{margin-top:8px;border-top:1px solid var(--border);padding-top:9px}
@@ -666,15 +892,17 @@ export default function GlobeLab(){
         .grid-panel .step{display:flex;align-items:center;gap:6px;margin-top:3px;border-top:1px solid var(--border);padding-top:8px}
         .grid-panel .step span{font-size:12px;color:var(--text-2);font-weight:300}
         .grid-panel .step input[type=number]{width:50px;background:var(--surface-1);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font-en);font-size:12px;padding:4px 6px;text-align:center}
-        .daynight-ctl{display:flex;align-items:center;gap:9px;margin-top:8px;padding:8px 10px;background:rgba(255,177,26,.06);border:1px solid rgba(255,177,26,.18);border-radius:10px}
-        .dn-btn{width:26px;height:24px;border:1px solid var(--border);border-radius:7px;background:var(--surface-1);color:var(--text-2);cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;transition:all .16s var(--ease);flex-shrink:0}
+        .daynight-ctl{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:28;display:flex;align-items:center;gap:12px;padding:9px 16px;background:rgba(16,19,25,.82);backdrop-filter:blur(14px);border:1px solid rgba(255,177,26,.22);border-radius:100px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+        .dn-btn{width:28px;height:26px;border:1px solid var(--border);border-radius:8px;background:var(--surface-1);color:var(--text-2);cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;transition:all .16s var(--ease);flex-shrink:0}
         .dn-btn.on{border-color:var(--ps-primary);color:var(--ps-primary);background:rgba(255,177,26,.12)}
-        .daynight-ctl input[type=range]{flex:1;min-width:64px;height:3px;accent-color:var(--ps-primary);cursor:pointer}
-        .dn-lbl{font-size:11px;color:var(--ps-primary);min-width:28px;text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
+        .dn-end{font-size:11px;color:var(--text-2);font-weight:400;flex-shrink:0;font-variant-numeric:tabular-nums}
+        .daynight-ctl input[type=range]{width:min(46vw,420px);height:3px;accent-color:var(--ps-primary);cursor:pointer}
+        .dn-lbl{font-size:12px;color:var(--ps-primary);min-width:30px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600;flex-shrink:0}
+        @media(max-width:640px){.daynight-ctl{bottom:92px;gap:8px;padding:8px 12px}.daynight-ctl input[type=range]{width:44vw}}
         .controls{position:absolute;right:22px;bottom:54px;z-index:30;display:flex;flex-direction:column;gap:8px}
         .ctrl{width:42px;height:42px;border-radius:12px;border:1px solid var(--border);background:rgba(16,19,25,.72);backdrop-filter:blur(14px);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s var(--ease);font-family:var(--font-en)}
         .ctrl:hover{border-color:var(--ps-primary);color:var(--ps-primary)}.ctrl:active{transform:scale(.93)}.ctrl.home{font-size:15px}
-        .info{position:absolute;top:74px;right:22px;z-index:30;width:248px;background:rgba(16,19,25,.82);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:20px;padding:20px;opacity:0;transform:translateY(-8px);pointer-events:none;transition:all .3s var(--ease)}
+        .info{position:absolute;bottom:54px;left:22px;z-index:29;width:248px;background:rgba(16,19,25,.82);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:20px;padding:20px;opacity:0;transform:translateY(8px);pointer-events:none;transition:all .3s var(--ease)}
         .info.show{opacity:1;transform:translateY(0)}.info .swatch{width:34px;height:34px;border-radius:9px;margin-bottom:12px}.info .en{font-family:var(--font-en);font-size:10px;letter-spacing:.22em;color:var(--text-2);font-weight:600;text-transform:uppercase}
         .info .kr{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:2px 0 10px}.info .fact{font-size:13px;line-height:1.6;color:#C5CAD4;font-weight:300}
         .hint{position:absolute;bottom:54px;left:50%;transform:translateX(-50%);z-index:25;font-size:11px;color:var(--text-2);font-weight:300;text-align:center;background:rgba(4,6,11,.5);padding:6px 14px;border-radius:9999px;transition:opacity .4s}
@@ -696,9 +924,9 @@ export default function GlobeLab(){
         .projseg button{border:0;background:transparent;color:var(--text-2);font-family:var(--font-kr);font-size:12px;font-weight:500;padding:6px 13px;border-radius:9px;cursor:pointer;transition:all .18s var(--ease);white-space:nowrap}
         .projseg button:hover{color:#fff}.projseg button.on{background:var(--ps-primary);color:#0A0C10;font-weight:600}
         .watermark{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);z-index:5;font-family:var(--font-en);font-size:9px;letter-spacing:.4em;color:#323a4a;text-transform:uppercase;pointer-events:none}
-        .ps-footer{position:fixed;bottom:14px;right:20px;font-family:var(--font-en);font-weight:300;font-size:8pt;color:var(--text-2);display:flex;align-items:center;gap:8px;z-index:9999}
-        .ps-signature{font-family:var(--font-sig);font-size:11pt;color:var(--ps-primary)}.ps-ig{color:inherit;text-decoration:none}.ps-ig:hover{color:var(--ps-primary)}
-        @media(max-width:640px){.info{width:200px;padding:16px}.info .kr{font-size:24px}.legend{max-width:200px;padding:11px 13px;bottom:48px;left:14px}.legend-col{min-width:88px}.controls{right:14px;bottom:48px}.topbar{padding:14px 16px}.title{font-size:16px}.title .en{display:none}.grid-panel{left:14px;top:64px;min-width:0;padding:10px 12px}}
+        .ps-footer{position:fixed;bottom:16px;right:20px;font-family:var(--font-en);font-weight:300;font-size:11px;color:var(--text-2);display:flex;align-items:center;gap:8px;z-index:9999;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:6px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.08)}
+        .ps-signature{font-family:var(--font-sig);font-size:15px;color:var(--ps-primary);line-height:1}.ps-ig{display:inline-flex;align-items:center;gap:3px;color:inherit;text-decoration:none}.ps-ig:hover{color:var(--ps-primary)}.ps-ig-icon{width:10px;height:10px;vertical-align:middle}.ps-ver{color:var(--text-2);font-variant-numeric:tabular-nums;opacity:.8}
+        @media(max-width:640px){.info{width:200px;padding:16px}.info .kr{font-size:24px}.legend{max-width:200px;padding:11px 13px}.legend-col{min-width:88px}.controls{right:14px;bottom:48px}.topbar{padding:14px 16px}.title{font-size:16px}.title .en{display:none}.grid-panel{min-width:0;padding:10px 12px}}
       `}</style>
     </div>
   );

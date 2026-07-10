@@ -146,6 +146,22 @@ export const resources: Resource[] = [
     meta: ['2026.06.02', 'NOTION ↗', '12 SESSIONS'],
     tags: ['AI 교육', '바이브 코딩', '커리큘럼'],
   },
+  {
+    id: 'kocomate',
+    title: 'KOCOMATE · 수업 보조 도구',
+    desc: '네패스(kocoafab)가 만든 교사용 수업 보조 도구. 교실 수업을 돕는 기능을 웹에서 바로 활용할 수 있어요.',
+    url: 'https://kocoafab.cc/edu/kocomate',
+    external: true,
+    category: '교육 활동 자료',
+    type: '인터랙티브',
+    subject: '수업 도구',
+    thumb: '🧰',
+    lid: 'Tool · Teaching',
+    posterTitle: '<strong>KOCOMATE</strong><br>수업 보조 도구',
+    date: '2026.07.10',
+    meta: ['2026.07.10', 'KOCOAFAB ↗', '교사용'],
+    tags: ['수업도구', '보조도구', 'kocoafab'],
+  },
 ];
 
 // 활동 타입 순서 (ATLAS GEARS 카테고리 표시 순)

@@ -59,7 +59,7 @@ import AdminAuth from './AdminAuth.tsx';
 .ico :global(svg){display:block}
 
 /* ===== 우측 하단 고정 브랜드 마크(MANDATORY) — 스크롤 무관 항상 플로팅 ===== */
-.ps-brand-fixed{position:fixed;right:20px;bottom:16px;z-index:9989;display:flex;align-items:center;gap:8px;font-family:var(--ps-font-en);font-weight:300;font-size:11px;color:var(--ps-text-cinematic-secondary);white-space:nowrap;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:4px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.08)}
+.ps-brand-fixed{position:fixed;right:20px;bottom:calc(var(--ps-footer-h,0px) + 10px);z-index:9989;display:flex;align-items:center;gap:8px;font-family:var(--ps-font-en);font-weight:300;font-size:11px;color:var(--ps-text-cinematic-secondary);white-space:nowrap;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:4px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.08)}
 .ps-brand-coffee{display:inline-flex;align-items:center;gap:4px;font-family:var(--ps-font-en);font-size:11px;font-weight:400;letter-spacing:.3px;color:var(--ps-primary);background:transparent;border:0;padding:0 10px 0 0;margin-right:0;border-right:1px solid rgba(255,255,255,.14);cursor:pointer;transition:color .18s}
 .ps-brand-coffee:hover{color:var(--ps-primary-dark)}
 .ps-brand-text{display:inline-flex;align-items:center;gap:8px}
@@ -67,7 +67,7 @@ import AdminAuth from './AdminAuth.tsx';
 .ps-ig{display:inline-flex;align-items:center;gap:3px;color:inherit;text-decoration:none}
 .ps-ig:hover{color:var(--ps-primary)}
 .ps-ig-icon{width:10px;height:10px;vertical-align:middle}
-@media(max-width:480px){.ps-brand-fixed{right:14px;bottom:14px;font-size:10px;padding:3px 10px;gap:6px}}
+@media(max-width:480px){.ps-brand-fixed{right:14px;font-size:10px;padding:3px 10px;gap:6px}}
 
 .coffee-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:24px}
 .coffee-modal[hidden]{display:none}
@@ -97,7 +97,12 @@ body{display:flex;flex-direction:column;min-height:100vh}
     var f = document.querySelector('.ps-footer');
     if (f) document.documentElement.style.setProperty('--ps-footer-h', f.getBoundingClientRect().height + 'px');
     var b = document.querySelector('.ps-brand-fixed');
-    if (b) document.documentElement.style.setProperty('--ps-brand-left', b.getBoundingClientRect().left + 'px');
+    if (b) {
+      var br = b.getBoundingClientRect();
+      // 브랜드 pill의 좌표(방문자 카운터 좌측 정렬용)와 높이(위 행 스택 간격용)를 함께 노출
+      document.documentElement.style.setProperty('--ps-brand-left', br.left + 'px');
+      document.documentElement.style.setProperty('--ps-brand-h', br.height + 'px');
+    }
   }
   setVars();
   window.addEventListener('resize', setVars);

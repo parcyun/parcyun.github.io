@@ -2,7 +2,7 @@
 // 사용: const T=STR[lang]; T.gridTitle 등. 대륙/대양/국가명은 globeCountryData.js + CONT/OCEAN에서 별도 처리.
 export const STR = {
   ko: {
-    title:'세계 지도', subtitle:'6대륙 5대양', kicker:'World Map · Interactive',
+    title:'세계 지도', subtitle:'6대륙 5대양', kicker:'World Map · Interactive · v1.1.0',
     gridTitle:'격자', grat:'위경도 격자', equator:'적도', prime:'본초자오선', dateline:'날짜변경선',
     interval:'간격', pickCountry:'국가 선택', trueSize:'실제 크기 비교', flatOnly:'평면 전용',
     sat:'위성 사진', dayNight:'낮과 밤', langLabel:'언어', earth:'구글 어스 바로가기',
@@ -38,7 +38,7 @@ export const STR = {
     langsLabel:'언어', unknownCountry:'대륙의 나라예요.',
   },
   en: {
-    title:'World Map', subtitle:'6 Continents · 5 Oceans', kicker:'World Map · Interactive',
+    title:'World Map', subtitle:'6 Continents · 5 Oceans', kicker:'World Map · Interactive · v1.1.0',
     gridTitle:'Grid', grat:'Graticule', equator:'Equator', prime:'Prime Meridian', dateline:'Date Line',
     interval:'Interval', pickCountry:'Select country', trueSize:'True size', flatOnly:'Flat only',
     sat:'Satellite', dayNight:'Day & Night', langLabel:'Language', earth:'Open Google Earth',

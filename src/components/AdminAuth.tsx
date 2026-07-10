@@ -32,7 +32,12 @@ export default function AdminAuth() {
       return;
     }
     setStatus('sending');
-    const { error } = await supabase.auth.signInWithOtp({ email: ADMIN_EMAIL });
+    // emailRedirectTo를 명시해 공유 Supabase 프로젝트의 기본 Site URL(다른 앱)로 튕기지 않게 함.
+    // 현재 페이지가 서브경로여도 항상 사이트 홈으로 복귀시켜 세션을 잡게 한다.
+    const { error } = await supabase.auth.signInWithOtp({
+      email: ADMIN_EMAIL,
+      options: { emailRedirectTo: (location.origin.includes('parcyun.github.io') ? 'https://parcyun.github.io/' : location.origin + '/') },
+    });
     if (error) {
       setStatus('error');
       setErr(error.message);

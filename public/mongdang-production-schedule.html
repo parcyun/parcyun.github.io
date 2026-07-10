@@ -12,12 +12,20 @@
   const show=()=>{document.documentElement.style.visibility=''};
   const deny=()=>{document.documentElement.style.visibility='';document.body.innerHTML='<div style="min-height:100vh;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:32px;background:#000;color:#fff;font-family:-apple-system,Pretendard,sans-serif"><div style="font-family:\'Covered By Your Grace\',cursive;font-size:40px;color:#FFB11A">parcyun studio</div><h1 style="font-size:22px;font-weight:600;margin:0">관리자 전용 페이지</h1><p style="color:#8C8C8C;font-size:14px;max-width:360px;line-height:1.7;margin:0">이 페이지는 parcyun studio 관리자만 볼 수 있어요. 메인에서 관리자로 로그인한 뒤 다시 열어주세요.</p><a href="/" style="margin-top:8px;background:#FFB11A;color:#000;font-weight:600;font-size:14px;padding:12px 22px;border-radius:100px;text-decoration:none">홈으로 →</a></div>'};
   let done=false; const finish=(ok)=>{if(done)return;done=true;ok?show():deny();};
-  setTimeout(()=>finish(false),4500);
+  setTimeout(()=>finish(false),6500);
   try{
     const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
     const sb=createClient('https://myeouecgpjxcddemexcg.supabase.co','sb_publishable_qHxQM-Z6vVAk9YKMluyFSw_0_fo9sKY');
     const { data } = await sb.auth.getSession();
-    finish((data.session?.user?.email||'').toLowerCase()===ADMIN);
+    const isAdmin=(data.session?.user?.email||'').toLowerCase()===ADMIN;
+    if(isAdmin){
+      // 실명은 관리자 세션에서만 mongdang_people(RLS)로 채운다. 공개 HTML엔 토큰만 존재.
+      try{
+        const { data: people } = await sb.from('mongdang_people').select('id,name');
+        if(people){ const m={}; people.forEach(p=>{m[p.id]=p.name;}); document.querySelectorAll('.pn[data-p]').forEach(el=>{ el.textContent = m[el.getAttribute('data-p')] || el.textContent; }); }
+      }catch(e){}
+    }
+    finish(isAdmin);
   }catch(e){ finish(false); }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -409,33 +417,33 @@
 
     <div class="card dept-file">
       <div class="c-head"><span class="c-badge bg-file">파일정리</span><span class="c-title">파일정리</span></div>
-      <p class="c-owner">주민환</p>
+      <p class="c-owner"><span class="pn" data-p="7"></span></p>
       <ul class="steps">
         <li><span class="s-date num">6.14</span>
           <span class="s-body">촬영 파일 정리<span class="crit-pill">절대 기한</span>
-            <span class="s-to"><span class="arr">→</span><em>메인 편집(이선학) · 서브 편집(김희경) · 제작팀장(유지연)</em>에게 공유</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>메인 편집(<span class="pn" data-p="1"></span>) · 서브 편집(<span class="pn" data-p="2"></span>) · 제작팀장(<span class="pn" data-p="3"></span>)</em>에게 공유</span></span></li>
       </ul>
     </div>
 
     <div class="card dept-edit">
       <div class="c-head"><span class="c-badge bg-edit">편집</span><span class="c-title">메인 편집</span></div>
-      <p class="c-owner">이선학 · <span class="tbd">서브 편집 김희경과 협의 분담</span></p>
+      <p class="c-owner"><span class="pn" data-p="1"></span> · <span class="tbd">서브 편집 <span class="pn" data-p="2"></span>과 협의 분담</span></p>
       <ul class="steps">
         <li><span class="s-date num">6.23</span>
           <span class="s-body">가편집 (흐름에 따라 구조만 빠르게)
-            <span class="s-to"><span class="arr">→</span><em>기획(박주현) · 작가(나효정)</em>에게 확인 요청</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>기획(<span class="pn" data-p="4"></span>) · 작가(<span class="pn" data-p="5"></span>)</em>에게 확인 요청</span></span></li>
         <li><span class="s-date num">7.2</span>
           <span class="s-body">1차 편집본 완성
-            <span class="s-to"><span class="arr">→</span><em>기획(박주현) · 작가(나효정) · 음향(안요한·정두린)</em>에게 공유</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>기획(<span class="pn" data-p="4"></span>) · 작가(<span class="pn" data-p="5"></span>) · 음향(<span class="pn" data-p="8"></span>·<span class="pn" data-p="9"></span>)</em>에게 공유</span></span></li>
         <li><span class="s-date num">7.18</span>
           <span class="s-body">2차 편집본 완성
-            <span class="s-to"><span class="arr">→</span><em>음향 · 서브 편집(김희경) · 제작팀장(유지연)</em>에게 최종 기준본 공유</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>음향 · 서브 편집(<span class="pn" data-p="2"></span>) · 제작팀장(<span class="pn" data-p="3"></span>)</em>에게 최종 기준본 공유</span></span></li>
         <li><span class="s-date num">7.19–25</span>
           <span class="s-body">색보정 · 자막 · 크레딧 등 마지막 수정
             <span class="s-to"><span class="arr">→</span><em>최종 검수</em> 요청</span></span></li>
         <li><span class="s-date num">7.29</span>
           <span class="s-body">최종 검수 반영 완료<span class="crit-pill">절대 기한</span>
-            <span class="s-to"><span class="arr">→</span><em>총괄(박창현)</em>에게 최종 확인 요청</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>총괄(<span class="pn" data-p="6"></span>)</em>에게 최종 확인 요청</span></span></li>
         <li><span class="s-date num">7.30</span>
           <span class="s-body">최종본 출력
             <span class="s-to"><span class="arr">→</span><em>상영회 현장 준비 담당</em>에게 파일 전달</span></span></li>
@@ -444,39 +452,39 @@
 
     <div class="card dept-sound">
       <div class="c-head"><span class="c-badge bg-sound">음향</span><span class="c-title">음향</span></div>
-      <p class="c-owner">안요한 · 정두린</p>
+      <p class="c-owner"><span class="pn" data-p="8"></span> · <span class="pn" data-p="9"></span></p>
       <ul class="steps">
         <li><span class="s-date num">6.15</span>
           <span class="s-body">BGM MIDI 작업 시작
-            <span class="s-to"><span class="arr">→</span><em>기획(박주현) · 작가(나효정) · 메인 편집(이선학)</em>에게 작업 방향 공유</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>기획(<span class="pn" data-p="4"></span>) · 작가(<span class="pn" data-p="5"></span>) · 메인 편집(<span class="pn" data-p="1"></span>)</em>에게 작업 방향 공유</span></span></li>
         <li><span class="s-date num">6.30</span>
           <span class="s-body">MIDI 완료 (7.2 1차 편집본에 삽입)
-            <span class="s-to"><span class="arr">→</span><em>메인 편집(이선학)</em>에게 전달</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>메인 편집(<span class="pn" data-p="1"></span>)</em>에게 전달</span></span></li>
         <li><span class="s-date num">7.3–7</span>
           <span class="s-body">기획·작가와 효과음 방향 논의
-            <span class="s-to"><span class="arr">→</span><em>메인 편집(이선학)</em>에게 반영 요청</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>메인 편집(<span class="pn" data-p="1"></span>)</em>에게 반영 요청</span></span></li>
         <li><span class="s-date num">7.25</span>
           <span class="s-body">최종 음향 확인
-            <span class="s-to"><span class="arr">→</span><em>메인 편집(이선학)</em>에게 최종 음향 파일 전달</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>메인 편집(<span class="pn" data-p="1"></span>)</em>에게 최종 음향 파일 전달</span></span></li>
         <li><span class="s-date num">7.29</span>
           <span class="s-body">최종 검수 반영 완료
-            <span class="s-to"><span class="arr">→</span><em>메인 편집(이선학) · 총괄(박창현)</em>에게 확인 요청</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>메인 편집(<span class="pn" data-p="1"></span>) · 총괄(<span class="pn" data-p="6"></span>)</em>에게 확인 요청</span></span></li>
       </ul>
     </div>
 
     <div class="card dept-promoA">
       <div class="c-head"><span class="c-badge bg-promoA">제작팀장</span><span class="c-title">홍보메인</span></div>
-      <p class="c-owner">유지연 · <span class="tbd">홍보 기획 · 상영회 행사 추진</span></p>
+      <p class="c-owner"><span class="pn" data-p="3"></span> · <span class="tbd">홍보 기획 · 상영회 행사 추진</span></p>
       <ul class="steps">
         <li><span class="s-date num">6.14</span>
           <span class="s-body">서브캠 파일 정리
-            <span class="s-to"><span class="arr">→</span><em>파일정리(주민환) · 서브 편집(김희경)</em>에게 공유</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>파일정리(<span class="pn" data-p="7"></span>) · 서브 편집(<span class="pn" data-p="2"></span>)</em>에게 공유</span></span></li>
         <li><span class="s-date num">6.24</span>
           <span class="s-body">소스 전체 확인 및 홍보 방향 설정
-            <span class="s-to"><span class="arr">→</span><em>홍보서브(구인 예정) · 서브 편집(김희경)</em>에게 작업 요청</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>홍보서브(구인 예정) · 서브 편집(<span class="pn" data-p="2"></span>)</em>에게 작업 요청</span></span></li>
         <li><span class="s-date num">7.18</span>
           <span class="s-body">메이킹필름 초안
-            <span class="s-to"><span class="arr">→</span><em>총괄(박창현) · 메인 편집(이선학)</em>에게 확인 요청</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>총괄(<span class="pn" data-p="6"></span>) · 메인 편집(<span class="pn" data-p="1"></span>)</em>에게 확인 요청</span></span></li>
         <li><span class="s-date num">7.25</span>
           <span class="s-body">메이킹필름 제작 완료
             <span class="s-to"><span class="arr">→</span><em>홍보서브(구인 예정)</em>에게 홍보물 반영 요청</span></span></li>
@@ -492,50 +500,50 @@
       <ul class="steps">
         <li><span class="s-date num">6.30</span>
           <span class="s-body">메인캠 NG · 홍보용 컷 후보 정리
-            <span class="s-to"><span class="arr">→</span><em>제작팀장(유지연)</em>에게 공유</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>제작팀장(<span class="pn" data-p="3"></span>)</em>에게 공유</span></span></li>
         <li><span class="s-date num">7.10</span>
           <span class="s-body">홍보 포스터 · 카드뉴스 1차 초안
-            <span class="s-to"><span class="arr">→</span><em>제작팀장(유지연)</em>에게 확인 요청</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>제작팀장(<span class="pn" data-p="3"></span>)</em>에게 확인 요청</span></span></li>
         <li><span class="s-date num">7.18</span>
           <span class="s-body">30초 예고편 초안
-            <span class="s-to"><span class="arr">→</span><em>제작팀장(유지연) · 메인 편집(이선학)</em>에게 확인 요청</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>제작팀장(<span class="pn" data-p="3"></span>) · 메인 편집(<span class="pn" data-p="1"></span>)</em>에게 확인 요청</span></span></li>
         <li><span class="s-date num">7.25</span>
           <span class="s-body">30초 예고편 제작
-            <span class="s-to"><span class="arr">→</span><em>제작팀장(유지연)</em>에게 전달</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>제작팀장(<span class="pn" data-p="3"></span>)</em>에게 전달</span></span></li>
         <li><span class="s-date num">7.25</span>
           <span class="s-body">최종 포스터 · 카드뉴스 제작
-            <span class="s-to"><span class="arr">→</span><em>제작팀장(유지연) · 총괄(박창현)</em>에게 확인 요청</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>제작팀장(<span class="pn" data-p="3"></span>) · 총괄(<span class="pn" data-p="6"></span>)</em>에게 확인 요청</span></span></li>
         <li><span class="s-date num">7.30</span>
           <span class="s-body">스틸컷 제작
             <span class="s-to"><span class="arr">→</span><em>포스터·카드뉴스용</em>으로 전달</span></span></li>
         <li><span class="s-date num">7.30</span>
           <span class="s-body">유튜브 채널 개설 및 업로드 정보 정리
-            <span class="s-to"><span class="arr">→</span><em>제작팀장(유지연)</em>에게 계정 정보 공유</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>제작팀장(<span class="pn" data-p="3"></span>)</em>에게 계정 정보 공유</span></span></li>
       </ul>
     </div>
 
     <div class="card dept-site">
       <div class="c-head"><span class="c-badge bg-site">현장 준비</span><span class="c-title">상영회 현장 준비</span></div>
-      <p class="c-owner"><span class="tbd">담당 구인 예정</span> · 제작팀장(유지연) 추진</p>
+      <p class="c-owner"><span class="tbd">담당 구인 예정</span> · 제작팀장(<span class="pn" data-p="3"></span>) 추진</p>
       <ul class="steps">
         <li><span class="s-date num">7.10</span>
           <span class="s-body">상영 장소 예약 / 장비 확인
-            <span class="s-to"><span class="arr">→</span><em>총괄(박창현)</em>에게 예약 결과 공유</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>총괄(<span class="pn" data-p="6"></span>)</em>에게 예약 결과 공유</span></span></li>
         <li><span class="s-date num">7.20</span>
           <span class="s-body">행사 준비 인원 확정 (진행·안내·장비·촬영·현장 정리)
             <span class="s-to"><span class="arr">→</span><em>전체 팀원</em>에게 역할 공유</span></span></li>
         <li><span class="s-date num">7.25</span>
           <span class="s-body">상영회 진행 순서 확정
-            <span class="s-to"><span class="arr">→</span><em>총괄(박창현) · 제작팀장(유지연)</em>에게 공유</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>총괄(<span class="pn" data-p="6"></span>) · 제작팀장(<span class="pn" data-p="3"></span>)</em>에게 공유</span></span></li>
         <li><span class="s-date num">7.31</span>
           <span class="s-body">현장 세팅 · 상영 테스트 · 예비 파일 백업
-            <span class="s-to"><span class="arr">→</span><em>총괄(박창현) · 메인 편집(이선학)</em>에게 최종 확인 요청</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>총괄(<span class="pn" data-p="6"></span>) · 메인 편집(<span class="pn" data-p="1"></span>)</em>에게 최종 확인 요청</span></span></li>
       </ul>
     </div>
 
     <div class="card span dept-review">
       <div class="c-head"><span class="c-badge bg-review">최종 검수</span><span class="c-title">최종 검수</span></div>
-      <p class="c-owner">총괄 박창현 · 기획 박주현 · 작가 나효정 · 메인 편집 이선학 · 음향 안요한·정두린</p>
+      <p class="c-owner">총괄 <span class="pn" data-p="6"></span> · 기획 <span class="pn" data-p="4"></span> · 작가 <span class="pn" data-p="5"></span> · 메인 편집 <span class="pn" data-p="1"></span> · 음향 <span class="pn" data-p="8"></span>·<span class="pn" data-p="9"></span></p>
       <ul class="steps">
         <li><span class="s-date num">7.26–29</span>
           <span class="s-body">최종 검수<span class="crit-pill">절대 기한</span>
@@ -545,7 +553,7 @@
           </span></li>
         <li><span class="s-date num">7.29</span>
           <span class="s-body">최종 수정 요청 마감
-            <span class="s-to"><span class="arr">→</span><em>메인 편집(이선학) · 음향(안요한·정두린)</em>에게 최종 반영 요청</span></span></li>
+            <span class="s-to"><span class="arr">→</span><em>메인 편집(<span class="pn" data-p="1"></span>) · 음향(<span class="pn" data-p="8"></span>·<span class="pn" data-p="9"></span>)</em>에게 최종 반영 요청</span></span></li>
         <li><span class="s-date num">7.30</span>
           <span class="s-body">최종본 출력 확인
             <span class="s-to"><span class="arr">→</span><em>상영회 현장 준비 담당</em>에게 전달</span></span></li>

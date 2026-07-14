@@ -17,6 +17,9 @@
   var path = (location.pathname || '/').replace(/index\.html$/, '');
   if (path === '') path = '/';
   var isMain = (path === '/');   // 메인만 전역 토탈, 나머지는 각 페이지 카운트
+  var scopePaths = Array.isArray(window.__psVisitorScopePaths) && window.__psVisitorScopePaths.length
+    ? window.__psVisitorScopePaths
+    : null;
 
   function fmt(n) { try { return Number(n).toLocaleString('en-US'); } catch (e) { return String(n); } }
 
@@ -51,6 +54,29 @@
     host.hidden = false;
   }
 
+  function renderScopeTotals(fallback) {
+    if (!scopePaths) {
+      render(fallback.today, fallback.total);
+      return;
+    }
+    fetch(SUPABASE_URL + '/rest/v1/rpc/get_visit_totals', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ p_paths: scopePaths })
+    })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (d) {
+        if (!d) return render(fallback.today, fallback.total);
+        render(d.today, d.total);
+      })
+      .catch(function () { render(fallback.today, fallback.total); });
+  }
+
   function run() {
     fetch(SUPABASE_URL + '/rest/v1/rpc/bump_visit', {
       method: 'POST',
@@ -68,7 +94,7 @@
         // 메인(/)은 사이트 전역 토탈, 그 외 페이지는 해당 페이지 카운트
         var today = isMain ? d.all_today : d.page_today;
         var total = isMain ? d.all_total : d.page_total;
-        render(today, total);
+        renderScopeTotals({ today: today, total: total });
       })
       .catch(function () { /* 네트워크/설정 오류는 조용히 무시 — 사이트에 영향 없음 */ });
   }

@@ -36,10 +36,10 @@ test('Atlas, GeoWeb, and Spell Drill load one shared footer module', async () =>
   assert.match(geo, /import PsFooter from '\.\.\/components\/PsFooter\.astro'/);
   assert.doesNotMatch(geo, /WorldMapFooter/);
   assert.match(footer, /data-ps-footer/);
-  assert.match(footer, /src="\/ps-footer\.js"/);
+  assert.match(footer, /src="\/ps-footer\.js\?v=[^"]+"/);
   assert.doesNotMatch(footer, /class="ps-brand-fixed"/);
   assert.match(spelling, /data-ps-footer/);
-  assert.match(spelling, /src="\.\.\/ps-footer\.js"/);
+  assert.match(spelling, /src="\.\.\/ps-footer\.js\?v=[^"]+"/);
   assert.doesNotMatch(spelling, /class="ps-brand-fixed"/);
   assert.match(spelling, /src="\.\.\/visitor-counter\.js"/);
   assert.match(spelling, /src="\.\.\/share-widget\.js"/);
@@ -95,4 +95,5 @@ test('shared footer owns typography, color, and line-height instead of inheritin
   assert.match(sharedFooter, /line-height:normal/);
   assert.match(sharedFooter, /color:#8C8C8C/);
   assert.match(sharedFooter, /color:#FFB11A/);
+  assert.match(sharedFooter, /host\.id = 'ps-footer-root'/);
 });

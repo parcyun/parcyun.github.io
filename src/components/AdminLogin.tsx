@@ -32,6 +32,7 @@ export default function AdminLogin() {
             <a className="al-go" href="/atlas-gears/">교육 활동 자료 편집 →</a>
             <a className="al-go" href="/academica/">강의 자료 편집 →</a>
             <a className="al-go" href="/works/">Works 편집 →</a>
+            <a className="al-go" href="/feedback-admin/">기능 개선 요청 검토 →</a>
           </div>
           <div className="al-tools">
             <span className="al-tools-label">관리자 도구</span>

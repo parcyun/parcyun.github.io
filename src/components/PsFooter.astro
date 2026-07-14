@@ -20,6 +20,7 @@ import { icon } from '../lib/icons';
 <!-- ===== 우측 하단 고정(플로팅) 브랜드 마크 — MANDATORY, 스크롤과 무관하게 항상 노출 ===== -->
 <div class="ps-brand-fixed">
   <button type="button" class="ps-brand-coffee" id="ps-coffee"><span class="ico" set:html={icon('coffee', 13)}></span> 커피 사주기</button>
+  <button type="button" class="ps-brand-feedback" data-feedback-open>기능 개선 요청</button>
   <span class="ps-brand-text">
     Designed by
     <span class="ps-signature">parcyun studio</span>
@@ -60,6 +61,8 @@ import { icon } from '../lib/icons';
 .ps-brand-fixed{position:fixed;right:20px;bottom:calc(var(--ps-footer-h,0px) + 10px);z-index:9989;display:flex;align-items:center;gap:8px;font-family:var(--ps-font-en);font-weight:300;font-size:11px;color:var(--ps-text-cinematic-secondary);white-space:nowrap;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:4px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.08)}
 .ps-brand-coffee{display:inline-flex;align-items:center;gap:4px;font-family:var(--ps-font-en);font-size:11px;font-weight:400;letter-spacing:.3px;color:var(--ps-primary);background:transparent;border:0;padding:0 10px 0 0;margin-right:0;border-right:1px solid rgba(255,255,255,.14);cursor:pointer;transition:color .18s}
 .ps-brand-coffee:hover{color:var(--ps-primary-dark)}
+.ps-brand-feedback{font-family:var(--ps-font-en);font-size:11px;font-weight:400;letter-spacing:.3px;color:var(--ps-text-cinematic-secondary);background:transparent;border:0;border-right:1px solid rgba(255,255,255,.14);padding:0 10px 0 0;cursor:pointer;transition:color .18s}
+.ps-brand-feedback:hover{color:var(--ps-primary)}
 .ps-brand-text{display:inline-flex;align-items:center;gap:8px}
 .ps-signature{font-family:var(--ps-font-signature);font-size:15px;color:var(--ps-primary);line-height:1}
 .ps-ig{display:inline-flex;align-items:center;gap:3px;color:inherit;text-decoration:none}
@@ -110,3 +113,4 @@ body{display:flex;flex-direction:column;min-height:100vh}
 </script>
 <script is:inline src="/ps-track.js" defer></script>
 <script is:inline src="/site-content.js" defer></script>
+<script is:inline src="/feedback-board.js" defer></script>

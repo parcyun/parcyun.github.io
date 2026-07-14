@@ -22,3 +22,23 @@ export async function adminSaveResource(pw: string, row: unknown) { await sbRpc(
 export async function adminDeleteResource(pw: string, id: string) { await sbRpc('admin_delete_resource', { p_pw: pw, p_id: id }); }
 export async function adminSaveWork(pw: string, row: unknown) { await sbRpc('admin_save_work', { p_pw: pw, p_row: row }); }
 export async function adminDeleteWork(pw: string, num: string) { await sbRpc('admin_delete_work', { p_pw: pw, p_num: num }); }
+
+export type FeedbackStatus = 'pending' | 'published' | 'rejected';
+
+export interface FeedbackPost {
+  id: number;
+  body: string;
+  source_path: string;
+  status: FeedbackStatus;
+  created_at: string;
+  reviewed_at: string | null;
+  like_count: number;
+}
+
+export async function adminListFeedback(pw: string): Promise<FeedbackPost[]> {
+  return (await sbRpc<FeedbackPost[]>('admin_list_feedback', { p_pw: pw })) || [];
+}
+
+export async function adminSetFeedbackStatus(pw: string, id: number, status: Exclude<FeedbackStatus, 'pending'>) {
+  await sbRpc('admin_set_feedback_status', { p_pw: pw, p_id: id, p_status: status });
+}

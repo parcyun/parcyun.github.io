@@ -310,9 +310,6 @@
   .coffee-trigger{color:var(--amber)!important;border-color:var(--amber)}
   .coffee-trigger:hover{background:rgba(255,177,26,.14)!important}
 
-  /* 커피 후원 QR 팝업 */
-  .coffee-modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px}
-  .coffee-modal[hidden]{display:none}
   /* 연타 반복 시 화면 전체 블랙아웃 (5초) — 모든 것 위에 덮음 */
   #spam-blackout{position:fixed;inset:0;z-index:120;background:#000;display:flex;align-items:center;justify-content:center;cursor:not-allowed}
   #spam-blackout[hidden]{display:none}
@@ -331,10 +328,6 @@
   .coffee-emoji{font-size:40px;line-height:1;margin-bottom:10px}
   .coffee-title{margin:0 0 6px;font-family:var(--kr,'Pretendard Variable',sans-serif);font-size:19px;font-weight:700;color:#fff}
   .coffee-sub{margin:0 0 20px;font-family:var(--kr,'Pretendard Variable',sans-serif);font-size:13px;color:var(--muted);line-height:1.6}
-  .coffee-qr{display:block;width:220px;height:220px;margin:0 auto 14px;border-radius:10px;background:#fff;padding:10px;object-fit:contain}
-  .coffee-qr-fallback{display:none;margin:0 auto 14px;padding:40px 16px;border:1px dashed var(--line-hot);border-radius:10px;
-    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted)}
-  .coffee-label{font-family:'Covered By Your Grace',cursive;font-size:20px;color:var(--amber)}
   /* 제보 팝업 — 메일 주소 표시 + 복사 */
   .report-email{margin:0 auto 16px;padding:14px 16px;border:1px solid var(--line-hot);border-radius:10px;
     background:#000;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:var(--amber);
@@ -501,7 +494,7 @@
   </div>
 
   <div data-ps-footer data-show-feedback="true" data-show-links="false"></div>
-  <script src="../ps-footer.js?v=20260714.3"></script>
+  <script src="../ps-footer.js?v=20260714.4"></script>
   <script src="../site-content.js?v=20260714.1" defer></script>
 </div>
 
@@ -11152,8 +11145,6 @@ const I18N = {
     spamTitle: '너무 빨라요!', spamSub: '제출·패스를 너무 빠르게 연타하고 있어요. 문장을 읽고 천천히 진행해 주세요.', spamBlackout: '잠시 멈춰 주세요',
     footMore: '더 많은 자료 보러가기 ↗', footReport: '기능 개선 요청',
     footCoffee: '☕ 커피 사주기', shareResultBtn: '결과 이미지 저장',
-    coffeeTitle: '개발자에게 커피 한 잔', coffeeSub: 'QR을 스캔해 후원할 수 있어요. 감사합니다!',
-    coffeeFallback: 'QR 이미지를 불러올 수 없습니다.',
     reportTitle: '버그 · 개선 아이디어 제보', reportSub: '아래 메일 주소로 자유롭게 보내주세요. 감사합니다!',
     reportCopy: '메일 주소 복사', reportCopied: '복사됨 ✓',
     resultLabels: { correct:'맞힌 개수', attempts:'시도', combo:'최고 콤보', time:'클리어 시간' },
@@ -11182,8 +11173,6 @@ const I18N = {
     spamTitle: 'Too fast!', spamSub: "You're hitting Submit/Skip way too fast. Read the sentence and slow down.", spamBlackout: 'Take a short break',
     footMore: 'Explore More Resources ↗', footReport: 'Feature Request',
     footCoffee: '☕ Buy a coffee', shareResultBtn: 'Save Result Image',
-    coffeeTitle: 'Buy the dev a coffee', coffeeSub: 'Scan the QR to send your support. Thank you!',
-    coffeeFallback: 'Could not load the QR image.',
     reportTitle: 'Report a Bug · Idea', reportSub: 'Send it to the email below anytime. Thank you!',
     reportCopy: 'Copy Email', reportCopied: 'Copied ✓',
     resultLabels: { correct:'Correct', attempts:'Attempts', combo:'Max Combo', time:'Clear Time' },
@@ -11224,9 +11213,6 @@ function setLanguage(lang){
   $('#foot-report').textContent = t.footReport;
   $('#foot-coffee-label').textContent = t.footCoffee.replace(/^☕\s*/, '');
   $('#share-result-text').textContent = t.shareResultBtn;
-  $('#coffee-title').textContent = t.coffeeTitle;
-  $('#coffee-sub').textContent = t.coffeeSub;
-  $('#coffee-qr-fallback').textContent = t.coffeeFallback;
   $('#report-title').textContent = t.reportTitle;
   $('#report-sub').textContent = t.reportSub;
   $('#report-copy').textContent = t.reportCopy;

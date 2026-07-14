@@ -98,6 +98,17 @@ test('shared footer owns typography, color, and line-height instead of inheritin
   assert.match(sharedFooter, /host\.id = 'ps-footer-root'/);
 });
 
+test('coffee action opens a collaboration email hook instead of a QR donation modal', async () => {
+  const sharedFooter = await read('public/ps-footer.js');
+  const spelling = await read('public/korean-spell-drill-parcyun/index.html');
+
+  assert.doesNotMatch(sharedFooter, /coffee-qr|coffee-qr-fallback|coffee-qr\.png/);
+  assert.match(sharedFooter, /커피 대신, 같이 뭔가 만들어볼까요\?/);
+  assert.match(sharedFooter, /pen\.layered@gmail\.com/);
+  assert.match(sharedFooter, /mailto:pen\.layered@gmail\.com/);
+  assert.doesNotMatch(spelling, /coffee-qr|coffee-qr-fallback|coffee-qr\.png/);
+});
+
 test('content studio stores careers and constrained design overrides behind administrator RPCs', async () => {
   const migration = await read('supabase/migrations/0010_content_studio.sql');
 

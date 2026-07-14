@@ -25,18 +25,30 @@ test('feedback database keeps posts private until an admin publishes them', asyn
   assert.match(migration, /alter table public\.feedback_posts enable row level security/i);
 });
 
-test('spelling drill uses the shared floating footer trigger', async () => {
+test('Atlas, GeoWeb, and Spell Drill load one shared footer module', async () => {
+  const atlas = await read('src/pages/atlas-gears.astro');
+  const geo = await read('src/pages/world-map.astro');
   const spelling = await read('public/korean-spell-drill-parcyun/index.html');
+  const footer = await read('src/components/PsFooter.astro');
+  const sharedFooter = await read('public/ps-footer.js');
 
-  assert.match(spelling, /class="ps-brand-fixed"/);
-  assert.match(spelling, /id="ps-coffee"/);
-  assert.match(spelling, /id="foot-coffee-label"/);
-  assert.match(spelling, /class="ico"><svg width="13" height="13"/);
-  assert.match(spelling, /--ps-brand-left/);
+  assert.match(atlas, /<PsFooter showLinks=\{false\} \/>/);
+  assert.match(geo, /import PsFooter from '\.\.\/components\/PsFooter\.astro'/);
+  assert.doesNotMatch(geo, /WorldMapFooter/);
+  assert.match(footer, /data-ps-footer/);
+  assert.match(footer, /src="\/ps-footer\.js"/);
+  assert.doesNotMatch(footer, /class="ps-brand-fixed"/);
+  assert.match(spelling, /data-ps-footer/);
+  assert.match(spelling, /src="\.\.\/ps-footer\.js"/);
+  assert.doesNotMatch(spelling, /class="ps-brand-fixed"/);
   assert.match(spelling, /src="\.\.\/visitor-counter\.js"/);
   assert.match(spelling, /src="\.\.\/share-widget\.js"/);
-  assert.match(spelling, /data-feedback-open/);
-  assert.match(spelling, /feedback-board\.js/);
+  assert.match(sharedFooter, /class="ps-brand-fixed"/);
+  assert.match(sharedFooter, /id="ps-coffee"/);
+  assert.match(sharedFooter, /data-feedback-open/);
+  assert.match(sharedFooter, /coffee-modal/);
+  assert.match(sharedFooter, /--ps-brand-left/);
+  assert.match(sharedFooter, /feedback-board\.js/);
 });
 
 test('homepage hides the feedback trigger without hiding it from other pages', async () => {
@@ -45,7 +57,7 @@ test('homepage hides the feedback trigger without hiding it from other pages', a
 
   assert.match(home, /showFeedback=\{false\}/);
   assert.match(footer, /showFeedback = true/);
-  assert.match(footer, /showFeedback &&/);
+  assert.match(footer, /data-show-feedback=\{String\(showFeedback\)\}/);
 });
 
 test('feedback modal uses the idea-focused copy and full-width input', async () => {
@@ -56,16 +68,12 @@ test('feedback modal uses the idea-focused copy and full-width input', async () 
   assert.match(widget, /display:block/);
 });
 
-test('ATLAS and GeoWeb use the Spell Drill footer baseline', async () => {
-  const atlas = await read('src/pages/atlas-gears.astro');
-  const geo = await read('src/pages/world-map.astro');
+test('shared footer module keeps the compact no-link baseline for Atlas and GeoWeb', async () => {
   const footer = await read('src/components/PsFooter.astro');
-  const worldFooter = await read('src/components/WorldMapFooter.astro');
+  const sharedFooter = await read('public/ps-footer.js');
 
-  assert.match(atlas, /<PsFooter showLinks=\{false\} \/>/);
-  assert.match(geo, /<PsFooter showLinks=\{false\} \/>/);
   assert.match(footer, /showLinks = true/);
-  assert.match(worldFooter, /showLinks = true/);
-  assert.match(footer, /--ps-footer-h'.*:\s*'0px'/);
-  assert.match(worldFooter, /--ps-footer-h'.*:\s*'0px'/);
+  assert.match(footer, /data-show-links=\{String\(showLinks\)\}/);
+  assert.match(sharedFooter, /showLinks \? footerLinks : ''/);
+  assert.match(sharedFooter, /'--ps-footer-h', footer \? footer\.getBoundingClientRect\(\)\.height \+ 'px' : '0px'/);
 });

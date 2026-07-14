@@ -501,7 +501,7 @@
   </div>
 
   <div class="ps-brand-fixed">
-    <button type="button" class="ps-brand-coffee coffee-trigger" id="foot-coffee">☕ 커피 사주기</button>
+    <button type="button" class="ps-brand-coffee coffee-trigger" id="ps-coffee"><span class="ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M3 8h14v6.5A4.5 4.5 0 0 1 12.5 19h-5A4.5 4.5 0 0 1 3 14.5Z"/><line x1="7" y1="2.5" x2="7" y2="4.5"/><line x1="11" y1="2.5" x2="11" y2="4.5"/></svg></span><span id="foot-coffee-label">커피 사주기</span></button>
     <button type="button" class="ps-brand-feedback" id="foot-report" data-feedback-open>기능 개선 요청</button>
     <span class="ps-brand-text">Designed by <span class="ps-signature">parcyun studio</span></span>
     <a href="https://www.instagram.com/parcyun" class="ps-ig" target="_blank" rel="noopener">
@@ -11053,7 +11053,7 @@ $('#rank-back').addEventListener('click',()=>{renderBest();show('home')});
 const coffeeModal = $('#coffee-modal');
 function openCoffee(){ coffeeModal.hidden = false; }
 function closeCoffee(){ coffeeModal.hidden = true; }
-$('#foot-coffee').addEventListener('click', openCoffee);
+$('#ps-coffee').addEventListener('click', openCoffee);
 $('#coffee-close').addEventListener('click', closeCoffee);
 coffeeModal.addEventListener('click', e=>{ if(e.target.hasAttribute('data-coffee-close')) closeCoffee(); });
 
@@ -11250,7 +11250,7 @@ function setLanguage(lang){
   $('#rank-clear-text').textContent = t.clearRecordsBtn;
   $('#rank-back-text').textContent = t.backHomeBtn;
   $('#foot-report').textContent = t.footReport;
-  $('#foot-coffee').textContent = t.footCoffee;
+  $('#foot-coffee-label').textContent = t.footCoffee.replace(/^☕\s*/, '');
   $('#share-result-text').textContent = t.shareResultBtn;
   $('#coffee-title').textContent = t.coffeeTitle;
   $('#coffee-sub').textContent = t.coffeeSub;
@@ -11286,6 +11286,21 @@ function setLanguage(lang){
 <script src="/share-widget.js" defer></script>
 <script src="/feedback-board.js" defer></script>
 <script src="/visitor-counter.js" defer></script>
+<script>
+/* 공용 PsFooter와 같은 방문자 카운터 좌표 계산 — 브랜딩 pill 바로 위, 우측 정렬 */
+(function(){
+  function setVars(){
+    var b=document.querySelector('.ps-brand-fixed');
+    if(!b)return;
+    var br=b.getBoundingClientRect();
+    document.documentElement.style.setProperty('--ps-brand-left',br.left+'px');
+    document.documentElement.style.setProperty('--ps-brand-h',br.height+'px');
+  }
+  setVars();
+  window.addEventListener('resize',setVars);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setVars);
+})();
+</script>
 <button type="button" id="ps-back-btn" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}" style="position:fixed;top:14px;left:14px;z-index:99999;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#8C8C8C;cursor:pointer;padding:0" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.28)'" onmouseout="this.style.color='#8C8C8C';this.style.borderColor='rgba(255,255,255,.12)'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><path d="m11 6-6 6 6 6"/></svg></button>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&display=swap');
@@ -11298,9 +11313,10 @@ function setLanguage(lang){
 .hero-meta .lang-toggle button{height:100%;padding-top:0;padding-bottom:0}
 @media(max-width:600px){.hero-meta{gap:10px}.hero-meta-right{gap:8px}}
 /* 하단 플로팅 — 메인 사이트 공용 ps-brand-fixed와 동일 구조 */
+.ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}.ico svg{display:block}
 .ps-brand-fixed{position:fixed;right:20px;bottom:10px;font-family:'Montserrat',sans-serif;font-weight:300;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:8px;z-index:9989;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:4px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.08)}
 .ps-signature{font-family:'Covered By Your Grace',cursive;font-size:15px;color:var(--amber);line-height:1}
-.ps-brand-coffee{font-family:'Montserrat',sans-serif;font-size:11px;color:var(--amber);background:transparent;border:0;padding:0 10px 0 0;margin-right:0;border-right:1px solid rgba(255,255,255,.14);cursor:pointer}
+.ps-brand-coffee{display:inline-flex;align-items:center;gap:4px;font-family:'Montserrat',sans-serif;font-size:11px;color:var(--amber);background:transparent;border:0;padding:0 10px 0 0;margin-right:0;border-right:1px solid rgba(255,255,255,.14);cursor:pointer}
 .ps-brand-feedback{font-family:'Montserrat',sans-serif;font-size:11px;color:var(--muted);background:transparent;border:0;padding:0 10px 0 0;margin-right:0;border-right:1px solid rgba(255,255,255,.14);cursor:pointer}
 .ps-brand-coffee:hover,.ps-brand-feedback:hover{color:var(--amber)}
 .ps-brand-text{display:inline-flex;align-items:center;gap:6px}

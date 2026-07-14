@@ -54,11 +54,11 @@
     + '<h2 id="ps-feedback-title">기능 개선 요청</h2>'
     + '<p class="ps-feedback-intro">아이디어를 남겨 주세요. 관리자 승인 후 게시판에 공개됩니다.</p>'
     + '<form class="ps-feedback-form">'
-    + '<label><span class="sr-only">요청 내용</span><textarea name="body" minlength="3" maxlength="1000" required placeholder="불편했던 점이나 추가되면 좋을 기능을 적어 주세요."></textarea></label>'
+    + '<label><span class="sr-only">요청 내용</span><textarea name="body" minlength="3" maxlength="1000" required placeholder="당신의 아이디어가 대한민국 교실에서 실현됩니다!"></textarea></label>'
     + '<div class="ps-feedback-form-row"><p class="ps-feedback-status" aria-live="polite"></p><button type="submit">요청 등록</button></div>'
     + '</form>'
     + '<div class="ps-feedback-divider"></div>'
-    + '<div class="ps-feedback-head"><h3>승인된 요청</h3><span class="ps-feedback-count"></span></div>'
+    + '<div class="ps-feedback-head"><h3>개선 아이디어 목록</h3><span class="ps-feedback-count"></span></div>'
     + '<div class="ps-feedback-list" aria-live="polite"></div>'
     + '</div>';
   document.body.appendChild(modal);
@@ -75,7 +75,7 @@
     if (!posts.length) {
       var empty = document.createElement('p');
       empty.className = 'ps-feedback-empty';
-      empty.textContent = '아직 승인된 요청이 없어요. 첫 번째 아이디어를 남겨 주세요.';
+      empty.textContent = '아직 공개된 개선 아이디어가 없어요. 첫 번째 아이디어를 남겨 주세요.';
       list.appendChild(empty);
       return;
     }
@@ -159,7 +159,7 @@
     + '.ps-feedback-card{position:relative;width:min(100%,560px);max-height:min(760px,88vh);overflow:auto;background:#141414;border:1px solid rgba(255,177,26,.5);border-radius:16px;padding:32px;box-shadow:0 28px 70px rgba(0,0,0,.62)}'
     + '.ps-feedback-close{position:absolute;top:12px;right:16px;border:0;background:transparent;color:#8C8C8C;font-size:26px;line-height:1;cursor:pointer}.ps-feedback-close:hover{color:#FFB11A}'
     + '.ps-feedback-kicker{margin:0 0 8px;font:600 10px Montserrat,sans-serif;letter-spacing:.18em;color:#FFB11A}.ps-feedback-card h2{margin:0;font-size:24px;letter-spacing:-.04em}.ps-feedback-intro{margin:8px 0 20px;color:#B8B8B8;font-size:13px;line-height:1.65}'
-    + '.ps-feedback-form textarea{width:100%;min-height:112px;resize:vertical;border:1px solid #333;border-radius:10px;background:#090909;color:#fff;padding:12px;font:14px/1.6 Pretendard Variable,Pretendard,sans-serif;outline:0}.ps-feedback-form textarea:focus{border-color:#FFB11A}'
+    + '.ps-feedback-form{width:100%}.ps-feedback-form label{display:block;width:100%}.ps-feedback-form textarea{display:block;width:100%;min-height:112px;resize:vertical;border:1px solid #333;border-radius:10px;background:#090909;color:#fff;padding:12px;font:14px/1.6 Pretendard Variable,Pretendard,sans-serif;outline:0}.ps-feedback-form textarea:focus{border-color:#FFB11A}'
     + '.ps-feedback-form-row{min-height:40px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}.ps-feedback-status{margin:0;color:#B8B8B8;font-size:12px;line-height:1.45}.ps-feedback-form button{flex:none;border:0;border-radius:999px;background:#FFB11A;color:#000;padding:9px 16px;font:600 13px Pretendard Variable,Pretendard,sans-serif;cursor:pointer}.ps-feedback-form button:hover{background:#E89500}.ps-feedback-form button:disabled,.ps-feedback-like:disabled{opacity:.55;cursor:wait}'
     + '.ps-feedback-divider{height:1px;background:#2A2A2A;margin:24px 0 16px}.ps-feedback-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}.ps-feedback-head h3{margin:0;font-size:15px}.ps-feedback-count{font:11px Montserrat,sans-serif;color:#8C8C8C}.ps-feedback-list{display:flex;flex-direction:column;margin-top:8px}.ps-feedback-post{padding:16px 0;border-bottom:1px solid #2A2A2A}.ps-feedback-post:last-child{border:0}.ps-feedback-post-body{white-space:pre-wrap;margin:0;color:#EEE;font-size:14px;line-height:1.65}.ps-feedback-post-meta{display:flex;align-items:center;justify-content:space-between;margin-top:10px;color:#8C8C8C;font:11px Montserrat,sans-serif}.ps-feedback-like{border:1px solid #333;background:transparent;border-radius:999px;color:#B8B8B8;padding:5px 9px;font:11px Pretendard Variable,Pretendard,sans-serif;cursor:pointer}.ps-feedback-like:hover,.ps-feedback-like.is-liked{border-color:#FFB11A;color:#FFB11A}.ps-feedback-empty{margin:12px 0;color:#8C8C8C;font-size:13px;line-height:1.6}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}'
     + '@media(max-width:520px){.ps-feedback-modal{padding:12px}.ps-feedback-card{max-height:92vh;padding:24px 20px}.ps-feedback-form-row{align-items:flex-end}.ps-feedback-form button{padding:9px 13px}}';

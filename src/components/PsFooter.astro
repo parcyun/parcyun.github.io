@@ -5,6 +5,8 @@
 // MANDATORY(parcyun-studio 스킬 mandatory-footer 규정): "Designed by parcyun studio" 문구·
 // 시그니처 폰트/컬러(#FFB11A)·Instagram 링크는 절대 변경/제거 금지.
 import { icon } from '../lib/icons';
+export interface Props { showFeedback?: boolean; }
+const { showFeedback = true } = Astro.props;
 ---
 <footer class="ps-footer">
   <div class="ps-footer-inner">
@@ -20,7 +22,7 @@ import { icon } from '../lib/icons';
 <!-- ===== 우측 하단 고정(플로팅) 브랜드 마크 — MANDATORY, 스크롤과 무관하게 항상 노출 ===== -->
 <div class="ps-brand-fixed">
   <button type="button" class="ps-brand-coffee" id="ps-coffee"><span class="ico" set:html={icon('coffee', 13)}></span> 커피 사주기</button>
-  <button type="button" class="ps-brand-feedback" data-feedback-open>기능 개선 요청</button>
+  {showFeedback && <button type="button" class="ps-brand-feedback" data-feedback-open>기능 개선 요청</button>}
   <span class="ps-brand-text">
     Designed by
     <span class="ps-signature">parcyun studio</span>

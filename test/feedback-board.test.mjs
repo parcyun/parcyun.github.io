@@ -29,6 +29,28 @@ test('spelling drill uses the shared floating footer trigger', async () => {
   const spelling = await read('public/korean-spell-drill-parcyun/index.html');
 
   assert.match(spelling, /class="ps-brand-fixed"/);
+  assert.match(spelling, /id="ps-coffee"/);
+  assert.match(spelling, /id="foot-coffee-label"/);
+  assert.match(spelling, /class="ico"><svg width="13" height="13"/);
+  assert.match(spelling, /--ps-brand-left/);
+  assert.match(spelling, /visitor-counter\.js/);
   assert.match(spelling, /data-feedback-open/);
   assert.match(spelling, /feedback-board\.js/);
+});
+
+test('homepage hides the feedback trigger without hiding it from other pages', async () => {
+  const home = await read('src/pages/index.astro');
+  const footer = await read('src/components/PsFooter.astro');
+
+  assert.match(home, /showFeedback=\{false\}/);
+  assert.match(footer, /showFeedback = true/);
+  assert.match(footer, /showFeedback &&/);
+});
+
+test('feedback modal uses the idea-focused copy and full-width input', async () => {
+  const widget = await read('public/feedback-board.js');
+
+  assert.match(widget, /개선 아이디어/);
+  assert.match(widget, /당신의 아이디어가 대한민국 교실에서 실현됩니다!/);
+  assert.match(widget, /display:block/);
 });

@@ -113,8 +113,19 @@ test('homepage carries the current studio positioning copy', async () => {
   const home = await read('src/pages/index.astro');
 
   assert.match(home, /Teacher\. Product Builder\. Education Studio\./);
-  assert.match(home, /교육 현장을 가장 잘 이해하는 사람이, 좋은 교육 서비스를 만듭니다\./);
-  assert.match(home, /초등학교 교사이자 교육용 프로덕트 개발자입니다\. 교육 현장에 도움을 줄 수 있는 지점을 찾고, 해결하는 과정을 씁니다\./);
+  assert.match(home, /교육 현장을 가장 잘 이해하는 사람이,[\s\S]*좋은 교육 서비스를 만듭니다\./);
+  assert.match(home, /초등학교 교사이자 교육용[\s\S]*프로덕트 개발자[\s\S]*교육 현장에 도움[\s\S]*해결[\s\S]*과정을 씁니다\./);
+});
+
+test('homepage positioning highlights the requested phrases in amber bold', async () => {
+  const home = await read('src/pages/index.astro');
+
+  assert.match(home, /<strong>좋은 교육 서비스를 만듭니다\.<\/strong>/);
+  assert.match(home, /<span class="highlight">프로덕트 개발자<\/span>/);
+  assert.match(home, /<span class="highlight">교육 현장에 도움<\/span>/);
+  assert.match(home, /<span class="highlight">해결<\/span>/);
+  assert.match(home, /\.hero-tagline strong[\s\S]*font-weight: 700/);
+  assert.match(home, /\.manifesto \.highlight[\s\S]*font-weight: 700/);
 });
 
 test('content studio stores careers and constrained design overrides behind administrator RPCs', async () => {

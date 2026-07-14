@@ -55,3 +55,17 @@ test('feedback modal uses the idea-focused copy and full-width input', async () 
   assert.match(widget, /당신의 아이디어가 대한민국 교실에서 실현됩니다!/);
   assert.match(widget, /display:block/);
 });
+
+test('ATLAS and GeoWeb use the Spell Drill footer baseline', async () => {
+  const atlas = await read('src/pages/atlas-gears.astro');
+  const geo = await read('src/pages/world-map.astro');
+  const footer = await read('src/components/PsFooter.astro');
+  const worldFooter = await read('src/components/WorldMapFooter.astro');
+
+  assert.match(atlas, /<PsFooter showLinks=\{false\} \/>/);
+  assert.match(geo, /<PsFooter showLinks=\{false\} \/>/);
+  assert.match(footer, /showLinks = true/);
+  assert.match(worldFooter, /showLinks = true/);
+  assert.match(footer, /--ps-footer-h'.*:\s*'0px'/);
+  assert.match(worldFooter, /--ps-footer-h'.*:\s*'0px'/);
+});

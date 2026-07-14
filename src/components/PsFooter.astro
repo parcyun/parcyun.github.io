@@ -5,10 +5,10 @@
 // MANDATORY(parcyun-studio 스킬 mandatory-footer 규정): "Designed by parcyun studio" 문구·
 // 시그니처 폰트/컬러(#FFB11A)·Instagram 링크는 절대 변경/제거 금지.
 import { icon } from '../lib/icons';
-export interface Props { showFeedback?: boolean; }
-const { showFeedback = true } = Astro.props;
+export interface Props { showFeedback?: boolean; showLinks?: boolean; }
+const { showFeedback = true, showLinks = true } = Astro.props;
 ---
-<footer class="ps-footer">
+{showLinks && <footer class="ps-footer">
   <div class="ps-footer-inner">
     <nav class="ps-flinks" aria-label="바로가기">
       <a href="https://linktr.ee/parcyun" class="ps-flink" target="_blank" rel="noopener">Linktree</a>
@@ -17,7 +17,7 @@ const { showFeedback = true } = Astro.props;
       <a href="/admin" class="ps-flink">admin</a>
     </nav>
   </div>
-</footer>
+</footer>}
 
 <!-- ===== 우측 하단 고정(플로팅) 브랜드 마크 — MANDATORY, 스크롤과 무관하게 항상 노출 ===== -->
 <div class="ps-brand-fixed">
@@ -98,7 +98,7 @@ body{display:flex;flex-direction:column;min-height:100vh}
 (function(){
   function setVars(){
     var f = document.querySelector('.ps-footer');
-    if (f) document.documentElement.style.setProperty('--ps-footer-h', f.getBoundingClientRect().height + 'px');
+    document.documentElement.style.setProperty('--ps-footer-h', f ? f.getBoundingClientRect().height + 'px' : '0px');
     var b = document.querySelector('.ps-brand-fixed');
     if (b) {
       var br = b.getBoundingClientRect();

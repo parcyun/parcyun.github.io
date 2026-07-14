@@ -3,8 +3,10 @@
 // 정적 .ps-footer 링크바 + 우측 하단 고정(플로팅) 브랜드 마크(.ps-brand-fixed) + 커피 QR 모달.
 // world-map(풀스크린 WebGL)에서 그대로 사용하기 위해 아이콘은 인라인 SVG로 자립화, admin 링크는 제외.
 // MANDATORY(parcyun-studio 스킬 mandatory-footer): "Designed by parcyun studio" 문구·시그니처 폰트/컬러(#FFB11A)·Instagram 링크 변경/제거 금지.
+export interface Props { showLinks?: boolean; }
+const { showLinks = true } = Astro.props;
 ---
-<footer class="ps-footer">
+{showLinks && <footer class="ps-footer">
   <div class="ps-footer-inner">
     <nav class="ps-flinks" aria-label="바로가기">
       <a href="https://linktr.ee/parcyun" class="ps-flink" target="_blank" rel="noopener">Linktree</a>
@@ -12,7 +14,7 @@
       <a href="https://padlet.com/penlayered/parcyun-studio-19rq7rovocsv24vr" class="ps-flink" target="_blank" rel="noopener">Padlet</a>
     </nav>
   </div>
-</footer>
+</footer>}
 
 <!-- ===== 우측 하단 고정(플로팅) 브랜드 마크 — MANDATORY, 스크롤과 무관하게 항상 노출 ===== -->
 <div class="ps-brand-fixed">
@@ -88,7 +90,7 @@
 (function(){
   function setVars(){
     var f = document.querySelector('.ps-footer');
-    if (f) document.documentElement.style.setProperty('--ps-footer-h', f.getBoundingClientRect().height + 'px');
+    document.documentElement.style.setProperty('--ps-footer-h', f ? f.getBoundingClientRect().height + 'px' : '0px');
     var b = document.querySelector('.ps-brand-fixed');
     if (b) {
       var br = b.getBoundingClientRect();

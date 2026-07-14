@@ -4,6 +4,16 @@ import test from 'node:test';
 import vm from 'node:vm';
 
 const sourceUrl = new URL('../public/visitor-counter.js', import.meta.url);
+const resetMigrationUrl = new URL('../supabase/migrations/0011_visit_counter_day_boundary.sql', import.meta.url);
+
+test('visitor day boundary uses 06:00 Asia/Seoul for writes and totals', async () => {
+  const migration = await readFile(resetMigrationUrl, 'utf8');
+  const visitorDay = "timezone('Asia/Seoul', now() - interval '6 hours')::date";
+
+  assert.match(migration, /create or replace function public\.bump_visit/);
+  assert.match(migration, /create or replace function public\.get_visit_totals/);
+  assert.equal(migration.split(visitorDay).length - 1, 2);
+});
 
 test('ATLAS GEARS renders the total for its configured internal pages', async () => {
   const elements = new Map();

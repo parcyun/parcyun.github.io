@@ -87,3 +87,12 @@ test('all shared-footer pages load the same Montserrat text weights', async () =
     assert.match(page, /Montserrat:wght@[^"']*300;400;500;600;700/);
   }
 });
+
+test('shared footer owns typography, color, and line-height instead of inheriting page tokens', async () => {
+  const sharedFooter = await read('public/ps-footer.js');
+
+  assert.match(sharedFooter, /font-family:'Montserrat','Pretendard Variable','Pretendard',sans-serif/);
+  assert.match(sharedFooter, /line-height:normal/);
+  assert.match(sharedFooter, /color:#8C8C8C/);
+  assert.match(sharedFooter, /color:#FFB11A/);
+});

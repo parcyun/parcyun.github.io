@@ -109,6 +109,14 @@ test('coffee action opens a collaboration email hook instead of a QR donation mo
   assert.doesNotMatch(spelling, /coffee-qr|coffee-qr-fallback|coffee-qr\.png/);
 });
 
+test('homepage carries the current studio positioning copy', async () => {
+  const home = await read('src/pages/index.astro');
+
+  assert.match(home, /Teacher\. Product Builder\. Education Studio\./);
+  assert.match(home, /교육 현장을 가장 잘 이해하는 사람이, 좋은 교육 서비스를 만듭니다\./);
+  assert.match(home, /초등학교 교사이자 교육용 프로덕트 개발자입니다\. 교육 현장에 도움을 줄 수 있는 지점을 찾고, 해결하는 과정을 씁니다\./);
+});
+
 test('content studio stores careers and constrained design overrides behind administrator RPCs', async () => {
   const migration = await read('supabase/migrations/0010_content_studio.sql');
 

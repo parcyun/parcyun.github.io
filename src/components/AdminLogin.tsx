@@ -27,13 +27,9 @@ export default function AdminLogin() {
       ) : loggedIn ? (
         <div className="al-in">
           <div className="al-badge">● 관리자 로그인됨</div>
-          <p className="al-muted">Content Studio에서 페이지 문구·디자인·경력사항을 편집하거나, 라이브 페이지에서 빠르게 문구를 수정할 수 있어요.</p>
+          <p className="al-muted">Design Studio 한 곳에서 페이지 문구·디자인·경력·자료·Works·개선 요청을 관리할 수 있어요.</p>
           <div className="al-links">
-            <a className="al-go" href="/admin/components/">Content Studio · 페이지·디자인·경력 편집 →</a>
-            <a className="al-go" href="/atlas-gears/">교육 활동 자료 편집 →</a>
-            <a className="al-go" href="/academica/">강의 자료 편집 →</a>
-            <a className="al-go" href="/works/">Works 편집 →</a>
-            <a className="al-go" href="/feedback-admin/">기능 개선 요청 검토 →</a>
+            <a className="al-go" href="/admin/components/">Design Studio 열기 →</a>
           </div>
           <div className="al-tools">
             <span className="al-tools-label">관리자 도구</span>

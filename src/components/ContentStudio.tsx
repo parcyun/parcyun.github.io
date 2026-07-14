@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  adminDeleteResource,
+  adminDeleteWork,
   adminDeleteCareerItem,
   adminDeleteCareerSection,
   adminDeleteSiteDesign,
@@ -10,9 +12,17 @@ import {
   getAdminPw,
 } from '../lib/adminPw';
 import type { CareerItem, CareerSection } from '../lib/adminPw';
+import { useResources } from '../lib/useResources';
+import { useWorks } from '../lib/useWorks';
+import type { Category, Resource } from '../data/resources';
+import type { Work } from '../data/works';
+import ResourceEditModal from './admin/ResourceEditModal';
+import WorkEditModal from './admin/WorkEditModal';
+import FeedbackAdmin from './FeedbackAdmin';
 
 type StudioElement = { key: string; designKey: string; label: string; html: string };
 type DesignValue = Record<string, string>;
+type StudioMode = 'page' | 'resources' | 'works' | 'feedback';
 
 const PAGES = [
   { id: 'home', label: '홈', path: '/' },
@@ -42,6 +52,8 @@ export default function ContentStudio() {
   const [careers, setCareers] = useState<CareerSection[]>([]);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
+  const [mode, setMode] = useState<StudioMode>(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mode') === 'feedback' ? 'feedback' : 'page');
+  const [resourceCategory, setResourceCategory] = useState<Category>('교육 활동 자료');
   const page = useMemo(() => PAGES.find((item) => item.id === pageId) || PAGES[0], [pageId]);
   const password = getAdminPw();
 
@@ -122,14 +134,25 @@ export default function ContentStudio() {
 
   if (!password) return <main className="cs-lock"><strong>관리자 로그인이 필요합니다.</strong><a href="/admin/">관리자 로그인으로 이동 →</a></main>;
 
+  function changeMode(next: StudioMode) {
+    setMode(next);
+    const url = new URL(location.href);
+    next === 'feedback' ? url.searchParams.set('mode', 'feedback') : url.searchParams.delete('mode');
+    history.replaceState(null, '', url);
+  }
+
   return <main className="cs-shell">
     <aside className="cs-pages">
-      <a className="cs-back" href="/admin/">← Admin</a><div className="cs-brand">CONTENT<br /><b>STUDIO</b></div>
-      <p className="cs-caption">PAGES</p>
-      {PAGES.map((item) => <button key={item.id} className={item.id === page.id ? 'active' : ''} onClick={() => setPageId(item.id)}><span>◈</span>{item.label}</button>)}
-      <p className="cs-tip">미리보기의 문구를 클릭하거나 목록에서 선택해 편집하세요.</p>
+      <a className="cs-back" href="/admin/">← 관리자</a><div className="cs-brand">DESIGN<br /><b>STUDIO</b></div>
+      <p className="cs-caption">WORKSPACE</p>
+      <button className={mode === 'page' ? 'active' : ''} onClick={() => changeMode('page')}><span>◈</span>페이지 디자인</button>
+      <button className={mode === 'resources' ? 'active' : ''} onClick={() => changeMode('resources')}><span>◈</span>자료 관리</button>
+      <button className={mode === 'works' ? 'active' : ''} onClick={() => changeMode('works')}><span>◈</span>Works 관리</button>
+      <button className={mode === 'feedback' ? 'active' : ''} onClick={() => changeMode('feedback')}><span>◈</span>개선 요청</button>
+      {mode === 'page' && <><p className="cs-caption cs-page-caption">PAGES</p>{PAGES.map((item) => <button key={item.id} className={'cs-subnav ' + (item.id === page.id ? 'active' : '')} onClick={() => setPageId(item.id)}><span>·</span>{item.label}</button>)}</>}
+      <p className="cs-tip">{mode === 'page' ? '미리보기의 문구를 클릭하거나 목록에서 선택해 편집하세요.' : '모든 변경은 기존 관리자 인증과 저장 규칙을 그대로 사용합니다.'}</p>
     </aside>
-    <section className="cs-canvas">
+    {mode === 'page' ? <><section className="cs-canvas">
       <header><div><small>LIVE PREVIEW</small><strong>{page.label}</strong></div><a href={page.path} target="_blank" rel="noreferrer">새 창에서 보기 ↗</a></header>
       <div className="cs-frame"><iframe ref={frame} key={page.path} src={page.path} title={`${page.label} 편집 미리보기`} onLoad={onFrameLoad} /></div>
       <div className="cs-elements"><span>TEXT COMPONENTS · {elements.length}</span>{loading ? <em>불러오는 중…</em> : elements.map((element) => <button className={selected?.key === element.key ? 'chosen' : ''} key={element.key} onClick={() => selectElement(element)}>{element.label}</button>)}</div>
@@ -148,7 +171,12 @@ export default function ContentStudio() {
         {careers.map((section) => <CareerSectionEditor key={section.id} section={section} onChange={(next) => setCareers(careers.map((item) => item.id === next.id ? next : item))} onSave={() => saveSection(section)} onDelete={() => removeSection(section)} onAdd={() => addItem(section)} onSaveItem={saveItem} onDeleteItem={removeItem} />)}
         <button className="cs-add-career" onClick={() => careers[0] && addItem(careers[0])}>＋ 경력 추가</button>
       </section>}
-    </aside>
+    </aside></> : <section className="cs-manager">
+      <header className="cs-manager-head"><div><small>MANAGE</small><strong>{mode === 'resources' ? '자료 관리' : mode === 'works' ? 'Works 관리' : '개선 요청'}</strong></div><span>Design Studio</span></header>
+      {mode === 'resources' && <><div className="cs-category-tabs"><button className={resourceCategory === '교육 활동 자료' ? 'active' : ''} onClick={() => setResourceCategory('교육 활동 자료')}>교육 활동 자료</button><button className={resourceCategory === '강의 자료' ? 'active' : ''} onClick={() => setResourceCategory('강의 자료')}>강의 자료</button></div><ResourceManager category={resourceCategory} password={password} /></>}
+      {mode === 'works' && <WorksManager password={password} />}
+      {mode === 'feedback' && <div className="cs-feedback"><FeedbackAdmin /></div>}
+    </section>}
   </main>;
 }
 
@@ -156,5 +184,34 @@ function CareerSectionEditor({ section, onChange, onSave, onDelete, onAdd, onSav
   return <div className="cs-section"><div className="cs-section-title"><input value={section.title} onChange={(event) => onChange({ ...section, title: event.target.value })} /><button onClick={onSave}>저장</button><button onClick={onDelete}>삭제</button></div>
     {section.items.map((item) => <div className="cs-career-row" key={item.id}><input aria-label="연도" value={item.year} onChange={(event) => onChange({ ...section, items: section.items.map((entry) => entry.id === item.id ? { ...entry, year: event.target.value } : entry) })} /><input aria-label="경력" value={item.role} onChange={(event) => onChange({ ...section, items: section.items.map((entry) => entry.id === item.id ? { ...entry, role: event.target.value } : entry) })} /><input aria-label="기관" value={item.org} onChange={(event) => onChange({ ...section, items: section.items.map((entry) => entry.id === item.id ? { ...entry, org: event.target.value } : entry) })} /><div><button onClick={() => onSaveItem(item)}>저장</button><button onClick={() => onDeleteItem(item)}>×</button></div></div>)}
     <button className="cs-add-row" onClick={onAdd}>＋ 항목 추가</button>
+  </div>;
+}
+
+function ResourceManager({ category, password }: { category: Category; password: string }) {
+  const { items, reload } = useResources(category);
+  const [editing, setEditing] = useState<Resource | 'new' | null>(null);
+  async function remove(item: Resource) {
+    if (!confirm(`“${item.title}” 자료를 삭제할까요?`)) return;
+    try { await adminDeleteResource(password, item.id); reload(); }
+    catch (error) { alert(message(error)); }
+  }
+  return <div className="cs-data"><div className="cs-data-top"><p><b>{items.length}</b>개 자료</p><button className="cs-save" onClick={() => setEditing('new')}>＋ 자료 추가</button></div>
+    <div className="cs-data-list">{items.map((item) => <article key={item.id} className="cs-data-row"><div className="cs-data-main"><small>{item.type} · {item.subject || '분류 없음'}</small><strong>{item.title}</strong><p>{item.desc}</p><span>{item.tags.map((tag) => `#${tag}`).join(' · ')}</span></div><div className="cs-row-actions"><button onClick={() => setEditing(item)}>수정</button><button className="danger" onClick={() => remove(item)}>삭제</button></div></article>)}</div>
+    {editing && <ResourceEditModal key={editing === 'new' ? 'new' : editing.id} category={category} pw={password} initial={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} onSaved={() => { reload(); setEditing(null); }} />}
+  </div>;
+}
+
+function WorksManager({ password }: { password: string }) {
+  const { items, reload } = useWorks();
+  const [editing, setEditing] = useState<Work | 'new' | null>(null);
+  const nextNum = String(Math.max(0, ...items.map((item) => Number(item.num) || 0)) + 1).padStart(3, '0');
+  async function remove(item: Work) {
+    if (!confirm(`Work ${item.num} “${item.title}”를 삭제할까요?`)) return;
+    try { await adminDeleteWork(password, item.num); reload(); }
+    catch (error) { alert(message(error)); }
+  }
+  return <div className="cs-data"><div className="cs-data-top"><p><b>{items.length}</b>개 Work</p><button className="cs-save" onClick={() => setEditing('new')}>＋ Work 추가</button></div>
+    <div className="cs-data-list">{items.map((item) => <article key={item.num} className="cs-data-row"><div className="cs-data-main"><small>WORK {item.num} · {item.status}</small><strong>{item.title}</strong><p>{item.desc}</p><span>{item.week} · {item.tags.join(' · ')}</span></div><div className="cs-row-actions"><button onClick={() => setEditing(item)}>수정</button><button className="danger" onClick={() => remove(item)}>삭제</button></div></article>)}</div>
+    {editing && <WorkEditModal key={editing === 'new' ? 'new' : editing.num} pw={password} initial={editing === 'new' ? undefined : editing} nextNum={nextNum} onClose={() => setEditing(null)} onSaved={() => { reload(); setEditing(null); }} />}
   </div>;
 }

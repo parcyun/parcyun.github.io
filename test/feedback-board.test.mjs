@@ -132,3 +132,21 @@ test('all editable page shells load the current content runtime', async () => {
   assert.match(layout, /src="\/site-content\.js\?v=[^"]+"/);
   assert.match(spelling, /src="\.\.\/site-content\.js\?v=[^"]+"/);
 });
+
+test('Design Studio is the single rounded administrator workspace', async () => {
+  const studio = await read('src/components/ContentStudio.tsx');
+  const login = await read('src/components/AdminLogin.tsx');
+  const feedbackPage = await read('src/pages/feedback-admin.astro');
+  const studioPage = await read('src/pages/admin/components.astro');
+
+  assert.match(studio, /DESIGN STUDIO/i);
+  assert.match(studio, /페이지 디자인/);
+  assert.match(studio, /자료 관리/);
+  assert.match(studio, /Works 관리/);
+  assert.match(studio, /개선 요청/);
+  assert.match(studioPage, /--ds-radius-control:12px/);
+  assert.match(studioPage, /--ds-radius-panel:16px/);
+  assert.match(studioPage, /--ds-radius-elevated:20px/);
+  assert.match(login, /Design Studio/);
+  assert.match(feedbackPage, /admin\/components\/\?mode=feedback/);
+});

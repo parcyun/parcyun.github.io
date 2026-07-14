@@ -23,6 +23,36 @@ export async function adminDeleteResource(pw: string, id: string) { await sbRpc(
 export async function adminSaveWork(pw: string, row: unknown) { await sbRpc('admin_save_work', { p_pw: pw, p_row: row }); }
 export async function adminDeleteWork(pw: string, num: string) { await sbRpc('admin_delete_work', { p_pw: pw, p_num: num }); }
 
+export interface CareerItem {
+  id: string;
+  section_id: string;
+  year: string;
+  role: string;
+  org: string;
+  sort: number;
+}
+
+export interface CareerSection {
+  id: string;
+  title: string;
+  sort: number;
+  items: CareerItem[];
+}
+
+export async function adminListCareerTimeline(): Promise<CareerSection[]> {
+  return (await sbRpc<CareerSection[]>('list_career_timeline')) || [];
+}
+export async function adminSaveCareerSection(pw: string, row: Pick<CareerSection, 'id' | 'title' | 'sort'>) {
+  await sbRpc('admin_save_career_section', { p_pw: pw, p_row: row });
+}
+export async function adminDeleteCareerSection(pw: string, id: string) { await sbRpc('admin_delete_career_section', { p_pw: pw, p_id: id }); }
+export async function adminSaveCareerItem(pw: string, row: CareerItem) { await sbRpc('admin_save_career_item', { p_pw: pw, p_row: row }); }
+export async function adminDeleteCareerItem(pw: string, id: string) { await sbRpc('admin_delete_career_item', { p_pw: pw, p_id: id }); }
+export async function adminSaveSiteDesign(pw: string, key: string, value: Record<string, string>) {
+  await sbRpc('admin_save_site_design', { p_pw: pw, p_key: key, p_value: value });
+}
+export async function adminDeleteSiteDesign(pw: string, key: string) { await sbRpc('admin_delete_site_design', { p_pw: pw, p_key: key }); }
+
 export type FeedbackStatus = 'pending' | 'published' | 'rejected';
 
 export interface FeedbackPost {

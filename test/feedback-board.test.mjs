@@ -97,3 +97,28 @@ test('shared footer owns typography, color, and line-height instead of inheritin
   assert.match(sharedFooter, /color:#FFB11A/);
   assert.match(sharedFooter, /host\.id = 'ps-footer-root'/);
 });
+
+test('content studio stores careers and constrained design overrides behind administrator RPCs', async () => {
+  const migration = await read('supabase/migrations/0010_content_studio.sql');
+
+  assert.match(migration, /create table if not exists public\.career_sections/i);
+  assert.match(migration, /create table if not exists public\.career_items/i);
+  assert.match(migration, /create table if not exists public\.site_design/i);
+  assert.match(migration, /alter table public\.career_sections enable row level security/i);
+  assert.match(migration, /alter table public\.career_items enable row level security/i);
+  assert.match(migration, /admin_save_career_item/i);
+  assert.match(migration, /admin_delete_career_item/i);
+  assert.match(migration, /admin_save_site_design/i);
+  assert.match(migration, /admin_check\(p_pw\)/i);
+});
+
+test('content studio route contains a Figma-style inspector and career CRUD controls', async () => {
+  const page = await read('src/pages/admin/components.astro');
+  const studio = await read('src/components/ContentStudio.tsx');
+
+  assert.match(page, /ContentStudio/);
+  assert.match(studio, /디자인 설정/);
+  assert.match(studio, /경력 추가/);
+  assert.match(studio, /adminSaveCareerItem/);
+  assert.match(studio, /iframe/);
+});

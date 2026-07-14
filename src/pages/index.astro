@@ -71,7 +71,7 @@ const jsonLd = {
       <span class="label">경력 전체 보기</span>
       <span class="chev">⌄</span>
     </button>
-    <div class="career-list collapsed" id="career-list">
+    <div class="career-list collapsed" id="career-list" data-career-managed data-noedit>
 
       <div class="career-category-header">주요 경력</div>
       <div class="career-item">
@@ -438,4 +438,5 @@ function toggleCareer(btn){
   btn.querySelector('.label').textContent = expanded ? '경력 전체 보기' : '경력 접기';
 }
 </script>
+<script is:inline src="/career-timeline.js?v=20260714.1" defer></script>
 </CinematicLayout>

@@ -27,8 +27,9 @@ export default function AdminLogin() {
       ) : loggedIn ? (
         <div className="al-in">
           <div className="al-badge">● 관리자 로그인됨</div>
-          <p className="al-muted">라이브 페이지로 가서 카드의 수정·삭제·＋추가로 편집하세요. (텍스트 인라인 편집은 다음 단계에서 추가됩니다.)</p>
+          <p className="al-muted">Content Studio에서 페이지 문구·디자인·경력사항을 편집하거나, 라이브 페이지에서 빠르게 문구를 수정할 수 있어요.</p>
           <div className="al-links">
+            <a className="al-go" href="/admin/components/">Content Studio · 페이지·디자인·경력 편집 →</a>
             <a className="al-go" href="/atlas-gears/">교육 활동 자료 편집 →</a>
             <a className="al-go" href="/academica/">강의 자료 편집 →</a>
             <a className="al-go" href="/works/">Works 편집 →</a>

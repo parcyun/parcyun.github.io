@@ -122,3 +122,13 @@ test('content studio route contains a Figma-style inspector and career CRUD cont
   assert.match(studio, /adminSaveCareerItem/);
   assert.match(studio, /iframe/);
 });
+
+test('all editable page shells load the current content runtime', async () => {
+  const footer = await read('src/components/PsFooter.astro');
+  const layout = await read('src/layouts/CinematicLayout.astro');
+  const spelling = await read('public/korean-spell-drill-parcyun/index.html');
+
+  assert.match(footer, /src="\/site-content\.js\?v=[^"]+"/);
+  assert.match(layout, /src="\/site-content\.js\?v=[^"]+"/);
+  assert.match(spelling, /src="\.\.\/site-content\.js\?v=[^"]+"/);
+});

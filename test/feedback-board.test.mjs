@@ -77,3 +77,13 @@ test('shared footer module keeps the compact no-link baseline for Atlas and GeoW
   assert.match(sharedFooter, /showLinks \? footerLinks : ''/);
   assert.match(sharedFooter, /'--ps-footer-h', footer \? footer\.getBoundingClientRect\(\)\.height \+ 'px' : '0px'/);
 });
+
+test('all shared-footer pages load the same Montserrat text weights', async () => {
+  const atlas = await read('src/pages/atlas-gears.astro');
+  const geo = await read('src/pages/world-map.astro');
+  const spelling = await read('public/korean-spell-drill-parcyun/index.html');
+
+  for (const page of [atlas, geo, spelling]) {
+    assert.match(page, /Montserrat:wght@[^"']*300;400;500;600;700/);
+  }
+});

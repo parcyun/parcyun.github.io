@@ -33,7 +33,8 @@ test('spelling drill uses the shared floating footer trigger', async () => {
   assert.match(spelling, /id="foot-coffee-label"/);
   assert.match(spelling, /class="ico"><svg width="13" height="13"/);
   assert.match(spelling, /--ps-brand-left/);
-  assert.match(spelling, /visitor-counter\.js/);
+  assert.match(spelling, /src="\.\.\/visitor-counter\.js"/);
+  assert.match(spelling, /src="\.\.\/share-widget\.js"/);
   assert.match(spelling, /data-feedback-open/);
   assert.match(spelling, /feedback-board\.js/);
 });

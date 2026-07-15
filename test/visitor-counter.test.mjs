@@ -82,7 +82,7 @@ test('ATLAS GEARS renders the total for its configured internal pages', async ()
 });
 
 test('localhost and loopback hosts never increment production visits', async () => {
-  for (const hostname of ['localhost', '127.0.0.1', '::1']) {
+  for (const hostname of ['localhost', '127.0.0.1', '::1', '[::1]']) {
     const calls = await executeCounter({ hostname, pathname: '/admin/' });
     assert.equal(calls.some((url) => url.endsWith('/bump_visit')), false);
   }

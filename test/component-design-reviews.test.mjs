@@ -60,3 +60,15 @@ test('component design migration upserts properties without deleting siblings', 
   assert.doesNotMatch(saveBody, /delete from public\.component_design/i);
   assert.match(migration, /admin_delete_component_design_property/i);
 });
+
+test('component design migration validates CSS values by property', async () => {
+  const migration = await read('supabase/migrations/0013_component_design_property_updates.sql');
+  assert.match(migration, /item\.key in \('color',\s*'backgroundColor',\s*'borderColor'\)/i);
+  assert.match(migration, /#\[0-9a-fA-F\]\{3\}/);
+  assert.match(migration, /item\.key in \('fontSize',\s*'letterSpacing',\s*'padding',\s*'margin',\s*'borderRadius',\s*'borderWidth'\)/i);
+  assert.match(migration, /item\.key = 'lineHeight'/i);
+  assert.match(migration, /item\.key = 'opacity'/i);
+  assert.match(migration, /item\.key = 'fontWeight'/i);
+  assert.match(migration, /item\.key = 'display'/i);
+  assert.match(migration, /잘못된 CSS 값/);
+});

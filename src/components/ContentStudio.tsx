@@ -29,6 +29,7 @@ type StudioElement = {
   legacyKey: string;
   designKey: string;
   legacyDesignKey: string;
+  legacy: boolean;
   label: string;
   html: string;
   computedStyle: DesignValue;

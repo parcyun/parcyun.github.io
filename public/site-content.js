@@ -44,16 +44,40 @@
   function slug(value) {
     return String(value || '').trim().toLowerCase().replace(/[^a-z0-9가-힣_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
   }
-  function authoredId(el, attribute) {
+  /* ps-identity-start */
+  function stableFingerprint(value) {
+    var hash = 2166136261;
+    for (var i = 0; i < value.length; i++) { hash ^= value.charCodeAt(i); hash = Math.imul(hash, 16777619); }
+    return (hash >>> 0).toString(36);
+  }
+  function semanticIdentity(input) {
+    if (input.explicit) return String(input.explicit).trim().toLowerCase().replace(/[^a-z0-9가-힣_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+    return input.tag + '-' + stableFingerprint(JSON.stringify({
+      page: input.page,
+      section: input.section,
+      tag: input.tag,
+      role: input.role,
+      staticText: input.staticText
+    }));
+  }
+  /* ps-identity-end */
+  function sectionIdentity(el) {
+    var section = el.parentElement && el.parentElement.closest('[data-ps-section-id],[id],section,article,main,header,footer');
+    if (!section) return 'document';
+    return section.getAttribute('data-ps-section-id') || section.id || section.tagName.toLowerCase() + '-' + slug(section.className || 'section');
+  }
+  function elementIdentity(el, attribute) {
     var explicit = el.getAttribute(attribute);
-    if (explicit) return slug(explicit);
     var own = el.id || el.getAttribute('name') || el.getAttribute('aria-label') || el.getAttribute('role');
-    if (own) return el.tagName.toLowerCase() + '-' + slug(own);
-    var ancestor = el.parentElement && el.parentElement.closest('[data-ps-section-id],[id]');
-    if (!ancestor) return '';
-    var scope = ancestor.getAttribute('data-ps-section-id') || ancestor.id;
-    var semantic = el.getAttribute('name') || el.getAttribute('aria-label') || el.getAttribute('role');
-    return semantic ? slug(scope) + '-' + el.tagName.toLowerCase() + '-' + slug(semantic) : '';
+    var staticText = (el.textContent || '').replace(/\s+/g, ' ').trim();
+    return semanticIdentity({
+      explicit: explicit || (own ? el.tagName.toLowerCase() + '-' + slug(own) : ''),
+      page: path(),
+      section: sectionIdentity(el),
+      tag: el.tagName.toLowerCase(),
+      role: el.getAttribute('role') || '',
+      staticText: staticText
+    });
   }
   function safeStyle(style) {
     var out = {};
@@ -84,6 +108,7 @@
       legacyKey: oldContentKey,
       designKey: stableDesignKey,
       legacyDesignKey: oldDesignKey,
+      legacy: !el.hasAttribute('data-ps-stable-id'),
       label: el.tagName.toLowerCase() + ' · ' + (el.textContent || '').trim().slice(0, 52),
       html: el.innerHTML,
       computedStyle: pickComputedStyle(getComputedStyle(el)),
@@ -95,12 +120,13 @@
   list.forEach(function (el, i) {
     var oldContentKey = legacyKeyOf(el, i);
     var oldDesignId = legacyDesignId(el, i);
-    var editId = authoredId(el, 'data-ps-edit-id');
-    var designId = authoredId(el, 'data-ps-design-id') || editId;
+    var editId = elementIdentity(el, 'data-ps-edit-id');
+    var designId = elementIdentity(el, 'data-ps-design-id') || editId;
     el.setAttribute('data-ps-legacy-edit', oldContentKey);
     el.setAttribute('data-ps-legacy-design', oldDesignId);
     el.setAttribute('data-ps-edit', editId ? path() + '::' + editId : oldContentKey);
     el.setAttribute('data-ps-design', designId || oldDesignId);
+    if (editId && designId) el.setAttribute('data-ps-stable-id', 'true');
   });
 
   // public content overrides

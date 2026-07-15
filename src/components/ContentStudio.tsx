@@ -21,7 +21,7 @@ import WorkEditModal from './admin/WorkEditModal';
 import FeedbackAdmin from './FeedbackAdmin';
 import FooterComponentManager from './FooterComponentManager';
 import ReviewAdmin from './ReviewAdmin';
-import { parseStudioMode } from '../lib/studioDesign';
+import { isCurrentPreviewRequest, parseStudioMode } from '../lib/studioDesign';
 import type { StudioMode } from '../lib/studioDesign';
 
 type StudioElement = {
@@ -57,6 +57,7 @@ function nextId(prefix: string) { return `${prefix}-${Date.now().toString(36)}`;
 
 export default function ContentStudio() {
   const frame = useRef<HTMLIFrameElement>(null);
+  const loadGeneration = useRef(0);
   const [pageId, setPageId] = useState('home');
   const [elements, setElements] = useState<StudioElement[]>([]);
   const [selected, setSelected] = useState<StudioElement | null>(null);
@@ -81,12 +82,20 @@ export default function ContentStudio() {
   function preview(): any { return frame.current?.contentWindow?.psContentStudio; }
   function inspect(enabled = true) { frame.current?.contentWindow?.postMessage({ type: 'ps-content-studio-inspect', enabled }, location.origin); }
   async function refreshElements() {
-    const studio = preview();
+    const request = {
+      generation: loadGeneration.current,
+      frameWindow: frame.current?.contentWindow || null,
+    };
+    const studio = (request.frameWindow as any)?.psContentStudio;
     if (!studio?.getElements) return;
     try {
       const next = await studio.getElements() as StudioElement[];
+      if (!isCurrentPreviewRequest(request, loadGeneration.current, frame.current?.contentWindow || null)) return;
       setElements(next); setLoading(false); setDesignReady(true); inspect(true);
-    } catch (error) { setStatus(message(error)); setLoading(false); }
+    } catch (error) {
+      if (!isCurrentPreviewRequest(request, loadGeneration.current, frame.current?.contentWindow || null)) return;
+      setStatus(message(error)); setLoading(false);
+    }
   }
   async function refreshCareers() {
     try { setCareers(await adminListCareerTimeline()); } catch (error) { setStatus(message(error)); }
@@ -95,7 +104,7 @@ export default function ContentStudio() {
     setSelected(element); setDraftHtml(element.html);
     setDraftStyle({ ...element.savedStyle }); inspect(true);
   }
-  function onFrameLoad() { setLoading(true); setDesignReady(false); setElements([]); setSelected(null); refreshElements(); if (page.id === 'home') refreshCareers(); }
+  function onFrameLoad() { loadGeneration.current += 1; setLoading(true); setDesignReady(false); setElements([]); setSelected(null); refreshElements(); if (page.id === 'home') refreshCareers(); }
   useEffect(() => { if (page.id === 'home') refreshCareers(); }, [page.id]);
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {

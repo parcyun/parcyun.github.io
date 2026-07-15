@@ -2,6 +2,7 @@ export type StudioMode = 'page' | 'resources' | 'works' | 'components' | 'review
 export type DesignValue = Record<string, string>;
 export type ValueSource = 'draft' | 'saved' | 'computed' | 'default' | 'empty';
 export type ResolvedDesignValue = { value: string; source: ValueSource };
+export type PreviewRequest = { generation: number; frameWindow: unknown };
 
 const MODES = new Set<StudioMode>(['page', 'resources', 'works', 'components', 'reviews', 'feedback']);
 
@@ -31,4 +32,12 @@ export function pushDraftHistory(history: DesignValue[], next: DesignValue, limi
 export function undoDraft(history: DesignValue[]): { history: DesignValue[]; value: DesignValue } {
   if (history.length <= 1) return { history, value: { ...(history[0] || {}) } };
   return { history: history.slice(0, -1), value: { ...history[history.length - 2] } };
+}
+
+export function isCurrentPreviewRequest(
+  request: PreviewRequest,
+  currentGeneration: number,
+  currentWindow: unknown,
+): boolean {
+  return request.generation === currentGeneration && request.frameWindow === currentWindow;
 }

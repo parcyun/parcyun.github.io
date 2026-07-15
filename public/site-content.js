@@ -90,7 +90,7 @@
   }
   function elementIdentityInput(el, attribute, legacyId) {
     var explicit = el.getAttribute(attribute);
-    var own = el.id || el.getAttribute('name') || el.getAttribute('aria-label') || el.getAttribute('role');
+    var own = el.id || el.getAttribute('name') || el.getAttribute('role');
     return {
       explicit: explicit || (el.id ? el.tagName.toLowerCase() + '-' + slug(el.id) : ''),
       durableParent: sectionIdentity(el) || path(),

@@ -117,3 +117,56 @@ test('design reset and migrating save cover stable and legacy keys transactional
   assert.match(studio, /selected\.designKey,\s*selected\.legacyDesignKey/);
   assert.match(studio, /adminSaveSiteDesignMigrating/);
 });
+
+test('deferred page A result cannot commit after page B becomes current', async () => {
+  const { isCurrentPreviewRequest } = await import('../src/lib/studioDesign.ts');
+  const deferred = () => {
+    let resolve;
+    const promise = new Promise((done) => { resolve = done; });
+    return { promise, resolve };
+  };
+  let generation = 1;
+  let currentWindow = { page: 'A' };
+  const a = deferred();
+  const b = deferred();
+  const committed = [];
+  let saveEnabled = false;
+  const load = async (request, pending) => {
+    const result = await pending.promise;
+    if (!isCurrentPreviewRequest(request, generation, currentWindow)) return;
+    committed.push(result);
+    saveEnabled = true;
+  };
+  const loadA = load({ generation, frameWindow: currentWindow }, a);
+  generation = 2;
+  currentWindow = { page: 'B' };
+  saveEnabled = false;
+  const loadB = load({ generation, frameWindow: currentWindow }, b);
+  b.resolve('B');
+  await loadB;
+  a.resolve('A');
+  await loadA;
+  assert.deepEqual(committed, ['B']);
+  assert.equal(saveEnabled, true);
+  const studio = await read('src/components/ContentStudio.tsx');
+  assert.match(studio, /loadGeneration/);
+  assert.match(studio, /isCurrentPreviewRequest/);
+  assert.match(studio, /frame\.current\?\.contentWindow/);
+});
+
+test('aria-label changes never create a stable identity or orphan an existing key', async () => {
+  const source = await read('public/site-content.js');
+  const block = source.match(/\/\* ps-identity-start \*\/[\s\S]*?\/\* ps-identity-end \*\//)?.[0] || '';
+  const context = {
+    inputs: [{ explicit: '', durableParent: '/about', tag: 'button', immutableSemantic: '', ariaLabel: '저장', legacyId: '/::BUTTON::8' }],
+    result: [],
+  };
+  vm.runInNewContext(`${block}; result = assignStableIdentities(inputs);`, context);
+  const before = { ...context.result[0] };
+  context.inputs = [{ ...context.inputs[0], ariaLabel: 'Save' }];
+  vm.runInNewContext(`${block}; result = assignStableIdentities(inputs);`, context);
+  assert.equal(context.result[0].id, before.id);
+  assert.equal(context.result[0].legacy, true);
+  const inputBody = source.match(/function elementIdentityInput\([\s\S]*?\n  \}/)?.[0] || '';
+  assert.doesNotMatch(inputBody, /aria-label/);
+});

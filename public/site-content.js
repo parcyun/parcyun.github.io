@@ -107,10 +107,11 @@
     });
     return out;
   }
-  var initialInline = new WeakMap();
+  var initialInline = new WeakMap(), initialComputed = new WeakMap();
   function applyStyle(el, style) {
     if (!initialInline.has(el)) {
       var baseline = {}; DESIGN_PROPERTIES.forEach(function (name) { baseline[name] = el.style[name] || ''; }); initialInline.set(el, baseline);
+      initialComputed.set(el, pickComputedStyle(getComputedStyle(el)));
     }
     var original = initialInline.get(el);
     DESIGN_PROPERTIES.forEach(function (name) { el.style[name] = original[name] || ''; });
@@ -137,7 +138,7 @@
       legacy: !el.hasAttribute('data-ps-stable-id'),
       label: el.tagName.toLowerCase() + ' · ' + (el.textContent || '').trim().slice(0, 52),
       html: el.innerHTML,
-      computedStyle: pickComputedStyle(getComputedStyle(el)),
+      computedStyle: initialComputed.get(el) || pickComputedStyle(getComputedStyle(el)),
       savedStyle: loadedDesign[stableDesignKey] || loadedDesign[oldDesignKey] || {}
     };
   }

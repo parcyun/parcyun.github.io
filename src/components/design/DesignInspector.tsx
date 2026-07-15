@@ -5,7 +5,8 @@ import DesignField from './DesignField';
 import type { DesignFieldDefinition } from './DesignField';
 
 const DEFINITIONS: Record<string, DesignFieldDefinition> = {
-  textVisible: { key: 'textVisible', label: 'Visibility', kind: 'toggle' },
+  visibility: { key: 'visibility', label: 'Visibility', kind: 'toggle', offValue: 'hidden' },
+  display: { key: 'display', label: 'Visibility', kind: 'toggle', offValue: 'none' },
   fontFamily: { key: 'fontFamily', label: 'Family', kind: 'select', options: [{ value: 'Montserrat', label: 'Montserrat' }, { value: 'Pretendard Variable', label: 'Pretendard' }, { value: 'serif', label: 'Serif' }] },
   fontSize: { key: 'fontSize', label: 'Size', kind: 'number-unit' },
   fontWeight: { key: 'fontWeight', label: 'Weight', kind: 'select', options: ['300', '400', '500', '600', '700'].map((value) => ({ value, label: value })) },
@@ -24,7 +25,7 @@ const DEFINITIONS: Record<string, DesignFieldDefinition> = {
 };
 
 const SECTIONS = [
-  { id: 'text', label: 'Text', fields: ['textVisible'] },
+  { id: 'text', label: 'Text', fields: ['visibility', 'display'] },
   { id: 'typography', label: 'Typography', fields: ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'textAlign', 'color'] },
   { id: 'fill', label: 'Fill', fields: ['backgroundColor'] },
   { id: 'stroke', label: 'Stroke', fields: ['borderColor', 'borderWidth', 'borderStyle'] },
@@ -68,7 +69,7 @@ export default function DesignInspector({ selected, draft, saved, computed, defa
         {expanded && <div className="ds-section-fields">{fields.map((key) => {
           const definition = DEFINITIONS[key];
           const resolved = resolveDesignValue(key, draft, saved, computed, defaults);
-          return <DesignField key={key} definition={definition} resolved={resolved} computedValue={computed[key]} savedValue={saved[key]} onChange={(value) => onChange(key, value)} onReset={() => onReset(key)} />;
+          return <DesignField key={key} definition={definition} resolved={resolved} draftValue={draft[key]} computedValue={computed[key]} savedValue={saved[key]} defaultValue={defaults[key]} onChange={(value) => onChange(key, value)} onReset={() => onReset(key)} />;
         })}</div>}
       </section>;
     })}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { DESIGN_RESET } from '../../lib/studioDesign';
 import type { ResolvedDesignValue } from '../../lib/studioDesign';
 
 export type DesignFieldDefinition = {
@@ -10,6 +11,7 @@ export type DesignFieldDefinition = {
   min?: number;
   max?: number;
   step?: number;
+  offValue?: string;
 };
 
 type Props = {
@@ -17,6 +19,8 @@ type Props = {
   resolved: ResolvedDesignValue;
   computedValue?: string;
   savedValue?: string;
+  defaultValue?: string;
+  draftValue?: string;
   onChange: (value: string) => void;
   onReset: () => void;
 };
@@ -24,14 +28,12 @@ type Props = {
 const HEX = /^#[0-9A-F]{6}$/i;
 const DIMENSION = /^(-?\d*\.?\d+)\s*(px|rem|em|%|vh|vw)?$/i;
 
-function provenance(savedValue?: string, computedValue?: string) {
-  const parts = [];
-  if (savedValue) parts.push(`저장됨 ${savedValue}`);
-  if (computedValue) parts.push(`현재 ${computedValue}`);
-  return parts.length ? parts.join(' · ') : '기본 스타일 사용 중';
+function layer(value?: string) { return value && value !== DESIGN_RESET ? value : '—'; }
+function provenance(draftValue?: string, savedValue?: string, computedValue?: string, defaultValue?: string) {
+  return `편집 ${draftValue === DESIGN_RESET ? '초기화' : layer(draftValue)} · 저장 ${layer(savedValue)} · 계산 ${layer(computedValue)} · 기본 ${layer(defaultValue)}`;
 }
 
-export default function DesignField({ definition, resolved, computedValue, savedValue, onChange, onReset }: Props) {
+export default function DesignField({ definition, resolved, draftValue, computedValue, savedValue, defaultValue, onChange, onReset }: Props) {
   const { key, label, kind } = definition;
   const parsed = resolved.value.match(DIMENSION);
   const units = definition.units || ['px', 'rem', 'em', '%'];
@@ -59,8 +61,8 @@ export default function DesignField({ definition, resolved, computedValue, saved
     </div>}
     {kind === 'select' && <select id={`ds-${key}`} value={resolved.value} onChange={(event) => onChange(event.target.value)}><option value="">기본값</option>{definition.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>}
     {kind === 'text' && <input id={`ds-${key}`} type="text" value={resolved.value} onChange={(event) => onChange(event.target.value)} />}
-    {kind === 'toggle' && <label className="ds-toggle"><input id={`ds-${key}`} type="checkbox" checked={resolved.value !== 'hidden'} onChange={(event) => onChange(event.target.checked ? '' : 'hidden')} /><span>{resolved.value === 'hidden' ? '숨김' : '표시'}</span></label>}
+    {kind === 'toggle' && <label className="ds-toggle"><input id={`ds-${key}`} type="checkbox" checked={resolved.value !== (definition.offValue || 'hidden') && resolved.value !== 'none'} onChange={(event) => onChange(event.target.checked ? '' : (definition.offValue || 'hidden'))} /><span>{resolved.value === (definition.offValue || 'hidden') || resolved.value === 'none' ? '숨김' : '표시'}</span></label>}
     {kind === 'opacity' && <div className="ds-opacity"><input id={`ds-${key}`} type="range" min="0" max="1" step="0.05" value={resolved.value || '1'} onChange={(event) => onChange(event.target.value)} /><input aria-label={`${label} 값`} type="number" min="0" max="1" step="0.05" value={resolved.value || '1'} onChange={(event) => onChange(event.target.value)} /></div>}
-    <small id={`ds-${key}-meta`} className="ds-provenance">{provenance(savedValue, computedValue)}</small>
+    <small id={`ds-${key}-meta`} className="ds-provenance">{provenance(draftValue, savedValue, computedValue, defaultValue)}</small>
   </div>;
 }

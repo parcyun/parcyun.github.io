@@ -209,3 +209,46 @@ test('iframe inspection exposes hover, persistent selection, badge, and keyboard
   assert.match(source, /Enter/);
   assert.match(source, /['"] ['"]/);
 });
+
+test('reset tombstones bypass saved values and materialize a baseline preview', async () => {
+  const { DESIGN_RESET, resolveDesignValue, materializeDesignValue } = await import('../src/lib/studioDesign.ts');
+  const draft = { color: DESIGN_RESET, fontSize: '18px' };
+  assert.deepEqual(resolveDesignValue('color', draft, { color: '#111111' }, { color: '#222222' }, { color: '#333333' }), { value: '#222222', source: 'computed' });
+  assert.deepEqual(materializeDesignValue(draft), { fontSize: '18px' });
+});
+
+test('inspector uses runtime-supported visibility, alignment, and stroke style keys', async () => {
+  const inspector = await read('src/components/design/DesignInspector.tsx');
+  const studio = await read('src/components/ContentStudio.tsx');
+  const footer = await read('src/components/FooterComponentManager.tsx');
+  assert.doesNotMatch(inspector, /textVisible/);
+  assert.match(inspector, /visibility/);
+  assert.match(inspector, /textAlign/);
+  assert.match(inspector, /borderStyle/);
+  for (const key of ['visibility', 'textAlign', 'borderStyle']) assert.match(studio, new RegExp(key));
+  assert.match(footer, /display/);
+});
+
+test('inspector provenance visibly names draft, saved, computed, and default layers', async () => {
+  const field = await read('src/components/design/DesignField.tsx');
+  for (const label of ['편집', '저장', '계산', '기본']) assert.match(field, new RegExp(label));
+  assert.match(field, /defaultValue/);
+  const footer = await read('src/components/FooterComponentManager.tsx');
+  assert.match(footer, /computed=\{\{\}\}/);
+});
+
+test('footer operation failures are alerts while progress and success are statuses', async () => {
+  const footer = await read('src/components/FooterComponentManager.tsx');
+  assert.match(footer, /statusKind/);
+  assert.match(footer, /role=\{statusKind === 'error' \? 'alert' : 'status'\}/);
+  assert.match(footer, /setStatusKind\('error'\)/);
+  assert.match(footer, /setStatusKind\('success'\)/);
+});
+
+test('additive migration allows page visibility, text alignment, and border style values', async () => {
+  const migration = await read('supabase/migrations/0015_site_design_extended_properties.sql');
+  for (const key of ['visibility', 'textAlign', 'borderStyle']) assert.match(migration, new RegExp(key));
+  assert.match(migration, /visible\|hidden/);
+  assert.match(migration, /left\|center\|right/);
+  assert.match(migration, /solid\|dashed\|dotted\|none/);
+});

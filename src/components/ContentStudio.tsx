@@ -22,7 +22,7 @@ import FeedbackAdmin from './FeedbackAdmin';
 import FooterComponentManager from './FooterComponentManager';
 import ReviewAdmin from './ReviewAdmin';
 import DesignInspector from './design/DesignInspector';
-import { isCurrentPreviewRequest, parseStudioMode, pushDraftHistory, undoDraft } from '../lib/studioDesign';
+import { DESIGN_RESET, isCurrentPreviewRequest, materializeDesignValue, parseStudioMode, pushDraftHistory, undoDraft } from '../lib/studioDesign';
 import type { DesignValue, StudioMode } from '../lib/studioDesign';
 
 type StudioElement = {
@@ -45,7 +45,7 @@ const PAGES = [
   { id: 'spell', label: 'Spell Drill', path: '/korean-spell-drill-parcyun/' },
   { id: 'works', label: 'Works', path: '/works/' },
 ];
-const PAGE_DESIGN_FIELDS = ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'color', 'backgroundColor', 'borderColor', 'borderWidth', 'padding', 'margin', 'borderRadius', 'opacity'] as const;
+const PAGE_DESIGN_FIELDS = ['visibility', 'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'textAlign', 'color', 'backgroundColor', 'borderColor', 'borderWidth', 'borderStyle', 'padding', 'margin', 'borderRadius', 'opacity'] as const;
 function message(error: unknown) { return error instanceof Error ? error.message : '저장하지 못했습니다.'; }
 function nextId(prefix: string) { return `${prefix}-${Date.now().toString(36)}`; }
 
@@ -121,23 +121,23 @@ export default function ContentStudio() {
   }
   function updateStyle(key: string, value: string) {
     const next = { ...draftStyle, [key]: value };
-    if (!value) delete next[key];
+    if (!value) next[key] = DESIGN_RESET;
     setDraftStyle(next); setStyleHistory((current) => pushDraftHistory(current, next));
-    if (selected) preview()?.previewStyle(selected.designKey, next);
+    if (selected) preview()?.previewStyle(selected.designKey, materializeDesignValue(next));
   }
   function undoStyle() {
     const result = undoDraft(styleHistory);
     setStyleHistory(result.history); setDraftStyle(result.value);
-    if (selected) preview()?.previewStyle(selected.designKey, result.value);
+    if (selected) preview()?.previewStyle(selected.designKey, materializeDesignValue(result.value));
   }
   async function saveStyle() {
     if (!selected || !password || !designReady) return;
-    try { setDesignBusy(true); setStatus('디자인 저장 중…'); await adminSaveSiteDesignMigrating(password, selected.designKey, selected.legacyDesignKey, draftStyle); setSavedStyle({ ...draftStyle }); setStyleHistory([{ ...draftStyle }]); setStatus('디자인을 저장했습니다.'); }
+    try { const persisted = materializeDesignValue(draftStyle); setDesignBusy(true); setStatus('디자인 저장 중…'); await adminSaveSiteDesignMigrating(password, selected.designKey, selected.legacyDesignKey, persisted); setSavedStyle(persisted); setDraftStyle(persisted); setStyleHistory([persisted]); setStatus('디자인을 저장했습니다.'); }
     catch (error) { setStatus(message(error)); }
     finally { setDesignBusy(false); }
   }
   async function resetStyle(key?: string) {
-    if (key) { const next = { ...draftStyle }; delete next[key]; setDraftStyle(next); setStyleHistory((current) => pushDraftHistory(current, next)); if (selected) preview()?.previewStyle(selected.designKey, next); return; }
+    if (key) { const next = { ...draftStyle, [key]: DESIGN_RESET }; setDraftStyle(next); setStyleHistory((current) => pushDraftHistory(current, next)); if (selected) preview()?.previewStyle(selected.designKey, materializeDesignValue(next)); return; }
     if (!selected || !password || !confirm('이 요소의 저장된 디자인 설정을 기본값으로 되돌릴까요?')) return;
     try { setDesignBusy(true); await adminDeleteSiteDesignKeys(password, [selected.designKey, selected.legacyDesignKey]); setSavedStyle({}); setDraftStyle({}); setStyleHistory([{}]); frame.current?.contentWindow?.location.reload(); setStatus('기본 디자인으로 되돌렸습니다.'); }
     catch (error) { setStatus(message(error)); }

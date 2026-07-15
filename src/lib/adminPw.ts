@@ -52,6 +52,12 @@ export async function adminSaveSiteDesign(pw: string, key: string, value: Record
   await sbRpc('admin_save_site_design', { p_pw: pw, p_key: key, p_value: value });
 }
 export async function adminDeleteSiteDesign(pw: string, key: string) { await sbRpc('admin_delete_site_design', { p_pw: pw, p_key: key }); }
+export async function adminSaveSiteDesignMigrating(pw: string, key: string, legacyKey: string, value: Record<string, string>) {
+  await sbRpc('admin_save_site_design_migrating', { p_pw: pw, p_key: key, p_legacy_key: legacyKey, p_value: value });
+}
+export async function adminDeleteSiteDesignKeys(pw: string, keys: string[]) {
+  await sbRpc('admin_delete_site_design_keys', { p_pw: pw, p_keys: [...new Set(keys)] });
+}
 
 export type ComponentDesignValues = Record<string, string>;
 export async function listComponentDesign(componentKey: string): Promise<ComponentDesignValues> {

@@ -32,7 +32,7 @@ begin
       raise exception '잘못된 CSS 값입니다: %', item.key;
     elsif item.key = 'display' and value_text !~ '^(none|block|inline|inline-block|flex|inline-flex|grid|inline-grid)$' then
       raise exception '잘못된 CSS 값입니다: %', item.key;
-    elsif item.key = 'fontFamily' and value_text !~ '^[A-Za-z0-9가-힣 _,-]+$' then
+    elsif item.key = 'fontFamily' and value_text !~ '^[-A-Za-z0-9가-힣 _,''"]+$' then
       raise exception '잘못된 CSS 값입니다: %', item.key;
     end if;
   end loop;

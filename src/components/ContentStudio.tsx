@@ -4,11 +4,11 @@ import {
   adminDeleteWork,
   adminDeleteCareerItem,
   adminDeleteCareerSection,
-  adminDeleteSiteDesign,
+  adminDeleteSiteDesignKeys,
   adminListCareerTimeline,
   adminSaveCareerItem,
   adminSaveCareerSection,
-  adminSaveSiteDesign,
+  adminSaveSiteDesignMigrating,
   getAdminPw,
 } from '../lib/adminPw';
 import type { CareerItem, CareerSection } from '../lib/adminPw';
@@ -65,6 +65,7 @@ export default function ContentStudio() {
   const [careers, setCareers] = useState<CareerSection[]>([]);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
+  const [designReady, setDesignReady] = useState(false);
   const [authReady, setAuthReady] = useState(false);
   const [password, setPassword] = useState<string | null>(null);
   const [mode, setMode] = useState<StudioMode>('page');
@@ -79,11 +80,13 @@ export default function ContentStudio() {
 
   function preview(): any { return frame.current?.contentWindow?.psContentStudio; }
   function inspect(enabled = true) { frame.current?.contentWindow?.postMessage({ type: 'ps-content-studio-inspect', enabled }, location.origin); }
-  function refreshElements() {
+  async function refreshElements() {
     const studio = preview();
-    if (!studio?.getElements) { window.setTimeout(refreshElements, 300); return; }
-    const next = studio.getElements() as StudioElement[];
-    setElements(next); setLoading(false); inspect(true);
+    if (!studio?.getElements) return;
+    try {
+      const next = await studio.getElements() as StudioElement[];
+      setElements(next); setLoading(false); setDesignReady(true); inspect(true);
+    } catch (error) { setStatus(message(error)); setLoading(false); }
   }
   async function refreshCareers() {
     try { setCareers(await adminListCareerTimeline()); } catch (error) { setStatus(message(error)); }
@@ -92,11 +95,13 @@ export default function ContentStudio() {
     setSelected(element); setDraftHtml(element.html);
     setDraftStyle({ ...element.savedStyle }); inspect(true);
   }
-  function onFrameLoad() { setLoading(true); setElements([]); setSelected(null); window.setTimeout(refreshElements, 350); if (page.id === 'home') refreshCareers(); }
+  function onFrameLoad() { setLoading(true); setDesignReady(false); setElements([]); setSelected(null); refreshElements(); if (page.id === 'home') refreshCareers(); }
   useEffect(() => { if (page.id === 'home') refreshCareers(); }, [page.id]);
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
-      if (event.origin === location.origin && event.data?.type === 'ps-content-studio-selected') selectElement(event.data.element as StudioElement);
+      if (event.origin !== location.origin) return;
+      if (event.data?.type === 'ps-content-studio-selected') selectElement(event.data.element as StudioElement);
+      if (event.data?.type === 'ps-content-studio-ready') refreshElements();
     };
     window.addEventListener('message', onMessage); return () => window.removeEventListener('message', onMessage);
   }, []);
@@ -112,13 +117,13 @@ export default function ContentStudio() {
     setDraftStyle(next); if (selected) preview()?.previewStyle(selected.designKey, next);
   }
   async function saveStyle() {
-    if (!selected || !password) return;
-    try { setStatus('디자인 저장 중…'); await adminSaveSiteDesign(password, selected.designKey, draftStyle); setStatus('디자인을 저장했습니다.'); }
+    if (!selected || !password || !designReady) return;
+    try { setStatus('디자인 저장 중…'); await adminSaveSiteDesignMigrating(password, selected.designKey, selected.legacyDesignKey, draftStyle); setStatus('디자인을 저장했습니다.'); }
     catch (error) { setStatus(message(error)); }
   }
   async function resetStyle() {
     if (!selected || !password || !confirm('이 요소의 저장된 디자인 설정을 기본값으로 되돌릴까요?')) return;
-    try { await adminDeleteSiteDesign(password, selected.designKey); setDraftStyle({}); frame.current?.contentWindow?.location.reload(); setStatus('기본 디자인으로 되돌렸습니다.'); }
+    try { await adminDeleteSiteDesignKeys(password, [selected.designKey, selected.legacyDesignKey]); setDraftStyle({}); frame.current?.contentWindow?.location.reload(); setStatus('기본 디자인으로 되돌렸습니다.'); }
     catch (error) { setStatus(message(error)); }
   }
   async function saveSection(section: CareerSection) {
@@ -185,7 +190,7 @@ export default function ContentStudio() {
       </section>
       <section className="cs-panel"><div className="cs-panel-head"><b>디자인 설정</b><span>Figma-style</span></div>
         {selected ? <div className="cs-style-grid">{STYLE_FIELDS.map(([key, label, kind]) => <label key={key}><span>{label}</span>{kind === 'select' ? <select value={draftStyle[key] || ''} onChange={(event) => updateStyle(key, event.target.value)}>{key === 'fontFamily' ? <><option value="">기본값</option><option value="Montserrat">Montserrat</option><option value="Pretendard Variable">Pretendard</option><option value="serif">Serif</option></> : <><option value="">기본값</option><option value="300">Light 300</option><option value="400">Regular 400</option><option value="500">Medium 500</option><option value="600">SemiBold 600</option><option value="700">Bold 700</option></>}</select> : <input type={kind} value={draftStyle[key] || ''} placeholder={kind === 'color' ? '#000000' : '기본값'} onChange={(event) => updateStyle(key, event.target.value)} />}</label>)}</div> : <p className="cs-empty">텍스트를 선택하면 디자인 도구가 열립니다.</p>}
-        {selected && <div className="cs-actions"><button className="cs-reset" onClick={resetStyle}>기본값</button><button className="cs-save" onClick={saveStyle}>디자인 저장</button></div>}
+        {selected && <div className="cs-actions"><button className="cs-reset" onClick={resetStyle}>기본값</button><button className="cs-save" onClick={saveStyle} disabled={!designReady}>디자인 저장</button></div>}
       </section>
       {page.id === 'home' && <section className="cs-panel cs-careers"><div className="cs-panel-head"><b>경력 사항</b><button onClick={addSection}>＋ 분류</button></div>
         {careers.map((section) => <CareerSectionEditor key={section.id} section={section} onChange={(next) => setCareers(careers.map((item) => item.id === next.id ? next : item))} onSave={() => saveSection(section)} onDelete={() => removeSection(section)} onAdd={() => addItem(section)} onSaveItem={saveItem} onDeleteItem={removeItem} />)}

@@ -11,6 +11,20 @@
   var INLINE = { A: 1, STRONG: 1, EM: 1, B: 1, I: 1, BR: 1, SPAN: 1, SMALL: 1, MARK: 1, U: 1, CODE: 1 };
   var DESIGN_PROPERTIES = ['color', 'backgroundColor', 'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'padding', 'margin', 'borderRadius', 'borderColor', 'borderWidth', 'opacity'];
 
+  /* ps-design-ready-start */
+  function createDesignReadiness() {
+    var resolve, reject;
+    var promise = new Promise(function (done, fail) { resolve = done; reject = fail; });
+    promise.catch(function () {});
+    return {
+      promise: promise,
+      markReady: function () { resolve(); },
+      markFailed: function (error) { reject(error); }
+    };
+  }
+  /* ps-design-ready-end */
+  var designReadiness = createDesignReadiness();
+
   function path() { return location.pathname.replace(/\/index\.html$/, '/'); }
   function headers() { return { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' }; }
   function rpc(name, args) {
@@ -52,41 +66,36 @@
   }
   function semanticIdentity(input) {
     if (input.explicit) return String(input.explicit).trim().toLowerCase().replace(/[^a-z0-9가-힣_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+    if (!input.durableParent || !input.immutableSemantic) return '';
     return input.tag + '-' + stableFingerprint(JSON.stringify({
-      page: input.page,
-      section: input.section,
+      durableParent: input.durableParent,
       tag: input.tag,
-      role: input.role,
-      staticText: input.staticText
+      immutableSemantic: input.immutableSemantic
     }));
   }
   function assignStableIdentities(inputs) {
     var candidates = inputs.map(semanticIdentity), counts = {};
-    candidates.forEach(function (candidate) { counts[candidate] = (counts[candidate] || 0) + 1; });
+    candidates.forEach(function (candidate) { if (candidate) counts[candidate] = (counts[candidate] || 0) + 1; });
     return inputs.map(function (input, index) {
       var candidate = candidates[index];
-      return counts[candidate] === 1
+      return candidate && counts[candidate] === 1
         ? { id: candidate, legacy: false }
         : { id: input.legacyId, legacy: true };
     });
   }
   /* ps-identity-end */
   function sectionIdentity(el) {
-    var section = el.parentElement && el.parentElement.closest('[data-ps-section-id],[id],section,article,main,header,footer');
-    if (!section) return 'document';
-    return section.getAttribute('data-ps-section-id') || section.id || section.tagName.toLowerCase() + '-' + slug(section.className || 'section');
+    var section = el.parentElement && el.parentElement.closest('[data-ps-section-id],[id]');
+    return section ? section.getAttribute('data-ps-section-id') || section.id : '';
   }
   function elementIdentityInput(el, attribute, legacyId) {
     var explicit = el.getAttribute(attribute);
     var own = el.id || el.getAttribute('name') || el.getAttribute('aria-label') || el.getAttribute('role');
-    var staticText = (el.textContent || '').replace(/\s+/g, ' ').trim();
     return {
-      explicit: explicit || (own ? el.tagName.toLowerCase() + '-' + slug(own) : ''),
-      page: path(),
-      section: sectionIdentity(el),
+      explicit: explicit || (el.id ? el.tagName.toLowerCase() + '-' + slug(el.id) : ''),
+      durableParent: sectionIdentity(el) || path(),
       tag: el.tagName.toLowerCase(),
-      role: el.getAttribute('role') || '',
-      staticText: staticText,
+      immutableSemantic: own ? slug(own) : '',
       legacyId: legacyId
     };
   }
@@ -167,7 +176,8 @@
       var legacy = path() + '::' + el.getAttribute('data-ps-legacy-design');
       applyStyle(el, loadedDesign[stable] || loadedDesign[legacy]);
     });
-  }).catch(function () {});
+    designReadiness.markReady();
+  }).catch(function (error) { designReadiness.markFailed(error); });
 
   function findByTextKey(key) { return list.filter(function (el) { return el.getAttribute('data-ps-edit') === key || el.getAttribute('data-ps-legacy-edit') === key; })[0]; }
   function findByDesignKey(key) { return list.filter(function (el) { return path() + '::' + el.getAttribute('data-ps-design') === key || path() + '::' + el.getAttribute('data-ps-legacy-design') === key; })[0]; }
@@ -183,12 +193,13 @@
   }
 
   window.psContentStudio = {
-    getElements: function () { return list.map(descriptor); },
+    getElements: function () { return designReadiness.promise.then(function () { return list.map(descriptor); }); },
     previewText: function (key, html) { var el = findByTextKey(key); if (el) el.innerHTML = sanitize(html); },
     previewStyle: function (key, value) { var el = findByDesignKey(key); if (el) applyStyle(el, value); },
     saveText: saveText,
     saveDesign: saveDesign
   };
+  if (window.parent !== window) window.parent.postMessage({ type: 'ps-content-studio-ready' }, location.origin);
 
   var inspect = false;
   window.addEventListener('message', function (event) {

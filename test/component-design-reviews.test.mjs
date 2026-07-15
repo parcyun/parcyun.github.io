@@ -92,3 +92,16 @@ test('component dimensions reject negative sizes while signed spacing remains va
   for (const accepted of ['-0.05em', '0', '1px']) assert.equal(letterSpacing.test(accepted), true, accepted);
   for (const rejected of ['1px 2px', '12']) assert.equal(letterSpacing.test(rejected), false, rejected);
 });
+
+test('font family accepts quoted fallback lists and rejects CSS injection delimiters', async () => {
+  const migration = await read('supabase/migrations/0013_component_design_property_updates.sql');
+  const literal = migration.match(/item\.key = 'fontFamily'[\s\S]*?value_text !~ '((?:''|[^'])+)'/i)?.[1];
+  assert.ok(literal);
+  const fontFamily = new RegExp(literal.replaceAll("''", "'"));
+  for (const accepted of ["'Montserrat','Pretendard Variable',sans-serif", 'Montserrat, Pretendard Variable, sans-serif', 'Noto Sans KR']) {
+    assert.equal(fontFamily.test(accepted), true, accepted);
+  }
+  for (const rejected of ['Montserrat; color:red', 'Arial){}', 'url(javascript:x)', 'Arial\\evil']) {
+    assert.equal(fontFamily.test(rejected), false, rejected);
+  }
+});

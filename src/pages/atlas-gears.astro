@@ -205,21 +205,21 @@ section.in-view, .hero.in-view {
 </head>
 <body>
 
-<button type="button" class="ps-back" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}"><span class="ico" set:html={icon('arrowLeft', 20)}></span></button>
+<button data-ps-edit-id="ps-atlas-001" data-ps-design-id="ps-atlas-001" type="button" class="ps-back" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}"><span data-ps-edit-id="ps-atlas-002" data-ps-design-id="ps-atlas-002" class="ico" set:html={icon('arrowLeft', 20)}></span></button>
 
-<a href="/" class="ps-topnav"><span class="ico" set:html={icon('home', 15)}></span> parcyun studio</a>
+<a data-ps-edit-id="ps-atlas-003" data-ps-design-id="ps-atlas-003" href="/" class="ps-topnav"><span data-ps-edit-id="ps-atlas-004" data-ps-design-id="ps-atlas-004" class="ico" set:html={icon('home', 15)}></span> parcyun studio</a>
 
 <!-- ===== HERO ===== -->
 <section class="hero atlas-hero">
   <div class="wrap">
     <div class="atlas-eyebrow">Classroom Activity Kit</div>
-    <h1 class="atlas-wordmark">ATLAS <span class="g">GEARS</span></h1>
-    <p class="atlas-tagline">
-      교실에서 바로 꺼내 쓰는 <span class="amber">교육 활동 자료</span> 모음이에요.<br>
+    <h1 data-ps-edit-id="ps-atlas-005" data-ps-design-id="ps-atlas-005" class="atlas-wordmark">ATLAS <span data-ps-edit-id="ps-atlas-006" data-ps-design-id="ps-atlas-006" class="g">GEARS</span></h1>
+    <p data-ps-edit-id="ps-atlas-007" data-ps-design-id="ps-atlas-007" class="atlas-tagline">
+      교실에서 바로 꺼내 쓰는 <span data-ps-edit-id="ps-atlas-008" data-ps-design-id="ps-atlas-008" class="amber">교육 활동 자료</span> 모음이에요.<br>
       게임 · 인터랙티브 · 활동지 · 커리큘럼을 검색해 오늘 수업에 딱 맞는 걸 골라보세요.
     </p>
     <div class="atlas-actions">
-      <a href="/academica/" class="atlas-pill">강의 자료 · ACADEMICA <span class="ico" set:html={icon('arrowRight', 16)}></span></a>
+      <a data-ps-edit-id="ps-atlas-009" data-ps-design-id="ps-atlas-009" href="/academica/" class="atlas-pill">강의 자료 · ACADEMICA <span data-ps-edit-id="ps-atlas-010" data-ps-design-id="ps-atlas-010" class="ico" set:html={icon('arrowRight', 16)}></span></a>
     </div>
   </div>
 </section>
@@ -228,10 +228,10 @@ section.in-view, .hero.in-view {
 <section id="browse">
   <div class="wrap">
     <header class="section-header">
-      <h2 class="ko">활동 자료</h2>
-      <span class="en">Activities</span>
+      <h2 data-ps-edit-id="ps-atlas-011" data-ps-design-id="ps-atlas-011" class="ko">활동 자료</h2>
+      <span data-ps-edit-id="ps-atlas-012" data-ps-design-id="ps-atlas-012" class="en">Activities</span>
     </header>
-    <p class="atlas-hint">검색하거나 카테고리·태그로 골라보세요. 아래 목록이 바로 필터돼요.</p>
+    <p data-ps-edit-id="ps-atlas-013" data-ps-design-id="ps-atlas-013" class="atlas-hint">검색하거나 카테고리·태그로 골라보세요. 아래 목록이 바로 필터돼요.</p>
     <ActivityBrowser client:load types={ACTIVITY_TYPES} />
   </div>
 </section>

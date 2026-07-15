@@ -121,9 +121,9 @@ test('homepage positioning highlights the requested phrases in amber bold', asyn
   const home = await read('src/pages/index.astro');
 
   assert.match(home, /<strong>좋은 교육 서비스를 만듭니다\.<\/strong>/);
-  assert.match(home, /<span class="highlight">프로덕트 개발자<\/span>/);
-  assert.match(home, /<span class="highlight">교육 현장에 도움<\/span>/);
-  assert.match(home, /<span class="highlight">해결<\/span>/);
+  assert.match(home, /<span[^>]*class="highlight"[^>]*>프로덕트 개발자<\/span>/);
+  assert.match(home, /<span[^>]*class="highlight"[^>]*>교육 현장에 도움<\/span>/);
+  assert.match(home, /<span[^>]*class="highlight"[^>]*>해결<\/span>/);
   assert.match(home, /좋은 교육 서비스를 만듭니다\.<\/strong><\/p>/);
   assert.match(home, /프로덕트 개발자<\/span>입니다\.<br>/);
   assert.match(home, /\.hero-tagline strong[\s\S]*font-weight: 700/);

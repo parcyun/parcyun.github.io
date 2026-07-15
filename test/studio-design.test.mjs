@@ -90,21 +90,56 @@ test('page element discovery waits for delayed design loading before exposing sa
   const block = source.match(/\/\* ps-design-ready-start \*\/[\s\S]*?\/\* ps-design-ready-end \*\//)?.[0] || '';
   assert.notEqual(block, '');
   const context = { Promise, setTimeout, state: null };
-  vm.runInNewContext(`${block}; state = createDesignReadiness();`, context);
+  vm.runInNewContext(`${block}; state = createDesignReadiness(['content', 'design']);`, context);
   let settled = false;
   const pending = context.state.promise.then(() => { settled = true; });
+  context.state.markReady('design');
   await new Promise((resolve) => setTimeout(resolve, 5));
   assert.equal(settled, false);
-  context.state.markReady();
+  context.state.markReady('content');
   await pending;
   assert.equal(settled, true);
   assert.match(source, /getElements:[\s\S]*designReadiness\.promise\.then/);
   assert.match(source, /loadedDesign[\s\S]*markReady/);
+  assert.match(source, /innerHTML = sanitize\(value\)[\s\S]*markReady\('content'\)/);
+  assert.match(source, /site_content[\s\S]*r\.ok \? r\.json\(\) : Promise\.reject/);
   assert.match(source, /catch[\s\S]*designReadiness\.markFailed/);
   const studio = await read('src/components/ContentStudio.tsx');
   assert.doesNotMatch(studio, /setTimeout\(refreshElements,\s*350\)/);
   assert.match(studio, /await studio\.getElements\(\)/);
   assert.match(studio, /busy=\{designBusy \|\| !designReady\}/);
+});
+
+test('current editable page shells author durable text and design ids', async () => {
+  const files = [
+    'src/pages/index.astro',
+    'src/pages/academica.astro',
+    'src/pages/atlas-gears.astro',
+    'src/pages/works.astro',
+    'public/korean-spell-drill-parcyun/index.html',
+  ];
+  const tag = /<(h[1-6]|p|li|figcaption|blockquote|dd|dt|summary|span|a|button|label|legend|td|th)\b([^>]*)>/gi;
+  for (const file of files) {
+    const raw = await read(file);
+    const markup = raw.replace(/^---[\s\S]*?---/, '').replace(/<style\b[\s\S]*?<\/style>/gi, '').replace(/<script\b[\s\S]*?<\/script>/gi, '');
+    const authored = [];
+    for (const match of markup.matchAll(tag)) {
+      assert.match(match[0], /data-ps-edit-id=/, `${file}: ${match[0].slice(0, 80)}`);
+      assert.match(match[0], /data-ps-design-id=/, `${file}: ${match[0].slice(0, 80)}`);
+      authored.push(match[0].match(/data-ps-edit-id="([^"]+)"/)?.[1]);
+    }
+    assert.equal(new Set(authored).size, authored.length, `${file}: duplicate authored ids`);
+  }
+});
+
+test('authored save keys survive unrelated insertion and source-copy changes', async () => {
+  const source = await read('src/pages/index.astro');
+  const ids = [...source.matchAll(/data-ps-edit-id="([^"]+)"/g)].map((match) => match[1]);
+  assert.ok(ids.length > 0);
+  assert.equal(new Set(ids).size, ids.length);
+  const changed = source.replace('<section', '<aside>새 요소</aside><section').replace('교육 현장을 가장 잘 이해하는 사람이', '완전히 수정된 원문');
+  const changedIds = [...changed.matchAll(/data-ps-edit-id="([^"]+)"/g)].map((match) => match[1]);
+  assert.deepEqual(changedIds, ids);
 });
 
 test('design reset and migrating save cover stable and legacy keys transactionally', async () => {

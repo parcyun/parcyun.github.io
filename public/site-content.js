@@ -12,18 +12,23 @@
   var DESIGN_PROPERTIES = ['color', 'backgroundColor', 'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'textAlign', 'padding', 'margin', 'borderRadius', 'borderColor', 'borderWidth', 'borderStyle', 'opacity', 'visibility'];
 
   /* ps-design-ready-start */
-  function createDesignReadiness() {
+  function createDesignReadiness(required) {
     var resolve, reject;
+    var pending = {};
+    (required || []).forEach(function (name) { pending[name] = true; });
     var promise = new Promise(function (done, fail) { resolve = done; reject = fail; });
     promise.catch(function () {});
     return {
       promise: promise,
-      markReady: function () { resolve(); },
+      markReady: function (name) {
+        delete pending[name];
+        if (Object.keys(pending).length === 0) resolve();
+      },
       markFailed: function (error) { reject(error); }
     };
   }
   /* ps-design-ready-end */
-  var designReadiness = createDesignReadiness();
+  var designReadiness = createDesignReadiness(['content', 'design']);
 
   function path() { return location.pathname.replace(/\/index\.html$/, '/'); }
   function headers() { return { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' }; }
@@ -165,7 +170,7 @@
 
   // public content overrides
   fetch(SB_URL + '/rest/v1/site_content?select=key,value', { headers: headers() })
-    .then(function (r) { return r.ok ? r.json() : []; })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('콘텐츠를 불러오지 못했습니다.')); })
     .then(function (rows) {
       var map = {}; (rows || []).forEach(function (row) { map[row.key] = row.value; });
       list.forEach(function (el) {
@@ -173,7 +178,8 @@
         if (value == null) value = map[el.getAttribute('data-ps-legacy-edit')];
         if (value != null) el.innerHTML = sanitize(value);
       });
-    }).catch(function () {});
+      designReadiness.markReady('content');
+    }).catch(function (error) { designReadiness.markFailed(error); });
 
   // public, constrained design overrides
   rpc('list_site_design', { p_path: path() }).then(function (rows) {
@@ -183,20 +189,24 @@
       var legacy = path() + '::' + el.getAttribute('data-ps-legacy-design');
       applyStyle(el, loadedDesign[stable] || loadedDesign[legacy]);
     });
-    designReadiness.markReady();
+    designReadiness.markReady('design');
   }).catch(function (error) { designReadiness.markFailed(error); });
 
   function findByTextKey(key) { return list.filter(function (el) { return el.getAttribute('data-ps-edit') === key || el.getAttribute('data-ps-legacy-edit') === key; })[0]; }
   function findByDesignKey(key) { return list.filter(function (el) { return path() + '::' + el.getAttribute('data-ps-design') === key || path() + '::' + el.getAttribute('data-ps-legacy-design') === key; })[0]; }
   function saveText(key, html) {
-    var el = findByTextKey(key); if (!el) return Promise.reject(new Error('편집 대상을 찾지 못했습니다.'));
-    var value = sanitize(html); el.innerHTML = value;
-    return rpc('admin_save_content', { p_pw: sessionStorage.getItem(PW_KEY), p_key: key, p_value: value });
+    return designReadiness.promise.then(function () {
+      var el = findByTextKey(key); if (!el) throw new Error('편집 대상을 찾지 못했습니다.');
+      var value = sanitize(html); el.innerHTML = value;
+      return rpc('admin_save_content', { p_pw: sessionStorage.getItem(PW_KEY), p_key: key, p_value: value });
+    });
   }
   function saveDesign(key, value) {
-    var el = findByDesignKey(key); if (!el) return Promise.reject(new Error('디자인 대상을 찾지 못했습니다.'));
-    var clean = safeStyle(value); applyStyle(el, clean);
-    return rpc('admin_save_site_design', { p_pw: sessionStorage.getItem(PW_KEY), p_key: key, p_value: clean });
+    return designReadiness.promise.then(function () {
+      var el = findByDesignKey(key); if (!el) throw new Error('디자인 대상을 찾지 못했습니다.');
+      var clean = safeStyle(value); applyStyle(el, clean);
+      return rpc('admin_save_site_design', { p_pw: sessionStorage.getItem(PW_KEY), p_key: key, p_value: clean });
+    });
   }
 
   window.psContentStudio = {

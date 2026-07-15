@@ -21,8 +21,9 @@ import WorkEditModal from './admin/WorkEditModal';
 import FeedbackAdmin from './FeedbackAdmin';
 import FooterComponentManager from './FooterComponentManager';
 import ReviewAdmin from './ReviewAdmin';
-import { isCurrentPreviewRequest, parseStudioMode } from '../lib/studioDesign';
-import type { StudioMode } from '../lib/studioDesign';
+import DesignInspector from './design/DesignInspector';
+import { isCurrentPreviewRequest, parseStudioMode, pushDraftHistory, undoDraft } from '../lib/studioDesign';
+import type { DesignValue, StudioMode } from '../lib/studioDesign';
 
 type StudioElement = {
   key: string;
@@ -35,7 +36,6 @@ type StudioElement = {
   computedStyle: DesignValue;
   savedStyle: DesignValue;
 };
-type DesignValue = Record<string, string>;
 
 const PAGES = [
   { id: 'home', label: '홈', path: '/' },
@@ -45,13 +45,7 @@ const PAGES = [
   { id: 'spell', label: 'Spell Drill', path: '/korean-spell-drill-parcyun/' },
   { id: 'works', label: 'Works', path: '/works/' },
 ];
-const STYLE_FIELDS = [
-  ['color', '글자색', 'color'], ['backgroundColor', '배경색', 'color'], ['fontFamily', '글꼴', 'select'],
-  ['fontSize', '크기', 'text'], ['fontWeight', '굵기', 'select'], ['lineHeight', '줄간격', 'text'],
-  ['letterSpacing', '자간', 'text'], ['padding', '안쪽 여백', 'text'], ['margin', '바깥 여백', 'text'],
-  ['borderRadius', '모서리', 'text'], ['borderColor', '테두리색', 'color'], ['borderWidth', '테두리', 'text'], ['opacity', '불투명도', 'text'],
-] as const;
-
+const PAGE_DESIGN_FIELDS = ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'color', 'backgroundColor', 'borderColor', 'borderWidth', 'padding', 'margin', 'borderRadius', 'opacity'] as const;
 function message(error: unknown) { return error instanceof Error ? error.message : '저장하지 못했습니다.'; }
 function nextId(prefix: string) { return `${prefix}-${Date.now().toString(36)}`; }
 
@@ -63,6 +57,10 @@ export default function ContentStudio() {
   const [selected, setSelected] = useState<StudioElement | null>(null);
   const [draftHtml, setDraftHtml] = useState('');
   const [draftStyle, setDraftStyle] = useState<DesignValue>({});
+  const [savedStyle, setSavedStyle] = useState<DesignValue>({});
+  const [computedStyle, setComputedStyle] = useState<DesignValue>({});
+  const [styleHistory, setStyleHistory] = useState<DesignValue[]>([{}]);
+  const [designBusy, setDesignBusy] = useState(false);
   const [careers, setCareers] = useState<CareerSection[]>([]);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
@@ -100,16 +98,17 @@ export default function ContentStudio() {
   async function refreshCareers() {
     try { setCareers(await adminListCareerTimeline()); } catch (error) { setStatus(message(error)); }
   }
-  function selectElement(element: StudioElement) {
+  function selectElement(element: StudioElement, syncPreview = true) {
     setSelected(element); setDraftHtml(element.html);
-    setDraftStyle({ ...element.savedStyle }); inspect(true);
+    setSavedStyle({ ...element.savedStyle }); setComputedStyle({ ...element.computedStyle });
+    setDraftStyle({ ...element.savedStyle }); setStyleHistory([{ ...element.savedStyle }]); inspect(true); if (syncPreview) preview()?.selectElement?.(element.designKey);
   }
   function onFrameLoad() { loadGeneration.current += 1; setLoading(true); setDesignReady(false); setElements([]); setSelected(null); refreshElements(); if (page.id === 'home') refreshCareers(); }
   useEffect(() => { if (page.id === 'home') refreshCareers(); }, [page.id]);
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== location.origin) return;
-      if (event.data?.type === 'ps-content-studio-selected') selectElement(event.data.element as StudioElement);
+      if (event.data?.type === 'ps-content-studio-selected') selectElement(event.data.element as StudioElement, false);
       if (event.data?.type === 'ps-content-studio-ready') refreshElements();
     };
     window.addEventListener('message', onMessage); return () => window.removeEventListener('message', onMessage);
@@ -123,17 +122,26 @@ export default function ContentStudio() {
   function updateStyle(key: string, value: string) {
     const next = { ...draftStyle, [key]: value };
     if (!value) delete next[key];
-    setDraftStyle(next); if (selected) preview()?.previewStyle(selected.designKey, next);
+    setDraftStyle(next); setStyleHistory((current) => pushDraftHistory(current, next));
+    if (selected) preview()?.previewStyle(selected.designKey, next);
+  }
+  function undoStyle() {
+    const result = undoDraft(styleHistory);
+    setStyleHistory(result.history); setDraftStyle(result.value);
+    if (selected) preview()?.previewStyle(selected.designKey, result.value);
   }
   async function saveStyle() {
     if (!selected || !password || !designReady) return;
-    try { setStatus('디자인 저장 중…'); await adminSaveSiteDesignMigrating(password, selected.designKey, selected.legacyDesignKey, draftStyle); setStatus('디자인을 저장했습니다.'); }
+    try { setDesignBusy(true); setStatus('디자인 저장 중…'); await adminSaveSiteDesignMigrating(password, selected.designKey, selected.legacyDesignKey, draftStyle); setSavedStyle({ ...draftStyle }); setStyleHistory([{ ...draftStyle }]); setStatus('디자인을 저장했습니다.'); }
     catch (error) { setStatus(message(error)); }
+    finally { setDesignBusy(false); }
   }
-  async function resetStyle() {
+  async function resetStyle(key?: string) {
+    if (key) { const next = { ...draftStyle }; delete next[key]; setDraftStyle(next); setStyleHistory((current) => pushDraftHistory(current, next)); if (selected) preview()?.previewStyle(selected.designKey, next); return; }
     if (!selected || !password || !confirm('이 요소의 저장된 디자인 설정을 기본값으로 되돌릴까요?')) return;
-    try { await adminDeleteSiteDesignKeys(password, [selected.designKey, selected.legacyDesignKey]); setDraftStyle({}); frame.current?.contentWindow?.location.reload(); setStatus('기본 디자인으로 되돌렸습니다.'); }
+    try { setDesignBusy(true); await adminDeleteSiteDesignKeys(password, [selected.designKey, selected.legacyDesignKey]); setSavedStyle({}); setDraftStyle({}); setStyleHistory([{}]); frame.current?.contentWindow?.location.reload(); setStatus('기본 디자인으로 되돌렸습니다.'); }
     catch (error) { setStatus(message(error)); }
+    finally { setDesignBusy(false); }
   }
   async function saveSection(section: CareerSection) {
     if (!password) return;
@@ -193,14 +201,11 @@ export default function ContentStudio() {
     </section>
     <aside className="cs-inspector">
       <header><small>INSPECTOR</small><strong>{page.id === 'home' ? '홈 컴포넌트' : '컴포넌트 설정'}</strong></header>
-      {status && <div className="cs-status">{status}</div>}
+      {status && <div className={`cs-status ${/못|실패|오류/.test(status) ? 'cs-error' : ''}`} role={/못|실패|오류/.test(status) ? 'alert' : 'status'} aria-live="polite">{status}</div>}
       <section className="cs-panel"><div className="cs-panel-head"><b>텍스트</b><span>{selected ? selected.label.split(' · ')[0] : '선택 필요'}</span></div>
         {selected ? <><textarea value={draftHtml} onChange={(event) => { setDraftHtml(event.target.value); preview()?.previewText(selected.key, event.target.value); }} /><button className="cs-save" onClick={saveText}>문구 저장</button></> : <p className="cs-empty">미리보기의 문구를 클릭하세요.</p>}
       </section>
-      <section className="cs-panel"><div className="cs-panel-head"><b>디자인 설정</b><span>Figma-style</span></div>
-        {selected ? <div className="cs-style-grid">{STYLE_FIELDS.map(([key, label, kind]) => <label key={key}><span>{label}</span>{kind === 'select' ? <select value={draftStyle[key] || ''} onChange={(event) => updateStyle(key, event.target.value)}>{key === 'fontFamily' ? <><option value="">기본값</option><option value="Montserrat">Montserrat</option><option value="Pretendard Variable">Pretendard</option><option value="serif">Serif</option></> : <><option value="">기본값</option><option value="300">Light 300</option><option value="400">Regular 400</option><option value="500">Medium 500</option><option value="600">SemiBold 600</option><option value="700">Bold 700</option></>}</select> : <input type={kind} value={draftStyle[key] || ''} placeholder={kind === 'color' ? '#000000' : '기본값'} onChange={(event) => updateStyle(key, event.target.value)} />}</label>)}</div> : <p className="cs-empty">텍스트를 선택하면 디자인 도구가 열립니다.</p>}
-        {selected && <div className="cs-actions"><button className="cs-reset" onClick={resetStyle}>기본값</button><button className="cs-save" onClick={saveStyle} disabled={!designReady}>디자인 저장</button></div>}
-      </section>
+      {selected ? <DesignInspector selected={{ label: selected.label.split(' · ').slice(1).join(' · ') || selected.label, designKey: selected.designKey, tag: selected.label.split(' · ')[0], legacy: selected.legacy }} draft={draftStyle} saved={savedStyle} computed={computedStyle} history={styleHistory} busy={designBusy || !designReady} applicableFields={PAGE_DESIGN_FIELDS} onChange={updateStyle} onUndo={undoStyle} onReset={resetStyle} onSave={saveStyle} /> : <section className="cs-panel"><p className="cs-empty">텍스트를 선택하면 디자인 도구가 열립니다.</p></section>}
       {page.id === 'home' && <section className="cs-panel cs-careers"><div className="cs-panel-head"><b>경력 사항</b><button onClick={addSection}>＋ 분류</button></div>
         {careers.map((section) => <CareerSectionEditor key={section.id} section={section} onChange={(next) => setCareers(careers.map((item) => item.id === next.id ? next : item))} onSave={() => saveSection(section)} onDelete={() => removeSection(section)} onAdd={() => addItem(section)} onSaveItem={saveItem} onDeleteItem={removeItem} />)}
         <button className="cs-add-career" onClick={() => careers[0] && addItem(careers[0])}>＋ 경력 추가</button>

@@ -104,7 +104,7 @@ test('page element discovery waits for delayed design loading before exposing sa
   const studio = await read('src/components/ContentStudio.tsx');
   assert.doesNotMatch(studio, /setTimeout\(refreshElements,\s*350\)/);
   assert.match(studio, /await studio\.getElements\(\)/);
-  assert.match(studio, /disabled=\{!designReady\}/);
+  assert.match(studio, /busy=\{designBusy \|\| !designReady\}/);
 });
 
 test('design reset and migrating save cover stable and legacy keys transactionally', async () => {
@@ -169,4 +169,43 @@ test('aria-label changes never create a stable identity or orphan an existing ke
   assert.equal(context.result[0].legacy, true);
   const inputBody = source.match(/function elementIdentityInput\([\s\S]*?\n  \}/)?.[0] || '';
   assert.doesNotMatch(inputBody, /aria-label/);
+});
+
+test('inspector groups fields and exposes provenance, undo, reset, and save', async () => {
+  const inspector = await read('src/components/design/DesignInspector.tsx');
+  for (const label of ['Text', 'Typography', 'Fill', 'Stroke', 'Layout', 'Opacity']) {
+    assert.match(inspector, new RegExp(label));
+  }
+  assert.match(inspector, /onUndo/);
+  assert.match(inspector, /onReset/);
+  assert.match(inspector, /onSave/);
+  assert.match(inspector, /computedValue/);
+  assert.match(inspector, /savedValue/);
+  assert.match(inspector, /aria-expanded/);
+});
+
+test('color fields keep an empty override empty and expose a separate swatch', async () => {
+  const field = await read('src/components/design/DesignField.tsx');
+  assert.match(field, /type="color"/);
+  assert.match(field, /type="text"/);
+  assert.match(field, /HEX/i);
+  assert.doesNotMatch(field, /placeholder=['"]#000000/);
+});
+
+test('page design keeps saved, computed, draft and history snapshots separate', async () => {
+  const studio = await read('src/components/ContentStudio.tsx');
+  for (const state of ['savedStyle', 'computedStyle', 'styleHistory']) assert.match(studio, new RegExp(`set${state[0].toUpperCase()}${state.slice(1)}`));
+  assert.match(studio, /pushDraftHistory/);
+  assert.match(studio, /undoDraft/);
+  assert.match(studio, /<DesignInspector/);
+});
+
+test('iframe inspection exposes hover, persistent selection, badge, and keyboard activation', async () => {
+  const source = await read('public/site-content.js');
+  assert.match(source, /data-ps-studio-hovered/);
+  assert.match(source, /data-ps-studio-selected/);
+  assert.match(source, /ps-studio-object-badge/);
+  assert.match(source, /keydown/);
+  assert.match(source, /Enter/);
+  assert.match(source, /['"] ['"]/);
 });

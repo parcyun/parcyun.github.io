@@ -40,11 +40,34 @@ test('semantic ids are stable when an unrelated preceding sibling is inserted', 
   const block = source.match(/\/\* ps-identity-start \*\/[\s\S]*?\/\* ps-identity-end \*\//)?.[0] || '';
   assert.notEqual(block, '');
   const input = { explicit: '', page: '/', section: 'about', tag: 'p', role: '', staticText: '교육 현장에 도움' };
-  const context = { input, result: '' };
-  vm.runInNewContext(`${block}; result = semanticIdentity(input);`, context);
-  const before = context.result;
-  context.input = { ...input, precedingSibling: 'unrelated-banner' };
-  vm.runInNewContext(`${block}; result = semanticIdentity(input);`, context);
-  assert.equal(context.result, before);
-  assert.doesNotMatch(block, /index|sibling|nth/i);
+  const context = { inputs: [{ ...input, legacyId: '/::P::4' }], result: [] };
+  vm.runInNewContext(`${block}; result = assignStableIdentities(inputs);`, context);
+  const before = context.result[0];
+  context.inputs = [
+    { ...input, staticText: '관련 없는 배너', legacyId: '/::P::4' },
+    { ...input, legacyId: '/::P::5' },
+  ];
+  vm.runInNewContext(`${block}; result = assignStableIdentities(inputs);`, context);
+  assert.equal(context.result[1].id, before.id);
+  assert.equal(context.result[1].legacy, false);
+});
+
+test('duplicate semantic elements retain distinct legacy keys and resolve the second element', async () => {
+  const source = await read('public/site-content.js');
+  const block = source.match(/\/\* ps-identity-start \*\/[\s\S]*?\/\* ps-identity-end \*\//)?.[0] || '';
+  const base = { explicit: '', page: '/', section: 'about', tag: 'p', role: '', staticText: '같은 문장' };
+  const context = {
+    inputs: [
+      { ...base, legacyId: '/::P::4' },
+      { ...base, legacyId: '/::P::5' },
+    ],
+    result: [],
+  };
+  vm.runInNewContext(`${block}; result = assignStableIdentities(inputs);`, context);
+  assert.equal(context.result[0].legacy, true);
+  assert.equal(context.result[1].legacy, true);
+  assert.equal(context.result[0].id, '/::P::4');
+  assert.equal(context.result[1].id, '/::P::5');
+  assert.notEqual(context.result[0].id, context.result[1].id);
+  assert.match(source, /findByTextKey[\s\S]*data-ps-legacy-edit/);
 });

@@ -65,10 +65,30 @@ test('component design migration validates CSS values by property', async () => 
   const migration = await read('supabase/migrations/0013_component_design_property_updates.sql');
   assert.match(migration, /item\.key in \('color',\s*'backgroundColor',\s*'borderColor'\)/i);
   assert.match(migration, /#\[0-9a-fA-F\]\{3\}/);
-  assert.match(migration, /item\.key in \('fontSize',\s*'letterSpacing',\s*'padding',\s*'margin',\s*'borderRadius',\s*'borderWidth'\)/i);
+  assert.match(migration, /item\.key = 'fontSize'/i);
+  assert.match(migration, /item\.key in \('padding',\s*'borderRadius',\s*'borderWidth'\)/i);
+  assert.match(migration, /item\.key = 'margin'/i);
+  assert.match(migration, /item\.key = 'letterSpacing'/i);
   assert.match(migration, /item\.key = 'lineHeight'/i);
   assert.match(migration, /item\.key = 'opacity'/i);
   assert.match(migration, /item\.key = 'fontWeight'/i);
   assert.match(migration, /item\.key = 'display'/i);
   assert.match(migration, /잘못된 CSS 값/);
+});
+
+test('component dimensions reject negative sizes while signed spacing remains valid', async () => {
+  const migration = await read('supabase/migrations/0013_component_design_property_updates.sql');
+  const patternFor = (condition) => migration.match(new RegExp(`${condition}[\\s\\S]*?value_text !~\\* '([^']+)'`, 'i'))?.[1];
+  const fontSize = new RegExp(patternFor("item\\.key = 'fontSize'") || 'never', 'i');
+  const boxSize = new RegExp(patternFor("item\\.key in \\('padding',\\s*'borderRadius',\\s*'borderWidth'\\)") || 'never', 'i');
+  const margin = new RegExp(patternFor("item\\.key = 'margin'") || 'never', 'i');
+  const letterSpacing = new RegExp(patternFor("item\\.key = 'letterSpacing'") || 'never', 'i');
+  for (const accepted of ['0', '16px', '1.25rem']) assert.equal(fontSize.test(accepted), true, accepted);
+  for (const rejected of ['-1px', '8px 12px']) assert.equal(fontSize.test(rejected), false, rejected);
+  for (const accepted of ['0', '16px', '8px 12px']) assert.equal(boxSize.test(accepted), true, accepted);
+  for (const rejected of ['-1px', '8px -2px']) assert.equal(boxSize.test(rejected), false, rejected);
+  for (const accepted of ['-1px', '0', '12px -4px']) assert.equal(margin.test(accepted), true, accepted);
+  for (const rejected of ['calc(100% - 1px)', '12']) assert.equal(margin.test(rejected), false, rejected);
+  for (const accepted of ['-0.05em', '0', '1px']) assert.equal(letterSpacing.test(accepted), true, accepted);
+  for (const rejected of ['1px 2px', '12']) assert.equal(letterSpacing.test(rejected), false, rejected);
 });

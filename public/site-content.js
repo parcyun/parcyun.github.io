@@ -60,24 +60,35 @@
       staticText: input.staticText
     }));
   }
+  function assignStableIdentities(inputs) {
+    var candidates = inputs.map(semanticIdentity), counts = {};
+    candidates.forEach(function (candidate) { counts[candidate] = (counts[candidate] || 0) + 1; });
+    return inputs.map(function (input, index) {
+      var candidate = candidates[index];
+      return counts[candidate] === 1
+        ? { id: candidate, legacy: false }
+        : { id: input.legacyId, legacy: true };
+    });
+  }
   /* ps-identity-end */
   function sectionIdentity(el) {
     var section = el.parentElement && el.parentElement.closest('[data-ps-section-id],[id],section,article,main,header,footer');
     if (!section) return 'document';
     return section.getAttribute('data-ps-section-id') || section.id || section.tagName.toLowerCase() + '-' + slug(section.className || 'section');
   }
-  function elementIdentity(el, attribute) {
+  function elementIdentityInput(el, attribute, legacyId) {
     var explicit = el.getAttribute(attribute);
     var own = el.id || el.getAttribute('name') || el.getAttribute('aria-label') || el.getAttribute('role');
     var staticText = (el.textContent || '').replace(/\s+/g, ' ').trim();
-    return semanticIdentity({
+    return {
       explicit: explicit || (own ? el.tagName.toLowerCase() + '-' + slug(own) : ''),
       page: path(),
       section: sectionIdentity(el),
       tag: el.tagName.toLowerCase(),
       role: el.getAttribute('role') || '',
-      staticText: staticText
-    });
+      staticText: staticText,
+      legacyId: legacyId
+    };
   }
   function safeStyle(style) {
     var out = {};
@@ -120,13 +131,20 @@
   list.forEach(function (el, i) {
     var oldContentKey = legacyKeyOf(el, i);
     var oldDesignId = legacyDesignId(el, i);
-    var editId = elementIdentity(el, 'data-ps-edit-id');
-    var designId = elementIdentity(el, 'data-ps-design-id') || editId;
     el.setAttribute('data-ps-legacy-edit', oldContentKey);
     el.setAttribute('data-ps-legacy-design', oldDesignId);
-    el.setAttribute('data-ps-edit', editId ? path() + '::' + editId : oldContentKey);
-    el.setAttribute('data-ps-design', designId || oldDesignId);
-    if (editId && designId) el.setAttribute('data-ps-stable-id', 'true');
+  });
+  var editIdentities = assignStableIdentities(list.map(function (el) {
+    return elementIdentityInput(el, 'data-ps-edit-id', el.getAttribute('data-ps-legacy-edit'));
+  }));
+  var designIdentities = assignStableIdentities(list.map(function (el) {
+    return elementIdentityInput(el, 'data-ps-design-id', el.getAttribute('data-ps-legacy-design'));
+  }));
+  list.forEach(function (el, i) {
+    var editIdentity = editIdentities[i], designIdentity = designIdentities[i];
+    el.setAttribute('data-ps-edit', editIdentity.legacy ? editIdentity.id : path() + '::' + editIdentity.id);
+    el.setAttribute('data-ps-design', designIdentity.id);
+    if (!editIdentity.legacy && !designIdentity.legacy) el.setAttribute('data-ps-stable-id', 'true');
   });
 
   // public content overrides

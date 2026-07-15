@@ -16,7 +16,13 @@ begin
     value_text := item.value #>> '{}';
     if item.key in ('color', 'backgroundColor', 'borderColor') and value_text !~* '^(#[0-9a-fA-F]{3}|#[0-9a-fA-F]{4}|#[0-9a-fA-F]{6}|#[0-9a-fA-F]{8}|rgba?\([0-9.,% ]+\)|hsla?\([0-9.,% deg]+\)|transparent|currentColor|inherit)$' then
       raise exception '잘못된 CSS 값입니다: %', item.key;
-    elsif item.key in ('fontSize', 'letterSpacing', 'padding', 'margin', 'borderRadius', 'borderWidth') and value_text !~* '^(-?[0-9]+(\.[0-9]+)?(px|rem|em|%|vh|vw)|0)( +(-?[0-9]+(\.[0-9]+)?(px|rem|em|%|vh|vw)|0)){0,3}$' then
+    elsif item.key = 'fontSize' and value_text !~* '^([0-9]+(\.[0-9]+)?(px|rem|em|%|vh|vw)|0)$' then
+      raise exception '잘못된 CSS 값입니다: %', item.key;
+    elsif item.key in ('padding', 'borderRadius', 'borderWidth') and value_text !~* '^([0-9]+(\.[0-9]+)?(px|rem|em|%|vh|vw)|0)( +([0-9]+(\.[0-9]+)?(px|rem|em|%|vh|vw)|0)){0,3}$' then
+      raise exception '잘못된 CSS 값입니다: %', item.key;
+    elsif item.key = 'margin' and value_text !~* '^(-?[0-9]+(\.[0-9]+)?(px|rem|em|%|vh|vw)|0)( +(-?[0-9]+(\.[0-9]+)?(px|rem|em|%|vh|vw)|0)){0,3}$' then
+      raise exception '잘못된 CSS 값입니다: %', item.key;
+    elsif item.key = 'letterSpacing' and value_text !~* '^(-?[0-9]+(\.[0-9]+)?(px|rem|em)|0)$' then
       raise exception '잘못된 CSS 값입니다: %', item.key;
     elsif item.key = 'lineHeight' and value_text !~* '^(normal|[0-9]+(\.[0-9]+)?|[0-9]+(\.[0-9]+)?(px|rem|em|%))$' then
       raise exception '잘못된 CSS 값입니다: %', item.key;

@@ -43,7 +43,7 @@ import CinematicLayout from '../layouts/CinematicLayout.astro';
   .review-list-wrap{order:-1}
   .reviews-grid h2{font-size:24px;font-weight:400;margin:12px 0 24px}
   .review-stars{display:flex;gap:4px;margin-bottom:16px;align-items:center}
-  .review-star{border:0;background:transparent;color:#555;padding:0 2px;font-size:28px;line-height:1;cursor:pointer;transition:color .16s ease,transform .16s ease}
+  .review-star{appearance:none;-webkit-appearance:none;display:inline-block;width:auto;height:auto;min-width:0;min-height:0;border:0!important;border-radius:0;background:transparent!important;box-shadow:none;padding:0 2px;color:#555;font-size:28px;line-height:1;cursor:pointer;transition:color .16s ease,transform .16s ease}
   .review-star:hover,.review-star:focus-visible,.review-star.active{color:var(--ps-primary)}
   .review-star:hover,.review-star:focus-visible{transform:translateY(-1px)}
   .review-star:focus-visible{outline:1px solid var(--ps-primary);outline-offset:4px;border-radius:2px}

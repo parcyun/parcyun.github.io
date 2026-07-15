@@ -32,6 +32,10 @@ test('reviews page has anonymous star-rated submission and moderation copy', asy
   assert.match(runtime, /리뷰 남기기/);
   assert.match(runtime, /검토 후 공개/);
   assert.doesNotMatch(runtime, /email|이메일|name=\"name\"/i);
+  assert.match(page, /\.review-star\{[^}]*border:0/);
+  assert.match(page, /appearance:none/);
+  assert.match(page, /\.review-star\.active/);
+  assert.match(page, /color:var\(--ps-primary\)/);
 });
 
 test('shared footer exposes review action and applies component design values', async () => {

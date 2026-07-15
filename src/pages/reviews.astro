@@ -38,12 +38,15 @@ import CinematicLayout from '../layouts/CinematicLayout.astro';
   .reviews-hero h1 span{color:var(--ps-primary)}
   .reviews-lede{color:var(--ps-text-cinematic-secondary);font-size:15px;line-height:1.9}
   .reviews-section{padding:40px 0 120px}
-  .reviews-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:72px}
+  .reviews-grid{display:flex;flex-direction:column;gap:72px}
   .review-composer,.review-list-wrap{border-top:1px solid rgba(255,255,255,.16);padding-top:20px}
+  .review-list-wrap{order:-1}
   .reviews-grid h2{font-size:24px;font-weight:400;margin:12px 0 24px}
-  .review-stars{display:flex;gap:6px;margin-bottom:16px}
-  .review-star{width:40px;height:40px;border:1px solid rgba(255,255,255,.2);border-radius:50%;background:transparent;color:#666;font-size:18px;cursor:pointer}
-  .review-star.active{background:var(--ps-primary);border-color:var(--ps-primary);color:#111}
+  .review-stars{display:flex;gap:4px;margin-bottom:16px;align-items:center}
+  .review-star{border:0;background:transparent;color:#555;padding:0 2px;font-size:28px;line-height:1;cursor:pointer;transition:color .16s ease,transform .16s ease}
+  .review-star:hover,.review-star:focus-visible,.review-star.active{color:var(--ps-primary)}
+  .review-star:hover,.review-star:focus-visible{transform:translateY(-1px)}
+  .review-star:focus-visible{outline:1px solid var(--ps-primary);outline-offset:4px;border-radius:2px}
   .review-composer textarea{display:block;width:100%;min-height:150px;resize:vertical;background:#111;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:16px;color:#fff;font:inherit;line-height:1.7}
   .review-composer textarea:focus{outline:1px solid var(--ps-primary);border-color:var(--ps-primary)}
   .review-form-meta{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:12px;color:#666;font-size:12px}
@@ -55,6 +58,6 @@ import CinematicLayout from '../layouts/CinematicLayout.astro';
   .review-card time{font-size:11px;color:#666}
   .review-card p{margin:0;color:#ddd;line-height:1.75;font-size:14px}
   .review-empty{color:#666;font-size:14px}
-  @media(max-width:767px){.reviews-hero{padding:120px 0 56px}.reviews-grid{grid-template-columns:1fr;gap:56px}.reviews-section{padding-bottom:80px}}
+  @media(max-width:767px){.reviews-hero{padding:120px 0 56px}.reviews-grid{gap:56px}.reviews-section{padding-bottom:80px}}
 </style>
 <script is:inline src="/reviews.js?v=20260715.1" defer></script>

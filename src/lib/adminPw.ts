@@ -53,6 +53,14 @@ export async function adminSaveSiteDesign(pw: string, key: string, value: Record
 }
 export async function adminDeleteSiteDesign(pw: string, key: string) { await sbRpc('admin_delete_site_design', { p_pw: pw, p_key: key }); }
 
+export type ComponentDesignValues = Record<string, string>;
+export async function adminSaveComponentDesign(pw: string, componentKey: string, values: ComponentDesignValues) {
+  await sbRpc('admin_save_component_design', { p_pw: pw, p_component_key: componentKey, p_values: values });
+}
+export async function adminDeleteComponentDesign(pw: string, componentKey: string) {
+  await sbRpc('admin_delete_component_design', { p_pw: pw, p_component_key: componentKey });
+}
+
 export type FeedbackStatus = 'pending' | 'published' | 'rejected';
 
 export interface FeedbackPost {
@@ -71,4 +79,21 @@ export async function adminListFeedback(pw: string): Promise<FeedbackPost[]> {
 
 export async function adminSetFeedbackStatus(pw: string, id: number, status: Exclude<FeedbackStatus, 'pending'>) {
   await sbRpc('admin_set_feedback_status', { p_pw: pw, p_id: id, p_status: status });
+}
+
+export type ReviewStatus = 'pending' | 'published' | 'rejected';
+export interface ReviewPost {
+  id: number;
+  rating: number;
+  body: string;
+  status: ReviewStatus;
+  moderation_reason: string | null;
+  created_at: string;
+  reviewed_at: string | null;
+}
+export async function adminListReviews(pw: string): Promise<ReviewPost[]> {
+  return (await sbRpc<ReviewPost[]>('admin_list_reviews', { p_pw: pw })) || [];
+}
+export async function adminSetReviewStatus(pw: string, id: number, status: ReviewStatus) {
+  await sbRpc('admin_set_review_status', { p_pw: pw, p_id: id, p_status: status });
 }

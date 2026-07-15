@@ -19,10 +19,12 @@ import type { Work } from '../data/works';
 import ResourceEditModal from './admin/ResourceEditModal';
 import WorkEditModal from './admin/WorkEditModal';
 import FeedbackAdmin from './FeedbackAdmin';
+import FooterComponentManager from './FooterComponentManager';
+import ReviewAdmin from './ReviewAdmin';
 
 type StudioElement = { key: string; designKey: string; label: string; html: string };
 type DesignValue = Record<string, string>;
-type StudioMode = 'page' | 'resources' | 'works' | 'feedback';
+type StudioMode = 'page' | 'resources' | 'works' | 'components' | 'reviews' | 'feedback';
 
 const PAGES = [
   { id: 'home', label: '홈', path: '/' },
@@ -52,7 +54,7 @@ export default function ContentStudio() {
   const [careers, setCareers] = useState<CareerSection[]>([]);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
-  const [mode, setMode] = useState<StudioMode>(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mode') === 'feedback' ? 'feedback' : 'page');
+  const [mode, setMode] = useState<StudioMode>(() => { const value = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('mode') : ''; return value === 'feedback' || value === 'components' || value === 'reviews' ? value : 'page'; });
   const [resourceCategory, setResourceCategory] = useState<Category>('교육 활동 자료');
   const page = useMemo(() => PAGES.find((item) => item.id === pageId) || PAGES[0], [pageId]);
   const password = getAdminPw();
@@ -137,7 +139,7 @@ export default function ContentStudio() {
   function changeMode(next: StudioMode) {
     setMode(next);
     const url = new URL(location.href);
-    next === 'feedback' ? url.searchParams.set('mode', 'feedback') : url.searchParams.delete('mode');
+    next === 'page' ? url.searchParams.delete('mode') : url.searchParams.set('mode', next);
     history.replaceState(null, '', url);
   }
 
@@ -148,6 +150,8 @@ export default function ContentStudio() {
       <button className={mode === 'page' ? 'active' : ''} onClick={() => changeMode('page')}><span>◈</span>페이지 디자인</button>
       <button className={mode === 'resources' ? 'active' : ''} onClick={() => changeMode('resources')}><span>◈</span>자료 관리</button>
       <button className={mode === 'works' ? 'active' : ''} onClick={() => changeMode('works')}><span>◈</span>Works 관리</button>
+      <button className={mode === 'components' ? 'active' : ''} onClick={() => changeMode('components')}><span>◈</span>컴포넌트 디자인</button>
+      <button className={mode === 'reviews' ? 'active' : ''} onClick={() => changeMode('reviews')}><span>◈</span>리뷰 관리</button>
       <button className={mode === 'feedback' ? 'active' : ''} onClick={() => changeMode('feedback')}><span>◈</span>개선 요청</button>
       {mode === 'page' && <><p className="cs-caption cs-page-caption">PAGES</p>{PAGES.map((item) => <button key={item.id} className={'cs-subnav ' + (item.id === page.id ? 'active' : '')} onClick={() => setPageId(item.id)}><span>·</span>{item.label}</button>)}</>}
       <p className="cs-tip">{mode === 'page' ? '미리보기의 문구를 클릭하거나 목록에서 선택해 편집하세요.' : '모든 변경은 기존 관리자 인증과 저장 규칙을 그대로 사용합니다.'}</p>
@@ -172,9 +176,11 @@ export default function ContentStudio() {
         <button className="cs-add-career" onClick={() => careers[0] && addItem(careers[0])}>＋ 경력 추가</button>
       </section>}
     </aside></> : <section className="cs-manager">
-      <header className="cs-manager-head"><div><small>MANAGE</small><strong>{mode === 'resources' ? '자료 관리' : mode === 'works' ? 'Works 관리' : '개선 요청'}</strong></div><span>Design Studio</span></header>
+      <header className="cs-manager-head"><div><small>MANAGE</small><strong>{mode === 'resources' ? '자료 관리' : mode === 'works' ? 'Works 관리' : mode === 'components' ? '컴포넌트 디자인' : mode === 'reviews' ? '리뷰 관리' : '개선 요청'}</strong></div><span>Design Studio</span></header>
       {mode === 'resources' && <><div className="cs-category-tabs"><button className={resourceCategory === '교육 활동 자료' ? 'active' : ''} onClick={() => setResourceCategory('교육 활동 자료')}>교육 활동 자료</button><button className={resourceCategory === '강의 자료' ? 'active' : ''} onClick={() => setResourceCategory('강의 자료')}>강의 자료</button></div><ResourceManager category={resourceCategory} password={password} /></>}
       {mode === 'works' && <WorksManager password={password} />}
+      {mode === 'components' && <FooterComponentManager password={password} />}
+      {mode === 'reviews' && <ReviewAdmin />}
       {mode === 'feedback' && <div className="cs-feedback"><FeedbackAdmin /></div>}
     </section>}
   </main>;

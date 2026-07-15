@@ -19,6 +19,24 @@ begin
     ) or jsonb_typeof(p_value -> v_property) <> 'string'
       or char_length(v_value) > 80 then
       raise exception '허용되지 않는 디자인 속성입니다.';
+    elsif v_property in ('color', 'backgroundColor', 'borderColor') and v_value !~* '^(#[0-9a-f]{3}|#[0-9a-f]{4}|#[0-9a-f]{6}|#[0-9a-f]{8}|rgba?\([0-9.,% ]+\)|hsla?\([0-9.,% deg]+\)|transparent|currentColor|inherit)$' then
+      raise exception '색상 값이 올바르지 않습니다.';
+    elsif v_property = 'fontFamily' and v_value !~ '^[-A-Za-z0-9가-힣 _,''"]+$' then
+      raise exception 'fontFamily 값이 올바르지 않습니다.';
+    elsif v_property = 'fontSize' and v_value !~* '^([0-9]+(\.[0-9]+)?(px|rem|em|%|vh|vw)|0)$' then
+      raise exception 'fontSize 값이 올바르지 않습니다.';
+    elsif v_property in ('padding', 'borderRadius', 'borderWidth') and v_value !~* '^([0-9]+(\.[0-9]+)?(px|rem|em|%|vh|vw)|0)( +([0-9]+(\.[0-9]+)?(px|rem|em|%|vh|vw)|0)){0,3}$' then
+      raise exception '크기 값이 올바르지 않습니다.';
+    elsif v_property = 'margin' and v_value !~* '^(-?[0-9]+(\.[0-9]+)?(px|rem|em|%|vh|vw)|0)( +(-?[0-9]+(\.[0-9]+)?(px|rem|em|%|vh|vw)|0)){0,3}$' then
+      raise exception 'margin 값이 올바르지 않습니다.';
+    elsif v_property = 'letterSpacing' and v_value !~* '^(-?[0-9]+(\.[0-9]+)?(px|rem|em)|0)$' then
+      raise exception 'letterSpacing 값이 올바르지 않습니다.';
+    elsif v_property = 'lineHeight' and v_value !~* '^(normal|[0-9]+(\.[0-9]+)?|[0-9]+(\.[0-9]+)?(px|rem|em|%))$' then
+      raise exception 'lineHeight 값이 올바르지 않습니다.';
+    elsif v_property = 'opacity' and v_value !~ '^(0(\.[0-9]+)?|\.[0-9]+|1(\.0+)?)$' then
+      raise exception 'opacity 값이 올바르지 않습니다.';
+    elsif v_property = 'fontWeight' and v_value !~ '^(normal|bold|[1-9]00)$' then
+      raise exception 'fontWeight 값이 올바르지 않습니다.';
     elsif v_property = 'visibility' and v_value !~ '^(visible|hidden)$' then
       raise exception 'visibility 값이 올바르지 않습니다.';
     elsif v_property = 'textAlign' and v_value !~ '^(left|center|right)$' then

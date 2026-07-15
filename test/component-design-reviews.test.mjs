@@ -49,7 +49,7 @@ test('shared footer exposes review action and applies component design values', 
   assert.match(footer, /리뷰 남기기/);
   assert.match(footer, /reviews\//);
   assert.match(studio, /컴포넌트 디자인/);
-  assert.match(componentManager, /adminSaveComponentDesign/);
+  assert.match(componentManager, /adminApplyComponentDesign/);
   assert.match(studio, /리뷰 관리/);
   assert.match(admin, /adminSetReviewStatus/);
 });

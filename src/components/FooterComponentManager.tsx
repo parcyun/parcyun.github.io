@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useReducer, useState } from 'react';
 import {
+  adminApplyComponentDesign,
   adminDeleteComponentDesign,
-  adminDeleteComponentDesignProperty,
-  adminSaveComponentDesign,
   listComponentDesign,
 } from '../lib/adminPw';
 import type { DesignValue } from '../lib/studioDesign';
@@ -14,11 +13,18 @@ const FOOTER_FIELDS = ['display', 'fontFamily', 'fontSize', 'fontWeight', 'lineH
 const DEFAULTS: DesignValue = { display: 'flex', color: '#FFB11A', backgroundColor: '#000000', fontFamily: 'Montserrat', fontSize: '11px', fontWeight: '400', lineHeight: 'normal', letterSpacing: '.3px', padding: '4px 12px', borderRadius: '100px', opacity: '1' };
 
 function errorMessage(error: unknown) { return error instanceof Error ? error.message : '처리하지 못했습니다.'; }
+type DesignState = { draft: DesignValue; history: DesignValue[] };
+type DesignAction = { type: 'replace'; value: DesignValue } | { type: 'change'; key: string; value: string } | { type: 'undo' };
+function designStateReducer(state: DesignState, action: DesignAction): DesignState {
+  if (action.type === 'replace') return { draft: { ...action.value }, history: [{ ...action.value }] };
+  if (action.type === 'undo') { const result = undoDraft(state.history); return { draft: result.value, history: result.history }; }
+  const next = { ...state.draft, [action.key]: action.value || DESIGN_RESET };
+  return { draft: next, history: pushDraftHistory(state.history, next) };
+}
 
 export default function FooterComponentManager({ password }: { password: string }) {
   const [saved, setSaved] = useState<DesignValue>({});
-  const [draft, setDraft] = useState<DesignValue>({});
-  const [history, setHistory] = useState<DesignValue[]>([{}]);
+  const [{ draft, history }, dispatchDesign] = useReducer(designStateReducer, { draft: {}, history: [{}] });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [loadError, setLoadError] = useState('');
@@ -31,7 +37,7 @@ export default function FooterComponentManager({ password }: { password: string 
     setLoading(true);
     listComponentDesign('footer').then((values) => {
       if (!active) return;
-      setSaved(values); setDraft(values); setHistory([{ ...values }]); setLoading(false);
+      setSaved(values); dispatchDesign({ type: 'replace', value: values }); setLoading(false);
     }).catch((error) => {
       if (!active) return;
       setLoadError(errorMessage(error)); setLoading(false);
@@ -39,10 +45,8 @@ export default function FooterComponentManager({ password }: { password: string 
     return () => { active = false; };
   }, []);
 
-  function update(key: string, value: string) {
-    setDraft((current) => { const next = { ...current, [key]: value || DESIGN_RESET }; setHistory((items) => pushDraftHistory(items, next)); return next; });
-  }
-  function undo() { const result = undoDraft(history); setHistory(result.history); setDraft(result.value); }
+  function update(key: string, value: string) { dispatchDesign({ type: 'change', key, value }); }
+  function undo() { dispatchDesign({ type: 'undo' }); }
 
   async function save() {
     const resetKeys = Object.entries(draft).filter(([, value]) => value === DESIGN_RESET).map(([key]) => key);
@@ -51,17 +55,15 @@ export default function FooterComponentManager({ password }: { password: string 
     if (!Object.keys(changed).length && !resetKeys.length) return;
     try {
       setBusy(true); setStatusKind('progress'); setStatus('저장 중…');
-      await Promise.all(resetKeys.map((key) => adminDeleteComponentDesignProperty(password, 'footer', key)));
-      if (Object.keys(changed).length) await adminSaveComponentDesign(password, 'footer', changed);
-      setSaved(persisted); setDraft(persisted); setHistory([persisted]); setStatusKind('success'); setStatus('공용 푸터 디자인을 저장했습니다.');
+      await adminApplyComponentDesign(password, 'footer', resetKeys, changed);
+      setSaved(persisted); dispatchDesign({ type: 'replace', value: persisted }); setStatusKind('success'); setStatus('공용 푸터 디자인을 저장했습니다.');
     } catch (error) { setStatusKind('error'); setStatus(errorMessage(error)); }
     finally { setBusy(false); }
   }
 
   async function resetProperty(key?: string) {
     if (!key) { await reset(); return; }
-    const next = { ...draft, [key]: DESIGN_RESET };
-    setDraft(next); setHistory((current) => pushDraftHistory(current, next));
+    dispatchDesign({ type: 'change', key, value: DESIGN_RESET });
     setStatusKind('progress'); setStatus('초기화가 미리보기에 반영되었습니다. 저장하면 확정됩니다.');
   }
 
@@ -69,7 +71,7 @@ export default function FooterComponentManager({ password }: { password: string 
     if (!confirm('공용 푸터를 기본 디자인으로 되돌릴까요?')) return;
     try {
       setBusy(true); setStatusKind('progress'); await adminDeleteComponentDesign(password, 'footer');
-      setSaved({}); setDraft({}); setHistory([{}]); setStatusKind('success'); setStatus('기본 디자인으로 되돌렸습니다.');
+      setSaved({}); dispatchDesign({ type: 'replace', value: {} }); setStatusKind('success'); setStatus('기본 디자인으로 되돌렸습니다.');
     } catch (error) { setStatusKind('error'); setStatus(errorMessage(error)); }
     finally { setBusy(false); }
   }

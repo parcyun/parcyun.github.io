@@ -79,6 +79,19 @@ export async function adminDeleteComponentDesignProperty(pw: string, componentKe
     p_property: property,
   });
 }
+export async function adminApplyComponentDesign(
+  pw: string,
+  componentKey: string,
+  resetProperties: string[],
+  values: ComponentDesignValues,
+) {
+  await sbRpc('admin_apply_component_design', {
+    p_pw: pw,
+    p_component_key: componentKey,
+    p_reset_properties: resetProperties,
+    p_values: values,
+  });
+}
 
 export type FeedbackStatus = 'pending' | 'published' | 'rejected';
 

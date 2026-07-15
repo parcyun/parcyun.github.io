@@ -35,6 +35,29 @@ export function materializeDesignValue(value: DesignValue): DesignValue {
   return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== DESIGN_RESET));
 }
 
+const COLOR = /^(#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}(?:\s*,\s*(?:0|1|0?\.\d+))?\s*\)|hsla?\([^;{}]+\)|transparent)$/i;
+const NONNEGATIVE_DIMENSIONS = /^(?:0|\d+(?:\.\d+)?(?:px|rem|em|%|vh|vw))(?:\s+(?:0|\d+(?:\.\d+)?(?:px|rem|em|%|vh|vw))){0,3}$/i;
+const SIGNED_DIMENSIONS = /^(?:0|-?\d+(?:\.\d+)?(?:px|rem|em|%|vh|vw))(?:\s+(?:0|-?\d+(?:\.\d+)?(?:px|rem|em|%|vh|vw))){0,3}$/i;
+
+export function validateSiteDesignValue(property: string, value: string): boolean {
+  if (typeof value !== 'string' || value.length > 80 || /[;{}]/.test(value)) return false;
+  if (['color', 'backgroundColor', 'borderColor'].includes(property)) return COLOR.test(value);
+  if (property === 'fontFamily') return /^[\p{L}\p{N}\s,'"_-]+$/u.test(value);
+  if (['fontSize', 'padding', 'borderRadius', 'borderWidth'].includes(property)) return NONNEGATIVE_DIMENSIONS.test(value);
+  if (['letterSpacing', 'margin'].includes(property)) return SIGNED_DIMENSIONS.test(value);
+  if (property === 'lineHeight') return value === 'normal' || /^(?:\d+(?:\.\d+)?|0|\d+(?:\.\d+)?(?:px|rem|em|%))$/i.test(value);
+  if (property === 'opacity') return /^(?:0(?:\.\d+)?|\.\d+|1(?:\.0+)?)$/.test(value) && Number(value) >= 0 && Number(value) <= 1;
+  if (property === 'fontWeight') return /^(?:normal|bold|[1-9]00)$/.test(value);
+  if (property === 'visibility') return /^(?:visible|hidden)$/.test(value);
+  if (property === 'textAlign') return /^(?:left|center|right)$/.test(value);
+  if (property === 'borderStyle') return /^(?:solid|dashed|dotted|none)$/.test(value);
+  return false;
+}
+
+export function isDesignToggleChecked(value: string, offValue: string): boolean {
+  return value !== offValue;
+}
+
 export function pushDraftHistory(history: DesignValue[], next: DesignValue, limit = 30): DesignValue[] {
   return [...history, { ...next }].slice(-limit);
 }

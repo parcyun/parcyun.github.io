@@ -252,3 +252,63 @@ test('additive migration allows page visibility, text alignment, and border styl
   assert.match(migration, /left\|center\|right/);
   assert.match(migration, /solid\|dashed\|dotted\|none/);
 });
+
+test('component reset keys and changed values are applied by one atomic RPC', async () => {
+  const migration = await read('supabase/migrations/0016_atomic_component_design_apply.sql');
+  assert.match(migration, /admin_apply_component_design/);
+  assert.match(migration, /p_reset_properties text\[\]/);
+  assert.match(migration, /p_values jsonb/);
+  assert.match(migration, /delete from public\.component_design[\s\S]*perform public\.admin_save_component_design/);
+  assert.doesNotMatch(migration, /exception\s+when/i);
+  const manager = await read('src/components/FooterComponentManager.tsx');
+  assert.match(manager, /adminApplyComponentDesign/);
+  assert.doesNotMatch(manager, /Promise\.all\(resetKeys/);
+});
+
+test('site design validator accepts safe values and rejects malformed CSS', async () => {
+  const { validateSiteDesignValue } = await import('../src/lib/studioDesign.ts');
+  const accepted = [
+    ['color', '#FFB11A'], ['backgroundColor', 'rgba(0,0,0,.82)'], ['fontFamily', "'Montserrat','Pretendard Variable',sans-serif"],
+    ['fontSize', '16px'], ['margin', '-4px 8px'], ['padding', '4px 12px'], ['opacity', '.65'], ['fontWeight', '600'],
+    ['visibility', 'hidden'], ['textAlign', 'center'], ['borderStyle', 'dashed'],
+  ];
+  const rejected = [
+    ['color', 'red;display:none'], ['fontFamily', 'Arial;url(x)'], ['fontSize', '-2px'], ['padding', '-1px'],
+    ['opacity', '1.5'], ['fontWeight', '950'], ['visibility', 'collapse'], ['textAlign', 'justify'], ['borderStyle', 'double'],
+  ];
+  for (const [key, value] of accepted) assert.equal(validateSiteDesignValue(key, value), true, `${key}: ${value}`);
+  for (const [key, value] of rejected) assert.equal(validateSiteDesignValue(key, value), false, `${key}: ${value}`);
+  const migration = await read('supabase/migrations/0015_site_design_extended_properties.sql');
+  for (const property of ['color', 'backgroundColor', 'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'padding', 'margin', 'borderRadius', 'borderColor', 'borderWidth', 'opacity']) assert.match(migration, new RegExp(`v_property[^\\n]*${property}|${property}[^\\n]*v_property`));
+});
+
+test('footer draft history uses a pure reducer without nested state updates', async () => {
+  const manager = await read('src/components/FooterComponentManager.tsx');
+  assert.match(manager, /useReducer/);
+  assert.match(manager, /function designStateReducer/);
+  assert.doesNotMatch(manager, /setDraft\([\s\S]{0,220}setHistory/);
+});
+
+test('visibility toggles use explicit on and off values while reset stays separate', async () => {
+  const { isDesignToggleChecked } = await import('../src/lib/studioDesign.ts');
+  const inspector = await read('src/components/design/DesignInspector.tsx');
+  const field = await read('src/components/design/DesignField.tsx');
+  assert.match(inspector, /onValue: 'visible'/);
+  assert.match(inspector, /offValue: 'hidden'/);
+  assert.match(inspector, /onValue: 'flex'/);
+  assert.match(inspector, /offValue: 'none'/);
+  assert.match(field, /definition\.onValue/);
+  assert.match(field, /isDesignToggleChecked\(resolved\.value, definition\.offValue/);
+  assert.equal(isDesignToggleChecked('hidden', 'hidden'), false);
+  assert.equal(isDesignToggleChecked('visible', 'hidden'), true);
+  assert.equal(isDesignToggleChecked('flex', 'none'), true);
+});
+
+test('invalid HEX input reports an inline error and reverts to the resolved value', async () => {
+  const field = await read('src/components/design/DesignField.tsx');
+  assert.match(field, /setColorError/);
+  assert.match(field, /올바른 6자리 HEX/);
+  assert.match(field, /setColorDraft\(resolved\.value\)/);
+  assert.match(field, /aria-invalid/);
+  assert.match(field, /role="alert"/);
+});

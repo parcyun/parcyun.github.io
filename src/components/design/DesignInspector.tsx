@@ -5,8 +5,8 @@ import DesignField from './DesignField';
 import type { DesignFieldDefinition } from './DesignField';
 
 const DEFINITIONS: Record<string, DesignFieldDefinition> = {
-  visibility: { key: 'visibility', label: 'Visibility', kind: 'toggle', offValue: 'hidden' },
-  display: { key: 'display', label: 'Visibility', kind: 'toggle', offValue: 'none' },
+  visibility: { key: 'visibility', label: 'Visibility', kind: 'toggle', onValue: 'visible', offValue: 'hidden' },
+  display: { key: 'display', label: 'Visibility', kind: 'toggle', onValue: 'flex', offValue: 'none' },
   fontFamily: { key: 'fontFamily', label: 'Family', kind: 'select', options: [{ value: 'Montserrat', label: 'Montserrat' }, { value: 'Pretendard Variable', label: 'Pretendard' }, { value: 'serif', label: 'Serif' }] },
   fontSize: { key: 'fontSize', label: 'Size', kind: 'number-unit' },
   fontWeight: { key: 'fontWeight', label: 'Weight', kind: 'select', options: ['300', '400', '500', '600', '700'].map((value) => ({ value, label: value })) },

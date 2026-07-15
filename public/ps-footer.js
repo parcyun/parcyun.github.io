@@ -42,13 +42,16 @@
     + '<h3 class="coffee-title" id="coffee-title">커피 대신, 같이 뭔가 만들어볼까요?</h3><p class="coffee-sub" id="coffee-sub">커피는 제가 알아서 마실게요. 교실을 바꿀 아이디어나 함께 만들고 싶은 프로젝트가 있다면 메일 한 통 보내주세요.</p>'
     + '<a class="coffee-email" id="coffee-email" href="mailto:pen.layered@gmail.com">' + coffeeEmail + '</a><div class="coffee-actions"><button class="coffee-copy" id="coffee-copy" type="button">주소 복사</button><a class="coffee-mail" href="mailto:pen.layered@gmail.com">협업 메일 쓰기</a></div>'
     + '</div></div>';
+  if (previewConfig && previewConfig.enabled) host.addEventListener('click', function (event) {
+    if (event.target.closest && event.target.closest('a[href]')) event.preventDefault();
+  });
 
   var style = document.createElement('style');
   style.id = 'ps-footer-style';
   style.textContent = `
     .ps-has-footer-links{display:flex;flex-direction:column;min-height:100vh}
     #ps-footer-root{--ps-footer-primary:#ffb11a;--ps-footer-color:#8c8c8c;--ps-footer-muted:#8c8c8c;--ps-footer-bg:rgba(0,0,0,.82);--ps-footer-border:rgba(255,255,255,.08);--ps-footer-border-width:1px;--ps-footer-font-family:'Montserrat','Pretendard Variable','Pretendard',sans-serif;--ps-footer-font-size:11px;--ps-footer-font-weight:400;--ps-footer-line-height:normal;--ps-footer-letter-spacing:.3px;--ps-footer-padding:4px 12px;--ps-footer-margin:0;--ps-footer-gap:8px;--ps-footer-radius:100px;--ps-footer-opacity:1;--ps-footer-display:flex;--ps-footer-signature:'Covered By Your Grace',cursive}
-    #ps-footer-root .ps-footer{position:static;flex-shrink:0;margin-top:auto;width:100%;background:var(--ps-footer-bg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:var(--ps-footer-border-width) solid var(--ps-footer-border);font-family:var(--ps-footer-font-family);font-size:var(--ps-footer-font-size);font-weight:var(--ps-footer-font-weight);line-height:var(--ps-footer-line-height);letter-spacing:var(--ps-footer-letter-spacing);color:var(--ps-footer-color);opacity:var(--ps-footer-opacity)}
+    #ps-footer-root .ps-footer{position:static;display:var(--ps-footer-display);flex-shrink:0;margin-top:auto;width:100%;background:var(--ps-footer-bg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:var(--ps-footer-border-width) solid var(--ps-footer-border);font-family:var(--ps-footer-font-family);font-size:var(--ps-footer-font-size);font-weight:var(--ps-footer-font-weight);line-height:var(--ps-footer-line-height);letter-spacing:var(--ps-footer-letter-spacing);color:var(--ps-footer-color);opacity:var(--ps-footer-opacity)}
     #ps-footer-root .ps-footer-inner{max-width:1108px;margin:0 auto;padding:16px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:var(--ps-footer-gap)}@media(min-width:768px){#ps-footer-root .ps-footer-inner{padding:18px 48px}}
     #ps-footer-root .ps-flinks{display:flex;flex-wrap:wrap;align-items:center;gap:0;row-gap:4px;line-height:var(--ps-footer-line-height)}#ps-footer-root .ps-flink{font:inherit;letter-spacing:inherit;color:var(--ps-footer-muted);text-decoration:none;background:transparent;border:0;cursor:pointer;padding:0 10px;border-right:var(--ps-footer-border-width) solid var(--ps-footer-border);transition:color .18s}#ps-footer-root .ps-flink:last-of-type{border-right:0}#ps-footer-root .ps-flink:first-child{padding-left:0}#ps-footer-root .ps-flink:hover{color:var(--ps-footer-primary)}
     #ps-footer-root .ps-brand-fixed{position:fixed;right:20px;bottom:calc(var(--ps-footer-h,0px) + 10px);z-index:9989;display:var(--ps-footer-display);align-items:center;gap:var(--ps-footer-gap);font-family:var(--ps-footer-font-family);font-weight:var(--ps-footer-font-weight);font-size:var(--ps-footer-font-size);line-height:var(--ps-footer-line-height);letter-spacing:var(--ps-footer-letter-spacing);color:var(--ps-footer-color);white-space:nowrap;background:var(--ps-footer-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:var(--ps-footer-padding);margin:var(--ps-footer-margin);border-radius:var(--ps-footer-radius);border:var(--ps-footer-border-width) solid var(--ps-footer-border);opacity:var(--ps-footer-opacity)}
@@ -96,8 +99,11 @@
       if (cssVar) host.style.setProperty(cssVar, value);
     });
   }
-  window.addEventListener('message', function (event) {
-    if (event.origin !== location.origin || !event.data || event.data.type !== 'ps-footer-preview-design') return;
+  function isTrustedPreviewMessage(event) {
+    return event.source === window.parent && event.origin === location.origin && event.data && event.data.type === 'ps-footer-preview-design';
+  }
+  if (previewConfig && previewConfig.enabled) window.addEventListener('message', function (event) {
+    if (!isTrustedPreviewMessage(event)) return;
     ['--ps-footer-primary','--ps-footer-bg','--ps-footer-font-family','--ps-footer-font-size','--ps-footer-font-weight','--ps-footer-line-height','--ps-footer-letter-spacing','--ps-footer-padding','--ps-footer-margin','--ps-footer-radius','--ps-footer-border','--ps-footer-border-width','--ps-footer-opacity','--ps-footer-display'].forEach(function (property) { host.style.removeProperty(property); });
     applyComponentDesign(Object.entries(event.data.values || {}).map(function (entry) { return { property: entry[0], value: entry[1] }; }));
     setVars();

@@ -39,7 +39,7 @@ export default function FooterPreview({ values, context: initialContext = 'home'
     </div>
     <div className={`cs-footer-frame ${viewport}`}>
       <span className="cs-footer-badge">Shared footer</span>
-      <iframe ref={frame} key={context} src={`/footer-preview.html?context=${context}`} title={`${CONTEXTS.find((item) => item.value === context)?.label} 공용 푸터 미리보기`} onLoad={sendValues} />
+      <iframe ref={frame} key={context} src={`/footer-preview.html?context=${context}`} sandbox="allow-scripts allow-same-origin" title={`${CONTEXTS.find((item) => item.value === context)?.label} 공용 푸터 미리보기`} onLoad={sendValues} />
     </div>
   </section>;
 }

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import vm from 'node:vm';
 
 const root = new URL('../', import.meta.url);
 const read = async (path) => readFile(new URL(path, root), 'utf8').catch(() => '');
@@ -146,4 +147,35 @@ test('mobile footer keeps editable sizing tokens and preview switches preserve t
   assert.match(preview, /postMessage\(\{ type: 'ps-footer-preview-design', values \}/);
   assert.match(preview, /useEffect\(sendValues, \[values, context\]\)/);
   assert.doesNotMatch(preview, /setValues|setDraft/);
+});
+
+test('preview design messages are rejected outside the trusted parent preview channel', async () => {
+  const footer = await read('public/ps-footer.js');
+  assert.match(footer, /if\s*\(previewConfig\s*&&\s*previewConfig\.enabled\)\s*window\.addEventListener\('message'/);
+  assert.match(footer, /event\.source\s*===\s*window\.parent/);
+  assert.match(footer, /event\.origin\s*===\s*location\.origin/);
+  const guard = footer.match(/function isTrustedPreviewMessage\(event\)\s*\{[\s\S]*?\n\s*\}/)?.[0] || '';
+  assert.ok(guard);
+  const parent = {};
+  const context = { parent, window: { parent }, event: null, result: null, location: { origin: 'https://studio.test' } };
+  vm.createContext(context);
+  vm.runInContext(`${guard}; result = [
+    isTrustedPreviewMessage({ source: parent, origin: 'https://studio.test', data: { type: 'ps-footer-preview-design' } }),
+    isTrustedPreviewMessage({ source: {}, origin: 'https://studio.test', data: { type: 'ps-footer-preview-design' } }),
+    isTrustedPreviewMessage({ source: parent, origin: 'https://evil.test', data: { type: 'ps-footer-preview-design' } })
+  ]`, context);
+  assert.deepEqual(Array.from(context.result), [true, false, false]);
+});
+
+test('footer visibility token hides both shared footer surfaces', async () => {
+  const footer = await read('public/ps-footer.js');
+  assert.match(footer, /\.ps-footer\{[^}]*display:var\(--ps-footer-display\)/);
+  assert.match(footer, /\.ps-brand-fixed\{[^}]*display:var\(--ps-footer-display\)/);
+});
+
+test('preview iframe is sandboxed and preview links cannot navigate it', async () => {
+  const preview = await read('src/components/design/FooterPreview.tsx');
+  const footer = await read('public/ps-footer.js');
+  assert.match(preview, /sandbox="allow-scripts allow-same-origin"/);
+  assert.match(footer, /previewConfig[\s\S]*addEventListener\('click'[\s\S]*preventDefault\(\)/);
 });

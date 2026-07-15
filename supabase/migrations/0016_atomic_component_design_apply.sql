@@ -7,19 +7,19 @@ create or replace function public.admin_apply_component_design(
 ) returns void
 language plpgsql security definer set search_path = public as $$
 declare
-  property text;
+  v_property text;
   allowed constant text[] := array['color','backgroundColor','fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','padding','margin','borderRadius','borderColor','borderWidth','opacity','display'];
 begin
   if not public.admin_check(p_pw) then raise exception 'unauthorized'; end if;
   if p_component_key is null or char_length(p_component_key) not between 1 and 80 then raise exception 'invalid component key'; end if;
 
-  foreach property in array coalesce(p_reset_properties, array[]::text[]) loop
-    if not (property = any(allowed)) then raise exception '허용되지 않은 디자인 속성입니다: %', property; end if;
+  foreach v_property in array coalesce(p_reset_properties, array[]::text[]) loop
+    if not (v_property = any(allowed)) then raise exception '허용되지 않은 디자인 속성입니다: %', v_property; end if;
   end loop;
 
-  delete from public.component_design
-  where component_key = p_component_key
-    and property = any(coalesce(p_reset_properties, array[]::text[]));
+  delete from public.component_design as cd
+  where cd.component_key = p_component_key
+    and cd.property = any(coalesce(p_reset_properties, array[]::text[]));
 
   -- Any validation error in the existing constrained upsert aborts and rolls back the delete above.
   perform public.admin_save_component_design(p_pw, p_component_key, coalesce(p_values, '{}'::jsonb));

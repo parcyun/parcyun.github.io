@@ -260,6 +260,11 @@ test('component reset keys and changed values are applied by one atomic RPC', as
   assert.match(migration, /p_values jsonb/);
   assert.match(migration, /delete from public\.component_design[\s\S]*perform public\.admin_save_component_design/);
   assert.doesNotMatch(migration, /exception\s+when/i);
+  assert.match(migration, /delete from public\.component_design as cd/);
+  assert.match(migration, /cd\.component_key = p_component_key/);
+  assert.match(migration, /cd\.property = any/);
+  assert.match(migration, /foreach v_property in array/);
+  assert.doesNotMatch(migration, /foreach property in array/);
   const manager = await read('src/components/FooterComponentManager.tsx');
   assert.match(manager, /adminApplyComponentDesign/);
   assert.doesNotMatch(manager, /Promise\.all\(resetKeys/);

@@ -9,8 +9,8 @@ import { DESIGN_RESET, materializeDesignValue, pushDraftHistory, undoDraft } fro
 import FooterPreview from './design/FooterPreview';
 import DesignInspector from './design/DesignInspector';
 
-const FOOTER_FIELDS = ['display', 'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'color', 'backgroundColor', 'padding', 'borderRadius', 'opacity'] as const;
-const DEFAULTS: DesignValue = { display: 'flex', color: '#FFB11A', backgroundColor: '#000000', fontFamily: 'Montserrat', fontSize: '11px', fontWeight: '400', lineHeight: 'normal', letterSpacing: '.3px', padding: '4px 12px', borderRadius: '100px', opacity: '1' };
+const FOOTER_FIELDS = ['display', 'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'color', 'foregroundColor', 'mutedColor', 'backgroundColor', 'padding', 'borderRadius', 'opacity'] as const;
+const DEFAULTS: DesignValue = { display: 'flex', color: '#FFB11A', foregroundColor: '#8C8C8C', mutedColor: '#8C8C8C', backgroundColor: '#000000', fontFamily: 'Montserrat', fontSize: '11px', fontWeight: '400', lineHeight: 'normal', letterSpacing: '.3px', padding: '4px 12px', borderRadius: '100px', opacity: '1' };
 
 function errorMessage(error: unknown) { return error instanceof Error ? error.message : '처리하지 못했습니다.'; }
 type DesignState = { draft: DesignValue; history: DesignValue[] };

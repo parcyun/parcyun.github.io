@@ -90,12 +90,12 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(setVars);
 
   function applyComponentDesign(rows) {
-    var allowed = ['color','backgroundColor','fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','padding','margin','borderRadius','borderColor','borderWidth','opacity','display'];
+    var allowed = ['color','foregroundColor','mutedColor','backgroundColor','fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','padding','margin','borderRadius','borderColor','borderWidth','opacity','display'];
     (rows || []).forEach(function (row) {
       if (!row || allowed.indexOf(row.property) < 0 || typeof row.value !== 'string') return;
       var value = row.value.trim();
       if (!value || value.length > 160 || /[<>;{}]/.test(value)) return;
-      var cssVar = {'color':'--ps-footer-primary','backgroundColor':'--ps-footer-bg','fontFamily':'--ps-footer-font-family','fontSize':'--ps-footer-font-size','fontWeight':'--ps-footer-font-weight','lineHeight':'--ps-footer-line-height','letterSpacing':'--ps-footer-letter-spacing','padding':'--ps-footer-padding','margin':'--ps-footer-margin','borderRadius':'--ps-footer-radius','borderColor':'--ps-footer-border','borderWidth':'--ps-footer-border-width','opacity':'--ps-footer-opacity','display':'--ps-footer-display'}[row.property];
+      var cssVar = {'color':'--ps-footer-primary','foregroundColor':'--ps-footer-color','mutedColor':'--ps-footer-muted','backgroundColor':'--ps-footer-bg','fontFamily':'--ps-footer-font-family','fontSize':'--ps-footer-font-size','fontWeight':'--ps-footer-font-weight','lineHeight':'--ps-footer-line-height','letterSpacing':'--ps-footer-letter-spacing','padding':'--ps-footer-padding','margin':'--ps-footer-margin','borderRadius':'--ps-footer-radius','borderColor':'--ps-footer-border','borderWidth':'--ps-footer-border-width','opacity':'--ps-footer-opacity','display':'--ps-footer-display'}[row.property];
       if (cssVar) host.style.setProperty(cssVar, value);
     });
   }
@@ -104,7 +104,7 @@
   }
   if (previewConfig && previewConfig.enabled) window.addEventListener('message', function (event) {
     if (!isTrustedPreviewMessage(event)) return;
-    ['--ps-footer-primary','--ps-footer-bg','--ps-footer-font-family','--ps-footer-font-size','--ps-footer-font-weight','--ps-footer-line-height','--ps-footer-letter-spacing','--ps-footer-padding','--ps-footer-margin','--ps-footer-radius','--ps-footer-border','--ps-footer-border-width','--ps-footer-opacity','--ps-footer-display'].forEach(function (property) { host.style.removeProperty(property); });
+    ['--ps-footer-primary','--ps-footer-color','--ps-footer-muted','--ps-footer-bg','--ps-footer-font-family','--ps-footer-font-size','--ps-footer-font-weight','--ps-footer-line-height','--ps-footer-letter-spacing','--ps-footer-padding','--ps-footer-margin','--ps-footer-radius','--ps-footer-border','--ps-footer-border-width','--ps-footer-opacity','--ps-footer-display'].forEach(function (property) { host.style.removeProperty(property); });
     applyComponentDesign(Object.entries(event.data.values || {}).map(function (entry) { return { property: entry[0], value: entry[1] }; }));
     setVars();
   });

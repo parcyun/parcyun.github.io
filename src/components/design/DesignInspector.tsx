@@ -14,6 +14,8 @@ const DEFINITIONS: Record<string, DesignFieldDefinition> = {
   letterSpacing: { key: 'letterSpacing', label: 'Letter spacing', kind: 'number-unit' },
   textAlign: { key: 'textAlign', label: 'Align', kind: 'select', options: ['left', 'center', 'right'].map((value) => ({ value, label: value })) },
   color: { key: 'color', label: 'Text color', kind: 'color' },
+  foregroundColor: { key: 'foregroundColor', label: 'Foreground', kind: 'color' },
+  mutedColor: { key: 'mutedColor', label: 'Muted text', kind: 'color' },
   backgroundColor: { key: 'backgroundColor', label: 'Background', kind: 'color' },
   borderColor: { key: 'borderColor', label: 'Color', kind: 'color' },
   borderWidth: { key: 'borderWidth', label: 'Width', kind: 'number-unit' },
@@ -26,7 +28,7 @@ const DEFINITIONS: Record<string, DesignFieldDefinition> = {
 
 const SECTIONS = [
   { id: 'text', label: 'Text', fields: ['visibility', 'display'] },
-  { id: 'typography', label: 'Typography', fields: ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'textAlign', 'color'] },
+  { id: 'typography', label: 'Typography', fields: ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'textAlign', 'color', 'foregroundColor', 'mutedColor'] },
   { id: 'fill', label: 'Fill', fields: ['backgroundColor'] },
   { id: 'stroke', label: 'Stroke', fields: ['borderColor', 'borderWidth', 'borderStyle'] },
   { id: 'layout', label: 'Layout', fields: ['padding', 'margin', 'borderRadius'] },

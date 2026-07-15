@@ -118,6 +118,36 @@ test('every exposed footer property is consumed through CSS variables', async ()
   assert.doesNotMatch(footer, /color:\s*#FFB11A/);
 });
 
+test('footer exposes independent primary, foreground, and muted color controls and tokens', async () => {
+  const footer = await read('public/ps-footer.js');
+  const manager = await read('src/components/FooterComponentManager.tsx');
+  for (const property of ['color', 'foregroundColor', 'mutedColor']) {
+    assert.match(manager, new RegExp(`['"]${property}['"]`));
+    assert.match(footer, new RegExp(`['"]${property}['"]`));
+  }
+  assert.match(footer, /'foregroundColor':'--ps-footer-color'/);
+  assert.match(footer, /'mutedColor':'--ps-footer-muted'/);
+  assert.match(footer, /var\(--ps-footer-primary\)/);
+  assert.match(footer, /var\(--ps-footer-color\)/);
+  assert.match(footer, /var\(--ps-footer-muted\)/);
+});
+
+test('0017 validates and persists the two new footer text colors across all write RPCs', async () => {
+  const migration = await read('supabase/migrations/0017_footer_text_colors.sql');
+  for (const property of ['foregroundColor', 'mutedColor']) {
+    assert.ok((migration.match(new RegExp(property, 'g')) || []).length >= 4, property);
+  }
+  assert.match(migration, /item\.key in \('color',\s*'foregroundColor',\s*'mutedColor',\s*'backgroundColor',\s*'borderColor'\)/);
+  assert.match(migration, /admin_delete_component_design_property/);
+  assert.match(migration, /admin_apply_component_design/);
+  assert.match(migration, /on conflict\s*\(component_key,\s*property\)\s*do update/i);
+  const literal = migration.match(/item\.key in \('color',[\s\S]*?value_text !~\* '([^']+)'/)?.[1];
+  assert.ok(literal);
+  const color = new RegExp(literal, 'i');
+  for (const accepted of ['#8C8C8C', '#fff', 'rgba(140,140,140,.8)', 'transparent']) assert.equal(color.test(accepted), true, accepted);
+  for (const rejected of ['#12', 'red;display:none', 'url(javascript:x)', 'rgb(foo)']) assert.equal(color.test(rejected), false, rejected);
+});
+
 test('component preview loads the production footer runtime', async () => {
   const preview = await read('public/footer-preview.html');
   assert.match(preview, /src="\/ps-footer\.js"/);

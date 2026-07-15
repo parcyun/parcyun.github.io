@@ -105,3 +105,20 @@ test('font family accepts quoted fallback lists and rejects CSS injection delimi
     assert.equal(fontFamily.test(rejected), false, rejected);
   }
 });
+
+test('every exposed footer property is consumed through CSS variables', async () => {
+  const footer = await read('public/ps-footer.js');
+  for (const token of [
+    '--ps-footer-primary', '--ps-footer-color', '--ps-footer-bg',
+    '--ps-footer-font-family', '--ps-footer-font-size', '--ps-footer-font-weight',
+    '--ps-footer-line-height', '--ps-footer-letter-spacing', '--ps-footer-padding',
+    '--ps-footer-radius', '--ps-footer-opacity',
+  ]) assert.match(footer, new RegExp(`var\\(${token}`));
+  assert.doesNotMatch(footer, /color:\s*#FFB11A/);
+});
+
+test('component preview loads the production footer runtime', async () => {
+  const preview = await read('public/footer-preview.html');
+  assert.match(preview, /src="\/ps-footer\.js"/);
+  assert.match(preview, /ps-footer-preview-design/);
+});

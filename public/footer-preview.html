@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>공용 푸터 미리보기</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#11100f;color:#f5f3ef;font-family:Pretendard,system-ui,sans-serif}body{min-height:100vh;display:flex;flex-direction:column}.preview-page{flex:1;display:grid;place-items:center;padding:40px 24px;background:radial-gradient(circle at 50% 35%,#29251e 0,#171513 42%,#0f0e0d 100%)}.preview-copy{text-align:center}.preview-copy small{font:10px Montserrat,sans-serif;letter-spacing:.14em;color:#ffb11a}.preview-copy p{margin:10px 0 0;font-size:13px;color:#aaa49b}[data-ps-footer]{position:relative;z-index:2}
+  </style>
+  <script>
+    const params = new URLSearchParams(location.search);
+    window.__psFooterPreviewConfig = { enabled: true, context: params.get('context') || 'home', messageType: 'ps-footer-preview-design' };
+  </script>
+</head>
+<body>
+  <main class="preview-page"><div class="preview-copy"><small>LIVE COMPONENT</small><p>실제 페이지 런타임으로 렌더링됩니다.</p></div></main>
+  <div data-ps-footer></div>
+  <script src="/ps-footer.js"></script>
+  <script>parent.postMessage({ type: 'ps-footer-preview-ready' }, location.origin);</script>
+</body>
+</html>

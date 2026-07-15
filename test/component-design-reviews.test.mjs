@@ -122,3 +122,28 @@ test('component preview loads the production footer runtime', async () => {
   assert.match(preview, /src="\/ps-footer\.js"/);
   assert.match(preview, /ps-footer-preview-design/);
 });
+
+test('footer preview contexts mirror the real page footer hosts', async () => {
+  const footer = await read('public/ps-footer.js');
+  for (const [context, links, feedback, review] of [
+    ['home', true, false, true],
+    ['atlas', false, true, true],
+    ['geoweb', false, true, true],
+    ['spell', false, true, true],
+  ]) {
+    assert.match(footer, new RegExp(`${context}:\\s*\\{\\s*showLinks:\\s*${links},\\s*showFeedback:\\s*${feedback},\\s*showReview:\\s*${review}`));
+  }
+});
+
+test('mobile footer keeps editable sizing tokens and preview switches preserve the draft', async () => {
+  const footer = await read('public/ps-footer.js');
+  const preview = await read('src/components/design/FooterPreview.tsx');
+  const mobile = footer.match(/@media\(max-width:480px\)\{[\s\S]*?\n\s*\}/)?.[0] || '';
+  assert.doesNotMatch(mobile, /font-size:\s*10px|padding:\s*3px 10px|gap:\s*6px/);
+  assert.match(mobile, /var\(--ps-footer-font-size\)/);
+  assert.match(mobile, /var\(--ps-footer-padding\)/);
+  assert.match(mobile, /var\(--ps-footer-gap\)/);
+  assert.match(preview, /postMessage\(\{ type: 'ps-footer-preview-design', values \}/);
+  assert.match(preview, /useEffect\(sendValues, \[values, context\]\)/);
+  assert.doesNotMatch(preview, /setValues|setDraft/);
+});

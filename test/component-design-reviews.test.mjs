@@ -52,3 +52,11 @@ test('shared footer exposes review action and applies component design values', 
   assert.match(studio, /리뷰 관리/);
   assert.match(admin, /adminSetReviewStatus/);
 });
+
+test('component design migration upserts properties without deleting siblings', async () => {
+  const migration = await read('supabase/migrations/0013_component_design_property_updates.sql');
+  const saveBody = migration.match(/create or replace function public\.admin_save_component_design[\s\S]*?\$\$;/i)?.[0] || '';
+  assert.match(saveBody, /on conflict\s*\(component_key,\s*property\)\s*do update/i);
+  assert.doesNotMatch(saveBody, /delete from public\.component_design/i);
+  assert.match(migration, /admin_delete_component_design_property/i);
+});

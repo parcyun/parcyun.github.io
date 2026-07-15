@@ -13,6 +13,8 @@
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;   // 미설정 시 완전 무동작
   if (window.__psVisitorCounter) return;
   window.__psVisitorCounter = true;
+  var LOCAL_HOSTS = { localhost: true, '127.0.0.1': true, '::1': true };
+  if (LOCAL_HOSTS[location.hostname]) return;
 
   var path = (location.pathname || '/').replace(/index\.html$/, '');
   if (path === '') path = '/';

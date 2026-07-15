@@ -54,11 +54,24 @@ export async function adminSaveSiteDesign(pw: string, key: string, value: Record
 export async function adminDeleteSiteDesign(pw: string, key: string) { await sbRpc('admin_delete_site_design', { p_pw: pw, p_key: key }); }
 
 export type ComponentDesignValues = Record<string, string>;
+export async function listComponentDesign(componentKey: string): Promise<ComponentDesignValues> {
+  const rows = (await sbRpc<Array<{ property: string; value: string }>>('list_component_design', {
+    p_component_key: componentKey,
+  })) || [];
+  return Object.fromEntries(rows.map(({ property, value }) => [property, value]));
+}
 export async function adminSaveComponentDesign(pw: string, componentKey: string, values: ComponentDesignValues) {
   await sbRpc('admin_save_component_design', { p_pw: pw, p_component_key: componentKey, p_values: values });
 }
 export async function adminDeleteComponentDesign(pw: string, componentKey: string) {
   await sbRpc('admin_delete_component_design', { p_pw: pw, p_component_key: componentKey });
+}
+export async function adminDeleteComponentDesignProperty(pw: string, componentKey: string, property: string) {
+  await sbRpc('admin_delete_component_design_property', {
+    p_pw: pw,
+    p_component_key: componentKey,
+    p_property: property,
+  });
 }
 
 export type FeedbackStatus = 'pending' | 'published' | 'rejected';

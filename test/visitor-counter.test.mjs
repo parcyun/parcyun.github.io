@@ -6,6 +6,29 @@ import vm from 'node:vm';
 const sourceUrl = new URL('../public/visitor-counter.js', import.meta.url);
 const resetMigrationUrl = new URL('../supabase/migrations/0011_visit_counter_day_boundary.sql', import.meta.url);
 
+async function executeCounter({ hostname, pathname = '/' }) {
+  const calls = [];
+  const document = {
+    readyState: 'complete',
+    createElement() { return {}; },
+    getElementById() { return null; },
+    head: { appendChild() {} },
+    body: { appendChild() {} },
+  };
+  const context = {
+    window: {},
+    document,
+    location: { hostname, pathname },
+    fetch: async (url) => {
+      calls.push(url);
+      return { ok: true, json: async () => ({ page_today: 1, page_total: 1 }) };
+    },
+  };
+  vm.runInNewContext(await readFile(sourceUrl, 'utf8'), context);
+  await new Promise((resolve) => setImmediate(resolve));
+  return calls;
+}
+
 test('visitor day boundary uses 06:00 Asia/Seoul for writes and totals', async () => {
   const migration = await readFile(resetMigrationUrl, 'utf8');
   const visitorDay = "timezone('Asia/Seoul', now() - interval '6 hours')::date";
@@ -35,7 +58,7 @@ test('ATLAS GEARS renders the total for its configured internal pages', async ()
       ],
     },
     document,
-    location: { pathname: '/atlas-gears/' },
+    location: { hostname: 'parcyun.github.io', pathname: '/atlas-gears/' },
     fetch: async (url, options) => {
       calls.push({ url, body: JSON.parse(options.body) });
       if (url.endsWith('/bump_visit')) {
@@ -56,4 +79,11 @@ test('ATLAS GEARS renders the total for its configured internal pages', async ()
   assert.deepEqual(calls[1].body, { p_paths: context.window.__psVisitorScopePaths });
   assert.match(elements.get('visitor-stats').innerHTML, /오늘 <b>7<\/b>/);
   assert.match(elements.get('visitor-stats').innerHTML, /전체 <b>42<\/b>/);
+});
+
+test('localhost and loopback hosts never increment production visits', async () => {
+  for (const hostname of ['localhost', '127.0.0.1', '::1']) {
+    const calls = await executeCounter({ hostname, pathname: '/admin/' });
+    assert.equal(calls.some((url) => url.endsWith('/bump_visit')), false);
+  }
 });

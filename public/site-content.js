@@ -39,8 +39,22 @@
     }
     return out;
   }
-  function keyOf(el, index) { return path() + '::' + el.tagName + '::' + index; }
-  function designId(el, index) { return el.tagName.toLowerCase() + '-' + index; }
+  function legacyKeyOf(el, index) { return path() + '::' + el.tagName + '::' + index; }
+  function legacyDesignId(el, index) { return el.tagName.toLowerCase() + '-' + index; }
+  function slug(value) {
+    return String(value || '').trim().toLowerCase().replace(/[^a-z0-9가-힣_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+  }
+  function authoredId(el, attribute) {
+    var explicit = el.getAttribute(attribute);
+    if (explicit) return slug(explicit);
+    var own = el.id || el.getAttribute('name') || el.getAttribute('aria-label') || el.getAttribute('role');
+    if (own) return el.tagName.toLowerCase() + '-' + slug(own);
+    var ancestor = el.parentElement && el.parentElement.closest('[data-ps-section-id],[id]');
+    if (!ancestor) return '';
+    var scope = ancestor.getAttribute('data-ps-section-id') || ancestor.id;
+    var semantic = el.getAttribute('name') || el.getAttribute('aria-label') || el.getAttribute('role');
+    return semantic ? slug(scope) + '-' + el.tagName.toLowerCase() + '-' + slug(semantic) : '';
+  }
   function safeStyle(style) {
     var out = {};
     if (!style || typeof style !== 'object') return out;
@@ -53,19 +67,40 @@
     var clean = safeStyle(style);
     Object.keys(clean).forEach(function (name) { el.style[name] = clean[name]; });
   }
+  var loadedDesign = {};
+  function pickComputedStyle(style) {
+    var out = {};
+    if (!style) return out;
+    DESIGN_PROPERTIES.forEach(function (name) { if (style[name]) out[name] = style[name]; });
+    return out;
+  }
   function descriptor(el) {
+    var stableContentKey = el.getAttribute('data-ps-edit');
+    var oldContentKey = el.getAttribute('data-ps-legacy-edit');
+    var stableDesignKey = path() + '::' + el.getAttribute('data-ps-design');
+    var oldDesignKey = path() + '::' + el.getAttribute('data-ps-legacy-design');
     return {
-      key: el.getAttribute('data-ps-edit'),
-      designKey: path() + '::' + el.getAttribute('data-ps-design'),
+      key: stableContentKey,
+      legacyKey: oldContentKey,
+      designKey: stableDesignKey,
+      legacyDesignKey: oldDesignKey,
       label: el.tagName.toLowerCase() + ' · ' + (el.textContent || '').trim().slice(0, 52),
-      html: el.innerHTML
+      html: el.innerHTML,
+      computedStyle: pickComputedStyle(getComputedStyle(el)),
+      savedStyle: loadedDesign[stableDesignKey] || loadedDesign[oldDesignKey] || {}
     };
   }
 
   var list = editableElements();
   list.forEach(function (el, i) {
-    el.setAttribute('data-ps-edit', keyOf(el, i));
-    el.setAttribute('data-ps-design', designId(el, i));
+    var oldContentKey = legacyKeyOf(el, i);
+    var oldDesignId = legacyDesignId(el, i);
+    var editId = authoredId(el, 'data-ps-edit-id');
+    var designId = authoredId(el, 'data-ps-design-id') || editId;
+    el.setAttribute('data-ps-legacy-edit', oldContentKey);
+    el.setAttribute('data-ps-legacy-design', oldDesignId);
+    el.setAttribute('data-ps-edit', editId ? path() + '::' + editId : oldContentKey);
+    el.setAttribute('data-ps-design', designId || oldDesignId);
   });
 
   // public content overrides
@@ -73,17 +108,25 @@
     .then(function (r) { return r.ok ? r.json() : []; })
     .then(function (rows) {
       var map = {}; (rows || []).forEach(function (row) { map[row.key] = row.value; });
-      list.forEach(function (el) { var value = map[el.getAttribute('data-ps-edit')]; if (value != null) el.innerHTML = sanitize(value); });
+      list.forEach(function (el) {
+        var value = map[el.getAttribute('data-ps-edit')];
+        if (value == null) value = map[el.getAttribute('data-ps-legacy-edit')];
+        if (value != null) el.innerHTML = sanitize(value);
+      });
     }).catch(function () {});
 
   // public, constrained design overrides
   rpc('list_site_design', { p_path: path() }).then(function (rows) {
-    var map = {}; (rows || []).forEach(function (row) { map[row.key] = row.value; });
-    list.forEach(function (el) { applyStyle(el, map[path() + '::' + el.getAttribute('data-ps-design')]); });
+    loadedDesign = {}; (rows || []).forEach(function (row) { loadedDesign[row.key] = row.value; });
+    list.forEach(function (el) {
+      var stable = path() + '::' + el.getAttribute('data-ps-design');
+      var legacy = path() + '::' + el.getAttribute('data-ps-legacy-design');
+      applyStyle(el, loadedDesign[stable] || loadedDesign[legacy]);
+    });
   }).catch(function () {});
 
-  function findByTextKey(key) { return list.filter(function (el) { return el.getAttribute('data-ps-edit') === key; })[0]; }
-  function findByDesignKey(key) { return list.filter(function (el) { return path() + '::' + el.getAttribute('data-ps-design') === key; })[0]; }
+  function findByTextKey(key) { return list.filter(function (el) { return el.getAttribute('data-ps-edit') === key || el.getAttribute('data-ps-legacy-edit') === key; })[0]; }
+  function findByDesignKey(key) { return list.filter(function (el) { return path() + '::' + el.getAttribute('data-ps-design') === key || path() + '::' + el.getAttribute('data-ps-legacy-design') === key; })[0]; }
   function saveText(key, html) {
     var el = findByTextKey(key); if (!el) return Promise.reject(new Error('편집 대상을 찾지 못했습니다.'));
     var value = sanitize(html); el.innerHTML = value;

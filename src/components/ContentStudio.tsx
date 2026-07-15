@@ -21,10 +21,20 @@ import WorkEditModal from './admin/WorkEditModal';
 import FeedbackAdmin from './FeedbackAdmin';
 import FooterComponentManager from './FooterComponentManager';
 import ReviewAdmin from './ReviewAdmin';
+import { parseStudioMode } from '../lib/studioDesign';
+import type { StudioMode } from '../lib/studioDesign';
 
-type StudioElement = { key: string; designKey: string; label: string; html: string };
+type StudioElement = {
+  key: string;
+  legacyKey: string;
+  designKey: string;
+  legacyDesignKey: string;
+  label: string;
+  html: string;
+  computedStyle: DesignValue;
+  savedStyle: DesignValue;
+};
 type DesignValue = Record<string, string>;
-type StudioMode = 'page' | 'resources' | 'works' | 'components' | 'reviews' | 'feedback';
 
 const PAGES = [
   { id: 'home', label: '홈', path: '/' },
@@ -54,10 +64,17 @@ export default function ContentStudio() {
   const [careers, setCareers] = useState<CareerSection[]>([]);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
-  const [mode, setMode] = useState<StudioMode>(() => { const value = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('mode') : ''; return value === 'feedback' || value === 'components' || value === 'reviews' ? value : 'page'; });
+  const [authReady, setAuthReady] = useState(false);
+  const [password, setPassword] = useState<string | null>(null);
+  const [mode, setMode] = useState<StudioMode>('page');
   const [resourceCategory, setResourceCategory] = useState<Category>('교육 활동 자료');
   const page = useMemo(() => PAGES.find((item) => item.id === pageId) || PAGES[0], [pageId]);
-  const password = getAdminPw();
+
+  useEffect(() => {
+    setPassword(getAdminPw());
+    setMode(parseStudioMode(window.location.search));
+    setAuthReady(true);
+  }, []);
 
   function preview(): any { return frame.current?.contentWindow?.psContentStudio; }
   function inspect(enabled = true) { frame.current?.contentWindow?.postMessage({ type: 'ps-content-studio-inspect', enabled }, location.origin); }
@@ -72,10 +89,7 @@ export default function ContentStudio() {
   }
   function selectElement(element: StudioElement) {
     setSelected(element); setDraftHtml(element.html);
-    const target = frame.current?.contentDocument?.querySelector(`[data-ps-design="${CSS.escape(element.designKey.split('::').pop() || '')}"]`) as HTMLElement | null;
-    const next: DesignValue = {};
-    if (target) STYLE_FIELDS.forEach(([key]) => { if (target.style[key]) next[key] = target.style[key]; });
-    setDraftStyle(next); inspect(true);
+    setDraftStyle({ ...element.savedStyle }); inspect(true);
   }
   function onFrameLoad() { setLoading(true); setElements([]); setSelected(null); window.setTimeout(refreshElements, 350); if (page.id === 'home') refreshCareers(); }
   useEffect(() => { if (page.id === 'home') refreshCareers(); }, [page.id]);
@@ -134,6 +148,7 @@ export default function ContentStudio() {
     await saveItem({ id: nextId('career-item'), section_id: section.id, year: '현재', role: '새 경력 내용', org: '', sort: (section.items.length + 1) * 10 });
   }
 
+  if (!authReady) return <main className="cs-lock" aria-busy="true">Design Studio 불러오는 중…</main>;
   if (!password) return <main className="cs-lock"><strong>관리자 로그인이 필요합니다.</strong><a href="/admin/">관리자 로그인으로 이동 →</a></main>;
 
   function changeMode(next: StudioMode) {

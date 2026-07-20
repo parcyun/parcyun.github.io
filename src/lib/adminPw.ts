@@ -94,6 +94,7 @@ export async function adminApplyComponentDesign(
 }
 
 export type FeedbackStatus = 'pending' | 'published' | 'rejected';
+export type ServiceKey = 'home' | 'spell-drill' | 'atlas-gears' | 'geoweb' | 'other' | 'unclassified';
 
 export interface FeedbackPost {
   id: number;
@@ -103,6 +104,7 @@ export interface FeedbackPost {
   created_at: string;
   reviewed_at: string | null;
   like_count: number;
+  service_key: ServiceKey;
 }
 
 export async function adminListFeedback(pw: string): Promise<FeedbackPost[]> {
@@ -111,6 +113,12 @@ export async function adminListFeedback(pw: string): Promise<FeedbackPost[]> {
 
 export async function adminSetFeedbackStatus(pw: string, id: number, status: Exclude<FeedbackStatus, 'pending'>) {
   await sbRpc('admin_set_feedback_status', { p_pw: pw, p_id: id, p_status: status });
+}
+export async function adminSetFeedbackService(pw: string, id: number, serviceKey: ServiceKey) {
+  await sbRpc('admin_set_feedback_service', { p_pw: pw, p_id: id, p_service_key: serviceKey });
+}
+export async function adminDeleteFeedback(pw: string, id: number) {
+  await sbRpc('admin_delete_feedback', { p_pw: pw, p_id: id });
 }
 
 export type ReviewStatus = 'pending' | 'published' | 'rejected';
@@ -122,10 +130,18 @@ export interface ReviewPost {
   moderation_reason: string | null;
   created_at: string;
   reviewed_at: string | null;
+  service_key: ServiceKey;
+  like_count: number;
 }
 export async function adminListReviews(pw: string): Promise<ReviewPost[]> {
   return (await sbRpc<ReviewPost[]>('admin_list_reviews', { p_pw: pw })) || [];
 }
 export async function adminSetReviewStatus(pw: string, id: number, status: ReviewStatus) {
   await sbRpc('admin_set_review_status', { p_pw: pw, p_id: id, p_status: status });
+}
+export async function adminSetReviewService(pw: string, id: number, serviceKey: ServiceKey) {
+  await sbRpc('admin_set_review_service', { p_pw: pw, p_id: id, p_service_key: serviceKey });
+}
+export async function adminDeleteReview(pw: string, id: number) {
+  await sbRpc('admin_delete_review', { p_pw: pw, p_id: id });
 }

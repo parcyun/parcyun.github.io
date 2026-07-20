@@ -115,7 +115,7 @@ export default function ContentStudio() {
   }, []);
 
   async function saveText() {
-    if (!selected || !password) return;
+    if (!selected || !password || !designReady) return;
     try { setStatus('문구 저장 중…'); await preview().saveText(selected.key, draftHtml); setStatus('문구를 저장했습니다.'); refreshElements(); }
     catch (error) { setStatus(message(error)); }
   }
@@ -203,7 +203,7 @@ export default function ContentStudio() {
       <header><small>INSPECTOR</small><strong>{page.id === 'home' ? '홈 컴포넌트' : '컴포넌트 설정'}</strong></header>
       {status && <div className={`cs-status ${/못|실패|오류/.test(status) ? 'cs-error' : ''}`} role={/못|실패|오류/.test(status) ? 'alert' : 'status'} aria-live="polite">{status}</div>}
       <section className="cs-panel"><div className="cs-panel-head"><b>텍스트</b><span>{selected ? selected.label.split(' · ')[0] : '선택 필요'}</span></div>
-        {selected ? <><textarea value={draftHtml} onChange={(event) => { setDraftHtml(event.target.value); preview()?.previewText(selected.key, event.target.value); }} /><button className="cs-save" onClick={saveText}>문구 저장</button></> : <p className="cs-empty">미리보기의 문구를 클릭하세요.</p>}
+        {selected ? <><textarea value={draftHtml} onChange={(event) => { setDraftHtml(event.target.value); preview()?.previewText(selected.key, event.target.value); }} /><button className="cs-save" onClick={saveText} disabled={!designReady}>문구 저장</button></> : <p className="cs-empty">미리보기의 문구를 클릭하세요.</p>}
       </section>
       {selected ? <DesignInspector selected={{ label: selected.label.split(' · ').slice(1).join(' · ') || selected.label, designKey: selected.designKey, tag: selected.label.split(' · ')[0], legacy: selected.legacy }} draft={draftStyle} saved={savedStyle} computed={computedStyle} history={styleHistory} busy={designBusy || !designReady} applicableFields={PAGE_DESIGN_FIELDS} onChange={updateStyle} onUndo={undoStyle} onReset={resetStyle} onSave={saveStyle} /> : <section className="cs-panel"><p className="cs-empty">텍스트를 선택하면 디자인 도구가 열립니다.</p></section>}
       {page.id === 'home' && <section className="cs-panel cs-careers"><div className="cs-panel-head"><b>경력 사항</b><button onClick={addSection}>＋ 분류</button></div>

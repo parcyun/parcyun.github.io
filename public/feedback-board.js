@@ -6,6 +6,8 @@
   var SUPABASE_URL = 'https://myeouecgpjxcddemexcg.supabase.co';
   var SUPABASE_ANON_KEY = 'sb_publishable_qHxQM-Z6vVAk9YKMluyFSw_0_fo9sKY';
   var VOTER_KEY = 'ps_feedback_voter';
+  var serviceKey = window.__psFeedbackServiceKey || 'other';
+  var serviceContext = window.PSServiceContext;
   var opener = null;
 
   function voterId() {
@@ -114,7 +116,7 @@
 
   function loadPosts() {
     list.textContent = '게시글을 불러오는 중…';
-    return rpc('list_feedback')
+    return rpc('list_feedback', { p_service_key: serviceKey })
       .then(renderPosts)
       .catch(function () { list.textContent = '게시글을 불러오지 못했습니다.'; });
   }
@@ -146,7 +148,10 @@
     var submit = form.querySelector('button[type="submit"]');
     submit.disabled = true;
     status.textContent = '등록 중…';
-    rpc('submit_feedback', { p_body: body, p_source_path: location.pathname || '/', p_author_id: voterId() })
+    var sourcePath = serviceContext
+      ? serviceContext.sourcePathForFeedback(location.pathname, location.search)
+      : (location.pathname || '/');
+    rpc('submit_feedback', { p_body: body, p_source_path: sourcePath, p_author_id: voterId(), p_service_key: serviceKey })
       .then(function () { textarea.value = ''; status.textContent = '등록되었습니다. 관리자 승인 후 공개됩니다.'; })
       .catch(function (error) { status.textContent = error.message || '등록에 실패했습니다.'; })
       .finally(function () { submit.disabled = false; });

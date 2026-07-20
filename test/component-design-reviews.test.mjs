@@ -150,7 +150,7 @@ test('0017 validates and persists the two new footer text colors across all writ
 
 test('component preview loads the production footer runtime', async () => {
   const preview = await read('public/footer-preview.html');
-  assert.match(preview, /src="\/ps-footer\.js"/);
+  assert.match(preview, /src="\/ps-footer\.js\?v=[^"]+"/);
   assert.match(preview, /ps-footer-preview-design/);
 });
 

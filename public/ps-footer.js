@@ -19,6 +19,12 @@
   var showFeedback = contextConfig ? contextConfig.showFeedback : host.getAttribute('data-show-feedback') !== 'false';
   var showReview = contextConfig ? contextConfig.showReview : host.getAttribute('data-show-review') !== 'false';
   var showLinks = contextConfig ? contextConfig.showLinks : host.getAttribute('data-show-links') !== 'false';
+  var ASSET_VERSION = '20260720.1';
+  var serviceKey = window.PSServiceContext
+    ? window.PSServiceContext.resolveServiceKey(location.pathname, location.search, previewContext)
+    : 'other';
+  var reviewHref = `/reviews/?service=${encodeURIComponent(serviceKey)}`;
+  window.__psFeedbackServiceKey = serviceKey;
   var source = document.currentScript && document.currentScript.src;
   var coffeeEmail = 'pen.layered@gmail.com';
   var coffeeIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M3 8h14v6.5A4.5 4.5 0 0 1 12.5 19h-5A4.5 4.5 0 0 1 3 14.5Z"/><line x1="7" y1="2.5" x2="7" y2="4.5"/><line x1="11" y1="2.5" x2="11" y2="4.5"/></svg>';
@@ -34,7 +40,7 @@
     + '<div class="ps-brand-fixed">'
     + '<button type="button" class="ps-brand-coffee" id="ps-coffee"><span class="ico">' + coffeeIcon + '</span><span id="foot-coffee-label">커피 사주기</span></button>'
     + (showFeedback ? '<button type="button" class="ps-brand-feedback" id="foot-report" data-feedback-open>기능 개선 요청</button>' : '')
-    + (showReview ? '<a class="ps-brand-review" href="/reviews/">리뷰 남기기</a>' : '')
+    + (showReview ? '<a class="ps-brand-review" href="' + reviewHref + '">리뷰 남기기</a>' : '')
     + '<span class="ps-brand-text">Designed by <span class="ps-signature">parcyun studio</span><a href="https://www.instagram.com/parcyun" class="ps-ig" target="_blank" rel="noopener">' + instagramIcon + '@parcyun</a></span>'
     + '</div>'
     + '<div class="coffee-modal" id="coffee-modal" hidden><div class="coffee-backdrop" data-coffee-close></div><div class="coffee-card" role="dialog" aria-modal="true" aria-labelledby="coffee-title">'
@@ -111,7 +117,9 @@
   if (!previewConfig) fetch('https://myeouecgpjxcddemexcg.supabase.co/rest/v1/rpc/list_component_design', {method:'POST', headers:{apikey:'sb_publishable_qHxQM-Z6vVAk9YKMluyFSw_0_fo9sKY',Authorization:'Bearer sb_publishable_qHxQM-Z6vVAk9YKMluyFSw_0_fo9sKY','Content-Type':'application/json'}, body:JSON.stringify({p_component_key:'footer'})}).then(function (res) { return res.ok ? res.json() : []; }).then(applyComponentDesign).catch(function () {});
 
   var feedback = document.createElement('script');
-  feedback.src = (source ? new URL('feedback-board.js', source).href : '/feedback-board.js');
+  var feedbackUrl = new URL(source ? new URL('feedback-board.js', source).href : '/feedback-board.js', location.href);
+  feedbackUrl.searchParams.set('v', ASSET_VERSION);
+  feedback.src = feedbackUrl.href;
   feedback.defer = true;
   if (!previewConfig) document.body.appendChild(feedback);
   document.dispatchEvent(new CustomEvent('ps-footer-ready'));

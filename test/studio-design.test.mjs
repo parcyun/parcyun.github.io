@@ -110,6 +110,19 @@ test('page element discovery waits for delayed design loading before exposing sa
   assert.match(studio, /busy=\{designBusy \|\| !designReady\}/);
 });
 
+test('text saves wait for the shared content and design readiness barrier', async () => {
+  const [runtime, studio] = await Promise.all([
+    read('public/site-content.js'),
+    read('src/components/ContentStudio.tsx'),
+  ]);
+  assert.match(runtime, /createDesignReadiness\(\['content', 'design'\]\)/);
+  assert.match(runtime, /function saveText[\s\S]*designReadiness\.promise\.then/);
+  assert.doesNotMatch(runtime, /load[\s\S]*admin_set_site_content/i);
+  assert.match(studio, /if \(!selected \|\| !password \|\| !designReady\) return/);
+  assert.match(studio, /disabled=\{!designReady\}/);
+  assert.match(studio, /문구 저장/);
+});
+
 test('current editable page shells author durable text and design ids', async () => {
   const files = [
     'src/pages/index.astro',

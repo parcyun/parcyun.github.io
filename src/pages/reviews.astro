@@ -57,7 +57,14 @@ import CinematicLayout from '../layouts/CinematicLayout.astro';
   .review-card-stars{color:var(--ps-primary);letter-spacing:.12em}
   .review-card time{font-size:11px;color:#666}
   .review-card p{margin:0;color:#ddd;line-height:1.75;font-size:14px}
+  .review-like{margin-top:12px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:transparent;color:#aaa;padding:5px 10px;font:11px var(--ps-font-en);cursor:pointer}
+  .review-like:hover,.review-like[aria-pressed="true"]{border-color:var(--ps-primary);color:var(--ps-primary)}
+  .review-list{max-height:var(--review-list-max-height);overflow-y:auto;scrollbar-width:none}
+  .review-list::-webkit-scrollbar{display:none}
+  .review-list-wrap.has-overflow{position:relative}
+  .review-list-wrap.has-overflow:not(.is-at-end)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:96px;pointer-events:none;background:linear-gradient(transparent,var(--ps-bg,#0f0e0d))}
   .review-empty{color:#666;font-size:14px}
   @media(max-width:767px){.reviews-hero{padding:120px 0 56px}.reviews-grid{gap:56px}.reviews-section{padding-bottom:80px}}
 </style>
-<script is:inline src="/reviews.js?v=20260715.1" defer></script>
+<script is:inline src="/review-viewport.js?v=20260720.1" defer></script>
+<script is:inline src="/reviews.js?v=20260720.1" defer></script>

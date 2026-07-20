@@ -11006,7 +11006,7 @@ function updateComboVisual(){
 }
 function scoreEffectOrigin(){
   const rect=$('#score').getBoundingClientRect();
-  return {x:rect.left+rect.width/2,y:Math.max(40,rect.top-48)};
+  return {x:rect.left+rect.width/2,y:Math.min(window.innerHeight-40,rect.bottom+18)};
 }
 function pointPop(txt, negative, amount){
   const power=Math.min(1,Math.log2(Math.max(10,amount||10)/10+1)/5);
@@ -11018,10 +11018,11 @@ function pointPop(txt, negative, amount){
   if(negative){ el.style.color='#ff5252'; el.style.textShadow='0 0 22px #ff5252,0 0 54px rgba(255,82,82,.72)'; }
   document.body.appendChild(el);
   el.animate([
-    {transform:'translate(-50%,-50%) scale(1.65)',opacity:0},
-    {transform:'translate(-50%,-50%) scale(1)',opacity:1,offset:.2},
-    {transform:`translate(-50%,-${95+power*80}%) scale(.86)`,opacity:0}
-  ],{duration:1050+power*420,easing:'cubic-bezier(.16,1,.3,1)'}).onfinish=()=>el.remove();
+    {transform:'translate(-50%,-35%) scale(1.28)',opacity:0},
+    {transform:'translate(-50%,-48%) scale(1)',opacity:1,offset:.18},
+    {transform:'translate(-50%,-58%) scale(1)',opacity:1,offset:.35},
+    {transform:`translate(-50%,-${155+power*95}%) scale(.82)`,opacity:0}
+  ],{duration:1350+power*350,easing:'cubic-bezier(.6,0,1,.45)'}).onfinish=()=>el.remove();
 }
 function scoreEffect(amount, negative){
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;

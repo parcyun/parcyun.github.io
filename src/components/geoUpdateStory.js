@@ -1,4 +1,4 @@
-export const GEOWEB_UPDATE_VERSION = '2026-07-country-explorer';
+export const GEOWEB_UPDATE_VERSION = '2026-07-onboarding-search-v2';
 export const GEOWEB_UPDATE_STORAGE_KEY = 'parcyun:geoweb:update';
 
 export function hasSeenGeoUpdate(storage) {

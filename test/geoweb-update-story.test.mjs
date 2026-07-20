@@ -6,6 +6,7 @@ import { GEOWEB_UPDATE_VERSION, hasSeenGeoUpdate, markGeoUpdateSeen } from '../s
 const source = () => readFile(new URL('../src/components/GlobeLab.jsx', import.meta.url), 'utf8');
 
 test('GeoWeb update story is versioned and safely persisted', () => {
+  assert.equal(GEOWEB_UPDATE_VERSION, '2026-07-onboarding-search-v2');
   const values = new Map();
   const storage = { getItem: (key) => values.get(key) || null, setItem: (key, value) => values.set(key, value) };
   assert.equal(hasSeenGeoUpdate(storage), false);

@@ -269,9 +269,13 @@
   /* 광과민 안전: 모션 최소화 설정 시 화면 번쩍임 억제 */
   @media (prefers-reduced-motion: reduce){
     .lightning-flash.strike{animation:none;opacity:0}
+    .score-effect,.score-particle{display:none}
   }
 
   .point-pop{position:fixed;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:32px;color:var(--amber);pointer-events:none;z-index:6;text-shadow:0 0 12px var(--amber)}
+  .score-effect{position:fixed;left:50%;top:50%;width:22vmin;height:22vmin;border:3px solid var(--amber);border-radius:50%;pointer-events:none;z-index:4;mix-blend-mode:screen;box-shadow:0 0 28px var(--amber),inset 0 0 28px rgba(255,177,26,.4)}
+  .score-effect.negative{border-color:#FF5252;box-shadow:0 0 28px #FF5252,inset 0 0 28px rgba(255,82,82,.38)}
+  .score-particle{position:fixed;left:50%;top:50%;width:5px;height:18px;border-radius:4px;background:var(--amber);pointer-events:none;z-index:5;box-shadow:0 0 12px currentColor}.score-particle.negative{background:#FF5252;color:#FF5252}
 
   /* RESULT */
   .result{text-align:center;padding:20px 0}
@@ -529,6 +533,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="./scoring.js?v=20260720.1"></script>
 <script>
 /* ────────────────────────── corpus ────────────────────────── */
 const SENTENCES = {
@@ -10717,7 +10722,7 @@ applySound(JSON.parse(localStorage.getItem(SOUND_KEY) ?? 'true'));
 stToggle.addEventListener('click', ()=>{ ensureAudio(); applySound(!soundOn); });
 
 /* ────────────────────────── state ────────────────────────── */
-const state = { lang:'ko', diff:'easy', mode:'practice', timerLimit:60, remaining:60, timerId:null, score:0, combo:0, bestCombo:0, correctCount:0, totalCount:0, qList:[], qIdx:0, hintUsed:false, current:null, locked:false, totalLimit:null, customTime:60, customCount:10 };
+const state = { lang:'ko', diff:'easy', mode:'practice', timerLimit:60, remaining:60, timerId:null, score:0, combo:0, bestCombo:0, passCount:0, correctCount:0, totalCount:0, qList:[], qIdx:0, hintUsed:false, current:null, locked:false, totalLimit:null, customTime:60, customCount:10 };
 const LS_KEY = 'parcyunSpellGame_records_v2'; // v2: records nested per language — { ko:{easy,med,hard,mix}, en:{...} }
 const LS_KEY_LEGACY = 'parcyunSpellGame_records_v1'; // pre-language-toggle flat KO-only records
 const LANG_KEY = 'parcyunSpellGame_lang_v1';
@@ -10796,7 +10801,7 @@ function startGame(){
   }
   let qList = shuffle(buildPool(state.diff));
   if(limit && limit < qList.length){ qList = qList.slice(0, limit); }
-  Object.assign(state,{score:0,combo:0,bestCombo:0,correctCount:0,totalCount:0,qList,qIdx:0,seq:1,hintUsed:false,locked:false,totalLimit:limit,gameStartTs:performance.now()});
+  Object.assign(state,{score:0,combo:0,bestCombo:0,passCount:0,correctCount:0,totalCount:0,qList,qIdx:0,seq:1,hintUsed:false,locked:false,totalLimit:limit,gameStartTs:performance.now()});
   $('#score').textContent='0';$('#combo-n').textContent='0';updateComboVisual();
   $('#q-idx').textContent='1';
   $('#q-total').textContent = limit ?? '∞';
@@ -10865,8 +10870,7 @@ function submit(){
     else if(ratio <= 1.5){ speedBonus = 20; speedTag = 'QUICK'; }   // par의 1.5배 이내
     gain += speedBonus;
     state.combo++; state.bestCombo=Math.max(state.bestCombo,state.combo);
-    // 콤보 유지 배수: 5+ ×2, 10+ ×3, 15+ ×4
-    const mult = state.combo >= 15 ? 4 : state.combo >= 10 ? 3 : state.combo >= 5 ? 2 : 1;
+    const mult = SpellScoring.comboMultiplier(state.combo);
     gain = Math.round(gain * mult);
     state.score += gain;
     const sc = $('#score'); sc.textContent = state.score;
@@ -10874,6 +10878,7 @@ function submit(){
     const co = $('#combo-n'); co.textContent = state.combo;
     updateComboVisual();  // 콤보 크기 + glow/burn 갱신 + 팝 애니메이션 + 배수 뱃지
     pointPop('+'+gain + (mult>1 ? ' ×'+mult : ''));
+    scoreEffect(gain, false);
     const c = $('#qcard'); c.classList.remove('correct','wrong'); void c.offsetWidth; c.classList.add('correct');
     playCorrect();
     // 속도 등급별 연출: LIGHTNING=번쩍임+흔들림, FAST=좌측 슬라이드+잔상, QUICK=기존 동일
@@ -10891,12 +10896,19 @@ function submit(){
     const sc = $('#score'); sc.textContent = state.score;
     sc.classList.remove('bump');void sc.offsetWidth;sc.classList.add('bump');
     pointPop('-10', true);
+    scoreEffect(10, true);
     const c = $('#qcard'); c.classList.remove('correct','wrong'); void c.offsetWidth; c.classList.add('wrong');
     playWrong();
   }
 }
 function showHint(){ if(state.locked || state.hintUsed) return; state.hintUsed=true; $('#hint').textContent = state.current.hint; $('#hint').classList.add('show'); }
-function skip(){ if(registerRapid()) return; if(state.locked) return; state.combo=0; $('#combo-n').textContent=0; updateComboVisual(); state.totalCount++; setTimeout(next,160); }
+function skip(){
+  if(registerRapid()) return;if(state.locked) return;
+  state.combo=0;$('#combo-n').textContent=0;updateComboVisual();state.totalCount++;state.passCount++;
+  const penalty=SpellScoring.passPenalty(state.passCount);state.score=Math.max(0,state.score-penalty);
+  const sc=$('#score');sc.textContent=state.score;sc.classList.remove('bump');void sc.offsetWidth;sc.classList.add('bump');
+  pointPop('-'+penalty,true);scoreEffect(penalty, true);setTimeout(next,160);
+}
 function next(){
   state.qIdx++;
   state.seq++;   // 표시용 누적 문제 번호 — 무제한 모드 reshuffle로도 리셋되지 않음
@@ -10948,8 +10960,7 @@ function updateComboVisual(){
   v.style.fontSize = size + 'px';
   v.classList.toggle('glow', state.combo >= 10 && state.combo < 15);
   v.classList.toggle('burn', state.combo >= 15);
-  // 점수 배수 뱃지: 5+ ×2, 10+ ×3, 15+ ×4
-  const mult = state.combo >= 15 ? 4 : state.combo >= 10 ? 3 : state.combo >= 5 ? 2 : 1;
+  const mult = SpellScoring.comboMultiplier(state.combo);
   const badge = $('#combo-mult');
   if(badge){
     badge.hidden = mult === 1;
@@ -10970,6 +10981,27 @@ function pointPop(txt, negative){
   el.style.left=(rect.left+rect.width/2)+'px';el.style.top=(rect.top-10)+'px';
   document.body.appendChild(el);
   el.animate([{transform:'translate(-50%,0)',opacity:1},{transform:'translate(-50%,-60px)',opacity:0}],{duration:900,easing:'cubic-bezier(.2,.7,.2,1)'}).onfinish=()=>el.remove();
+}
+function scoreEffect(amount, negative){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const power=Math.min(1,Math.log2(Math.max(10,amount)/10+1)/5);
+  const ring=document.createElement('div');ring.className='score-effect'+(negative?' negative':'');
+  document.body.appendChild(ring);
+  ring.animate([
+    {transform:'translate(-50%,-50%) scale(.25)',opacity:.78},
+    {transform:`translate(-50%,-50%) scale(${1.1+power*1.8})`,opacity:0}
+  ],{duration:520+power*480,easing:'cubic-bezier(.12,.72,.2,1)'}).onfinish=()=>ring.remove();
+  const count=Math.round(4+power*18);
+  for(let i=0;i<count;i++){
+    const particle=document.createElement('i');particle.className='score-particle'+(negative?' negative':'');
+    document.body.appendChild(particle);
+    const angle=(Math.PI*2*i/count)+(Math.random()-.5)*.28;
+    const distance=55+power*145+Math.random()*45;
+    particle.animate([
+      {transform:`translate(-50%,-50%) rotate(${angle}rad) translateY(0) scale(1)`,opacity:.9},
+      {transform:`translate(-50%,-50%) rotate(${angle}rad) translateY(-${distance}px) scale(.15)`,opacity:0}
+    ],{duration:430+power*520,easing:'cubic-bezier(.12,.68,.22,1)'}).onfinish=()=>particle.remove();
+  }
 }
 
 $('#submit').addEventListener('click',submit);

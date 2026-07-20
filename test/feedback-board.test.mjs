@@ -68,6 +68,14 @@ test('feedback modal uses the idea-focused copy and full-width input', async () 
   assert.match(widget, /display:block/);
 });
 
+test('feedback modal owns a border-box layout so the input stays centered on every host page', async () => {
+  const widget = await read('public/feedback-board.js');
+
+  assert.match(widget, /\.ps-feedback-modal,\s*\.ps-feedback-modal \*\{box-sizing:border-box\}/);
+  assert.match(widget, /\.ps-feedback-form label\{display:block;width:100%;margin:0\}/);
+  assert.match(widget, /\.ps-feedback-form textarea\{display:block;width:100%;margin:0;/);
+});
+
 test('shared footer module keeps the compact no-link baseline for Atlas and GeoWeb', async () => {
   const footer = await read('src/components/PsFooter.astro');
   const sharedFooter = await read('public/ps-footer.js');

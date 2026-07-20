@@ -19,7 +19,7 @@
   var showFeedback = contextConfig ? contextConfig.showFeedback : host.getAttribute('data-show-feedback') !== 'false';
   var showReview = contextConfig ? contextConfig.showReview : host.getAttribute('data-show-review') !== 'false';
   var showLinks = contextConfig ? contextConfig.showLinks : host.getAttribute('data-show-links') !== 'false';
-  var ASSET_VERSION = '20260720.2';
+  var ASSET_VERSION = '20260720.3';
   var serviceKey = window.PSServiceContext
     ? window.PSServiceContext.resolveServiceKey(location.pathname, location.search, previewContext)
     : 'other';

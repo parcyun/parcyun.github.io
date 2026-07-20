@@ -30,7 +30,7 @@ test('review and feedback cards allow service changes and guarded deletion', asy
     assert.match(source, /window\.confirm/);
     assert.match(source, /service_key/);
     assert.match(source, /item\.status === 'pending'|post\.status === 'pending'/);
-    assert.match(source, /is-published/);
+    assert.match(source, /is-published|review-status/);
   }
   assert.match(review, /adminSetReviewService/);
   assert.match(review, /adminDeleteReview/);
@@ -40,12 +40,18 @@ test('review and feedback cards allow service changes and guarded deletion', asy
   assert.match(adminCss, /\.is-published[^}]*color:var\(--a\)/);
 });
 
-test('review status actions are explicit and only pending reviews can be approved', async () => {
-  const review = await read('src/components/ReviewAdmin.tsx');
+test('review status is colored at the top and published reviews keep a disabled approval button', async () => {
+  const [review, adminCss] = await Promise.all([
+    read('src/components/ReviewAdmin.tsx'),
+    read('src/pages/admin/components.astro'),
+  ]);
 
-  assert.match(review, /item\.status === 'pending'[^]*review\(item, 'published'\)/);
-  assert.match(review, /item\.status === 'published'[^]*is-published[^]*published/);
-  assert.match(review, /item\.status === 'rejected'[^]*rejected/);
+  assert.match(review, /review-status is-\$\{item\.status\}/);
+  assert.match(review, />\{item\.status\}</);
+  assert.match(review, /className="approve-review"[^]*disabled=\{busyId === item\.id \|\| item\.status === 'published'\}/);
+  assert.match(review, /review\(item, 'published'\)/);
   assert.match(review, /item\.status !== 'pending'[^]*review\(item, 'pending'\)[^]*보류/);
-  assert.doesNotMatch(review, /item\.status !== 'pending'[^]*review\(item, 'published'\)/);
+  assert.match(adminCss, /\.review-status\.is-pending[^}]*color:var\(--a\)/);
+  assert.match(adminCss, /\.review-status\.is-published[^}]*color:var\(--a\)/);
+  assert.match(adminCss, /\.approve-review:disabled[^}]*grayscale\(1\)/);
 });

@@ -11019,10 +11019,10 @@ function pointPop(txt, negative, amount){
   document.body.appendChild(el);
   el.animate([
     {transform:'translate(-50%,-35%) scale(1.28)',opacity:0},
-    {transform:'translate(-50%,-48%) scale(1)',opacity:1,offset:.18},
-    {transform:'translate(-50%,-58%) scale(1)',opacity:1,offset:.35},
+    {transform:'translate(-50%,-48%) scale(1)',opacity:1,offset:.12},
+    {transform:'translate(-50%,-58%) scale(1)',opacity:1,offset:.24},
     {transform:`translate(-50%,-${155+power*95}%) scale(.82)`,opacity:0}
-  ],{duration:1350+power*350,easing:'cubic-bezier(.6,0,1,.45)'}).onfinish=()=>el.remove();
+  ],{duration:850+power*220,easing:'cubic-bezier(.6,0,1,.45)'}).onfinish=()=>el.remove();
 }
 function scoreEffect(amount, negative){
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;

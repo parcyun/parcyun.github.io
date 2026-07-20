@@ -42,7 +42,8 @@ test('spell drill applies scoring helpers and magnitude effects without explaini
   assert.match(page, /rect\.bottom\+18/);
   assert.match(page, /ring\.style\.left=origin\.x\+'px'/);
   assert.match(page, /el\.style\.top=origin\.y\+'px'/);
-  assert.match(page, /offset:\.35/);
+  assert.match(page, /offset:\.24/);
+  assert.match(page, /duration:850\+power\*220/);
   assert.match(page, /cubic-bezier\(\.6,0,1,\.45\)/);
   assert.doesNotMatch(page, /\.point-pop\{[^}]*left:50%;top:50%/);
   assert.match(page, /fontSize=.*power/);

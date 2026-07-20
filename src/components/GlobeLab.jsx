@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { countryInfo } from './globeCountryData.js';
 import { countryByBoundaryName, formatPopulation, searchCountryMatches, SYSTEM_EXPLANATIONS, SYSTEM_LABELS } from './globeCountries.js';
 import { STR, MONTHS_I18N } from './globeI18n.js';
-import { hasSeenGeoUpdate, markGeoUpdateSeen } from './geoUpdateStory.js';
+import { markGeoUpdateSeen } from './geoUpdateStory.js';
 import { GLSL, STRADDLE, LENSCLIP, meshVert, cloneVert, OCEANGRAD, meshFrag, cloneFrag, lineVert, lineFrag, fatLineVert, fatLineFrag, fillVert, fillFrag } from './globeShaders.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { geoEquirectangular, geoPath, geoContains } from 'd3-geo';
@@ -288,11 +288,7 @@ export default function GlobeLab(){
     const onKey=(event)=>{if(event.key === 'Escape'){setSystemPopover(null);setSearchResults([]);}};
     window.addEventListener('keydown',onKey);return()=>window.removeEventListener('keydown',onKey);
   },[]);
-  useEffect(()=>{
-    if(hasSeenGeoUpdate(window.localStorage))setGuide(true);
-    else setUpdateStory(true);
-  },[]);
-  useEffect(()=>{setSystemPopover(null);},[sel]);
+  useEffect(()=>{setUpdateStory(true);},[]);
 
   const closeUpdateStory=()=>{
     markGeoUpdateSeen(window.localStorage);setUpdateStory(false);setGuide(true);
@@ -799,12 +795,12 @@ export default function GlobeLab(){
                 </div>
                 <div className="ic-sys">
                   <div className="system-control">
-                    {systemPopover === 'political'&&<div className="system-popover">{SYSTEM_EXPLANATIONS.political[info.politicalSystem]?.[lang]}</div>}
-                    <button aria-expanded={systemPopover === 'political'} onClick={()=>setSystemPopover(value=>value==='political'?null:'political')}><small>{T.politicalLabel}</small>{SYSTEM_LABELS.political[info.politicalSystem]?.[lang]||'—'}</button>
+                    {systemPopover?.country === sel?.name&&systemPopover?.type === 'political'&&<div className="system-popover">{SYSTEM_EXPLANATIONS.political[info.politicalSystem]?.[lang]}</div>}
+                    <button aria-expanded={systemPopover?.country === sel?.name&&systemPopover?.type === 'political'} onClick={()=>setSystemPopover(value=>value?.country===sel?.name&&value?.type==='political'?null:{type:'political',country:sel.name})}><small>{T.politicalLabel}</small>{SYSTEM_LABELS.political[info.politicalSystem]?.[lang]||'—'}</button>
                   </div>
                   <div className="system-control">
-                    {systemPopover === 'economic'&&<div className="system-popover">{SYSTEM_EXPLANATIONS.economic[info.economicSystem]?.[lang]}</div>}
-                    <button aria-expanded={systemPopover === 'economic'} onClick={()=>setSystemPopover(value=>value==='economic'?null:'economic')}><small>{T.economicLabel}</small>{SYSTEM_LABELS.economic[info.economicSystem]?.[lang]||'—'}</button>
+                    {systemPopover?.country === sel?.name&&systemPopover?.type === 'economic'&&<div className="system-popover">{SYSTEM_EXPLANATIONS.economic[info.economicSystem]?.[lang]}</div>}
+                    <button aria-expanded={systemPopover?.country === sel?.name&&systemPopover?.type === 'economic'} onClick={()=>setSystemPopover(value=>value?.country===sel?.name&&value?.type==='economic'?null:{type:'economic',country:sel.name})}><small>{T.economicLabel}</small>{SYSTEM_LABELS.economic[info.economicSystem]?.[lang]||'—'}</button>
                   </div>
                 </div>
                 <div className="ic-hr" />

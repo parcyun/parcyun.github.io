@@ -38,7 +38,11 @@ test('spell drill applies scoring helpers and magnitude effects without explaini
   assert.match(page, /state\.wrongCount\+\+/);
   assert.match(page, /SpellScoring\.wrongAnswerPenalty\(state\.wrongCount\)/);
   assert.match(page, /pointPop\('-'\+penalty,true,penalty\)/);
-  assert.match(page, /left:50%;top:50%/);
+  assert.match(page, /function scoreEffectOrigin\(\)/);
+  assert.match(page, /rect\.top-48/);
+  assert.match(page, /ring\.style\.left=origin\.x\+'px'/);
+  assert.match(page, /el\.style\.top=origin\.y\+'px'/);
+  assert.doesNotMatch(page, /\.point-pop\{[^}]*left:50%;top:50%/);
   assert.match(page, /fontSize=.*power/);
   assert.doesNotMatch(page, /라이트닝[^<\n]*(설명|조건|기준)/);
   assert.doesNotMatch(page, /패스[^<\n]*(두 배|2배|감점 규칙)/);

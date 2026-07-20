@@ -29,6 +29,7 @@ test('GeoWeb renders a friendly developer update story before the guide', async 
   assert.match(globe, /업데이트 내역 보기/);
   assert.match(globe, /className=\{'update-history'/);
   assert.match(globe, /2026\.07/);
-  assert.match(globe, /markGeoUpdateSeen\(window\.localStorage\)/);
+  assert.match(globe, /setUpdateStory\(true\)/);
+  assert.doesNotMatch(globe, /if\(hasSeenGeoUpdate\(window\.localStorage\)\)setGuide\(true\)/);
   assert.match(globe, /setGuide\(true\)/);
 });

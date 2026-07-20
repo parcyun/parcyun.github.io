@@ -52,9 +52,10 @@ test('choosing a search result selects and focuses the country', async () => {
 test('political and economic labels open animated explanatory popovers', async () => {
   const globe = await source();
   assert.match(globe, /SYSTEM_EXPLANATIONS/);
-  assert.match(globe, /aria-expanded=\{systemPopover === 'political'\}/);
-  assert.match(globe, /aria-expanded=\{systemPopover === 'economic'\}/);
+  assert.match(globe, /systemPopover\?\.country === sel\?\.name/);
+  assert.match(globe, /systemPopover\?\.type === 'political'/);
+  assert.match(globe, /systemPopover\?\.type === 'economic'/);
   assert.match(globe, /className="system-popover"/);
   assert.match(globe, /event\.key === 'Escape'/);
-  assert.match(globe, /useEffect\(\(\)=>\{setSystemPopover\(null\);\},\[sel\]\)/);
+  assert.doesNotMatch(globe, /useEffect\(\(\)=>\{setSystemPopover\(null\);\},\[sel\]\)/);
 });

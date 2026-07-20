@@ -272,10 +272,10 @@
     .score-effect,.score-particle{display:none}
   }
 
-  .point-pop{position:fixed;left:50%;top:50%;font-family:'JetBrains Mono',monospace;font-weight:900;font-size:52px;color:var(--amber);pointer-events:none;z-index:7;text-shadow:0 0 18px var(--amber),0 0 42px rgba(255,177,26,.5);white-space:nowrap}
-  .score-effect{position:fixed;left:50%;top:50%;width:34vmin;height:34vmin;border:4px solid var(--amber);border-radius:50%;pointer-events:none;z-index:4;mix-blend-mode:screen;box-shadow:0 0 42px var(--amber),inset 0 0 42px rgba(255,177,26,.46)}
+  .point-pop{position:fixed;font-family:'JetBrains Mono',monospace;font-weight:900;font-size:52px;color:var(--amber);pointer-events:none;z-index:7;text-shadow:0 0 18px var(--amber),0 0 42px rgba(255,177,26,.5);white-space:nowrap}
+  .score-effect{position:fixed;width:34vmin;height:34vmin;border:4px solid var(--amber);border-radius:50%;pointer-events:none;z-index:4;mix-blend-mode:screen;box-shadow:0 0 42px var(--amber),inset 0 0 42px rgba(255,177,26,.46)}
   .score-effect.negative{border-color:#FF5252;box-shadow:0 0 28px #FF5252,inset 0 0 28px rgba(255,82,82,.38)}
-  .score-particle{position:fixed;left:50%;top:50%;width:7px;height:26px;border-radius:4px;background:var(--amber);pointer-events:none;z-index:5;box-shadow:0 0 18px currentColor}.score-particle.negative{background:#FF5252;color:#FF5252}
+  .score-particle{position:fixed;width:7px;height:26px;border-radius:4px;background:var(--amber);pointer-events:none;z-index:5;box-shadow:0 0 18px currentColor}.score-particle.negative{background:#FF5252;color:#FF5252}
 
   /* RESULT */
   .result{text-align:center;padding:20px 0}
@@ -10755,7 +10755,7 @@ const shuffle = a => { const b=a.slice(); for(let i=b.length-1;i>0;i--){const j=
 const normalize = s => (s||'').replace(/\s+/g,' ').trim();
 const SPELL_UPDATE_KEY='parcyun:spell-drill:update',SPELL_UPDATE_VERSION='2026-07-scoring-onboarding';
 const spellOnboarding=$('#spell-onboarding'),spellOnboardingStart=$('#spell-onboarding-start'),spellUpdateToggle=$('#spell-update-toggle'),spellUpdateHistory=$('#spell-update-history');
-if(localStorage.getItem(SPELL_UPDATE_KEY)!==SPELL_UPDATE_VERSION)spellOnboarding.hidden=false;
+spellOnboarding.hidden=false;
 spellOnboardingStart.addEventListener('click',()=>{localStorage.setItem(SPELL_UPDATE_KEY,SPELL_UPDATE_VERSION);spellOnboarding.hidden=true;});
 spellUpdateToggle.addEventListener('click',()=>{
   const open=spellUpdateHistory.classList.toggle('open');spellUpdateToggle.setAttribute('aria-expanded',String(open));
@@ -11004,10 +11004,16 @@ function updateComboVisual(){
       {duration:400, easing:'cubic-bezier(.2,1.4,.4,1)'});
   }
 }
+function scoreEffectOrigin(){
+  const rect=$('#score').getBoundingClientRect();
+  return {x:rect.left+rect.width/2,y:Math.max(40,rect.top-48)};
+}
 function pointPop(txt, negative, amount){
   const power=Math.min(1,Math.log2(Math.max(10,amount||10)/10+1)/5);
+  const origin=scoreEffectOrigin();
   const el = document.createElement('div');
   el.className='point-pop';el.textContent=txt;
+  el.style.left=origin.x+'px';el.style.top=origin.y+'px';
   el.style.fontSize=(52+power*62)+'px';
   if(negative){ el.style.color='#ff5252'; el.style.textShadow='0 0 22px #ff5252,0 0 54px rgba(255,82,82,.72)'; }
   document.body.appendChild(el);
@@ -11020,7 +11026,9 @@ function pointPop(txt, negative, amount){
 function scoreEffect(amount, negative){
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const power=Math.min(1,Math.log2(Math.max(10,amount)/10+1)/5);
+  const origin=scoreEffectOrigin();
   const ring=document.createElement('div');ring.className='score-effect'+(negative?' negative':'');
+  ring.style.left=origin.x+'px';ring.style.top=origin.y+'px';
   document.body.appendChild(ring);
   ring.animate([
     {transform:'translate(-50%,-50%) scale(.25)',opacity:.78},
@@ -11029,6 +11037,7 @@ function scoreEffect(amount, negative){
   const count=Math.round(8+power*28);
   for(let i=0;i<count;i++){
     const particle=document.createElement('i');particle.className='score-particle'+(negative?' negative':'');
+    particle.style.left=origin.x+'px';particle.style.top=origin.y+'px';
     document.body.appendChild(particle);
     const angle=(Math.PI*2*i/count)+(Math.random()-.5)*.28;
     const distance=90+power*220+Math.random()*70;

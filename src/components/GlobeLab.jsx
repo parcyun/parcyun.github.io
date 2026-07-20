@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { countryInfo } from './globeCountryData.js';
+import { countryByBoundaryName, formatPopulation, searchCountries, SYSTEM_EXPLANATIONS, SYSTEM_LABELS } from './globeCountries.js';
 import { STR, MONTHS_I18N } from './globeI18n.js';
 import { GLSL, STRADDLE, LENSCLIP, meshVert, cloneVert, OCEANGRAD, meshFrag, cloneFrag, lineVert, lineFrag, fatLineVert, fatLineFrag, fillVert, fillFrag } from './globeShaders.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -259,6 +260,11 @@ export default function GlobeLab(){
   const [hint,setHint]=useState(true); // 힌트=일시 온보딩(원본과 동일): 7초 또는 첫 조작 시 사라짐, 뷰 전환 시 잠깐 재표시
   useEffect(()=>{setHint(true);const t=setTimeout(()=>setHint(false),7000);return()=>clearTimeout(t);},[view]);
   const [guide,setGuide]=useState(true); // #6 접속(새로고침) 시 사용 가이드 오버레이 — 클릭해서 닫기
+  const [searchQuery,setSearchQuery]=useState('');
+  const [searchBusy,setSearchBusy]=useState(false);
+  const [searchResults,setSearchResults]=useState([]);
+  const [selectedCountry,setSelectedCountry]=useState(null);
+  const [systemPopover,setSystemPopover]=useState(null);
 
   useEffect(()=>{Object.assign(S.current,{view,country,dayNight,dnPlay,month,grat,eq,prime,dateline,step:Math.max(5,Math.min(90,+step||20))});},[view,country,dayNight,dnPlay,month,grat,eq,prime,dateline,step]); // 간격 5–90 클램프(원본과 동일)
   useEffect(()=>{api.current.goView&&api.current.goView(view);},[view]);
@@ -269,6 +275,23 @@ export default function GlobeLab(){
   useEffect(()=>{S.current.trueSize=trueSize;if(api.current.refreshTrueSize)api.current.refreshTrueSize();},[trueSize,sel,view]);
   useEffect(()=>{S.current.northUp=northUp;if(api.current.applyNorthUp)api.current.applyNorthUp(northUp);},[northUp,view]);
   useEffect(()=>{S.current.lang=lang;if(api.current.setMapLang)api.current.setMapLang(lang);},[lang]); // #3 지도 라벨 언어 동기화
+  useEffect(()=>{
+    if(!searchQuery.trim()){setSearchBusy(false);setSearchResults([]);return;}
+    setSearchBusy(true);
+    const timer=setTimeout(()=>{setSearchResults(searchCountries(searchQuery, lang));setSearchBusy(false);},180);
+    return()=>clearTimeout(timer);
+  },[searchQuery,lang]);
+  useEffect(()=>{
+    const onKey=(event)=>{if(event.key === 'Escape'){setSystemPopover(null);setSearchResults([]);}};
+    window.addEventListener('keydown',onKey);return()=>window.removeEventListener('keydown',onKey);
+  },[]);
+
+  function chooseCountry(nextCountry){
+    setSelectedCountry(nextCountry);setSearchQuery(nextCountry.name[lang]);setSearchResults([]);setCountry(true);setSystemPopover(null);
+    const key={Asia:'asia',Europe:'europe',Africa:'africa',Oceania:'oceania','North America':'na','South America':'sa'}[nextCountry.continent];
+    setSel({type:'country',name:nextCountry.boundaryName,key});
+    api.current.focusCountry(nextCountry);
+  }
 
   useEffect(()=>{
     const mount=mountRef.current;let raf,renderer,controls,cleanupFn=null,disposed=false;
@@ -437,7 +460,9 @@ export default function GlobeLab(){
         // 현재 화면 상태로 소스 중심 경위도(rad) 산출 → 뷰 전환 후에도 같은 지점 유지(#5)
         const m=U.morph.value,l=U.lens.value; let clR,claR;
         const home=S.current.homeReq;S.current.homeReq=false;
-        if(home){clR=0;claR=0;}                                                                                 // ⟳홈=중심·줌 완전 리셋(원본과 동일)
+        const focus=S.current.focusReq;S.current.focusReq=null;
+        if(focus){clR=focus.lon*D2R;claR=focus.lat*D2R;}
+        else if(home){clR=0;claR=0;}                                                                            // ⟳홈=중심·줌 완전 리셋(원본과 동일)
         else if(l>0.5){clR=U.uLon0.value;claR=U.uLat0.value;}                                                   // 렌즈=시선중심(rad)
         else if(m>0.5){clR=controls.target.x/MS;claR=2*Math.atan(Math.exp(controls.target.y/MS))-Math.PI/2;}    // 평면
         else{const fr=camera.position.clone().sub(controls.target).normalize();const g=vec3ToLonLat(rotY(rotX(fr,-U.uRotX.value),-U.uRotY.value));clR=g[0]*D2R;claR=g[1]*D2R;} // 지구본
@@ -462,7 +487,10 @@ export default function GlobeLab(){
         const cosLat=Math.cos(THREE.MathUtils.clamp(claR,-1.45,1.45));
         const srcScale=(m>0.5)?MS/cosLat:(l>0.5?STE:1.0); // 소스 중심 월드스케일: 평면=MS/cos, 렌즈=STE, 지구본=1
         let toZoomv=to.zoom;
-        if(!home){ // 홈(⟳)은 기본 zoom 리셋. 그 외에는 소스 중심 크기에 맞춰 목표 zoom 계산
+        if(focus){
+          toZoomv={flat:2.15,lens:0.78,globe:1.75}[v]||to.zoom;
+          toZoomv=THREE.MathUtils.clamp(toZoomv,v==='flat'?flatSafeZmin():to.zmin,to.zmax);
+        } else if(!home){ // 홈(⟳)은 기본 zoom 리셋. 그 외에는 소스 중심 크기에 맞춰 목표 zoom 계산
           if(v==='lens') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom/STE,VIEW.lens.zmin,VIEW.lens.zmax);
           else if(v==='globe') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom,VIEW.globe.zmin,VIEW.globe.zmax); // 지구본 월드스케일=1
           else toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom*cosLat/MS,flatSafeZmin(),VIEW.flat.zmax); }        // 평면 월드스케일=MS/cos
@@ -520,7 +548,8 @@ export default function GlobeLab(){
         tsDrag:{begin:()=>{if(tsGhost&&S.current.trueSize&&S.current.view==='flat'){tsDragging=true;return true;}return false;},
           move:(wx,wy)=>{if(tsDragging)updateGhost(wx,wy);},end:()=>{tsDragging=false;},active:()=>tsDragging},
         pickContinent:(k)=>setSel(sameSel(S.current.sel,{type:'continent',key:k})?null:{type:'continent',key:k}),
-        pickOcean:(k)=>setSel(sameSel(S.current.sel,{type:'ocean',key:k})?null:{type:'ocean',key:k})};
+        pickOcean:(k)=>setSel(sameSel(S.current.sel,{type:'ocean',key:k})?null:{type:'ocean',key:k}),
+        focusCountry:(nextCountry)=>{S.current.focusReq={lon:nextCountry.coordinates[0],lat:nextCountry.coordinates[1]};goView(S.current.view);}};
       applyGrid();settleView('flat');
 
       const labels={};
@@ -672,15 +701,16 @@ export default function GlobeLab(){
     if(sel.type==='ocean'){const o=OCEAN[sel.key];info={kind:'ocean',color:o.color,title:EN?o.en:o.ko,sub:EN?o.ko:o.en,fact:o.fact};}
     else if(sel.type==='continent'){const c=CONT[sel.key];info={kind:'continent',color:c.color,title:EN?c.en:c.ko,sub:EN?c.ko:c.en,fact:c.fact};}
     else { // 국가
-      const cont=CONT[sel.key]||{}; const d=countryInfo(sel.name,lang); // 이중언어 해석(globeCountryData)
+      const cont=CONT[sel.key]||{}; const staticData=countryByBoundaryName(sel.name); const d=countryInfo(sel.name,lang);
       const contKo=cont.ko?`${cont.ko}`:''; const contEn=cont.en?cont.en.split(' ')[0]:'';
       info={kind:'country',color:cont.color||'#888',
-        flag:d?d.flag:'',
-        title:d?d.name:sel.name,
-        sub:d?d.official:sel.name,
+        flag:staticData?.flag||'',
+        title:staticData?.name[lang]||(d?d.name:sel.name),
+        sub:staticData?.officialName[lang]||(d?d.official:sel.name),
         contLabel:EN?(contEn?`${contEn} · `:''):(contKo?`${contKo} · `:''),
         langs:d?d.langs:[],
-        gov:d?d.gov:'', econ:d?d.econ:'',
+        capital:staticData?.capital[lang]||'',population:staticData?.population||0,populationYear:staticData?.populationYear,
+        politicalSystem:staticData?.politicalSystem||'',economicSystem:staticData?.economicSystem||'',
         desc:d?d.desc:(EN?(cont.en?`A country in ${cont.en.split(' ')[0]}.`:''):(cont.ko?`${cont.ko} 대륙의 나라예요.`:''))};
     }
   }
@@ -719,19 +749,51 @@ export default function GlobeLab(){
           <div className="legend-cols">
           <div className="legend-col"><h4>{T.contHead}</h4>{CONT_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='continent'&&sel.key===k?' on':'')} onClick={()=>api.current.pickContinent&&api.current.pickContinent(k)}><span className="dot" style={{background:CONT[k].color}} /><span>{EN?CONT[k].en.split(' ')[0]:CONT[k].ko}</span><small>{EN?'':CONT[k].en.split(' ')[0]}</small></button>))}</div>
           <div className="legend-col"><h4>{T.oceanHead}</h4>{OCEAN_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='ocean'&&sel.key===k?' on':'')} onClick={()=>api.current.pickOcean&&api.current.pickOcean(k)}><span className="dot" style={{background:OCEAN[k].color}} /><span>{EN?OCEAN[k].en.split(' ')[0]:OCEAN[k].ko}</span><small>{EN?'':OCEAN[k].en.split(' ')[0]}</small></button>))}</div>
-        </div><div className="note">{T.antarcticaNote}</div></div>
+        </div><div className="note">{T.antarcticaNote}</div>
+          <div className={'country-search'+(searchQuery.trim()?' open':'')}>
+            <label htmlFor="country-search-input">{T.countrySearch}</label>
+            <div className="country-search-field">
+              <input id="country-search-input" aria-label={T.countrySearch} value={searchQuery} placeholder={T.countrySearchPlaceholder} onChange={event=>{setSearchQuery(event.target.value);setSelectedCountry(null);}} />
+              {searchBusy && <span className="country-search-spinner" aria-label={T.searching} />}
+            </div>
+            <div className="country-search-results" aria-live="polite">
+              {!searchBusy&&searchQuery.trim()&&searchResults.map(nextCountry=><button key={nextCountry.iso2} onClick={()=>chooseCountry(nextCountry)}>
+                <img src={nextCountry.flag} alt="" /><span><b>{nextCountry.name[lang]}</b><small>{nextCountry.capital[lang]} · {nextCountry.iso2}</small></span>
+              </button>)}
+              {!searchBusy&&searchQuery.trim()&&!searchResults.length&&!selectedCountry&&<p>{T.noCountryResults}</p>}
+            </div>
+            {selectedCountry && <div className="country-search-fact">
+              <div><img src={selectedCountry.flag} alt="" /><strong>{selectedCountry.name[lang]}</strong></div>
+              <p><span>{T.capitalLabel}</span>{selectedCountry.capital[lang]}</p>
+              <p><span>{T.populationLabel}</span>{T.approximate} {formatPopulation(selectedCountry.population,lang)} <small>({selectedCountry.populationYear})</small></p>
+            </div>}
+          </div>
+        </div>
         </div>
         {info && <div className={'info-card '+info.kind} style={{borderColor:info.color}}>
           <div className="ic-head">
             {info.kind==='country'
-              ? <span className="ic-flag">{info.flag||'🏳️'}</span>
+              ? (info.flag?<img className="ic-flag" src={info.flag} alt="" />:<span className="ic-flag">🏳️</span>)
               : <span className="ic-swatch" style={{background:info.color}} />}
             <div className="ic-titles"><div className="ic-title">{info.title}</div><div className="ic-sub">{info.sub}</div></div>
           </div>
           {info.kind==='country'
             ? <>
                 <div className="ic-meta">{info.contLabel}{info.langs.length?info.langs.join(' · '):(EN?'—':'—')}</div>
-                {(info.gov||info.econ)&&<div className="ic-sys">{[info.gov,info.econ].filter(Boolean).join(' · ')}</div>}
+                <div className="ic-facts">
+                  <span>{T.capitalLabel} · {info.capital||'—'}</span>
+                  <span>{T.populationLabel} · {T.approximate} {info.population?formatPopulation(info.population,lang):'—'} {info.populationYear&&<small>({info.populationYear})</small>}</span>
+                </div>
+                <div className="ic-sys">
+                  <div className="system-control">
+                    {systemPopover === 'political'&&<div className="system-popover">{SYSTEM_EXPLANATIONS.political[info.politicalSystem]?.[lang]}</div>}
+                    <button aria-expanded={systemPopover === 'political'} onClick={()=>setSystemPopover(value=>value==='political'?null:'political')}><small>{T.politicalLabel}</small>{SYSTEM_LABELS.political[info.politicalSystem]?.[lang]||'—'}</button>
+                  </div>
+                  <div className="system-control">
+                    {systemPopover === 'economic'&&<div className="system-popover">{SYSTEM_EXPLANATIONS.economic[info.economicSystem]?.[lang]}</div>}
+                    <button aria-expanded={systemPopover === 'economic'} onClick={()=>setSystemPopover(value=>value==='economic'?null:'economic')}><small>{T.economicLabel}</small>{SYSTEM_LABELS.economic[info.economicSystem]?.[lang]||'—'}</button>
+                  </div>
+                </div>
                 <div className="ic-hr" />
                 <div className="ic-desc">{info.desc}</div>
               </>
@@ -803,12 +865,17 @@ export default function GlobeLab(){
         .info-card{background:rgba(16,19,25,.86);backdrop-filter:blur(16px);border:1.5px solid var(--border);border-radius:16px;padding:15px 16px;box-shadow:0 12px 40px rgba(0,0,0,.35);animation:cardIn .34s var(--ease)}
         @keyframes cardIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
         .ic-head{display:flex;align-items:center;gap:11px;margin-bottom:9px}
-        .ic-flag{font-size:30px;line-height:1;width:40px;text-align:center;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+        .ic-flag{font-size:30px;line-height:1;width:40px;height:28px;object-fit:cover;border-radius:5px;text-align:center;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
         .ic-swatch{width:34px;height:34px;border-radius:9px;flex-shrink:0}
         .ic-titles{min-width:0}.ic-title{font-size:21px;font-weight:700;letter-spacing:-.02em;line-height:1.15;color:#fff}
         .ic-sub{font-family:var(--font-en);font-size:11px;color:var(--text-2);font-weight:400;margin-top:2px;letter-spacing:.01em}
         .ic-meta{font-size:12px;color:#C5CAD4;font-weight:300;line-height:1.5}
-        .ic-sys{font-size:12px;color:var(--ps-primary);font-weight:500;margin-top:3px}
+        .ic-facts{display:flex;flex-direction:column;gap:2px;margin-top:5px;color:#C5CAD4;font-size:11.5px}.ic-facts small{color:var(--text-2)}
+        .ic-sys{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
+        .system-control{position:relative}.system-control button{width:100%;min-height:46px;padding:7px 8px;border:1px solid rgba(255,177,26,.24);border-radius:9px;background:rgba(255,177,26,.07);color:var(--ps-primary);font-family:var(--font-kr);font-size:11px;font-weight:600;cursor:pointer;transition:background .2s var(--ease),border-color .2s var(--ease),transform .2s var(--ease)}
+        .system-control button:hover,.system-control button[aria-expanded=true]{background:rgba(255,177,26,.15);border-color:rgba(255,177,26,.55);transform:translateY(-1px)}.system-control button small{display:block;margin-bottom:2px;color:var(--text-2);font-size:9px;font-weight:400}
+        .system-popover{position:absolute;z-index:5;left:0;right:0;bottom:calc(100% + 7px);padding:10px;border:1px solid rgba(255,177,26,.38);border-radius:10px;background:rgba(12,14,19,.98);box-shadow:0 12px 30px rgba(0,0,0,.42);color:#D9DDE5;font-size:11px;line-height:1.5;animation:popoverIn .28s var(--ease)}
+        @keyframes popoverIn{from{opacity:0;transform:translateY(5px) scale(.97)}to{opacity:1;transform:none}}
         .ic-hr{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);margin:10px 0}
         .ic-desc{font-size:12.5px;line-height:1.6;color:#AEB4C0;font-weight:300}
         .info-card.continent .ic-desc,.info-card.ocean .ic-desc{color:#C5CAD4}
@@ -827,6 +894,13 @@ export default function GlobeLab(){
         .chip:hover{background:rgba(255,255,255,.06)}.chip.on{background:rgba(255,177,26,.12)}
         .dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}.chip>span:not(.dot){font-size:13px;color:var(--text);font-weight:300}.chip small{font-family:var(--font-en);font-size:9px;color:var(--text-2);margin-left:auto}
         .legend .note{font-size:10px;color:var(--text-2);line-height:1.45;margin-top:5px;border-top:1px solid var(--border);padding-top:7px}
+        .country-search{border-top:1px solid var(--border);padding-top:9px;transition:padding .34s var(--ease)}.country-search>label{display:block;margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-2);letter-spacing:.04em}
+        .country-search-field{position:relative}.country-search-field input{box-sizing:border-box;width:100%;height:36px;padding:0 34px 0 11px;border:1px solid var(--border);border-radius:10px;outline:0;background:rgba(6,8,12,.64);color:#fff;font-family:var(--font-kr);font-size:12px;transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
+        .country-search-field input:focus{border-color:rgba(255,177,26,.62);box-shadow:0 0 0 3px rgba(255,177,26,.09)}.country-search-field input::placeholder{color:#686F7C}
+        .country-search-spinner{position:absolute;right:11px;top:11px;width:12px;height:12px;border:2px solid rgba(255,177,26,.25);border-top-color:var(--ps-primary);border-radius:50%;animation:searchSpin .62s linear infinite}@keyframes searchSpin{to{transform:rotate(360deg)}}
+        .country-search-results{display:grid;gap:3px;max-height:0;overflow:hidden;opacity:0;transition:max-height .42s var(--ease),opacity .24s ease,margin .42s var(--ease)}.country-search.open .country-search-results{max-height:270px;margin-top:6px;opacity:1;overflow:auto;scrollbar-width:none}.country-search-results::-webkit-scrollbar{display:none}
+        .country-search-results button{display:flex;align-items:center;gap:9px;width:100%;padding:7px;border:0;border-radius:9px;background:transparent;color:#fff;text-align:left;cursor:pointer;transition:background .18s var(--ease)}.country-search-results button:hover{background:rgba(255,255,255,.07)}.country-search-results button img{width:29px;height:20px;border-radius:3px;object-fit:cover}.country-search-results button span{display:grid;min-width:0}.country-search-results button b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.country-search-results button small{color:var(--text-2);font-size:9.5px}.country-search-results p{margin:4px 2px;color:var(--text-2);font-size:11px}
+        .country-search-fact{margin-top:8px;padding:9px;border:1px solid rgba(255,177,26,.2);border-radius:10px;background:rgba(255,177,26,.05);animation:cardIn .34s var(--ease)}.country-search-fact>div{display:flex;align-items:center;gap:8px;margin-bottom:6px}.country-search-fact img{width:34px;height:23px;border-radius:4px;object-fit:cover}.country-search-fact strong{font-size:13px}.country-search-fact p{display:flex;gap:7px;margin:2px 0;color:#D3D7DE;font-size:10.5px}.country-search-fact p span{min-width:34px;color:var(--text-2)}.country-search-fact p small{color:var(--text-2)}
         .sat-hires{margin-top:4px;padding:7px 10px;border:1px solid rgba(255,177,26,.32);border-radius:9px;background:rgba(255,177,26,.08);color:var(--ps-primary);font-family:var(--font-kr);font-size:11.5px;font-weight:500;cursor:pointer;transition:all .16s var(--ease);text-align:left}
         .sat-hires:hover:not(:disabled){background:rgba(255,177,26,.16)}.sat-hires:disabled{opacity:.7;cursor:default;color:#7BC98A;border-color:rgba(123,201,138,.3);background:rgba(123,201,138,.08)}
         .sat-busy{position:absolute;bottom:96px;left:50%;transform:translateX(-50%);z-index:45;width:min(340px,80vw);background:rgba(16,19,25,.92);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:12px;padding:12px 16px}

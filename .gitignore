@@ -2,6 +2,7 @@
 node_modules/
 dist/
 .astro/
+.worktrees/
 
 # OS / editor
 .DS_Store

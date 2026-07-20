@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   adminListFeedback,
   adminDeleteFeedback,
+  adminMarkFeedbackImplemented,
   adminSetFeedbackService,
   adminSetFeedbackStatus,
   getAdminPw,
@@ -63,6 +64,18 @@ export default function FeedbackAdmin() {
     catch { setState('error'); }
     finally { setBusyId(null); }
   }
+  async function markImplemented(post: FeedbackPost) {
+    const pw = getAdminPw();
+    if (!pw) { setState('logged-out'); return; }
+    setBusyId(post.id);
+    try {
+      await adminMarkFeedbackImplemented(pw, post.id);
+      setPosts((current) => current.map((item) => item.id === post.id
+        ? { ...item, implemented_at: new Date().toISOString() }
+        : item));
+    } catch { setState('error'); }
+    finally { setBusyId(null); }
+  }
 
   if (state === 'logged-out') return <p className="fa-message">관리자 로그인 후 이용할 수 있습니다. <a href="/admin/">/admin에서 로그인</a>해 주세요.</p>;
   if (state === 'loading') return <p className="fa-message">요청을 불러오는 중…</p>;
@@ -88,6 +101,7 @@ export default function FeedbackAdmin() {
                   <button type="button" className="fa-reject" disabled={busyId === post.id} onClick={() => review(post, 'rejected')}>반려</button>
                 </>}
                 {post.status === 'published' && <span className="is-published">published</span>}
+                {post.status === 'published' && <button type="button" className="fa-implemented" disabled={busyId === post.id || Boolean(post.implemented_at)} onClick={() => markImplemented(post)}>{post.implemented_at ? '반영 완료' : '업데이트 반영'}</button>}
                 <button type="button" className="fa-delete" disabled={busyId === post.id} onClick={() => remove(post)}>삭제</button>
               </div>
             </article>
@@ -95,7 +109,7 @@ export default function FeedbackAdmin() {
         </div>
       )}
       <style>{`
-        .fa{width:min(100%,720px)}.fa-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.fa-top p{margin:0;color:var(--ps-text-cinematic-secondary);font-size:13px}.fa-top button,.fa-message button{border:1px solid var(--ps-surface-cinematic-3);background:transparent;border-radius:999px;color:#fff;padding:7px 12px;font:12px var(--ps-font-body);cursor:pointer}.fa-top button:hover,.fa-message button:hover{border-color:var(--ps-primary);color:var(--ps-primary)}.fa-list{display:flex;flex-direction:column;gap:10px}.fa-post{padding:18px;background:var(--ps-surface-cinematic-1);border:1px solid var(--ps-surface-cinematic-3);border-radius:12px}.fa-post header,.fa-post footer{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--ps-text-cinematic-secondary);font:11px var(--ps-font-en)}.fa-status,.service-tag{padding:4px 8px;border:1px solid;border-radius:999px}.service-tag{color:#aaa49b;border-color:var(--ps-surface-cinematic-3)}.fa-status.is-pending{color:var(--ps-primary)}.fa-status.is-published{color:#87d8a3}.fa-status.is-rejected{color:#e58b8b}.fa-body{white-space:pre-wrap;margin:14px 0;color:#f1f1f1;font-size:14px;line-height:1.65}.fa-post footer{padding-top:12px;border-top:1px solid var(--ps-surface-cinematic-3);word-break:break-all}.fa-actions{display:flex;gap:8px;margin-top:14px;align-items:center;flex-wrap:wrap}.fa-actions button,.fa-actions select{border:0;border-radius:999px;padding:8px 13px;font:600 12px var(--ps-font-body);cursor:pointer}.fa-actions select{border:1px solid var(--ps-surface-cinematic-3);background:#1b1a18;color:#fff}.fa-actions button:disabled,.fa-actions select:disabled{opacity:.55;cursor:wait}.fa-approve{background:var(--ps-primary);color:#000}.fa-reject{background:#2a2a2a;color:#bbb}.fa-delete{background:#3b211e;color:#ffc0b5}.fa-message{width:min(100%,720px);color:var(--ps-text-cinematic-secondary);font-size:14px;line-height:1.7}.fa-message a{color:var(--ps-primary)}
+        .fa{width:min(100%,720px)}.fa-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.fa-top p{margin:0;color:var(--ps-text-cinematic-secondary);font-size:13px}.fa-top button,.fa-message button{border:1px solid var(--ps-surface-cinematic-3);background:transparent;border-radius:999px;color:#fff;padding:7px 12px;font:12px var(--ps-font-body);cursor:pointer}.fa-top button:hover,.fa-message button:hover{border-color:var(--ps-primary);color:var(--ps-primary)}.fa-list{display:flex;flex-direction:column;gap:10px}.fa-post{padding:18px;background:var(--ps-surface-cinematic-1);border:1px solid var(--ps-surface-cinematic-3);border-radius:12px}.fa-post header,.fa-post footer{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--ps-text-cinematic-secondary);font:11px var(--ps-font-en)}.fa-status,.service-tag{padding:4px 8px;border:1px solid;border-radius:999px}.service-tag{color:#aaa49b;border-color:var(--ps-surface-cinematic-3)}.fa-status.is-pending{color:var(--ps-primary)}.fa-status.is-published{color:#87d8a3}.fa-status.is-rejected{color:#e58b8b}.fa-body{white-space:pre-wrap;margin:14px 0;color:#f1f1f1;font-size:14px;line-height:1.65}.fa-post footer{padding-top:12px;border-top:1px solid var(--ps-surface-cinematic-3);word-break:break-all}.fa-actions{display:flex;gap:8px;margin-top:14px;align-items:center;flex-wrap:wrap}.fa-actions button,.fa-actions select{border:0;border-radius:999px;padding:8px 13px;font:600 12px var(--ps-font-body);cursor:pointer}.fa-actions select{border:1px solid var(--ps-surface-cinematic-3);background:#1b1a18;color:#fff}.fa-actions button:disabled,.fa-actions select:disabled{opacity:.55;cursor:wait}.fa-approve{background:var(--ps-primary);color:#000}.fa-reject{background:#2a2a2a;color:#bbb}.fa-implemented{background:#264232;color:#a8e9bd}.fa-implemented:disabled{filter:grayscale(1);cursor:not-allowed!important}.fa-delete{background:#3b211e;color:#ffc0b5}.fa-message{width:min(100%,720px);color:var(--ps-text-cinematic-secondary);font-size:14px;line-height:1.7}.fa-message a{color:var(--ps-primary)}
       `}</style>
     </section>
   );

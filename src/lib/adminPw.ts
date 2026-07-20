@@ -103,6 +103,7 @@ export interface FeedbackPost {
   status: FeedbackStatus;
   created_at: string;
   reviewed_at: string | null;
+  implemented_at: string | null;
   like_count: number;
   service_key: ServiceKey;
 }
@@ -119,6 +120,9 @@ export async function adminSetFeedbackService(pw: string, id: number, serviceKey
 }
 export async function adminDeleteFeedback(pw: string, id: number) {
   await sbRpc('admin_delete_feedback', { p_pw: pw, p_id: id });
+}
+export async function adminMarkFeedbackImplemented(pw: string, id: number) {
+  await sbRpc('admin_mark_feedback_implemented', { p_pw: pw, p_id: id });
 }
 
 export type ReviewStatus = 'pending' | 'published' | 'rejected';

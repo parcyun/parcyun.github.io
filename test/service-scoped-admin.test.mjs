@@ -51,7 +51,7 @@ test('review status is colored at the top and published reviews keep a disabled 
   assert.match(review, /className="approve-review"[^]*disabled=\{busyId === item\.id \|\| item\.status === 'published'\}/);
   assert.match(review, /review\(item, 'published'\)/);
   assert.match(review, /item\.status !== 'pending'[^]*review\(item, 'pending'\)[^]*보류/);
-  assert.match(adminCss, /\.review-status\.is-pending[^}]*color:var\(--a\)/);
+  assert.match(adminCss, /\.review-status\.is-pending[^}]*color:#8f8a82/);
   assert.match(adminCss, /\.review-status\.is-published[^}]*color:var\(--a\)/);
   assert.match(adminCss, /\.approve-review:disabled[^}]*grayscale\(1\)/);
 });

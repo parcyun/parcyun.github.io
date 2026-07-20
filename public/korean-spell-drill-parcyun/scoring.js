@@ -13,5 +13,10 @@
     return 10 * (2 ** (count - 1));
   }
 
-  global.SpellScoring = Object.freeze({ comboMultiplier, passPenalty });
+  function wrongAnswerPenalty(wrongCount) {
+    const count = Math.max(1, Math.floor(Number(wrongCount) || 1));
+    return count * 10;
+  }
+
+  global.SpellScoring = Object.freeze({ comboMultiplier, passPenalty, wrongAnswerPenalty });
 })(typeof window === 'undefined' ? globalThis : window);

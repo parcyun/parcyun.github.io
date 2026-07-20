@@ -272,10 +272,10 @@
     .score-effect,.score-particle{display:none}
   }
 
-  .point-pop{position:fixed;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:32px;color:var(--amber);pointer-events:none;z-index:6;text-shadow:0 0 12px var(--amber)}
-  .score-effect{position:fixed;left:50%;top:50%;width:22vmin;height:22vmin;border:3px solid var(--amber);border-radius:50%;pointer-events:none;z-index:4;mix-blend-mode:screen;box-shadow:0 0 28px var(--amber),inset 0 0 28px rgba(255,177,26,.4)}
+  .point-pop{position:fixed;left:50%;top:50%;font-family:'JetBrains Mono',monospace;font-weight:900;font-size:52px;color:var(--amber);pointer-events:none;z-index:7;text-shadow:0 0 18px var(--amber),0 0 42px rgba(255,177,26,.5);white-space:nowrap}
+  .score-effect{position:fixed;left:50%;top:50%;width:34vmin;height:34vmin;border:4px solid var(--amber);border-radius:50%;pointer-events:none;z-index:4;mix-blend-mode:screen;box-shadow:0 0 42px var(--amber),inset 0 0 42px rgba(255,177,26,.46)}
   .score-effect.negative{border-color:#FF5252;box-shadow:0 0 28px #FF5252,inset 0 0 28px rgba(255,82,82,.38)}
-  .score-particle{position:fixed;left:50%;top:50%;width:5px;height:18px;border-radius:4px;background:var(--amber);pointer-events:none;z-index:5;box-shadow:0 0 12px currentColor}.score-particle.negative{background:#FF5252;color:#FF5252}
+  .score-particle{position:fixed;left:50%;top:50%;width:7px;height:26px;border-radius:4px;background:var(--amber);pointer-events:none;z-index:5;box-shadow:0 0 18px currentColor}.score-particle.negative{background:#FF5252;color:#FF5252}
 
   /* RESULT */
   .result{text-align:center;padding:20px 0}
@@ -10744,7 +10744,7 @@ applySound(JSON.parse(localStorage.getItem(SOUND_KEY) ?? 'true'));
 stToggle.addEventListener('click', ()=>{ ensureAudio(); applySound(!soundOn); });
 
 /* ────────────────────────── state ────────────────────────── */
-const state = { lang:'ko', diff:'easy', mode:'practice', timerLimit:60, remaining:60, timerId:null, score:0, combo:0, bestCombo:0, passCount:0, correctCount:0, totalCount:0, qList:[], qIdx:0, hintUsed:false, current:null, locked:false, totalLimit:null, customTime:60, customCount:10 };
+const state = { lang:'ko', diff:'easy', mode:'practice', timerLimit:60, remaining:60, timerId:null, score:0, combo:0, bestCombo:0, passCount:0, wrongCount:0, correctCount:0, totalCount:0, qList:[], qIdx:0, hintUsed:false, current:null, locked:false, totalLimit:null, customTime:60, customCount:10 };
 const LS_KEY = 'parcyunSpellGame_records_v2'; // v2: records nested per language — { ko:{easy,med,hard,mix}, en:{...} }
 const LS_KEY_LEGACY = 'parcyunSpellGame_records_v1'; // pre-language-toggle flat KO-only records
 const LANG_KEY = 'parcyunSpellGame_lang_v1';
@@ -10831,7 +10831,7 @@ function startGame(){
   }
   let qList = shuffle(buildPool(state.diff));
   if(limit && limit < qList.length){ qList = qList.slice(0, limit); }
-  Object.assign(state,{score:0,combo:0,bestCombo:0,passCount:0,correctCount:0,totalCount:0,qList,qIdx:0,seq:1,hintUsed:false,locked:false,totalLimit:limit,gameStartTs:performance.now()});
+  Object.assign(state,{score:0,combo:0,bestCombo:0,passCount:0,wrongCount:0,correctCount:0,totalCount:0,qList,qIdx:0,seq:1,hintUsed:false,locked:false,totalLimit:limit,gameStartTs:performance.now()});
   $('#score').textContent='0';$('#combo-n').textContent='0';updateComboVisual();
   $('#q-idx').textContent='1';
   $('#q-total').textContent = limit ?? '∞';
@@ -10907,7 +10907,7 @@ function submit(){
     sc.classList.remove('bump');void sc.offsetWidth;sc.classList.add('bump');
     const co = $('#combo-n'); co.textContent = state.combo;
     updateComboVisual();  // 콤보 크기 + glow/burn 갱신 + 팝 애니메이션 + 배수 뱃지
-    pointPop('+'+gain + (mult>1 ? ' ×'+mult : ''));
+    pointPop('+'+gain + (mult>1 ? ' ×'+mult : ''),false,gain);
     scoreEffect(gain, false);
     const c = $('#qcard'); c.classList.remove('correct','wrong'); void c.offsetWidth; c.classList.add('correct');
     playCorrect();
@@ -10922,11 +10922,13 @@ function submit(){
     setTimeout(next,650);
   } else {
     state.combo=0; $('#combo-n').textContent=0; updateComboVisual();
-    state.score = Math.max(0, state.score - 10);
+    state.wrongCount++;
+    const penalty=SpellScoring.wrongAnswerPenalty(state.wrongCount);
+    state.score = Math.max(0, state.score - penalty);
     const sc = $('#score'); sc.textContent = state.score;
     sc.classList.remove('bump');void sc.offsetWidth;sc.classList.add('bump');
-    pointPop('-10', true);
-    scoreEffect(10, true);
+    pointPop('-'+penalty,true,penalty);
+    scoreEffect(penalty, true);
     const c = $('#qcard'); c.classList.remove('correct','wrong'); void c.offsetWidth; c.classList.add('wrong');
     playWrong();
   }
@@ -10937,7 +10939,7 @@ function skip(){
   state.combo=0;$('#combo-n').textContent=0;updateComboVisual();state.totalCount++;state.passCount++;
   const penalty=SpellScoring.passPenalty(state.passCount);state.score=Math.max(0,state.score-penalty);
   const sc=$('#score');sc.textContent=state.score;sc.classList.remove('bump');void sc.offsetWidth;sc.classList.add('bump');
-  pointPop('-'+penalty,true);scoreEffect(penalty, true);setTimeout(next,160);
+  pointPop('-'+penalty,true,penalty);scoreEffect(penalty, true);setTimeout(next,160);
 }
 function next(){
   state.qIdx++;
@@ -11002,15 +11004,18 @@ function updateComboVisual(){
       {duration:400, easing:'cubic-bezier(.2,1.4,.4,1)'});
   }
 }
-function pointPop(txt, negative){
-  const sc = $('#score');
-  const rect = sc.getBoundingClientRect();
+function pointPop(txt, negative, amount){
+  const power=Math.min(1,Math.log2(Math.max(10,amount||10)/10+1)/5);
   const el = document.createElement('div');
   el.className='point-pop';el.textContent=txt;
-  if(negative){ el.style.color='#ff5252'; el.style.textShadow='0 0 12px #ff5252'; }
-  el.style.left=(rect.left+rect.width/2)+'px';el.style.top=(rect.top-10)+'px';
+  el.style.fontSize=(52+power*62)+'px';
+  if(negative){ el.style.color='#ff5252'; el.style.textShadow='0 0 22px #ff5252,0 0 54px rgba(255,82,82,.72)'; }
   document.body.appendChild(el);
-  el.animate([{transform:'translate(-50%,0)',opacity:1},{transform:'translate(-50%,-60px)',opacity:0}],{duration:900,easing:'cubic-bezier(.2,.7,.2,1)'}).onfinish=()=>el.remove();
+  el.animate([
+    {transform:'translate(-50%,-50%) scale(1.65)',opacity:0},
+    {transform:'translate(-50%,-50%) scale(1)',opacity:1,offset:.2},
+    {transform:`translate(-50%,-${95+power*80}%) scale(.86)`,opacity:0}
+  ],{duration:1050+power*420,easing:'cubic-bezier(.16,1,.3,1)'}).onfinish=()=>el.remove();
 }
 function scoreEffect(amount, negative){
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
@@ -11021,12 +11026,12 @@ function scoreEffect(amount, negative){
     {transform:'translate(-50%,-50%) scale(.25)',opacity:.78},
     {transform:`translate(-50%,-50%) scale(${1.1+power*1.8})`,opacity:0}
   ],{duration:520+power*480,easing:'cubic-bezier(.12,.72,.2,1)'}).onfinish=()=>ring.remove();
-  const count=Math.round(4+power*18);
+  const count=Math.round(8+power*28);
   for(let i=0;i<count;i++){
     const particle=document.createElement('i');particle.className='score-particle'+(negative?' negative':'');
     document.body.appendChild(particle);
     const angle=(Math.PI*2*i/count)+(Math.random()-.5)*.28;
-    const distance=55+power*145+Math.random()*45;
+    const distance=90+power*220+Math.random()*70;
     particle.animate([
       {transform:`translate(-50%,-50%) rotate(${angle}rad) translateY(0) scale(1)`,opacity:.9},
       {transform:`translate(-50%,-50%) rotate(${angle}rad) translateY(-${distance}px) scale(.15)`,opacity:0}

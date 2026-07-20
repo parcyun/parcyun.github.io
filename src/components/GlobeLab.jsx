@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { countryInfo } from './globeCountryData.js';
-import { countryByBoundaryName, formatPopulation, searchCountries, SYSTEM_EXPLANATIONS, SYSTEM_LABELS } from './globeCountries.js';
+import { countryByBoundaryName, formatPopulation, searchCountryMatches, SYSTEM_EXPLANATIONS, SYSTEM_LABELS } from './globeCountries.js';
 import { STR, MONTHS_I18N } from './globeI18n.js';
 import { hasSeenGeoUpdate, markGeoUpdateSeen } from './geoUpdateStory.js';
 import { GLSL, STRADDLE, LENSCLIP, meshVert, cloneVert, OCEANGRAD, meshFrag, cloneFrag, lineVert, lineFrag, fatLineVert, fatLineFrag, fillVert, fillFrag } from './globeShaders.js';
@@ -262,6 +262,7 @@ export default function GlobeLab(){
   useEffect(()=>{setHint(true);const t=setTimeout(()=>setHint(false),7000);return()=>clearTimeout(t);},[view]);
   const [guide,setGuide]=useState(false);
   const [updateStory,setUpdateStory]=useState(false);
+  const [showUpdateHistory,setShowUpdateHistory]=useState(false);
   const [searchQuery,setSearchQuery]=useState('');
   const [searchBusy,setSearchBusy]=useState(false);
   const [searchResults,setSearchResults]=useState([]);
@@ -280,7 +281,7 @@ export default function GlobeLab(){
   useEffect(()=>{
     if(!searchQuery.trim()){setSearchBusy(false);setSearchResults([]);return;}
     setSearchBusy(true);
-    const timer=setTimeout(()=>{setSearchResults(searchCountries(searchQuery, lang));setSearchBusy(false);},180);
+    const timer=setTimeout(()=>{setSearchResults(searchCountryMatches(searchQuery, lang));setSearchBusy(false);},180);
     return()=>clearTimeout(timer);
   },[searchQuery,lang]);
   useEffect(()=>{
@@ -291,6 +292,7 @@ export default function GlobeLab(){
     if(hasSeenGeoUpdate(window.localStorage))setGuide(true);
     else setUpdateStory(true);
   },[]);
+  useEffect(()=>{setSystemPopover(null);},[sel]);
 
   const closeUpdateStory=()=>{
     markGeoUpdateSeen(window.localStorage);setUpdateStory(false);setGuide(true);
@@ -759,7 +761,9 @@ export default function GlobeLab(){
           <div className="legend-cols">
           <div className="legend-col"><h4>{T.contHead}</h4>{CONT_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='continent'&&sel.key===k?' on':'')} onClick={()=>api.current.pickContinent&&api.current.pickContinent(k)}><span className="dot" style={{background:CONT[k].color}} /><span>{EN?CONT[k].en.split(' ')[0]:CONT[k].ko}</span><small>{EN?'':CONT[k].en.split(' ')[0]}</small></button>))}</div>
           <div className="legend-col"><h4>{T.oceanHead}</h4>{OCEAN_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='ocean'&&sel.key===k?' on':'')} onClick={()=>api.current.pickOcean&&api.current.pickOcean(k)}><span className="dot" style={{background:OCEAN[k].color}} /><span>{EN?OCEAN[k].en.split(' ')[0]:OCEAN[k].ko}</span><small>{EN?'':OCEAN[k].en.split(' ')[0]}</small></button>))}</div>
-        </div><div className="note">{T.antarcticaNote}</div>
+        </div><div className="note">{T.antarcticaNote}</div></div>
+        </div>
+        <div className="floaty country-search-panel">
           <div className={'country-search'+(searchQuery.trim()?' open':'')}>
             <label htmlFor="country-search-input">{T.countrySearch}</label>
             <div className="country-search-field">
@@ -767,8 +771,8 @@ export default function GlobeLab(){
               {searchBusy && <span className="country-search-spinner" aria-label={T.searching} />}
             </div>
             <div className="country-search-results" aria-live="polite">
-              {!searchBusy&&searchQuery.trim()&&searchResults.map(nextCountry=><button key={nextCountry.iso2} onClick={()=>chooseCountry(nextCountry)}>
-                <img src={nextCountry.flag} alt="" /><span><b>{nextCountry.name[lang]}</b><small>{nextCountry.capital[lang]} · {nextCountry.iso2}</small></span>
+              {!searchBusy&&searchQuery.trim()&&searchResults.map(({country:nextCountry,matchType})=><button key={nextCountry.iso2} onClick={()=>chooseCountry(nextCountry)}>
+                <img src={nextCountry.flag} alt="" /><span><b>{nextCountry.name[lang]}{matchType === 'fuzzy'&&<em>유사 결과</em>}</b><small>{nextCountry.capital[lang]} · {nextCountry.iso2}</small></span>
               </button>)}
               {!searchBusy&&searchQuery.trim()&&!searchResults.length&&!selectedCountry&&<p>{T.noCountryResults}</p>}
             </div>
@@ -778,7 +782,6 @@ export default function GlobeLab(){
               <p><span>{T.populationLabel}</span>{T.approximate} {formatPopulation(selectedCountry.population,lang)} <small>({selectedCountry.populationYear})</small></p>
             </div>}
           </div>
-        </div>
         </div>
         {info && <div className={'info-card '+info.kind} style={{borderColor:info.color}}>
           <div className="ic-head">
@@ -836,12 +839,18 @@ export default function GlobeLab(){
           <h2 id="update-story-title">안녕하세요, 이 지도를 만드는 개발자예요.</h2>
           <p>수업에서 지도를 펼쳤을 때 “이 나라는 어디지?”라는 질문이 바로 다음 탐험으로 이어지면 좋겠다고 생각했어요.</p>
           <ul>
-            <li><b>195개 나라</b>를 한국어와 영어로 찾을 수 있어요.</li>
-            <li>수도, 대략적인 인구, 정치·경제체제와 국기를 한곳에 모았어요.</li>
-            <li>검색한 나라는 지도 한가운데로 부드럽게 다가옵니다.</li>
+            <li>상단 버튼으로 <b>평면 · Focus Lens · 지구본</b> 뷰를 바꿔 보세요.</li>
+            <li><b>대륙과 대양</b>을 선택하면 그 영역을 집중해서 살펴볼 수 있어요.</li>
+            <li><b>낮과 밤</b>을 켜면 태양빛에 따라 지구의 밝기가 어떻게 달라지는지 보여요.</li>
+            <li><b>위도와 경도</b> 격자를 따라 지구상의 위치를 읽어 보세요.</li>
           </ul>
           <p className="update-story-sign">교실에서 더 유용한 지도가 되도록 계속 다듬을게요. — parcyun</p>
-          <button onClick={closeUpdateStory}>새 지도를 만나볼게요</button>
+          <button onClick={closeUpdateStory}>시작하기</button>
+          <button className="update-history-toggle" aria-expanded={showUpdateHistory} onClick={()=>setShowUpdateHistory(value=>!value)}>업데이트 내역 보기 <span>{showUpdateHistory?'−':'+'}</span></button>
+          <div className={'update-history'+(showUpdateHistory?' open':'')}>
+            <div><b>2026.07</b><p>195개국 정적 데이터, 국가 검색, 수도·인구·체제 정보와 부드러운 지도 탐색을 추가했어요.</p></div>
+            <div><b>2026.06</b><p>평면·Focus Lens·지구본 전환과 낮과 밤, 위경도 격자 도구를 다듬었어요.</p></div>
+          </div>
         </div>
       </div>}
       {/* 푸터/공유/방문자/커피는 공용 컴포넌트(PsFooter.astro + share-widget.js + visitor-counter.js)를 world-map.astro에서 렌더 */}
@@ -918,12 +927,13 @@ export default function GlobeLab(){
         .chip:hover{background:rgba(255,255,255,.06)}.chip.on{background:rgba(255,177,26,.12)}
         .dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}.chip>span:not(.dot){font-size:13px;color:var(--text);font-weight:300}.chip small{font-family:var(--font-en);font-size:9px;color:var(--text-2);margin-left:auto}
         .legend .note{font-size:10px;color:var(--text-2);line-height:1.45;margin-top:5px;border-top:1px solid var(--border);padding-top:7px}
-        .country-search{border-top:1px solid var(--border);padding-top:9px;transition:padding .34s var(--ease)}.country-search>label{display:block;margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-2);letter-spacing:.04em}
+        .country-search-panel{padding:12px 14px 14px;border:1px solid var(--border);border-radius:16px;background:rgba(16,19,25,.78);backdrop-filter:blur(14px)}
+        .country-search{transition:padding .34s var(--ease)}.country-search>label{display:block;margin-bottom:6px;font-size:10px;font-weight:600;color:var(--text-2);letter-spacing:.04em}
         .country-search-field{position:relative}.country-search-field input{box-sizing:border-box;width:100%;height:36px;padding:0 34px 0 11px;border:1px solid var(--border);border-radius:10px;outline:0;background:rgba(6,8,12,.64);color:#fff;font-family:var(--font-kr);font-size:12px;transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
         .country-search-field input:focus{border-color:rgba(255,177,26,.62);box-shadow:0 0 0 3px rgba(255,177,26,.09)}.country-search-field input::placeholder{color:#686F7C}
         .country-search-spinner{position:absolute;right:11px;top:11px;width:12px;height:12px;border:2px solid rgba(255,177,26,.25);border-top-color:var(--ps-primary);border-radius:50%;animation:searchSpin .62s linear infinite}@keyframes searchSpin{to{transform:rotate(360deg)}}
         .country-search-results{display:grid;gap:3px;max-height:0;overflow:hidden;opacity:0;transition:max-height .42s var(--ease),opacity .24s ease,margin .42s var(--ease)}.country-search.open .country-search-results{max-height:270px;margin-top:6px;opacity:1;overflow:auto;scrollbar-width:none}.country-search-results::-webkit-scrollbar{display:none}
-        .country-search-results button{display:flex;align-items:center;gap:9px;width:100%;padding:7px;border:0;border-radius:9px;background:transparent;color:#fff;text-align:left;cursor:pointer;transition:background .18s var(--ease)}.country-search-results button:hover{background:rgba(255,255,255,.07)}.country-search-results button img{width:29px;height:20px;border-radius:3px;object-fit:cover}.country-search-results button span{display:grid;min-width:0}.country-search-results button b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.country-search-results button small{color:var(--text-2);font-size:9.5px}.country-search-results p{margin:4px 2px;color:var(--text-2);font-size:11px}
+        .country-search-results button{display:flex;align-items:center;gap:9px;width:100%;padding:7px;border:0;border-radius:9px;background:transparent;color:#fff;text-align:left;cursor:pointer;transition:background .18s var(--ease)}.country-search-results button:hover{background:rgba(255,255,255,.07)}.country-search-results button img{width:29px;height:20px;border-radius:3px;object-fit:cover}.country-search-results button span{display:grid;min-width:0}.country-search-results button b{display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.country-search-results button b em{padding:2px 5px;border:1px solid rgba(255,177,26,.35);border-radius:999px;color:var(--ps-primary);font-size:8px;font-style:normal;font-weight:600}.country-search-results button small{color:var(--text-2);font-size:9.5px}.country-search-results p{margin:4px 2px;color:var(--text-2);font-size:11px}
         .country-search-fact{margin-top:8px;padding:9px;border:1px solid rgba(255,177,26,.2);border-radius:10px;background:rgba(255,177,26,.05);animation:cardIn .34s var(--ease)}.country-search-fact>div{display:flex;align-items:center;gap:8px;margin-bottom:6px}.country-search-fact img{width:34px;height:23px;border-radius:4px;object-fit:cover}.country-search-fact strong{font-size:13px}.country-search-fact p{display:flex;gap:7px;margin:2px 0;color:#D3D7DE;font-size:10.5px}.country-search-fact p span{min-width:34px;color:var(--text-2)}.country-search-fact p small{color:var(--text-2)}
         .sat-hires{margin-top:4px;padding:7px 10px;border:1px solid rgba(255,177,26,.32);border-radius:9px;background:rgba(255,177,26,.08);color:var(--ps-primary);font-family:var(--font-kr);font-size:11.5px;font-weight:500;cursor:pointer;transition:all .16s var(--ease);text-align:left}
         .sat-hires:hover:not(:disabled){background:rgba(255,177,26,.16)}.sat-hires:disabled{opacity:.7;cursor:default;color:#7BC98A;border-color:rgba(123,201,138,.3);background:rgba(123,201,138,.08)}
@@ -996,6 +1006,7 @@ export default function GlobeLab(){
         .update-story{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,6,11,.78);backdrop-filter:blur(8px);animation:guideIn .32s var(--ease)}
         .update-story-card{box-sizing:border-box;width:min(510px,100%);padding:30px;border:1px solid rgba(255,177,26,.28);border-radius:24px;background:rgba(16,19,25,.97);box-shadow:0 30px 90px rgba(0,0,0,.58);animation:guideCard .46s var(--ease)}
         .update-story-kicker{color:var(--ps-primary);font-family:var(--font-en);font-size:9px;font-weight:600;letter-spacing:.26em}.update-story h2{margin:8px 0 15px;color:#fff;font-size:23px;line-height:1.35;letter-spacing:-.02em}.update-story p,.update-story li{color:#C7CCD5;font-size:13px;font-weight:300;line-height:1.7}.update-story ul{display:grid;gap:6px;margin:16px 0;padding:0;list-style:none}.update-story li{position:relative;padding-left:17px}.update-story li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:2px;background:var(--ps-primary)}.update-story li b{color:#fff;font-weight:600}.update-story-sign{margin-top:16px;color:#959CAA!important}.update-story button{width:100%;margin-top:18px;padding:12px;border:0;border-radius:12px;background:var(--ps-primary);color:#090B0F;font-family:var(--font-kr);font-size:13px;font-weight:700;cursor:pointer;transition:filter .18s var(--ease),transform .18s var(--ease)}.update-story button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+        .update-story .update-history-toggle{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:8px;padding:5px;background:transparent;color:#757C88;font-size:10.5px;font-weight:400}.update-story .update-history-toggle:hover{color:#A8AEB8;filter:none;transform:none}.update-history{max-height:0;overflow:hidden;opacity:0;transition:max-height .42s var(--ease),opacity .24s ease,margin-top .42s var(--ease)}.update-history.open{max-height:190px;margin-top:9px;opacity:1}.update-history>div{padding:9px 0;border-top:1px solid rgba(255,255,255,.08)}.update-history b{color:#AEB4BF;font-family:var(--font-en);font-size:9px;letter-spacing:.12em}.update-history p{margin:3px 0 0;color:#7F8794!important;font-size:10.5px!important;line-height:1.55!important}
         .projseg{position:absolute;top:18px;left:50%;transform:translateX(-50%);z-index:30;display:flex;gap:2px;padding:3px;border-radius:12px;border:1px solid var(--border);background:rgba(16,19,25,.72);backdrop-filter:blur(14px)}
         .projseg button{border:0;background:transparent;color:var(--text-2);font-family:var(--font-kr);font-size:12px;font-weight:500;padding:6px 13px;border-radius:9px;cursor:pointer;transition:all .18s var(--ease);white-space:nowrap}
         .projseg button:hover{color:#fff}.projseg button.on{background:var(--ps-primary);color:#0A0C10;font-weight:600}

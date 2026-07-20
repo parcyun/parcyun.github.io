@@ -31,10 +31,11 @@ test('GeoWeb renders animated country search and complete country facts', async 
   const globe = await source();
   assert.match(globe, /className=\{'country-search'/);
   assert.match(globe, /aria-label=\{T\.countrySearch\}/);
-  assert.match(globe, /searchCountries\(searchQuery, lang\)/);
   assert.match(globe, /matchType === 'fuzzy'/);
   assert.match(globe, /유사 결과/);
   assert.match(globe, /className="country-search-spinner"/);
+  assert.match(globe, /className="floaty country-search-panel"/);
+  assert.match(globe, /searchCountryMatches\(searchQuery, lang\)/);
   assert.match(globe, /formatPopulation/);
   assert.match(globe, /selectedCountry\.capital\[lang\]/);
   assert.match(globe, /selectedCountry\.flag/);
@@ -55,4 +56,5 @@ test('political and economic labels open animated explanatory popovers', async (
   assert.match(globe, /aria-expanded=\{systemPopover === 'economic'\}/);
   assert.match(globe, /className="system-popover"/);
   assert.match(globe, /event\.key === 'Escape'/);
+  assert.match(globe, /useEffect\(\(\)=>\{setSystemPopover\(null\);\},\[sel\]\)/);
 });

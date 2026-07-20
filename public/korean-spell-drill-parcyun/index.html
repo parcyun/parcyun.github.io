@@ -341,6 +341,9 @@
     font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
     transition:background .15s linear}
   .report-copy:hover{background:var(--amber-bright)}
+  .spell-onboarding{position:fixed;inset:0;z-index:100100;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.82);backdrop-filter:blur(9px)}
+  .spell-onboarding[hidden]{display:none}.spell-onboarding-card{width:min(510px,100%);max-height:calc(100vh - 40px);overflow:auto;padding:30px;border:1px solid rgba(255,177,26,.34);border-radius:24px;background:rgba(12,12,12,.98);box-shadow:0 30px 100px rgba(0,0,0,.7),0 0 48px rgba(255,177,26,.08);animation:spellOnboardingIn .42s cubic-bezier(.16,1,.3,1)}
+  @keyframes spellOnboardingIn{from{opacity:0;transform:translateY(15px) scale(.97)}to{opacity:1;transform:none}}.spell-onboarding-kicker{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.22em}.spell-onboarding h2{margin:8px 0 13px;font-size:23px;line-height:1.35}.spell-onboarding p,.spell-onboarding li{color:rgba(255,255,255,.68);font-size:13px;font-weight:300;line-height:1.7}.spell-onboarding ul{display:grid;gap:6px;margin:16px 0;padding:0;list-style:none}.spell-onboarding li{position:relative;padding-left:17px}.spell-onboarding li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;background:var(--amber)}.spell-onboarding li b{color:#fff;font-weight:600}.spell-onboarding-sign{color:rgba(255,255,255,.43)!important}.spell-onboarding-start{width:100%;margin-top:18px;padding:12px;border:0;border-radius:12px;background:var(--amber);color:#050505;font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;cursor:pointer}.spell-update-toggle{display:flex;width:100%;align-items:center;justify-content:center;gap:7px;margin-top:8px;padding:5px;border:0;background:transparent;color:rgba(255,255,255,.38);font-family:Pretendard,sans-serif;font-size:10.5px;cursor:pointer}.spell-update-history{max-height:0;overflow:hidden;opacity:0;transition:max-height .42s cubic-bezier(.16,1,.3,1),opacity .24s ease,margin .42s cubic-bezier(.16,1,.3,1)}.spell-update-history.open{max-height:190px;margin-top:8px;opacity:1}.spell-update-history>div{padding:9px 0;border-top:1px solid rgba(255,255,255,.08)}.spell-update-history b{color:rgba(255,255,255,.58);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em}.spell-update-history p{margin:3px 0 0;color:rgba(255,255,255,.4);font-size:10.5px;line-height:1.55}
 </style>
 </head>
 <body>
@@ -349,6 +352,25 @@
 <div class="pulse"></div>
 <div class="lightning-flash" id="flash"></div>
 <div class="float-tag" id="float-tag"></div>
+<div class="spell-onboarding" id="spell-onboarding" role="dialog" aria-modal="true" aria-labelledby="spell-onboarding-title" hidden>
+  <div class="spell-onboarding-card">
+    <div class="spell-onboarding-kicker">A NOTE FROM THE DEVELOPER</div>
+    <h2 id="spell-onboarding-title">안녕하세요, 스펠드릴을 만든 개발자예요.</h2>
+    <p>맞춤법은 설명을 오래 읽는 것보다 직접 고쳐 써 볼 때 더 오래 남더라고요. 그래서 짧고 빠르게 반복할 수 있는 연습장을 만들었어요.</p>
+    <ul>
+      <li>위에 보이는 <b>틀린 문장</b>을 먼저 읽어 보세요.</li>
+      <li>아래 입력창에 <b>정확한 문장</b>을 처음부터 쓰고 ENTER를 누르세요.</li>
+      <li>정답을 이어 가며 <b>콤보</b>와 나만의 최고 기록을 만들어 보세요.</li>
+    </ul>
+    <p class="spell-onboarding-sign">몇 번 틀려도 괜찮아요. 손이 먼저 기억할 때까지 함께 연습해 봐요. — parcyun</p>
+    <button class="spell-onboarding-start" id="spell-onboarding-start">시작하기</button>
+    <button class="spell-update-toggle" id="spell-update-toggle" aria-expanded="false">업데이트 내역 보기 <span>+</span></button>
+    <div class="spell-update-history" id="spell-update-history">
+      <div><b>2026.07</b><p>새 콤보 배율과 누적 패스·오답 감점, 점수 크기에 따른 화면 효과를 추가했어요.</p></div>
+      <div><b>v2.1.2</b><p>한국어·영어 문항을 각 1,000개로 늘리고 난이도와 문장을 다시 검토했어요.</p></div>
+    </div>
+  </div>
+</div>
 <div id="version-tip">
   <b id="version-tip-title">v2.1.2 업데이트</b>
   <ul id="version-tip-list">
@@ -10731,6 +10753,14 @@ const $ = (s,r=document)=>r.querySelector(s);
 const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
 const shuffle = a => { const b=a.slice(); for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]} return b };
 const normalize = s => (s||'').replace(/\s+/g,' ').trim();
+const SPELL_UPDATE_KEY='parcyun:spell-drill:update',SPELL_UPDATE_VERSION='2026-07-scoring-onboarding';
+const spellOnboarding=$('#spell-onboarding'),spellOnboardingStart=$('#spell-onboarding-start'),spellUpdateToggle=$('#spell-update-toggle'),spellUpdateHistory=$('#spell-update-history');
+if(localStorage.getItem(SPELL_UPDATE_KEY)!==SPELL_UPDATE_VERSION)spellOnboarding.hidden=false;
+spellOnboardingStart.addEventListener('click',()=>{localStorage.setItem(SPELL_UPDATE_KEY,SPELL_UPDATE_VERSION);spellOnboarding.hidden=true;});
+spellUpdateToggle.addEventListener('click',()=>{
+  const open=spellUpdateHistory.classList.toggle('open');spellUpdateToggle.setAttribute('aria-expanded',String(open));
+  spellUpdateToggle.querySelector('span').textContent=open?'−':'+';
+});
 // 타자 수 추정: 한글 음절은 평균 ~2.5 타(초·중·종성), 그 외(영문·공백·문장부호)는 1 타
 const estKeystrokes = s => { let k=0; for(const ch of (s||'')){ k += /[가-힣]/.test(ch) ? 2.5 : 1; } return k; };
 const show = id => { $$('.screen').forEach(s=>s.classList.remove('active')); $('#'+id).classList.add('active') };

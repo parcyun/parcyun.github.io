@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { countryInfo } from './globeCountryData.js';
 import { countryByBoundaryName, formatPopulation, searchCountries, SYSTEM_EXPLANATIONS, SYSTEM_LABELS } from './globeCountries.js';
 import { STR, MONTHS_I18N } from './globeI18n.js';
+import { hasSeenGeoUpdate, markGeoUpdateSeen } from './geoUpdateStory.js';
 import { GLSL, STRADDLE, LENSCLIP, meshVert, cloneVert, OCEANGRAD, meshFrag, cloneFrag, lineVert, lineFrag, fatLineVert, fatLineFrag, fillVert, fillFrag } from './globeShaders.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { geoEquirectangular, geoPath, geoContains } from 'd3-geo';
@@ -259,7 +260,8 @@ export default function GlobeLab(){
   const [northUp,setNorthUp]=useState(false); // #2 정북 고정(지구본에서 북극이 항상 위)
   const [hint,setHint]=useState(true); // 힌트=일시 온보딩(원본과 동일): 7초 또는 첫 조작 시 사라짐, 뷰 전환 시 잠깐 재표시
   useEffect(()=>{setHint(true);const t=setTimeout(()=>setHint(false),7000);return()=>clearTimeout(t);},[view]);
-  const [guide,setGuide]=useState(true); // #6 접속(새로고침) 시 사용 가이드 오버레이 — 클릭해서 닫기
+  const [guide,setGuide]=useState(false);
+  const [updateStory,setUpdateStory]=useState(false);
   const [searchQuery,setSearchQuery]=useState('');
   const [searchBusy,setSearchBusy]=useState(false);
   const [searchResults,setSearchResults]=useState([]);
@@ -285,6 +287,14 @@ export default function GlobeLab(){
     const onKey=(event)=>{if(event.key === 'Escape'){setSystemPopover(null);setSearchResults([]);}};
     window.addEventListener('keydown',onKey);return()=>window.removeEventListener('keydown',onKey);
   },[]);
+  useEffect(()=>{
+    if(hasSeenGeoUpdate(window.localStorage))setGuide(true);
+    else setUpdateStory(true);
+  },[]);
+
+  const closeUpdateStory=()=>{
+    markGeoUpdateSeen(window.localStorage);setUpdateStory(false);setGuide(true);
+  };
 
   function chooseCountry(nextCountry){
     setSelectedCountry(nextCountry);setSearchQuery(nextCountry.name[lang]);setSearchResults([]);setCountry(true);setSystemPopover(null);
@@ -820,6 +830,20 @@ export default function GlobeLab(){
         <button className="ts-popup-close" onClick={()=>setTsInfo(false)}>{T.close}</button>
       </div></div>}
       <div className="watermark">{(lang==='en'?{flat:T.wmFlat,lens:T.wmLens,globe:T.wmGlobe}:MODE_WM)[view]}</div>
+      {updateStory && <div className="update-story" role="dialog" aria-modal="true" aria-labelledby="update-story-title">
+        <div className="update-story-card">
+          <div className="update-story-kicker">A NOTE FROM THE DEVELOPER</div>
+          <h2 id="update-story-title">안녕하세요, 이 지도를 만드는 개발자예요.</h2>
+          <p>수업에서 지도를 펼쳤을 때 “이 나라는 어디지?”라는 질문이 바로 다음 탐험으로 이어지면 좋겠다고 생각했어요.</p>
+          <ul>
+            <li><b>195개 나라</b>를 한국어와 영어로 찾을 수 있어요.</li>
+            <li>수도, 대략적인 인구, 정치·경제체제와 국기를 한곳에 모았어요.</li>
+            <li>검색한 나라는 지도 한가운데로 부드럽게 다가옵니다.</li>
+          </ul>
+          <p className="update-story-sign">교실에서 더 유용한 지도가 되도록 계속 다듬을게요. — parcyun</p>
+          <button onClick={closeUpdateStory}>새 지도를 만나볼게요</button>
+        </div>
+      </div>}
       {/* 푸터/공유/방문자/커피는 공용 컴포넌트(PsFooter.astro + share-widget.js + visitor-counter.js)를 world-map.astro에서 렌더 */}
       {/* #13 가이드 리워크: 모달 대신 옅은 쉐이드로 화면을 덮되 도구 상자는 덮지 않고, 각 기능 옆에 한 줄 설명 */}
       {guide && <div className="guide-shade" onClick={()=>setGuide(false)}>
@@ -969,6 +993,9 @@ export default function GlobeLab(){
         .guide-btn{width:100%;padding:12px;border:0;border-radius:12px;background:var(--ps-primary);color:#0A0C10;font-family:var(--font-kr);font-size:14px;font-weight:700;cursor:pointer;transition:filter .16s var(--ease)}
         .guide-btn:hover{filter:brightness(1.08)}
         .guide-hint{text-align:center;font-size:11px;color:var(--text-2);font-weight:300;margin-top:12px}
+        .update-story{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,6,11,.78);backdrop-filter:blur(8px);animation:guideIn .32s var(--ease)}
+        .update-story-card{box-sizing:border-box;width:min(510px,100%);padding:30px;border:1px solid rgba(255,177,26,.28);border-radius:24px;background:rgba(16,19,25,.97);box-shadow:0 30px 90px rgba(0,0,0,.58);animation:guideCard .46s var(--ease)}
+        .update-story-kicker{color:var(--ps-primary);font-family:var(--font-en);font-size:9px;font-weight:600;letter-spacing:.26em}.update-story h2{margin:8px 0 15px;color:#fff;font-size:23px;line-height:1.35;letter-spacing:-.02em}.update-story p,.update-story li{color:#C7CCD5;font-size:13px;font-weight:300;line-height:1.7}.update-story ul{display:grid;gap:6px;margin:16px 0;padding:0;list-style:none}.update-story li{position:relative;padding-left:17px}.update-story li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:2px;background:var(--ps-primary)}.update-story li b{color:#fff;font-weight:600}.update-story-sign{margin-top:16px;color:#959CAA!important}.update-story button{width:100%;margin-top:18px;padding:12px;border:0;border-radius:12px;background:var(--ps-primary);color:#090B0F;font-family:var(--font-kr);font-size:13px;font-weight:700;cursor:pointer;transition:filter .18s var(--ease),transform .18s var(--ease)}.update-story button:hover{filter:brightness(1.08);transform:translateY(-1px)}
         .projseg{position:absolute;top:18px;left:50%;transform:translateX(-50%);z-index:30;display:flex;gap:2px;padding:3px;border-radius:12px;border:1px solid var(--border);background:rgba(16,19,25,.72);backdrop-filter:blur(14px)}
         .projseg button{border:0;background:transparent;color:var(--text-2);font-family:var(--font-kr);font-size:12px;font-weight:500;padding:6px 13px;border-radius:9px;cursor:pointer;transition:all .18s var(--ease);white-space:nowrap}
         .projseg button:hover{color:#fff}.projseg button.on{background:var(--ps-primary);color:#0A0C10;font-weight:600}

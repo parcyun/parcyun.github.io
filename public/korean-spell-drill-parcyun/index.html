@@ -11022,7 +11022,7 @@ function pointPop(txt, negative, amount){
     {transform:'translate(-50%,-48%) scale(1)',opacity:1,offset:.12},
     {transform:'translate(-50%,-58%) scale(1)',opacity:1,offset:.24},
     {transform:`translate(-50%,-${155+power*95}%) scale(.82)`,opacity:0}
-  ],{duration:850+power*220,easing:'cubic-bezier(.6,0,1,.45)'}).onfinish=()=>el.remove();
+  ],{duration:283+power*73,easing:'cubic-bezier(.6,0,1,.45)'}).onfinish=()=>el.remove();
 }
 function scoreEffect(amount, negative){
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
@@ -11034,7 +11034,7 @@ function scoreEffect(amount, negative){
   ring.animate([
     {transform:'translate(-50%,-50%) scale(.25)',opacity:.78},
     {transform:`translate(-50%,-50%) scale(${1.1+power*1.8})`,opacity:0}
-  ],{duration:520+power*480,easing:'cubic-bezier(.12,.72,.2,1)'}).onfinish=()=>ring.remove();
+  ],{duration:173+power*160,easing:'cubic-bezier(.12,.72,.2,1)'}).onfinish=()=>ring.remove();
   const count=Math.round(8+power*28);
   for(let i=0;i<count;i++){
     const particle=document.createElement('i');particle.className='score-particle'+(negative?' negative':'');
@@ -11045,7 +11045,7 @@ function scoreEffect(amount, negative){
     particle.animate([
       {transform:`translate(-50%,-50%) rotate(${angle}rad) translateY(0) scale(1)`,opacity:.9},
       {transform:`translate(-50%,-50%) rotate(${angle}rad) translateY(-${distance}px) scale(.15)`,opacity:0}
-    ],{duration:430+power*520,easing:'cubic-bezier(.12,.68,.22,1)'}).onfinish=()=>particle.remove();
+    ],{duration:143+power*173,easing:'cubic-bezier(.12,.68,.22,1)'}).onfinish=()=>particle.remove();
   }
 }
 

@@ -5299,23 +5299,73 @@ export const SYSTEM_EXPLANATIONS = {
   },
 };
 export const COUNTRY_BY_ISO2 = new Map(COUNTRIES.map((country) => [country.iso2, country]));
-const normalizeSearch = (value) => String(value || '').normalize('NFKC').trim().toLocaleLowerCase();
-export function searchCountries(query, lang = 'ko') {
+export const COUNTRY_ALIASES = {
+  KR: ['한국', '남한', '남조선', 'south korea', 'republic of korea', 'rok'],
+  KP: ['북한', '북조선', '조선민주주의인민공화국', 'north korea', 'dprk'],
+  US: ['미국', '미합중국', '아메리카', 'usa', 'u.s.a.', 'united states', 'america'],
+  GB: ['영국', '브리튼', 'uk', 'u.k.', 'britain', 'great britain'],
+  RU: ['러시아', '러시아연방', 'russia'],
+  VN: ['베트남', '월남', 'vietnam'],
+  CN: ['중국', '중화인민공화국', 'china', 'prc'],
+  TW: ['대만', '타이완', 'taiwan'],
+  CZ: ['체코', '체키아', 'czech republic', 'czechia'],
+  NL: ['네덜란드', '화란', 'holland', 'netherlands'],
+  DE: ['독일', '도이칠란트', 'germany'],
+  AE: ['아랍에미리트', '두바이', '아부다비', 'uae', 'emirates'],
+  VA: ['바티칸', '바티칸시국', 'vatican'],
+};
+const normalizeSearch = (value) => String(value || '').normalize('NFKC').trim().toLocaleLowerCase().replace(/[.·'’\-]/g, '').replace(/\s+/g, '');
+function editDistance(a, b) {
+  if (a === b) return 0;
+  const row = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= a.length; i++) {
+    let diagonal = row[0];
+    row[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const previous = row[j];
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, diagonal + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diagonal = previous;
+    }
+  }
+  return row[b.length];
+}
+const searchableValues = (country, lang) => [
+  country.name[lang] || country.name.ko,
+  country.name.ko,
+  country.name.en,
+  country.officialName[lang] || country.officialName.ko,
+  country.officialName.ko,
+  country.officialName.en,
+  country.capital[lang] || country.capital.ko,
+  country.capital.ko,
+  country.capital.en,
+  country.iso2,
+  country.iso3,
+].map(normalizeSearch).filter(Boolean);
+export function searchCountryMatches(query, lang = 'ko') {
   const needle = normalizeSearch(query);
   if (!needle) return [];
-  return COUNTRIES.filter((country) => [
-    country.name[lang] || country.name.ko,
-    country.name.ko,
-    country.name.en,
-    country.officialName[lang] || country.officialName.ko,
-    country.officialName.ko,
-    country.officialName.en,
-    country.capital[lang] || country.capital.ko,
-    country.capital.ko,
-    country.capital.en,
-    country.iso2,
-    country.iso3,
-  ].some((value) => normalizeSearch(value).includes(needle))).slice(0, 8);
+  const matches = [];
+  for (const country of COUNTRIES) {
+    const values = searchableValues(country, lang);
+    const aliases = (COUNTRY_ALIASES[country.iso2] || []).map(normalizeSearch);
+    const exactIndex = values.findIndex((value) => value === needle);
+    const partialIndex = values.findIndex((value) => value.includes(needle));
+    const aliasIndex = aliases.findIndex((value) => value === needle || value.includes(needle));
+    if (exactIndex >= 0) matches.push({ country, matchType: 'exact', score: 1000 - exactIndex });
+    else if (partialIndex >= 0) matches.push({ country, matchType: 'exact', score: 850 - partialIndex });
+    else if (aliasIndex >= 0) matches.push({ country, matchType: 'alias', score: 700 - aliasIndex });
+    else if (needle.length >= 3) {
+      const candidates = [...values.slice(0, 6), ...aliases];
+      const distance = Math.min(...candidates.map((value) => editDistance(needle, value)));
+      const allowed = needle.length <= 4 ? 1 : Math.max(1, Math.floor(needle.length * 0.25));
+      if (distance <= allowed) matches.push({ country, matchType: 'fuzzy', score: 400 - distance * 25 });
+    }
+  }
+  return matches.sort((a, b) => b.score - a.score || a.country.name[lang].localeCompare(b.country.name[lang])).slice(0, 8);
+}
+export function searchCountries(query, lang = 'ko') {
+  return searchCountryMatches(query, lang).map((match) => match.country);
 }
 export function countryByBoundaryName(name) {
   return COUNTRIES.find((country) => country.boundaryName === name || country.name.en === name) || null;

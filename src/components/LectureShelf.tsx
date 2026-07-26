@@ -10,7 +10,6 @@ const CATEGORY: Category = '강의 자료';
 const SUBJECT_EN: Record<string, string> = {
   '연수 아카이브': 'Training Archive',
   'LLM · Harness Agent': 'LLM & Harness',
-  'AI 에듀테크': 'AI EdTech',
   'Notion 활용': 'Notion',
 };
 

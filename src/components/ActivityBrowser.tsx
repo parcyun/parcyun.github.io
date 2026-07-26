@@ -31,7 +31,7 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
   const allTags = useMemo(() => {
     const count = new Map<string, number>();
     for (const r of resources) for (const t of r.tags) count.set(t, (count.get(t) ?? 0) + 1);
-    return [...count.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([t]) => t);
+    return [...count.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).map(([t]) => t);
   }, [resources]);
 
   // 렌더 타입 = 기본 4종 + 데이터에 있는 미지 타입(Supabase 직접 추가분 등) → 조용히 사라지지 않게

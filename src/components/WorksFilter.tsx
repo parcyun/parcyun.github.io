@@ -4,6 +4,7 @@ import { useWorks } from '../lib/useWorks';
 import { useAdmin } from '../lib/useAdmin';
 import { adminDeleteWork } from '../lib/adminPw';
 import WorkEditModal from './admin/WorkEditModal';
+import WorkHoverPreview, { workPreviewId } from './WorkHoverPreview';
 import { sanitizeInlineHtml } from '../lib/sanitize';
 
 type StatusFilter = '전체' | 'live' | 'soon';
@@ -123,7 +124,7 @@ export default function WorksFilter() {
           {filtered.map((w) =>
             w.status === 'live' ? (
               <div className="work-card-wrap" key={w.num}>
-                <a href={w.url} className="work-card live" target="_blank" rel="noopener noreferrer">
+                <a href={w.url} className="work-card live" target="_blank" rel="noopener noreferrer" aria-describedby={workPreviewId(w.num)}>
                   <div className="work-poster">
                     <span className="status live">Live</span>
                     <span className="pnum">{w.num}</span>
@@ -139,11 +140,12 @@ export default function WorksFilter() {
                     </div>
                   </div>
                 </a>
+                <WorkHoverPreview work={w} />
                 {adminBar(w)}
               </div>
             ) : (
               <div className="work-card-wrap" key={w.num}>
-                <div className="work-card soon">
+                <div className="work-card soon" tabIndex={0} aria-describedby={workPreviewId(w.num)}>
                   <div className="work-poster">
                     <span className="status soon">Soon</span>
                     <span className="pnum">{w.num}</span>
@@ -159,6 +161,7 @@ export default function WorksFilter() {
                     </div>
                   </div>
                 </div>
+                <WorkHoverPreview work={w} />
                 {adminBar(w)}
               </div>
             )
@@ -189,6 +192,16 @@ export default function WorksFilter() {
         .wf-add:hover{background:#fff}
         .wf-add-off{align-self:flex-start;font-family:var(--ps-font-body);font-size:12.5px;font-weight:600;border-radius:100px;padding:8px 16px;margin-bottom:12px;opacity:.55;cursor:not-allowed;color:#8C8C8C;background:transparent;border:1px solid var(--ps-surface-cinematic-3)}
         .work-card-wrap{position:relative}
+        .work-hover-preview{display:none}
+        @media(hover:hover) and (pointer:fine){
+          .work-card-wrap:hover,.work-card-wrap:focus-within{z-index:50}
+          .work-hover-preview{position:absolute;bottom:calc(100% + 12px);left:0;z-index:40;width:100%;min-height:270px;display:grid;grid-template-rows:150px auto;gap:14px;padding:16px;border:1px solid rgba(255,177,26,.42);border-radius:18px;background:rgba(20,20,20,.98);box-shadow:0 22px 56px rgba(0,0,0,.6);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(10px);transition:opacity .3s ease,transform .3s var(--ps-ease-out),visibility 0s linear .3s}
+          .work-card-wrap:hover .work-hover-preview,.work-card-wrap:focus-within .work-hover-preview{opacity:1;visibility:visible;transform:translateY(0);transition-delay:.7s,.7s,.7s}
+          .work-hover-image{width:100%;height:150px;object-fit:cover;object-position:top;border-radius:12px;background:#000}
+          .work-hover-copy{display:flex;min-width:0;flex-direction:column;gap:8px;color:#C5C5C5;font-size:12px;line-height:1.65}
+          .work-hover-copy strong{color:#fff;font-size:14px;font-weight:600;line-height:1.4}
+          .work-hover-kind{color:var(--ps-primary);font-family:var(--ps-font-en);font-size:9px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+        }
         .work-admin{position:absolute;top:10px;right:10px;display:flex;gap:5px;z-index:2}
         .work-admin-btn{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.65);color:#B8B8B8;cursor:pointer;font-size:12px;line-height:1;padding:0}
         .work-admin-btn:hover{color:#fff;border-color:rgba(255,255,255,.4)}

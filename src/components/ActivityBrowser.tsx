@@ -219,10 +219,11 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
         .act-admin-btn.danger:hover{color:#ff8080}
         .resource-hover-preview{display:none}
         @media(hover:hover) and (pointer:fine){
-          .resource-hover-preview{position:absolute;top:calc(100% + 10px);left:0;z-index:40;width:min(430px,calc(100vw - 48px));display:grid;grid-template-columns:120px minmax(0,1fr);gap:14px;padding:12px;border:1px solid rgba(255,177,26,.42);border-radius:16px;background:rgba(20,20,20,.97);box-shadow:0 18px 48px rgba(0,0,0,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-10px);transition:opacity .3s ease,transform .3s var(--ps-ease-out),visibility 0s linear .3s}
+          .act-card-wrap:hover,.act-card-wrap:focus-within{z-index:50}
+          .resource-hover-preview{position:absolute;bottom:calc(100% + 12px);left:0;z-index:40;width:100%;min-height:250px;display:grid;grid-template-rows:140px auto;gap:14px;padding:16px;border:1px solid rgba(255,177,26,.42);border-radius:18px;background:rgba(20,20,20,.98);box-shadow:0 22px 56px rgba(0,0,0,.6);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(10px);transition:opacity .3s ease,transform .3s var(--ps-ease-out),visibility 0s linear .3s}
           .act-card-wrap:hover .resource-hover-preview,.act-card-wrap:focus-within .resource-hover-preview{opacity:1;visibility:visible;transform:translateY(0);transition-delay:.7s,.7s,.7s}
-          .resource-hover-image{width:120px;aspect-ratio:16/10;object-fit:cover;border-radius:10px;background:#000}
-          .resource-hover-copy{display:flex;min-width:0;flex-direction:column;gap:5px;color:#B8B8B8;font-size:12px;line-height:1.55}
+          .resource-hover-image{width:100%;height:140px;object-fit:cover;object-position:top;border-radius:12px;background:#000}
+          .resource-hover-copy{display:flex;min-width:0;flex-direction:column;gap:8px;color:#C5C5C5;font-size:12px;line-height:1.65}
           .resource-hover-copy strong{color:#fff;font-size:14px;font-weight:600;line-height:1.4}
           .resource-hover-kind{display:flex;align-items:center;gap:6px;color:var(--ps-primary);font-family:var(--ps-font-en);font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase}
         }

@@ -123,7 +123,7 @@ export default function WorksFilter() {
           {filtered.map((w) =>
             w.status === 'live' ? (
               <div className="work-card-wrap" key={w.num}>
-                <a href={w.url} className="work-card live">
+                <a href={w.url} className="work-card live" target="_blank" rel="noopener noreferrer">
                   <div className="work-poster">
                     <span className="status live">Live</span>
                     <span className="pnum">{w.num}</span>

@@ -36,12 +36,12 @@ export const works: Work[] = [
   },
   {
     num: '003',
-    title: '다음 주 공개 예정',
-    titleHtml: '다음 주<br>공개 예정',
-    desc: '다음 웹서비스를 준비 중입니다. 매주 이 자리에 새 카드가 하나씩 추가됩니다.',
-    week: 'Week 03 · 2026.06',
+    title: '공부에서 작품으로, 웹디자인 포트폴리오',
+    titleHtml: '공부에서 작품으로<br>웹디자인 포트폴리오',
+    desc: '웹디자인을 공부하며 익힌 타이포그래피·레이아웃·인터랙션을 실제 사이트로 완성해 공개하는 공간입니다. 첫 결과물과 제작 이야기를 곧 선보입니다.',
+    week: 'First reveal · Coming soon',
     url: '',
     status: 'soon',
-    tags: ['Coming soon'],
+    tags: ['Web Design', 'Portfolio', 'Coming soon'],
   },
 ];

@@ -25,3 +25,13 @@ test('Titan tools keep the existing cinematic hierarchy and responsive list layo
   assert.match(source, /@media \(max-width: 639px\)/);
   assert.match(source, /Tools of Titans/);
 });
+
+test('Titan tools can be searched and filtered by category', () => {
+  assert.match(source, /data-titan-search/);
+  for (const category of ['all', 'design', 'skill', 'workflow']) {
+    assert.match(source, new RegExp(`data-titan-filter="${category}"`));
+  }
+  assert.match(source, /filterTitanTools/);
+  assert.match(source, /toLocaleLowerCase\('ko'\)/);
+  assert.match(source, /검색 조건에 맞는 도구가 없습니다/);
+});

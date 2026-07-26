@@ -349,11 +349,80 @@ section { padding: 96px 0; }
 }
 .titan-intro {
   max-width: 680px;
-  margin: -20px 0 48px;
+  margin: -20px 0 32px;
   color: #B8B8B8;
   font-size: 15px;
   line-height: 1.8;
 }
+.titan-controls {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) auto;
+  gap: 16px 24px;
+  align-items: center;
+  margin-bottom: 28px;
+}
+.titan-search {
+  position: relative;
+}
+.titan-search input {
+  width: 100%;
+  height: 48px;
+  padding: 0 46px 0 18px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 14px;
+  background: var(--ps-surface-cinematic-1);
+  color: #fff;
+  font: 400 14px/1 var(--ps-font-body);
+  outline: none;
+  transition: border-color 180ms var(--ps-ease-out), box-shadow 180ms var(--ps-ease-out);
+}
+.titan-search input::placeholder { color: #777; }
+.titan-search input:focus {
+  border-color: var(--ps-primary);
+  box-shadow: 0 0 0 3px rgba(255, 177, 26, 0.12);
+}
+.titan-search-icon {
+  position: absolute;
+  top: 50%;
+  right: 17px;
+  color: var(--ps-text-cinematic-secondary);
+  font-size: 16px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.titan-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.titan-filter {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--ps-text-cinematic-secondary);
+  font: 500 12px/1 var(--ps-font-body);
+  cursor: pointer;
+  transition: color 180ms var(--ps-ease-out), border-color 180ms var(--ps-ease-out), background 180ms var(--ps-ease-out);
+}
+.titan-filter:hover { color: #fff; border-color: rgba(255, 177, 26, 0.62); }
+.titan-filter.is-active {
+  border-color: var(--ps-primary);
+  background: var(--ps-primary);
+  color: #000;
+  font-weight: 700;
+}
+.titan-item[hidden] { display: none; }
+.titan-empty {
+  display: none;
+  padding: 34px 18px;
+  border-top: 1px solid var(--ps-surface-cinematic-3);
+  color: var(--ps-text-cinematic-secondary);
+  font-size: 14px;
+  text-align: center;
+}
+.titan-empty.is-visible { display: block; }
 .titan-list {
   list-style: none;
   margin: 0;
@@ -418,6 +487,7 @@ section { padding: 96px 0; }
   white-space: nowrap;
 }
 @media (max-width: 639px) {
+  .titan-controls { grid-template-columns: 1fr; }
   .titan-link {
     grid-template-columns: 32px minmax(0, 1fr);
     gap: 12px;
@@ -483,7 +553,6 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
     <h1 data-ps-edit-id="ps-works-005" data-ps-design-id="ps-works-005" class="hero-wordmark">Works</h1>
     <p data-ps-edit-id="ps-works-006" data-ps-design-id="ps-works-006" class="hero-name">parcyun · 박창현</p>
     <p data-ps-edit-id="ps-works-007" data-ps-design-id="ps-works-007" class="hero-tagline">
-      매주 하나씩, <strong>웹서비스</strong>를 만들어 쌓습니다.<br>
       작게 시작해 꾸준히 늘려가는 빌드 아카이브.
     </p>
     <div class="hero-ctas">
@@ -520,8 +589,21 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
     <p data-ps-edit-id="ps-works-022" data-ps-design-id="ps-works-022" class="titan-intro">
       더 잘 계획하고, 더 빠르게 검증하고, 더 단단하게 만드는 데 도움을 주는 디자인·개발 도구 모음입니다.
     </p>
+    <div class="titan-controls" data-titan-controls>
+      <label data-ps-edit-id="ps-works-058" data-ps-design-id="ps-works-058" class="titan-search">
+        <span data-ps-edit-id="ps-works-059" data-ps-design-id="ps-works-059" class="sr-only">타이탄의 도구 검색</span>
+        <input type="search" placeholder="도구 이름이나 설명으로 검색" autocomplete="off" data-titan-search />
+        <span data-ps-edit-id="ps-works-060" data-ps-design-id="ps-works-060" class="titan-search-icon" aria-hidden="true">⌕</span>
+      </label>
+      <div class="titan-filters" role="group" aria-label="도구 카테고리">
+        <button data-ps-edit-id="ps-works-061" data-ps-design-id="ps-works-061" class="titan-filter is-active" type="button" data-titan-filter="all" aria-pressed="true">전체</button>
+        <button data-ps-edit-id="ps-works-062" data-ps-design-id="ps-works-062" class="titan-filter" type="button" data-titan-filter="design" aria-pressed="false">디자인</button>
+        <button data-ps-edit-id="ps-works-063" data-ps-design-id="ps-works-063" class="titan-filter" type="button" data-titan-filter="skill" aria-pressed="false">스킬</button>
+        <button data-ps-edit-id="ps-works-064" data-ps-design-id="ps-works-064" class="titan-filter" type="button" data-titan-filter="workflow" aria-pressed="false">워크플로</button>
+      </div>
+    </div>
     <ol class="titan-list">
-      <li data-ps-edit-id="ps-works-033" data-ps-design-id="ps-works-033" class="titan-item">
+      <li data-ps-edit-id="ps-works-033" data-ps-design-id="ps-works-033" class="titan-item" data-titan-category="design">
         <a data-ps-edit-id="ps-works-034" data-ps-design-id="ps-works-034" class="titan-link" href="https://getdesign.md/" target="_blank" rel="noopener noreferrer">
           <span data-ps-edit-id="ps-works-035" data-ps-design-id="ps-works-035" class="titan-num">01</span>
           <span data-ps-edit-id="ps-works-036" data-ps-design-id="ps-works-036">
@@ -531,7 +613,7 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
           <span data-ps-edit-id="ps-works-037" data-ps-design-id="ps-works-037" class="titan-kind">Design Reference ↗</span>
         </a>
       </li>
-      <li data-ps-edit-id="ps-works-038" data-ps-design-id="ps-works-038" class="titan-item">
+      <li data-ps-edit-id="ps-works-038" data-ps-design-id="ps-works-038" class="titan-item" data-titan-category="skill">
         <a data-ps-edit-id="ps-works-039" data-ps-design-id="ps-works-039" class="titan-link" href="https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me" target="_blank" rel="noopener noreferrer">
           <span data-ps-edit-id="ps-works-040" data-ps-design-id="ps-works-040" class="titan-num">02</span>
           <span data-ps-edit-id="ps-works-041" data-ps-design-id="ps-works-041">
@@ -541,7 +623,7 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
           <span data-ps-edit-id="ps-works-042" data-ps-design-id="ps-works-042" class="titan-kind">Planning Skill ↗</span>
         </a>
       </li>
-      <li data-ps-edit-id="ps-works-043" data-ps-design-id="ps-works-043" class="titan-item">
+      <li data-ps-edit-id="ps-works-043" data-ps-design-id="ps-works-043" class="titan-item" data-titan-category="workflow">
         <a data-ps-edit-id="ps-works-044" data-ps-design-id="ps-works-044" class="titan-link" href="https://github.com/Q00/ouroboros/blob/main/README.ko.md" target="_blank" rel="noopener noreferrer">
           <span data-ps-edit-id="ps-works-045" data-ps-design-id="ps-works-045" class="titan-num">03</span>
           <span data-ps-edit-id="ps-works-046" data-ps-design-id="ps-works-046">
@@ -551,7 +633,7 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
           <span data-ps-edit-id="ps-works-047" data-ps-design-id="ps-works-047" class="titan-kind">MCP Workflow ↗</span>
         </a>
       </li>
-      <li data-ps-edit-id="ps-works-048" data-ps-design-id="ps-works-048" class="titan-item">
+      <li data-ps-edit-id="ps-works-048" data-ps-design-id="ps-works-048" class="titan-item" data-titan-category="design">
         <a data-ps-edit-id="ps-works-049" data-ps-design-id="ps-works-049" class="titan-link" href="https://astryx.atmeta.com/" target="_blank" rel="noopener noreferrer">
           <span data-ps-edit-id="ps-works-050" data-ps-design-id="ps-works-050" class="titan-num">04</span>
           <span data-ps-edit-id="ps-works-051" data-ps-design-id="ps-works-051">
@@ -561,7 +643,7 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
           <span data-ps-edit-id="ps-works-052" data-ps-design-id="ps-works-052" class="titan-kind">Design System ↗</span>
         </a>
       </li>
-      <li data-ps-edit-id="ps-works-053" data-ps-design-id="ps-works-053" class="titan-item">
+      <li data-ps-edit-id="ps-works-053" data-ps-design-id="ps-works-053" class="titan-item" data-titan-category="skill">
         <a data-ps-edit-id="ps-works-054" data-ps-design-id="ps-works-054" class="titan-link" href="https://github.com/parcyun/pre-design" target="_blank" rel="noopener noreferrer">
           <span data-ps-edit-id="ps-works-055" data-ps-design-id="ps-works-055" class="titan-num">05</span>
           <span data-ps-edit-id="ps-works-056" data-ps-design-id="ps-works-056">
@@ -572,6 +654,7 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
         </a>
       </li>
     </ol>
+    <p data-ps-edit-id="ps-works-065" data-ps-design-id="ps-works-065" class="titan-empty" data-titan-empty>검색 조건에 맞는 도구가 없습니다.</p>
   </div>
 </section>
 
@@ -581,6 +664,37 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
 <!-- ===== Entry animation ===== -->
 <script is:inline>
 (function(){
+  var titanSearch = document.querySelector('[data-titan-search]');
+  var titanFilters = Array.from(document.querySelectorAll('[data-titan-filter]'));
+  var titanItems = Array.from(document.querySelectorAll('[data-titan-category]'));
+  var titanEmpty = document.querySelector('[data-titan-empty]');
+  var titanCategory = 'all';
+
+  function filterTitanTools() {
+    var query = titanSearch ? titanSearch.value.trim().toLocaleLowerCase('ko') : '';
+    var visible = 0;
+    titanItems.forEach(function(item) {
+      var categoryMatches = titanCategory === 'all' || item.dataset.titanCategory === titanCategory;
+      var textMatches = !query || item.textContent.toLocaleLowerCase('ko').includes(query);
+      item.hidden = !(categoryMatches && textMatches);
+      if (!item.hidden) visible += 1;
+    });
+    if (titanEmpty) titanEmpty.classList.toggle('is-visible', visible === 0);
+  }
+
+  if (titanSearch) titanSearch.addEventListener('input', filterTitanTools);
+  titanFilters.forEach(function(button) {
+    button.addEventListener('click', function() {
+      titanCategory = button.dataset.titanFilter || 'all';
+      titanFilters.forEach(function(candidate) {
+        var active = candidate === button;
+        candidate.classList.toggle('is-active', active);
+        candidate.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      filterTitanTools();
+    });
+  });
+
   if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.querySelectorAll('section').forEach(function(el){ el.classList.add('in-view'); });
     return;

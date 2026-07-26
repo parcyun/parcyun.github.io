@@ -28,7 +28,7 @@ test('feedback database keeps posts private until an admin publishes them', asyn
 test('Atlas, GeoWeb, and Spell Drill load one shared footer module', async () => {
   const atlas = await read('src/pages/atlas-gears.astro');
   const geo = await read('src/pages/world-map.astro');
-  const spelling = await read('public/korean-spell-drill-parcyun/index.html');
+  const spelling = await read('public/spell-drill/index.html');
   const footer = await read('src/components/PsFooter.astro');
   const sharedFooter = await read('public/ps-footer.js');
 
@@ -51,11 +51,11 @@ test('Atlas, GeoWeb, and Spell Drill load one shared footer module', async () =>
   assert.match(sharedFooter, /feedback-board\.js/);
 });
 
-test('homepage hides the feedback trigger without hiding it from other pages', async () => {
+test('homepage exposes the shared feedback trigger like every other page', async () => {
   const home = await read('src/pages/index.astro');
   const footer = await read('src/components/PsFooter.astro');
 
-  assert.match(home, /showFeedback=\{false\}/);
+  assert.doesNotMatch(home, /showFeedback=\{false\}/);
   assert.match(footer, /showFeedback = true/);
   assert.match(footer, /data-show-feedback=\{String\(showFeedback\)\}/);
 });
@@ -89,7 +89,7 @@ test('shared footer module keeps the compact no-link baseline for Atlas and GeoW
 test('all shared-footer pages load the same Montserrat text weights', async () => {
   const atlas = await read('src/pages/atlas-gears.astro');
   const geo = await read('src/pages/world-map.astro');
-  const spelling = await read('public/korean-spell-drill-parcyun/index.html');
+  const spelling = await read('public/spell-drill/index.html');
 
   for (const page of [atlas, geo, spelling]) {
     assert.match(page, /Montserrat:wght@[^"']*300;400;500;600;700/);
@@ -108,7 +108,7 @@ test('shared footer owns typography, color, and line-height instead of inheritin
 
 test('coffee action opens a collaboration email hook instead of a QR donation modal', async () => {
   const sharedFooter = await read('public/ps-footer.js');
-  const spelling = await read('public/korean-spell-drill-parcyun/index.html');
+  const spelling = await read('public/spell-drill/index.html');
 
   assert.doesNotMatch(sharedFooter, /coffee-qr|coffee-qr-fallback|coffee-qr\.png/);
   assert.match(sharedFooter, /커피 대신, 같이 뭔가 만들어볼까요\?/);
@@ -166,7 +166,7 @@ test('content studio route contains a Figma-style inspector and career CRUD cont
 test('all editable page shells load the current content runtime', async () => {
   const footer = await read('src/components/PsFooter.astro');
   const layout = await read('src/layouts/CinematicLayout.astro');
-  const spelling = await read('public/korean-spell-drill-parcyun/index.html');
+  const spelling = await read('public/spell-drill/index.html');
 
   assert.match(footer, /src="\/site-content\.js\?v=[^"]+"/);
   assert.match(layout, /src="\/site-content\.js\?v=[^"]+"/);

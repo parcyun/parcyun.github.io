@@ -129,7 +129,7 @@ test('current editable page shells author durable text and design ids', async ()
     'src/pages/academica.astro',
     'src/pages/atlas-gears.astro',
     'src/pages/works.astro',
-    'public/korean-spell-drill-parcyun/index.html',
+    'public/spell-drill/index.html',
   ];
   const tag = /<(h[1-6]|p|li|figcaption|blockquote|dd|dt|summary|span|a|button|label|legend|td|th)\b([^>]*)>/gi;
   for (const file of files) {

@@ -3,7 +3,7 @@
 export type Category = '강의 자료' | '교육 활동 자료';
 // 활동 타입: 게임 · 활동지 · 커리큘럼 · 인터랙티브
 // 강의 타입: 강의 · 실습 · 가이드 · 아카이브
-export type ResourceType = '게임' | '활동지' | '커리큘럼' | '인터랙티브' | '수업 보조 도구' | '강의' | '실습' | '가이드' | '아카이브';
+export type ResourceType = '게임' | '활동지' | '커리큘럼' | '인터랙티브' | '수업 보조 도구' | 'AI, 에듀테크 도구 찾아보기' | '강의' | '실습' | '가이드' | '아카이브';
 
 export interface Resource {
   id: string;
@@ -91,8 +91,8 @@ export const resources: Resource[] = [
     url: 'https://parcyun.notion.site/AI-5a56a8c4c29e43edbced6a71a1d6e67b?source=copy_link',
     external: true,
     category: '교육 활동 자료',
-    type: '수업 보조 도구',
-    subject: '수업 도구',
+    type: 'AI, 에듀테크 도구 찾아보기',
+    subject: 'AI · 에듀테크',
     thumb: '🧰',
     lid: 'Tool · AI EdTech',
     posterTitle: '<strong>AI 에듀테크</strong><br>활용 도구 목록',
@@ -101,10 +101,26 @@ export const resources: Resource[] = [
     tags: ['AI', '에듀테크', '수업도구'],
   },
   {
+    id: 'edubeige',
+    title: '에듀베이지 · 교사용 에듀테크 큐레이션',
+    desc: '과목·학년·수업 상황에 맞는 에듀테크 도구와 실제 수업 사례를 찾아보고 저장할 수 있는 교사 전용 큐레이션 서비스.',
+    url: 'https://www.edubeige.com/',
+    external: true,
+    category: '교육 활동 자료',
+    type: 'AI, 에듀테크 도구 찾아보기',
+    subject: 'AI · 에듀테크',
+    thumb: '🔎',
+    lid: 'Explore · EdTech',
+    posterTitle: '<strong>에듀베이지</strong><br>에듀테크 큐레이션',
+    date: '2026.07.26',
+    meta: ['2026.07.26', 'EDUBEIGE ↗', 'FOR EDUCATORS'],
+    tags: ['에듀테크', '도구찾기', '수업사례', '교사용'],
+  },
+  {
     id: 'spell-drill',
     title: '한글 맞춤법 연습 게임',
     desc: '헷갈리기 쉬운 한글 맞춤법을 게임으로 익히는 학생용 학습 도구. 짧은 자투리 시간에 교실에서 바로 활용 가능합니다.',
-    url: '/korean-spell-drill-parcyun/',
+    url: '/spell-drill/',
     external: true,
     category: '교육 활동 자료',
     type: '게임',
@@ -228,4 +244,4 @@ export const resources: Resource[] = [
 ];
 
 // 활동 타입 순서 (ATLAS GEARS 카테고리 표시 순)
-export const ACTIVITY_TYPES: ResourceType[] = ['게임', '인터랙티브', '활동지', '커리큘럼', '수업 보조 도구'];
+export const ACTIVITY_TYPES: ResourceType[] = ['게임', '인터랙티브', '활동지', '커리큘럼', '수업 보조 도구', 'AI, 에듀테크 도구 찾아보기'];

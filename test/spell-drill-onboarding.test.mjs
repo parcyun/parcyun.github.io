@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-const source = () => readFile(new URL('../public/korean-spell-drill-parcyun/index.html', import.meta.url), 'utf8');
+const source = () => readFile(new URL('../public/spell-drill/index.html', import.meta.url), 'utf8');
 
 test('Spell Drill opens with a developer story and versioned update history', async () => {
   const page = await source();

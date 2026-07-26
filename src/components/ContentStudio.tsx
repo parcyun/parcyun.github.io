@@ -42,7 +42,7 @@ const PAGES = [
   { id: 'academica', label: 'ACADEMICA', path: '/academica/' },
   { id: 'atlas', label: 'ATLAS GEARS', path: '/atlas-gears/' },
   { id: 'geoweb', label: 'GeoWeb', path: '/world-map/' },
-  { id: 'spell', label: 'Spell Drill', path: '/korean-spell-drill-parcyun/' },
+  { id: 'spell', label: 'Spell Drill', path: '/spell-drill/' },
   { id: 'works', label: 'Works', path: '/works/' },
 ];
 const PAGE_DESIGN_FIELDS = ['visibility', 'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'textAlign', 'color', 'backgroundColor', 'borderColor', 'borderWidth', 'borderStyle', 'padding', 'margin', 'borderRadius', 'opacity'] as const;

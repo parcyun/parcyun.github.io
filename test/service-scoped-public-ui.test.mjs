@@ -8,9 +8,11 @@ const read = (path) => readFile(new URL(path, root), 'utf8');
 test('shared footer passes its service to the review route and feedback widget', async () => {
   const footer = await read('public/ps-footer.js');
 
-  assert.match(footer, /PSServiceContext\.resolveServiceKey/);
-  assert.match(footer, /service=\$\{encodeURIComponent/);
+  assert.match(footer, /PSServiceContext\.resolveSubmissionServiceKey/);
+  assert.match(footer, /PSServiceContext\.resolveViewServiceKey/);
+  assert.match(footer, /service=\$\{encodeURIComponent[^]*source=\$\{encodeURIComponent/);
   assert.match(footer, /__psFeedbackServiceKey/);
+  assert.match(footer, /__psFeedbackSubmissionServiceKey/);
   assert.match(footer, /feedback-board\.js[^]*ASSET_VERSION/);
 });
 
@@ -50,12 +52,12 @@ test('reviews list provides a hidden-scrollbar ten-card viewport and removes the
 test('all public feedback and review scripts use the same cache-busting release', async () => {
   const [component, spell, reviewsPage, preview, footer] = await Promise.all([
     read('src/components/PsFooter.astro'),
-    read('public/korean-spell-drill-parcyun/index.html'),
+    read('public/spell-drill/index.html'),
     read('src/pages/reviews.astro'),
     read('public/footer-preview.html'),
     read('public/ps-footer.js'),
   ]);
-  const expected = '20260720.3';
+  const expected = '20260726.1';
   for (const source of [component, spell, preview]) {
     assert.match(source, new RegExp(`service-context\\.js\\?v=${expected}`));
     assert.match(source, new RegExp(`ps-footer\\.js\\?v=${expected}`));

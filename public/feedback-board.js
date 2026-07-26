@@ -7,7 +7,15 @@
   var SUPABASE_ANON_KEY = 'sb_publishable_qHxQM-Z6vVAk9YKMluyFSw_0_fo9sKY';
   var VOTER_KEY = 'ps_feedback_voter';
   var serviceKey = window.__psFeedbackServiceKey || 'other';
+  var submissionServiceKey = window.__psFeedbackSubmissionServiceKey || 'other';
   var serviceContext = window.PSServiceContext;
+  var SERVICE_LABELS = {
+    home: 'parcyun studio',
+    'spell-drill': 'Spell Drill',
+    'atlas-gears': 'ATLAS GEARS',
+    geoweb: 'GeoWeb',
+    other: '기타'
+  };
   var opener = null;
 
   function voterId() {
@@ -87,6 +95,12 @@
       var body = document.createElement('p');
       body.className = 'ps-feedback-post-body';
       body.textContent = post.body;
+      if (serviceKey === 'all') {
+        var serviceTag = document.createElement('span');
+        serviceTag.className = 'ps-feedback-service-tag';
+        serviceTag.textContent = SERVICE_LABELS[post.service_key] || '기타';
+        item.appendChild(serviceTag);
+      }
       if (post.implemented_at) {
         var implemented = document.createElement('span');
         implemented.className = 'ps-feedback-implemented';
@@ -122,7 +136,9 @@
 
   function loadPosts() {
     list.textContent = '게시글을 불러오는 중…';
-    return rpc('list_feedback', { p_service_key: serviceKey })
+    return (serviceKey === 'all'
+      ? rpc('list_all_feedback')
+      : rpc('list_feedback', { p_service_key: serviceKey }))
       .then(renderPosts)
       .catch(function () { list.textContent = '게시글을 불러오지 못했습니다.'; });
   }
@@ -157,7 +173,7 @@
     var sourcePath = serviceContext
       ? serviceContext.sourcePathForFeedback(location.pathname, location.search)
       : (location.pathname || '/');
-    rpc('submit_feedback', { p_body: body, p_source_path: sourcePath, p_author_id: voterId(), p_service_key: serviceKey })
+    rpc('submit_feedback', { p_body: body, p_source_path: sourcePath, p_author_id: voterId(), p_service_key: submissionServiceKey })
       .then(function () { textarea.value = ''; status.textContent = '등록되었습니다. 관리자 승인 후 공개됩니다.'; })
       .catch(function (error) { status.textContent = error.message || '등록에 실패했습니다.'; })
       .finally(function () { submit.disabled = false; });
@@ -174,6 +190,7 @@
     + '.ps-feedback-form{width:100%}.ps-feedback-form label{display:block;width:100%;margin:0}.ps-feedback-form textarea{display:block;width:100%;margin:0;min-height:112px;resize:vertical;border:1px solid #333;border-radius:10px;background:#090909;color:#fff;padding:12px;font:14px/1.6 Pretendard Variable,Pretendard,sans-serif;outline:0}.ps-feedback-form textarea:focus{border-color:#FFB11A}'
     + '.ps-feedback-form-row{min-height:40px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}.ps-feedback-status{margin:0;color:#B8B8B8;font-size:12px;line-height:1.45}.ps-feedback-form button{flex:none;border:0;border-radius:999px;background:#FFB11A;color:#000;padding:9px 16px;font:600 13px Pretendard Variable,Pretendard,sans-serif;cursor:pointer}.ps-feedback-form button:hover{background:#E89500}.ps-feedback-form button:disabled,.ps-feedback-like:disabled{opacity:.55;cursor:wait}'
     + '.ps-feedback-divider{height:1px;background:#2A2A2A;margin:24px 0 16px}.ps-feedback-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}.ps-feedback-head h3{margin:0;font-size:15px}.ps-feedback-count{font:11px Montserrat,sans-serif;color:#8C8C8C}.ps-feedback-list{display:flex;flex-direction:column;margin-top:8px}.ps-feedback-post{padding:16px 0;border-bottom:1px solid #2A2A2A}.ps-feedback-post:last-child{border:0}.ps-feedback-implemented{display:inline-flex;margin-bottom:8px;border:1px solid rgba(135,216,163,.45);border-radius:999px;padding:4px 8px;color:#87D8A3;font-size:11px}.ps-feedback-post-body{white-space:pre-wrap;margin:0;color:#EEE;font-size:14px;line-height:1.65}.ps-feedback-post-meta{display:flex;align-items:center;justify-content:space-between;margin-top:10px;color:#8C8C8C;font:11px Montserrat,sans-serif}.ps-feedback-like{border:1px solid #333;background:transparent;border-radius:999px;color:#B8B8B8;padding:5px 9px;font:11px Pretendard Variable,Pretendard,sans-serif;cursor:pointer}.ps-feedback-like:hover,.ps-feedback-like.is-liked{border-color:#FFB11A;color:#FFB11A}.ps-feedback-empty{margin:12px 0;color:#8C8C8C;font-size:13px;line-height:1.6}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}'
+    + '.ps-feedback-service-tag{display:inline-flex;margin-bottom:8px;border:1px solid rgba(255,177,26,.35);border-radius:999px;padding:3px 8px;color:#FFB11A;font:600 10px Montserrat,Pretendard,sans-serif;letter-spacing:.04em}'
     + '@media(max-width:520px){.ps-feedback-modal{padding:12px}.ps-feedback-card{max-height:92vh;padding:24px 20px}.ps-feedback-form-row{align-items:flex-end}.ps-feedback-form button{padding:9px 13px}}';
   document.head.appendChild(style);
 })();

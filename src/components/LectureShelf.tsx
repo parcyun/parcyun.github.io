@@ -5,6 +5,7 @@ import { useResources } from '../lib/useResources';
 import { useAdmin } from '../lib/useAdmin';
 import { adminDeleteResource } from '../lib/adminPw';
 import ResourceEditModal from './admin/ResourceEditModal';
+import ResourceHoverPreview, { resourcePreviewId } from './ResourceHoverPreview';
 
 const CATEGORY: Category = '강의 자료';
 const SUBJECT_EN: Record<string, string> = {
@@ -51,7 +52,7 @@ export default function LectureShelf() {
           <div className="hbooks">
             {byCat(c).map((r) => (
               <div className="hbook-row" key={r.id}>
-                <a href={r.url} className="hbook" data-res-id={r.id} target={r.external ? '_blank' : undefined} rel={r.external ? 'noopener' : undefined}>
+                <a href={r.url} className="hbook" data-res-id={r.id} aria-describedby={resourcePreviewId(r.id)} target={r.external ? '_blank' : undefined} rel={r.external ? 'noopener' : undefined}>
                   <span className="hbook-ico ico" dangerouslySetInnerHTML={{ __html: icon(typeIcon[r.type], 20) }} />
                   <span className="hbook-main">
                     <span className="hbook-title">{r.title}</span>
@@ -59,6 +60,7 @@ export default function LectureShelf() {
                   </span>
                   <span className="hbook-go ico" dangerouslySetInnerHTML={{ __html: icon('arrowRight', 18) }} />
                 </a>
+                <ResourceHoverPreview resource={r} />
                 {isAdmin && (
                   <div className="hbook-admin">
                     <button type="button" className="hbook-admin-btn" onClick={() => setEditing(r)} aria-label="수정">
@@ -93,6 +95,15 @@ export default function LectureShelf() {
         @media(max-width:767px){.hbook-admin{right:40px;gap:8px}.hbook-admin-btn{width:32px;height:32px;font-size:14px}}
         .hbook-admin-btn:hover{color:#fff;border-color:rgba(255,255,255,.4)}
         .hbook-admin-btn.danger:hover{color:#ff8080}
+        .resource-hover-preview{display:none}
+        @media(hover:hover) and (pointer:fine){
+          .resource-hover-preview{position:absolute;top:calc(100% + 10px);left:0;z-index:40;width:min(430px,calc(100vw - 48px));display:grid;grid-template-columns:120px minmax(0,1fr);gap:14px;padding:12px;border:1px solid rgba(255,177,26,.42);border-radius:16px;background:rgba(20,20,20,.97);box-shadow:0 18px 48px rgba(0,0,0,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-10px);transition:opacity .3s ease,transform .3s var(--ps-ease-out),visibility 0s linear .3s}
+          .hbook-row:hover .resource-hover-preview,.hbook-row:focus-within .resource-hover-preview{opacity:1;visibility:visible;transform:translateY(0);transition-delay:.7s,.7s,.7s}
+          .resource-hover-image{width:120px;aspect-ratio:16/10;object-fit:cover;border-radius:10px;background:#000}
+          .resource-hover-copy{display:flex;min-width:0;flex-direction:column;gap:5px;color:#B8B8B8;font-size:12px;line-height:1.55}
+          .resource-hover-copy strong{color:#fff;font-size:14px;font-weight:600;line-height:1.4}
+          .resource-hover-kind{display:flex;align-items:center;gap:6px;color:var(--ps-primary);font-family:var(--ps-font-en);font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+        }
       `}</style>
     </div>
   );

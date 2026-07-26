@@ -3,8 +3,8 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import test from 'node:test';
 
-const scoringSource = await readFile(new URL('../public/korean-spell-drill-parcyun/scoring.js', import.meta.url), 'utf8');
-const pageSource = () => readFile(new URL('../public/korean-spell-drill-parcyun/index.html', import.meta.url), 'utf8');
+const scoringSource = await readFile(new URL('../public/spell-drill/scoring.js', import.meta.url), 'utf8');
+const pageSource = () => readFile(new URL('../public/spell-drill/index.html', import.meta.url), 'utf8');
 
 function loadScoring() {
   const context = { window: {} };

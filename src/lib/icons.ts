@@ -30,6 +30,7 @@ export const typeIcon: Record<string, string> = {
   '커리큘럼': 'curriculum',
   '인터랙티브': 'interactive',
   '수업 보조 도구': 'gears',
+  'AI, 에듀테크 도구 찾아보기': 'search',
   '강의': 'lecture',
   '실습': 'handson',
   '가이드': 'guide',

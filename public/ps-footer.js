@@ -10,7 +10,7 @@
   var previewConfig = window.__psFooterPreviewConfig || null;
   var previewContext = previewConfig && previewConfig.context;
   var previewContexts = {
-    home: { showLinks: true, showFeedback: false, showReview: true },
+    home: { showLinks: true, showFeedback: true, showReview: true },
     atlas: { showLinks: false, showFeedback: true, showReview: true },
     geoweb: { showLinks: false, showFeedback: true, showReview: true },
     spell: { showLinks: false, showFeedback: true, showReview: true }
@@ -19,12 +19,16 @@
   var showFeedback = contextConfig ? contextConfig.showFeedback : host.getAttribute('data-show-feedback') !== 'false';
   var showReview = contextConfig ? contextConfig.showReview : host.getAttribute('data-show-review') !== 'false';
   var showLinks = contextConfig ? contextConfig.showLinks : host.getAttribute('data-show-links') !== 'false';
-  var ASSET_VERSION = '20260720.3';
-  var serviceKey = window.PSServiceContext
-    ? window.PSServiceContext.resolveServiceKey(location.pathname, location.search, previewContext)
+  var ASSET_VERSION = '20260726.1';
+  var submissionServiceKey = window.PSServiceContext
+    ? window.PSServiceContext.resolveSubmissionServiceKey(location.pathname, location.search, previewContext)
     : 'other';
-  var reviewHref = `/reviews/?service=${encodeURIComponent(serviceKey)}`;
-  window.__psFeedbackServiceKey = serviceKey;
+  var viewServiceKey = window.PSServiceContext
+    ? window.PSServiceContext.resolveViewServiceKey(location.pathname, location.search, previewContext)
+    : submissionServiceKey;
+  var reviewHref = `/reviews/?service=${encodeURIComponent(viewServiceKey)}&source=${encodeURIComponent(submissionServiceKey)}`;
+  window.__psFeedbackServiceKey = viewServiceKey;
+  window.__psFeedbackSubmissionServiceKey = submissionServiceKey;
   var source = document.currentScript && document.currentScript.src;
   var coffeeEmail = 'pen.layered@gmail.com';
   var coffeeIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M3 8h14v6.5A4.5 4.5 0 0 1 12.5 19h-5A4.5 4.5 0 0 1 3 14.5Z"/><line x1="7" y1="2.5" x2="7" y2="4.5"/><line x1="11" y1="2.5" x2="11" y2="4.5"/></svg>';

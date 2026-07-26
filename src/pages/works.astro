@@ -343,6 +343,93 @@ section { padding: 96px 0; }
 .work-card.soon .pnum { color: rgba(255, 255, 255, 0.06); }
 .work-card.soon .ptitle { color: var(--ps-text-cinematic-secondary); }
 
+/* ===== Titan tools ===== */
+.titan-tools {
+  border-top: 1px solid var(--ps-surface-cinematic-3);
+}
+.titan-intro {
+  max-width: 680px;
+  margin: -20px 0 48px;
+  color: #B8B8B8;
+  font-size: 15px;
+  line-height: 1.8;
+}
+.titan-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--ps-surface-cinematic-3);
+}
+.titan-item {
+  border-bottom: 1px solid var(--ps-surface-cinematic-3);
+}
+.titan-link {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 20px;
+  padding: 28px 0;
+  transition: color 240ms var(--ps-ease-out);
+}
+.titan-link:hover .titan-title,
+.titan-link:focus-visible .titan-title {
+  color: var(--ps-primary);
+}
+.titan-link:focus-visible {
+  outline: 2px solid var(--ps-primary);
+  outline-offset: 8px;
+  border-radius: 4px;
+}
+.titan-num {
+  padding-top: 3px;
+  font-family: var(--ps-font-en);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1.4px;
+  color: var(--ps-primary);
+}
+.titan-title {
+  display: block;
+  margin-bottom: 8px;
+  font-size: clamp(18px, 2.2vw, 24px);
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  line-height: 1.35;
+  transition: color 240ms var(--ps-ease-out);
+}
+.titan-desc {
+  display: block;
+  max-width: 720px;
+  color: #B8B8B8;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.titan-kind {
+  margin-top: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--ps-surface-cinematic-3);
+  border-radius: 100px;
+  color: var(--ps-text-cinematic-secondary);
+  font-family: var(--ps-font-en);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+@media (max-width: 639px) {
+  .titan-link {
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 12px;
+    padding: 24px 0;
+  }
+  .titan-kind {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 0;
+  }
+}
+
 /* ===== Entry animation ===== */
 section, .hero {
   opacity: 0;
@@ -420,6 +507,71 @@ section.in-view, .hero.in-view { opacity: 1; transform: none; }
       <span data-ps-edit-id="ps-works-019" data-ps-design-id="ps-works-019" class="en">Weekly Builds</span>
     </header>
     <WorksFilter client:load />
+  </div>
+</section>
+
+<!-- ===== TITAN TOOLS ===== -->
+<section class="titan-tools" id="titan-tools">
+  <div class="wrap">
+    <header class="section-header">
+      <h2 data-ps-edit-id="ps-works-020" data-ps-design-id="ps-works-020" class="ko">개발을 도와주는 타이탄의 도구들</h2>
+      <span data-ps-edit-id="ps-works-021" data-ps-design-id="ps-works-021" class="en">Tools of Titans</span>
+    </header>
+    <p data-ps-edit-id="ps-works-022" data-ps-design-id="ps-works-022" class="titan-intro">
+      더 잘 계획하고, 더 빠르게 검증하고, 더 단단하게 만드는 데 도움을 주는 디자인·개발 도구 모음입니다.
+    </p>
+    <ol class="titan-list">
+      <li data-ps-edit-id="ps-works-033" data-ps-design-id="ps-works-033" class="titan-item">
+        <a data-ps-edit-id="ps-works-034" data-ps-design-id="ps-works-034" class="titan-link" href="https://getdesign.md/" target="_blank" rel="noopener noreferrer">
+          <span data-ps-edit-id="ps-works-035" data-ps-design-id="ps-works-035" class="titan-num">01</span>
+          <span data-ps-edit-id="ps-works-036" data-ps-design-id="ps-works-036">
+            <strong data-ps-edit-id="ps-works-023" data-ps-design-id="ps-works-023" class="titan-title">기업 홈페이지 디자인 소스 훔쳐오기</strong>
+            <span data-ps-edit-id="ps-works-024" data-ps-design-id="ps-works-024" class="titan-desc">실제 서비스의 색상·타이포그래피·간격·컴포넌트를 분석한 DESIGN.md를 골라 AI 코딩 에이전트의 디자인 기준으로 활용합니다.</span>
+          </span>
+          <span data-ps-edit-id="ps-works-037" data-ps-design-id="ps-works-037" class="titan-kind">Design Reference ↗</span>
+        </a>
+      </li>
+      <li data-ps-edit-id="ps-works-038" data-ps-design-id="ps-works-038" class="titan-item">
+        <a data-ps-edit-id="ps-works-039" data-ps-design-id="ps-works-039" class="titan-link" href="https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me" target="_blank" rel="noopener noreferrer">
+          <span data-ps-edit-id="ps-works-040" data-ps-design-id="ps-works-040" class="titan-num">02</span>
+          <span data-ps-edit-id="ps-works-041" data-ps-design-id="ps-works-041">
+            <strong data-ps-edit-id="ps-works-025" data-ps-design-id="ps-works-025" class="titan-title">Grill Me</strong>
+            <span data-ps-edit-id="ps-works-026" data-ps-design-id="ps-works-026" class="titan-desc">계획이나 설계를 집요한 질문으로 점검해 빠진 가정과 허술한 성공 기준을 드러내는 생산성 스킬입니다.</span>
+          </span>
+          <span data-ps-edit-id="ps-works-042" data-ps-design-id="ps-works-042" class="titan-kind">Planning Skill ↗</span>
+        </a>
+      </li>
+      <li data-ps-edit-id="ps-works-043" data-ps-design-id="ps-works-043" class="titan-item">
+        <a data-ps-edit-id="ps-works-044" data-ps-design-id="ps-works-044" class="titan-link" href="https://github.com/Q00/ouroboros/blob/main/README.ko.md" target="_blank" rel="noopener noreferrer">
+          <span data-ps-edit-id="ps-works-045" data-ps-design-id="ps-works-045" class="titan-num">03</span>
+          <span data-ps-edit-id="ps-works-046" data-ps-design-id="ps-works-046">
+            <strong data-ps-edit-id="ps-works-027" data-ps-design-id="ps-works-027" class="titan-title">우로보로스</strong>
+            <span data-ps-edit-id="ps-works-028" data-ps-design-id="ps-works-028" class="titan-desc">아이디어를 바로 코드로 넘기지 않고 인터뷰·명세·실행·평가의 순환으로 다듬는 명세 우선 개발 시스템입니다. Codex를 포함한 지원 환경에서는 MCP 서버로 등록해 사용할 수 있습니다.</span>
+          </span>
+          <span data-ps-edit-id="ps-works-047" data-ps-design-id="ps-works-047" class="titan-kind">MCP Workflow ↗</span>
+        </a>
+      </li>
+      <li data-ps-edit-id="ps-works-048" data-ps-design-id="ps-works-048" class="titan-item">
+        <a data-ps-edit-id="ps-works-049" data-ps-design-id="ps-works-049" class="titan-link" href="https://astryx.atmeta.com/" target="_blank" rel="noopener noreferrer">
+          <span data-ps-edit-id="ps-works-050" data-ps-design-id="ps-works-050" class="titan-num">04</span>
+          <span data-ps-edit-id="ps-works-051" data-ps-design-id="ps-works-051">
+            <strong data-ps-edit-id="ps-works-029" data-ps-design-id="ps-works-029" class="titan-title">Meta 개발자들의 디자인 컴포넌트 훔쳐쓰기</strong>
+            <span data-ps-edit-id="ps-works-030" data-ps-design-id="ps-works-030" class="titan-desc">Meta의 Astryx 디자인 시스템에서 공개한 컴포넌트와 패턴을 살펴보고, 완성도 높은 인터페이스를 설계할 때 참고합니다.</span>
+          </span>
+          <span data-ps-edit-id="ps-works-052" data-ps-design-id="ps-works-052" class="titan-kind">Design System ↗</span>
+        </a>
+      </li>
+      <li data-ps-edit-id="ps-works-053" data-ps-design-id="ps-works-053" class="titan-item">
+        <a data-ps-edit-id="ps-works-054" data-ps-design-id="ps-works-054" class="titan-link" href="https://github.com/parcyun/pre-design" target="_blank" rel="noopener noreferrer">
+          <span data-ps-edit-id="ps-works-055" data-ps-design-id="ps-works-055" class="titan-num">05</span>
+          <span data-ps-edit-id="ps-works-056" data-ps-design-id="ps-works-056">
+            <strong data-ps-edit-id="ps-works-031" data-ps-design-id="ps-works-031" class="titan-title">Pre-design</strong>
+            <span data-ps-edit-id="ps-works-032" data-ps-design-id="ps-works-032" class="titan-desc">시각 작업을 시작하기 전에 대상·톤·브랜드·제약을 먼저 확정하고, 흔한 AI 디자인 패턴을 걸러내는 디자인 전용 사전 설정 스킬입니다.</span>
+          </span>
+          <span data-ps-edit-id="ps-works-057" data-ps-design-id="ps-works-057" class="titan-kind">Design Skill ↗</span>
+        </a>
+      </li>
+    </ol>
   </div>
 </section>
 

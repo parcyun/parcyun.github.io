@@ -52,7 +52,7 @@ test('ATLAS GEARS renders the total for its configured internal pages', async ()
     window: {
       __psVisitorScopePaths: [
         '/atlas-gears/',
-        '/korean-spell-drill-parcyun/',
+        '/spell-drill/',
         '/math-solid-volume/',
         '/world-map/',
       ],

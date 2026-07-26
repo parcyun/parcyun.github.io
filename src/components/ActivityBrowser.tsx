@@ -5,6 +5,7 @@ import { useResources } from '../lib/useResources';
 import { useAdmin } from '../lib/useAdmin';
 import { adminDeleteResource } from '../lib/adminPw';
 import ResourceEditModal from './admin/ResourceEditModal';
+import ResourceHoverPreview, { resourcePreviewId } from './ResourceHoverPreview';
 
 const TYPE_META: Record<string, { en: string; ph: string }> = {
   '게임': { en: 'Game', ph: '새 게임 준비 중' },
@@ -12,6 +13,7 @@ const TYPE_META: Record<string, { en: string; ph: string }> = {
   '활동지': { en: 'Worksheet', ph: '새 활동지 준비 중' },
   '커리큘럼': { en: 'Curriculum', ph: '새 커리큘럼 준비 중' },
   '수업 보조 도구': { en: 'Teaching Tools', ph: '새 수업 보조 도구 준비 중' },
+  'AI, 에듀테크 도구 찾아보기': { en: 'AI · EdTech Tools', ph: '새 AI·에듀테크 도구 준비 중' },
 };
 
 function norm(s: string) {
@@ -76,6 +78,7 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
         href={r.url}
         className="act-card"
         data-res-id={r.id}
+        aria-describedby={resourcePreviewId(r.id)}
         target="_blank"
         rel="noopener"
       >
@@ -93,6 +96,7 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
           </div>
         </div>
       </a>
+      <ResourceHoverPreview resource={r} />
       {isAdmin && (
         <div className="act-admin">
           <button type="button" className="act-admin-btn" onClick={() => setEditing(r)} aria-label="수정">
@@ -213,6 +217,15 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
         @media(max-width:767px){.act-admin{gap:8px}.act-admin-btn{width:34px;height:34px;font-size:15px}}
         .act-admin-btn:hover{color:#fff;border-color:rgba(255,255,255,.4)}
         .act-admin-btn.danger:hover{color:#ff8080}
+        .resource-hover-preview{display:none}
+        @media(hover:hover) and (pointer:fine){
+          .resource-hover-preview{position:absolute;top:calc(100% + 10px);left:0;z-index:40;width:min(430px,calc(100vw - 48px));display:grid;grid-template-columns:120px minmax(0,1fr);gap:14px;padding:12px;border:1px solid rgba(255,177,26,.42);border-radius:16px;background:rgba(20,20,20,.97);box-shadow:0 18px 48px rgba(0,0,0,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-10px);transition:opacity .3s ease,transform .3s var(--ps-ease-out),visibility 0s linear .3s}
+          .act-card-wrap:hover .resource-hover-preview,.act-card-wrap:focus-within .resource-hover-preview{opacity:1;visibility:visible;transform:translateY(0);transition-delay:.7s,.7s,.7s}
+          .resource-hover-image{width:120px;aspect-ratio:16/10;object-fit:cover;border-radius:10px;background:#000}
+          .resource-hover-copy{display:flex;min-width:0;flex-direction:column;gap:5px;color:#B8B8B8;font-size:12px;line-height:1.55}
+          .resource-hover-copy strong{color:#fff;font-size:14px;font-weight:600;line-height:1.4}
+          .resource-hover-kind{display:flex;align-items:center;gap:6px;color:var(--ps-primary);font-family:var(--ps-font-en);font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+        }
       `}</style>
     </div>
   );

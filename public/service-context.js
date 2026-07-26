@@ -5,8 +5,10 @@
     '/': 'home',
     '/atlas-gears': 'atlas-gears',
     '/world-map': 'geoweb',
+    '/spell-drill': 'spell-drill',
     '/korean-spell-drill-parcyun': 'spell-drill'
   };
+  var SCOPED_SERVICES = ['spell-drill', 'atlas-gears', 'geoweb'];
   var PREVIEW_KEYS = {
     home: 'home',
     atlas: 'atlas-gears',
@@ -23,7 +25,12 @@
 
   function requestedService(search) {
     var value = new URLSearchParams(String(search || '')).get('service');
-    return SERVICE_KEYS.indexOf(value) >= 0 ? value : 'other';
+    return value === 'all' || SERVICE_KEYS.indexOf(value) >= 0 ? value : 'other';
+  }
+
+  function requestedSource(search) {
+    var value = new URLSearchParams(String(search || '')).get('source');
+    return SERVICE_KEYS.indexOf(value) >= 0 && value !== 'unclassified' ? value : 'other';
   }
 
   function resolveServiceKey(pathname, search, previewContext) {
@@ -33,12 +40,29 @@
     return ROUTES[path] || 'other';
   }
 
+  function resolveViewServiceKey(pathname, search, previewContext) {
+    var path = normalizePath(pathname);
+    if (path === '/reviews') return requestedService(search);
+    var service = resolveServiceKey(pathname, search, previewContext);
+    return SCOPED_SERVICES.indexOf(service) >= 0 ? service : 'all';
+  }
+
+  function resolveSubmissionServiceKey(pathname, search, previewContext) {
+    return normalizePath(pathname) === '/reviews'
+      ? requestedSource(search)
+      : resolveServiceKey(pathname, search, previewContext);
+  }
+
   function sourcePathForFeedback(pathname, search) {
     var path = normalizePath(pathname);
     var suffix = pathname && String(pathname).endsWith('/') && path !== '/' ? '/' : '';
     if (path === '/reviews') {
       var service = requestedService(search);
-      return path + suffix + (service === 'other' ? '' : '?service=' + encodeURIComponent(service));
+      var source = requestedSource(search);
+      var query = new URLSearchParams();
+      if (service !== 'other') query.set('service', service);
+      if (service === 'all' || source !== 'other') query.set('source', source);
+      return path + suffix + (query.toString() ? '?' + query.toString() : '');
     }
     return path + suffix;
   }
@@ -47,6 +71,8 @@
     allowedServiceKeys: SERVICE_KEYS.slice(),
     normalizePath: normalizePath,
     resolveServiceKey: resolveServiceKey,
+    resolveViewServiceKey: resolveViewServiceKey,
+    resolveSubmissionServiceKey: resolveSubmissionServiceKey,
     sourcePathForFeedback: sourcePathForFeedback
   };
 })(typeof window !== 'undefined' ? window : globalThis);

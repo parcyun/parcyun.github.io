@@ -8,6 +8,7 @@ test('service context recognizes only exact public routes', () => {
   assert.equal(resolveServiceKey('/', ''), 'home');
   assert.equal(resolveServiceKey('/atlas-gears/', ''), 'atlas-gears');
   assert.equal(resolveServiceKey('/world-map/', ''), 'geoweb');
+  assert.equal(resolveServiceKey('/spell-drill/', ''), 'spell-drill');
   assert.equal(resolveServiceKey('/korean-spell-drill-parcyun/', ''), 'spell-drill');
 
   for (const path of ['/academica/', '/works/', '/my-atlas-notes/', '/spell-checker/', '/world-map-copy/']) {

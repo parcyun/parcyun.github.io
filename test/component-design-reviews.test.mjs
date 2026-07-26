@@ -157,7 +157,7 @@ test('component preview loads the production footer runtime', async () => {
 test('footer preview contexts mirror the real page footer hosts', async () => {
   const footer = await read('public/ps-footer.js');
   for (const [context, links, feedback, review] of [
-    ['home', true, false, true],
+    ['home', true, true, true],
     ['atlas', false, true, true],
     ['geoweb', false, true, true],
     ['spell', false, true, true],

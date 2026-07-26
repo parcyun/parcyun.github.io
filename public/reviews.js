@@ -8,8 +8,18 @@
   var VOTER_KEY = 'ps_review_voter';
   var serviceContext = window.PSServiceContext;
   var serviceKey = serviceContext
-    ? serviceContext.resolveServiceKey(location.pathname, location.search)
+    ? serviceContext.resolveViewServiceKey(location.pathname, location.search)
     : 'other';
+  var submissionServiceKey = serviceContext
+    ? serviceContext.resolveSubmissionServiceKey(location.pathname, location.search)
+    : 'other';
+  var SERVICE_LABELS = {
+    home: 'parcyun studio',
+    'spell-drill': 'Spell Drill',
+    'atlas-gears': 'ATLAS GEARS',
+    geoweb: 'GeoWeb',
+    other: '기타'
+  };
   var selected = 0;
   var stars = app.querySelector('[data-review-stars]');
   var body = app.querySelector('[data-review-body]');
@@ -68,6 +78,12 @@
     reviews.forEach(function (review) {
       var card = document.createElement('article'); card.className = 'review-card';
       var head = document.createElement('div'); head.className = 'review-card-head';
+      if (serviceKey === 'all') {
+        var serviceTag = document.createElement('span');
+        serviceTag.className = 'review-service-tag';
+        serviceTag.textContent = SERVICE_LABELS[review.service_key] || '기타';
+        card.appendChild(serviceTag);
+      }
       var rating = document.createElement('span'); rating.className = 'review-card-stars'; rating.textContent = '★'.repeat(Number(review.rating)); rating.setAttribute('aria-label', review.rating + '점');
       var date = document.createElement('time'); date.textContent = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(review.created_at));
       var text = document.createElement('p'); text.textContent = review.body;
@@ -91,7 +107,7 @@
     if (!selected) { message.textContent = '별점을 먼저 선택해 주세요.'; return; }
     if (!text || text.length > 500) { message.textContent = '리뷰는 1자 이상 500자 이하로 작성해 주세요.'; return; }
     submit.disabled = true; message.textContent = '등록 중…';
-    rpc('submit_review', { p_rating: selected, p_body: text, p_service_key: serviceKey, p_voter_id: voterId() }).then(function (result) {
+    rpc('submit_review', { p_rating: selected, p_body: text, p_service_key: submissionServiceKey, p_voter_id: voterId() }).then(function (result) {
       if (!result || !result.ok) throw new Error((result && result.error) || '등록할 수 없습니다.');
       body.value = ''; count.textContent = '0 / 500'; selected = 0; drawStars(); message.textContent = '리뷰가 등록되었습니다. 검토 후 공개됩니다.';
     }).catch(function (error) { message.textContent = error.message; }).finally(function () { submit.disabled = false; });
@@ -99,5 +115,9 @@
   drawStars();
   list.addEventListener('scroll', updateListViewport);
   window.addEventListener('resize', scheduleListViewport);
-  rpc('list_reviews', { p_service_key: serviceKey, p_voter_id: voterId() }).then(render).catch(function () { list.textContent = '리뷰를 불러오지 못했습니다.'; });
+  (serviceKey === 'all'
+    ? rpc('list_all_reviews', { p_voter_id: voterId() })
+    : rpc('list_reviews', { p_service_key: serviceKey, p_voter_id: voterId() }))
+    .then(render)
+    .catch(function () { list.textContent = '리뷰를 불러오지 못했습니다.'; });
 })();

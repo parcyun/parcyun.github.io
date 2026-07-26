@@ -4,7 +4,7 @@ import type { Category, Resource, ResourceType } from '../../data/resources';
 
 const TYPES_BY_CATEGORY: Record<Category, ResourceType[]> = {
   '강의 자료': ['강의', '실습', '가이드', '아카이브'],
-  '교육 활동 자료': ['게임', '활동지', '커리큘럼', '인터랙티브', '수업 보조 도구'],
+  '교육 활동 자료': ['게임', '활동지', '커리큘럼', '인터랙티브', '수업 보조 도구', 'AI, 에듀테크 도구 찾아보기'],
 };
 
 function slugify(title: string): string {

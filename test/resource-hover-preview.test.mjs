@@ -13,9 +13,9 @@ test('ACADEMICA and ATLAS cards share an image and summary hover preview', async
 
   assert.match(preview, /resource-hover-image/);
   assert.match(preview, /PREVIEW_DESCRIPTION_BY_ID/);
-  assert.match(preview, /\/images\/og-card\.png/);
+  assert.doesNotMatch(preview, /\/images\/og-card\.png/);
   assert.match(preview, /\/spell-drill\/og-cover\.png/);
-  for (const id of ['agentic-ai', 'notion-onboarding', 'ai-edtech-tools', 'edubeige', 'ai-class', 'kocomate', 'zoomit', 'snipaste']) {
+  for (const id of ['academica', 'llm-fundamentals', 'agentic-ai', 'notion-onboarding', 'ai-edtech-tools', 'edubeige', 'math-volume', 'world-city-research', 'world-map', 'ai-class', 'kocomate', 'zoomit', 'snipaste']) {
     assert.match(preview, new RegExp(`/images/resource-previews/${id}\\.png`));
     await access(new URL(`../public/images/resource-previews/${id}.png`, import.meta.url));
   }

@@ -5,6 +5,7 @@ import vm from 'node:vm';
 
 const sourceUrl = new URL('../public/visitor-counter.js', import.meta.url);
 const resetMigrationUrl = new URL('../supabase/migrations/0011_visit_counter_day_boundary.sql', import.meta.url);
+const spellMergeMigrationUrl = new URL('../supabase/migrations/0024_merge_spell_drill_visit_history.sql', import.meta.url);
 
 async function executeCounter({ hostname, pathname = '/' }) {
   const calls = [];
@@ -36,6 +37,17 @@ test('visitor day boundary uses 06:00 Asia/Seoul for writes and totals', async (
   assert.match(migration, /create or replace function public\.bump_visit/);
   assert.match(migration, /create or replace function public\.get_visit_totals/);
   assert.equal(migration.split(visitorDay).length - 1, 2);
+});
+
+test('Spell Drill visit history is merged into the canonical short path without double counting', async () => {
+  const migration = await readFile(spellMergeMigrationUrl, 'utf8');
+
+  assert.match(migration, /insert into public\.page_visits/i);
+  assert.match(migration, /\/korean-spell-drill-parcyun\//);
+  assert.match(migration, /\/spell-drill\//);
+  assert.match(migration, /group by day/i);
+  assert.match(migration, /on conflict \(day, path\) do update/i);
+  assert.match(migration, /delete from public\.page_visits/i);
 });
 
 test('ATLAS GEARS renders the total for its configured internal pages', async () => {

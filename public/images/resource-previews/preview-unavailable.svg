@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">자료 미리보기 준비 중</title>
+  <desc id="desc">parcyun studio 자료의 미리보기 이미지가 준비 중입니다.</desc>
+  <rect width="1280" height="720" fill="#0b0b0b"/>
+  <rect x="80" y="80" width="1120" height="560" rx="32" fill="#141414" stroke="#333"/>
+  <circle cx="150" cy="148" r="9" fill="#ffb11a"/>
+  <text x="178" y="159" fill="#ffb11a" font-family="Montserrat, Arial, sans-serif" font-size="28" letter-spacing="3">PARCYUN STUDIO</text>
+  <text x="150" y="360" fill="#fff" font-family="Pretendard, Arial, sans-serif" font-size="58" font-weight="600">자료 미리보기를 준비하고 있습니다.</text>
+  <text x="150" y="430" fill="#8c8c8c" font-family="Pretendard, Arial, sans-serif" font-size="28">카드를 선택하면 서비스 페이지에서 자세한 내용을 볼 수 있습니다.</text>
+</svg>

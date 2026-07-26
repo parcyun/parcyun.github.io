@@ -2,10 +2,15 @@ import type { Resource } from '../data/resources';
 import { icon, typeIcon } from '../lib/icons';
 
 const PREVIEW_IMAGE_BY_ID: Record<string, string> = {
+  academica: '/images/resource-previews/academica.png',
+  'llm-fundamentals': '/images/resource-previews/llm-fundamentals.png',
   'agentic-ai': '/images/resource-previews/agentic-ai.png',
   'notion-onboarding': '/images/resource-previews/notion-onboarding.png',
   'ai-edtech-tools': '/images/resource-previews/ai-edtech-tools.png',
   'edubeige': '/images/resource-previews/edubeige.png',
+  'math-volume': '/images/resource-previews/math-volume.png',
+  'world-city-research': '/images/resource-previews/world-city-research.png',
+  'world-map': '/images/resource-previews/world-map.png',
   'ai-class': '/images/resource-previews/ai-class.png',
   'kocomate': '/images/resource-previews/kocomate.png',
   'zoomit': '/images/resource-previews/zoomit.png',
@@ -36,7 +41,7 @@ export function resourcePreviewId(resourceId: string) {
 
 export default function ResourceHoverPreview({ resource }: { resource: Resource }) {
   const previewId = resourcePreviewId(resource.id);
-  const previewImage = PREVIEW_IMAGE_BY_ID[resource.id] || '/images/og-card.png';
+  const previewImage = PREVIEW_IMAGE_BY_ID[resource.id] || '/images/resource-previews/preview-unavailable.svg';
   const previewDescription = PREVIEW_DESCRIPTION_BY_ID[resource.id] || resource.desc;
 
   return (

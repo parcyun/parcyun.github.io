@@ -94,7 +94,7 @@ export async function adminApplyComponentDesign(
 }
 
 export type FeedbackStatus = 'pending' | 'published' | 'rejected';
-export type ServiceKey = 'home' | 'spell-drill' | 'atlas-gears' | 'geoweb' | 'other' | 'unclassified';
+export type ServiceKey = 'home' | 'spell-drill' | 'atlas-gears' | 'geoweb' | 'works' | 'other' | 'unclassified';
 
 export interface FeedbackPost {
   id: number;

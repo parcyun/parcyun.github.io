@@ -18,9 +18,15 @@ test('shared footer passes its service to the review route and feedback widget',
 
 test('feedback requests stay scoped to the current service', async () => {
   const feedback = await read('public/feedback-board.js');
+  const footer = await read('public/ps-footer.js');
 
   assert.match(feedback, /list_feedback[^]*p_service_key/);
   assert.match(feedback, /submit_feedback[^]*p_service_key/);
+  assert.match(footer, /__psPendingFeedbackOpen/);
+  assert.match(feedback, /__psFeedbackOpenReady/);
+  assert.match(feedback, /__psPendingFeedbackOpen/);
+  assert.match(feedback, /'atlas-gears': 'ATLAS GEARS'/);
+  assert.match(feedback, /에 공개된 개선 아이디어가 아직 없습니다/);
 });
 
 test('reviews submit, load, like, and sort within the requested service', async () => {
@@ -34,6 +40,8 @@ test('reviews submit, load, like, and sort within the requested service', async 
   assert.match(reviews, /p_voter_id/);
   assert.match(reviews, /like_count/);
   assert.match(reviews, /sort\(function/);
+  assert.match(reviews, /'atlas-gears': 'ATLAS GEARS'/);
+  assert.match(reviews, /에 공개된 리뷰가 아직 없습니다/);
 });
 
 test('reviews list provides a hidden-scrollbar ten-card viewport and removes the fade at its end', async () => {
@@ -57,7 +65,7 @@ test('all public feedback and review scripts use the same cache-busting release'
     read('public/footer-preview.html'),
     read('public/ps-footer.js'),
   ]);
-  const expected = '20260726.1';
+  const expected = '20260727.1';
   for (const source of [component, spell, preview]) {
     assert.match(source, new RegExp(`service-context\\.js\\?v=${expected}`));
     assert.match(source, new RegExp(`ps-footer\\.js\\?v=${expected}`));

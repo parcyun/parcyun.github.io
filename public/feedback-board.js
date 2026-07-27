@@ -14,6 +14,7 @@
     'spell-drill': 'Spell Drill',
     'atlas-gears': 'ATLAS GEARS',
     geoweb: 'GeoWeb',
+    works: 'Works',
     other: '기타'
   };
   var opener = null;
@@ -85,7 +86,9 @@
     if (!posts.length) {
       var empty = document.createElement('p');
       empty.className = 'ps-feedback-empty';
-      empty.textContent = '아직 공개된 개선 아이디어가 없어요. 첫 번째 아이디어를 남겨 주세요.';
+      empty.textContent = serviceKey === 'all'
+        ? '아직 공개된 개선 아이디어가 없어요. 첫 번째 아이디어를 남겨 주세요.'
+        : (SERVICE_LABELS[serviceKey] || '이 서비스') + '에 공개된 개선 아이디어가 아직 없습니다. 첫 번째 아이디어를 남겨 주세요.';
       list.appendChild(empty);
       return;
     }
@@ -160,6 +163,11 @@
     var trigger = event.target.closest('[data-feedback-open]');
     if (trigger) { event.preventDefault(); open(trigger); }
   });
+  window.__psFeedbackOpenReady = true;
+  if (window.__psPendingFeedbackOpen) {
+    window.__psPendingFeedbackOpen = false;
+    open(document.querySelector('[data-feedback-open]'));
+  }
   modal.addEventListener('click', function (event) { if (event.target.hasAttribute('data-feedback-close')) close(); });
   document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !modal.hidden) close(); });
 

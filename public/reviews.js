@@ -18,6 +18,7 @@
     'spell-drill': 'Spell Drill',
     'atlas-gears': 'ATLAS GEARS',
     geoweb: 'GeoWeb',
+    works: 'Works',
     other: '기타'
   };
   var selected = 0;
@@ -74,7 +75,16 @@
       return likes || new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
     list.replaceChildren();
-    if (!reviews.length) { var empty = document.createElement('p'); empty.className = 'review-empty'; empty.textContent = '아직 공개된 리뷰가 없습니다.'; list.appendChild(empty); scheduleListViewport(); return; }
+    if (!reviews.length) {
+      var empty = document.createElement('p');
+      empty.className = 'review-empty';
+      empty.textContent = serviceKey === 'all'
+        ? '아직 공개된 리뷰가 없습니다.'
+        : (SERVICE_LABELS[serviceKey] || '이 서비스') + '에 공개된 리뷰가 아직 없습니다. 첫 리뷰를 남겨 주세요.';
+      list.appendChild(empty);
+      scheduleListViewport();
+      return;
+    }
     reviews.forEach(function (review) {
       var card = document.createElement('article'); card.className = 'review-card';
       var head = document.createElement('div'); head.className = 'review-card-head';

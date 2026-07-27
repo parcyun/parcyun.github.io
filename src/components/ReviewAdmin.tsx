@@ -3,7 +3,7 @@ import { adminDeleteReview, adminListReviews, adminSetReviewService, adminSetRev
 import type { ReviewPost, ReviewStatus, ServiceKey } from '../lib/adminPw';
 
 const serviceLabels: Record<ServiceKey, string> = {
-  home: '홈', 'spell-drill': 'Spell Drill', 'atlas-gears': 'ATLAS GEARS', geoweb: 'GeoWeb', other: '기타', unclassified: '미분류',
+  home: '홈', 'spell-drill': 'Spell Drill', 'atlas-gears': 'ATLAS GEARS', geoweb: 'GeoWeb', works: 'Works', other: '기타', unclassified: '미분류',
 };
 
 export default function ReviewAdmin() {

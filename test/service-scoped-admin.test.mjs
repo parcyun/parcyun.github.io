@@ -6,7 +6,7 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('admin RPC helpers expose service tagging and permanent deletion', async () => {
   const source = await read('src/lib/adminPw.ts');
-  assert.match(source, /export type ServiceKey = 'home' \| 'spell-drill' \| 'atlas-gears' \| 'geoweb' \| 'other' \| 'unclassified'/);
+  assert.match(source, /export type ServiceKey = 'home' \| 'spell-drill' \| 'atlas-gears' \| 'geoweb' \| 'works' \| 'other' \| 'unclassified'/);
   for (const name of ['adminSetReviewService', 'adminSetFeedbackService', 'adminDeleteReview', 'adminDeleteFeedback']) {
     assert.match(source, new RegExp(`export async function ${name}`));
   }

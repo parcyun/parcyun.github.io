@@ -12,7 +12,7 @@ import {
 
 const statusLabel = { pending: '승인 대기', published: '공개됨', rejected: '반려됨' } as const;
 const serviceLabels: Record<ServiceKey, string> = {
-  home: '홈', 'spell-drill': 'Spell Drill', 'atlas-gears': 'ATLAS GEARS', geoweb: 'GeoWeb', other: '기타', unclassified: '미분류',
+  home: '홈', 'spell-drill': 'Spell Drill', 'atlas-gears': 'ATLAS GEARS', geoweb: 'GeoWeb', works: 'Works', other: '기타', unclassified: '미분류',
 };
 
 function dateTime(value: string) {

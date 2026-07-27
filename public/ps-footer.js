@@ -19,7 +19,7 @@
   var showFeedback = contextConfig ? contextConfig.showFeedback : host.getAttribute('data-show-feedback') !== 'false';
   var showReview = contextConfig ? contextConfig.showReview : host.getAttribute('data-show-review') !== 'false';
   var showLinks = contextConfig ? contextConfig.showLinks : host.getAttribute('data-show-links') !== 'false';
-  var ASSET_VERSION = '20260726.1';
+  var ASSET_VERSION = '20260727.1';
   var submissionServiceKey = window.PSServiceContext
     ? window.PSServiceContext.resolveSubmissionServiceKey(location.pathname, location.search, previewContext)
     : 'other';
@@ -121,6 +121,10 @@
   if (!previewConfig) fetch('https://myeouecgpjxcddemexcg.supabase.co/rest/v1/rpc/list_component_design', {method:'POST', headers:{apikey:'sb_publishable_qHxQM-Z6vVAk9YKMluyFSw_0_fo9sKY',Authorization:'Bearer sb_publishable_qHxQM-Z6vVAk9YKMluyFSw_0_fo9sKY','Content-Type':'application/json'}, body:JSON.stringify({p_component_key:'footer'})}).then(function (res) { return res.ok ? res.json() : []; }).then(applyComponentDesign).catch(function () {});
 
   var feedback = document.createElement('script');
+  var feedbackTrigger = document.querySelector('[data-feedback-open]');
+  if (feedbackTrigger) feedbackTrigger.addEventListener('click', function () {
+    if (!window.__psFeedbackOpenReady) window.__psPendingFeedbackOpen = true;
+  });
   var feedbackUrl = new URL(source ? new URL('feedback-board.js', source).href : '/feedback-board.js', location.href);
   feedbackUrl.searchParams.set('v', ASSET_VERSION);
   feedback.src = feedbackUrl.href;

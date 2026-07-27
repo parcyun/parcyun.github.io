@@ -1,6 +1,6 @@
 /* Shared service-route classification for the footer, reviews, and feedback. */
 (function (root) {
-  var SERVICE_KEYS = ['home', 'spell-drill', 'atlas-gears', 'geoweb', 'other'];
+  var SERVICE_KEYS = ['home', 'spell-drill', 'atlas-gears', 'geoweb', 'works', 'other'];
   var ROUTES = {
     '/': 'home',
     '/atlas-gears': 'atlas-gears',
@@ -8,7 +8,7 @@
     '/spell-drill': 'spell-drill',
     '/korean-spell-drill-parcyun': 'spell-drill'
   };
-  var SCOPED_SERVICES = ['spell-drill', 'atlas-gears', 'geoweb'];
+  var SCOPED_SERVICES = ['spell-drill', 'atlas-gears', 'geoweb', 'works'];
   var PREVIEW_KEYS = {
     home: 'home',
     atlas: 'atlas-gears',
@@ -37,6 +37,7 @@
     if (previewContext && PREVIEW_KEYS[previewContext]) return PREVIEW_KEYS[previewContext];
     var path = normalizePath(pathname);
     if (path === '/reviews') return requestedService(search);
+    if (path === '/works' || path.indexOf('/works/') === 0) return 'works';
     return ROUTES[path] || 'other';
   }
 

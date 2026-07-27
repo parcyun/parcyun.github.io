@@ -13,8 +13,9 @@ test('service pages stay scoped while discovery pages show every service', () =>
   assert.equal(resolveViewServiceKey('/korean-spell-drill-parcyun/', ''), 'spell-drill');
   assert.equal(resolveViewServiceKey('/atlas-gears/', ''), 'atlas-gears');
   assert.equal(resolveViewServiceKey('/world-map/', ''), 'geoweb');
+  assert.equal(resolveViewServiceKey('/works/', ''), 'works');
 
-  for (const path of ['/', '/academica/', '/works/']) {
+  for (const path of ['/', '/academica/']) {
     assert.equal(resolveViewServiceKey(path, ''), 'all', path);
   }
 });

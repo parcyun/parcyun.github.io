@@ -1,5 +1,5 @@
 /* parcyun studio · 방문자 카운터 (Supabase)
-   페이지 로드마다 bump_visit RPC를 호출해 방문을 집계하고,
+   같은 브라우저에서는 페이지별·방문일별 한 번만 방문을 집계하고,
    - 메인 페이지(/)  : 사이트 전역 토탈 표시 (오늘=오늘 전역, 전체=전 기간 전역)
    - 그 외 페이지     : 해당 페이지의 방문만 표시 (오늘=그 페이지 오늘, 전체=그 페이지 전 기간)
    표시 대상: #visitor-stats 요소가 있으면 그곳에, 없으면 좌측 하단에 자동 주입.
@@ -22,6 +22,18 @@
   var scopePaths = Array.isArray(window.__psVisitorScopePaths) && window.__psVisitorScopePaths.length
     ? window.__psVisitorScopePaths
     : null;
+
+  function visitorDay() {
+    var shifted = new Date(Date.now() - 6 * 60 * 60 * 1000);
+    try {
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit'
+      }).format(shifted);
+    } catch (e) { return shifted.toISOString().slice(0, 10); }
+  }
+  var visitKey = 'ps_visit_counted:' + visitorDay() + ':' + path;
+  function alreadyCounted() { try { return localStorage.getItem(visitKey) === '1'; } catch (e) { return false; } }
+  function markCounted() { try { localStorage.setItem(visitKey, '1'); } catch (e) {} }
 
   function fmt(n) { try { return Number(n).toLocaleString('en-US'); } catch (e) { return String(n); } }
 
@@ -79,7 +91,24 @@
       .catch(function () { render(fallback.today, fallback.total); });
   }
 
+  function readTotals() {
+    fetch(SUPABASE_URL + '/rest/v1/rpc/get_visit_totals', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ p_paths: scopePaths || [path] })
+    })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (d) { if (d) render(d.today, d.total); })
+      .catch(function () {});
+  }
+
   function run() {
+    if (alreadyCounted()) { readTotals(); return; }
     fetch(SUPABASE_URL + '/rest/v1/rpc/bump_visit', {
       method: 'POST',
       headers: {
@@ -93,6 +122,7 @@
       .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
       .then(function (d) {
         if (!d) return;
+        markCounted();
         // 메인(/)은 사이트 전역 토탈, 그 외 페이지는 해당 페이지 카운트
         var today = isMain ? d.all_today : d.page_today;
         var total = isMain ? d.all_total : d.page_total;

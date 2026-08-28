@@ -157,13 +157,38 @@ test('component preview loads the production footer runtime', async () => {
 test('footer preview contexts mirror the real page footer hosts', async () => {
   const footer = await read('public/ps-footer.js');
   for (const [context, links, feedback, review] of [
-    ['home', true, true, true],
-    ['atlas', false, true, true],
+    ['home', true, false, false],
+    ['atlas', false, false, true],
     ['geoweb', false, true, true],
     ['spell', false, true, true],
   ]) {
     assert.match(footer, new RegExp(`${context}:\\s*\\{\\s*showLinks:\\s*${links},\\s*showFeedback:\\s*${feedback},\\s*showReview:\\s*${review}`));
   }
+});
+
+test('floating footer stays inside narrow and zoomed viewports without shrinking its controls', async () => {
+  const footer = await read('public/ps-footer.js');
+  const rule = footer.match(/#ps-footer-root \.ps-brand-fixed\{[^}]+\}/)?.[0] || '';
+  assert.match(rule, /left:/);
+  assert.match(rule, /max-width:calc\(100vw/);
+  assert.match(rule, /flex-wrap:wrap/);
+  assert.match(rule, /justify-content:flex-end/);
+  assert.match(footer, /\.ps-brand-coffee[^}]*white-space:nowrap/);
+});
+
+test('home hides feedback and reviews while Atlas exposes all approved reviews only', async () => {
+  const [home, layout, atlas, footer] = await Promise.all([
+    read('src/pages/index.astro'),
+    read('src/layouts/CinematicLayout.astro'),
+    read('src/pages/atlas-gears.astro'),
+    read('public/ps-footer.js'),
+  ]);
+  assert.match(home, /showFeedback=\{false\}/);
+  assert.match(home, /showReview=\{false\}/);
+  assert.match(layout, /showReview/);
+  assert.match(atlas, /<PsFooter[^>]*showFeedback=\{false\}[^>]*reviewLabel="리뷰 보기"[^>]*reviewService="all"/);
+  assert.match(footer, /data-review-label/);
+  assert.match(footer, /data-review-service/);
 });
 
 test('mobile footer keeps editable sizing tokens and preview switches preserve the draft', async () => {

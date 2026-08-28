@@ -65,7 +65,7 @@ test('all public feedback and review scripts use the same cache-busting release'
     read('public/footer-preview.html'),
     read('public/ps-footer.js'),
   ]);
-  const expected = '20260727.1';
+  const expected = '20260828.1';
   for (const source of [component, spell, preview]) {
     assert.match(source, new RegExp(`service-context\\.js\\?v=${expected}`));
     assert.match(source, new RegExp(`ps-footer\\.js\\?v=${expected}`));

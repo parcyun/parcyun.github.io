@@ -8,10 +8,11 @@ export interface Props {
   ogImage?: string;
   lang?: string;
   showFeedback?: boolean;
+  showReview?: boolean;
 }
 import { icon } from '../lib/icons';
 import PsFooter from '../components/PsFooter.astro';
-const { title, description = '', ogTitle = '', ogDescription = '', ogUrl = '', ogImage = 'https://parcyun.github.io/images/og-card.png', lang = 'ko', showFeedback = true } = Astro.props;
+const { title, description = '', ogTitle = '', ogDescription = '', ogUrl = '', ogImage = 'https://parcyun.github.io/images/og-card.png', lang = 'ko', showFeedback = true, showReview = true } = Astro.props;
 ---
 <!doctype html>
 <html lang={lang}>
@@ -202,7 +203,7 @@ section.in-view, .hero.in-view {
 </div>
 
 <!-- ===== 공용 푸터 (커피 + Designed by) ===== -->
-<PsFooter showFeedback={showFeedback} />
+<PsFooter showFeedback={showFeedback} showReview={showReview} />
 
 <script is:inline>
 (function(){

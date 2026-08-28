@@ -1,10 +1,29 @@
 ---
 // 모든 페이지는 이 진입점으로 public/ps-footer.js 단일 구현을 사용한다.
-export interface Props { showFeedback?: boolean; showLinks?: boolean; }
-const { showFeedback = true, showLinks = true } = Astro.props;
+export interface Props {
+  showFeedback?: boolean;
+  showLinks?: boolean;
+  showReview?: boolean;
+  reviewLabel?: string;
+  reviewService?: string;
+}
+const {
+  showFeedback = true,
+  showLinks = true,
+  showReview = true,
+  reviewLabel = '리뷰 남기기',
+  reviewService = '',
+} = Astro.props;
 ---
-<div data-ps-footer data-show-feedback={String(showFeedback)} data-show-links={String(showLinks)} data-show-review="true"></div>
-<script is:inline src="/service-context.js?v=20260727.1" defer></script>
-<script is:inline src="/ps-footer.js?v=20260727.1" defer></script>
+<div
+  data-ps-footer
+  data-show-feedback={String(showFeedback)}
+  data-show-links={String(showLinks)}
+  data-show-review={String(showReview)}
+  data-review-label={reviewLabel}
+  data-review-service={reviewService}
+></div>
+<script is:inline src="/service-context.js?v=20260828.1" defer></script>
+<script is:inline src="/ps-footer.js?v=20260828.1" defer></script>
 <script is:inline src="/ps-track.js" defer></script>
 <script is:inline src="/site-content.js?v=20260714.1" defer></script>

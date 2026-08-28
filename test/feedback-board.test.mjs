@@ -32,7 +32,7 @@ test('Atlas, GeoWeb, and Spell Drill load one shared footer module', async () =>
   const footer = await read('src/components/PsFooter.astro');
   const sharedFooter = await read('public/ps-footer.js');
 
-  assert.match(atlas, /<PsFooter showLinks=\{false\} \/>/);
+  assert.match(atlas, /<PsFooter showLinks=\{false\}[^>]*reviewLabel="리뷰 보기"/);
   assert.match(geo, /import PsFooter from '\.\.\/components\/PsFooter\.astro'/);
   assert.doesNotMatch(geo, /WorldMapFooter/);
   assert.match(footer, /data-ps-footer/);
@@ -51,11 +51,11 @@ test('Atlas, GeoWeb, and Spell Drill load one shared footer module', async () =>
   assert.match(sharedFooter, /feedback-board\.js/);
 });
 
-test('homepage exposes the shared feedback trigger like every other page', async () => {
+test('homepage explicitly hides feedback while retaining the shared footer', async () => {
   const home = await read('src/pages/index.astro');
   const footer = await read('src/components/PsFooter.astro');
 
-  assert.doesNotMatch(home, /showFeedback=\{false\}/);
+  assert.match(home, /showFeedback=\{false\}/);
   assert.match(footer, /showFeedback = true/);
   assert.match(footer, /data-show-feedback=\{String\(showFeedback\)\}/);
 });

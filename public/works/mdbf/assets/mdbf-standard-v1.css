@@ -1,0 +1,46 @@
+:root {
+  --mdbf-blue: #3364d9;
+  --mdbf-blue-900: #0f3aa0;
+  --mdbf-ink: #010f2f;
+  --mdbf-muted: #5a6478;
+  --mdbf-blue-50: #f0f4ff;
+  --mdbf-line: #c2d4ff;
+  --mdbf-paper: #ffffff;
+  --mdbf-font-body: 'Pretendard Variable', 'Pretendard', sans-serif;
+  --mdbf-font-logo: 'Nanum Gothic', sans-serif;
+  --mdbf-content-width: 1180px;
+  --mdbf-space-section: clamp(88px, 9vw, 140px);
+  --mdbf-radius-control: 4px;
+  --mdbf-ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+.mdbf-container {
+  width: min(var(--mdbf-content-width), calc(100% - 48px));
+  margin-inline: auto;
+}
+
+.mdbf-logo-safe-area {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 16%;
+  background: var(--mdbf-paper);
+}
+
+.mdbf-logo-safe-area > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.mdbf-editorial-label {
+  color: var(--mdbf-blue-900);
+  font: 600 0.75rem/1.4 var(--mdbf-font-body);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.mdbf-focusable:focus-visible {
+  outline: 2px solid var(--mdbf-blue);
+  outline-offset: 4px;
+}

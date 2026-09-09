@@ -13,7 +13,21 @@ export interface Work {
   tags: string[];
 }
 
-export const works: Work[] = [
+const PORTFOLIO_ORDER: Record<string, number> = {
+  '/works/002-i-am-serif/': 10,
+  '/works/mdbf/': 20,
+  '/works/masterclass/': 30,
+  '/': 40,
+};
+
+export function sortWorksForPortfolio(items: Work[]): Work[] {
+  return [...items].sort((a, b) =>
+    (PORTFOLIO_ORDER[a.url] ?? 100) - (PORTFOLIO_ORDER[b.url] ?? 100)
+    || a.num.localeCompare(b.num)
+  );
+}
+
+export const works: Work[] = sortWorksForPortfolio([
   {
     num: '001',
     title: 'parcyun studio 포트폴리오 허브',
@@ -44,4 +58,24 @@ export const works: Work[] = [
     status: 'soon',
     tags: ['Web Design', 'Portfolio', 'Coming soon'],
   },
-];
+  {
+    num: '004',
+    title: 'MDBF 웹 표준과 컴포넌트 라이브러리',
+    titleHtml: 'MDBF<br>Web Standard',
+    desc: '몽당분필·디미교연 웹사이트에서 반복되는 오브젝트와 섹션을 감사해 토큰, 컴포넌트, 구성 패턴으로 정리한 브랜드 표준.',
+    week: 'Design System · 2026.09',
+    url: '/works/mdbf/',
+    status: 'live',
+    tags: ['MDBF', 'Design System', 'Components', 'Astro'],
+  },
+  {
+    num: '005',
+    title: 'the Masterclass 웹 표준과 컴포넌트 라이브러리',
+    titleHtml: 'the Masterclass<br>Web Standard',
+    desc: '교사 연수 플랫폼의 탐색, 콘텐츠 카드, 캐러셀과 접근 제어 구조를 재사용 가능한 제품 컴포넌트로 정리한 웹 표준.',
+    week: 'Design System · 2026.09',
+    url: '/works/masterclass/',
+    status: 'live',
+    tags: ['Masterclass', 'Design System', 'Components', 'Astro'],
+  },
+]);

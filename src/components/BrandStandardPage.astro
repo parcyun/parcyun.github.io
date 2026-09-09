@@ -1,0 +1,119 @@
+---
+import PsFooter from './PsFooter.astro';
+import type { BrandStandard } from '../data/brandStandards';
+
+interface Props { standard: BrandStandard }
+const { standard } = Astro.props;
+const title = `${standard.name} · Web Standard — parcyun studio Works`;
+---
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={`${standard.name} 웹 컴포넌트와 섹션 표준 카탈로그`} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+</head>
+<body class:list={[standard.surface === 'dark' && 'is-masterclass']}>
+  <header class="site-header">
+    <a class="studio" href="/works/" aria-label="parcyun studio Works로 이동">parcyun studio <span>/ works</span></a>
+    <nav aria-label="페이지 탐색">
+      <a href="#foundation">Foundation</a>
+      <a href="#components">Components</a>
+      <a href="#sections">Sections</a>
+      <button class="theme-toggle" type="button" aria-label="어두운 화면으로 전환" aria-pressed="false">◐</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-index">STANDARD / 01</div>
+      <div class="hero-copy">
+        <p>{standard.eyebrow}</p>
+        <h1>{standard.name}</h1>
+        <h2>{standard.koreanName}</h2>
+      </div>
+      <p class="hero-summary">{standard.summary}</p>
+      <div class="hero-meta"><span>Mode</span><strong>{standard.tone}</strong></div>
+    </section>
+
+    <section class="foundation section" id="foundation">
+      <header class="section-heading"><span>01</span><div><p>Foundation</p><h2>보이는 것보다 먼저<br />기준을 고정합니다.</h2></div></header>
+      <div class="palette" aria-label={`${standard.name} 색상 체계`}>
+        {standard.palette.map((color) => <article style={`--swatch:${color.value}`}><div class="swatch"></div><span>{color.name}</span><code>{color.value}</code></article>)}
+      </div>
+      <div class="type-grid">
+        {standard.typography.map((type) => <article><span>{type.role}</span><strong style={`font-family:${type.family === 'Pretendard' ? "'Pretendard Variable', sans-serif" : `'${type.family}', sans-serif`}`}>{type.family}</strong><p>{type.note}</p></article>)}
+      </div>
+    </section>
+
+    <section class="brand-stage section" aria-label={`${standard.name} 브랜드 미리보기`}>
+      <div class="stage-label">LIVE LANGUAGE</div>
+      <div class="stage-mark" aria-hidden="true">{standard.slug === 'mdbf' ? 'ㅁ' : 'M'}</div>
+      <div class="stage-copy"><span>{standard.name}</span><h2>{standard.slug === 'mdbf' ? '교육의 건강한 미래를 만드는 교사 공동체' : '현장에서 검증된 연수를, 모든 교사에게.'}</h2></div>
+    </section>
+
+    <section class="section" id="components">
+      <header class="section-heading"><span>02</span><div><p>Objects</p><h2>작게 나누되,<br />역할은 선명하게.</h2></div></header>
+      <div class="inventory">
+        {standard.objects.map((item, index) => <article><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{item.name}</h3><p>{item.description}</p></div><code>{item.source}</code></article>)}
+      </div>
+    </section>
+
+    <section class="section section-tinted" id="sections">
+      <header class="section-heading"><span>03</span><div><p>Sections</p><h2>반복되는 화면을<br />하나의 문법으로.</h2></div></header>
+      <div class="section-cards">
+        {standard.sections.map((item, index) => <article><span>SECTION {String(index + 1).padStart(2, '0')}</span><h3>{item.name}</h3><p>{item.description}</p><code>{item.source}</code></article>)}
+      </div>
+    </section>
+
+    <section class="section rules">
+      <header class="section-heading"><span>04</span><div><p>Usage</p><h2>일관성을 지키는<br />네 가지 약속.</h2></div></header>
+      <ol>{standard.rules.map((rule) => <li>{rule}</li>)}</ol>
+      <div class="downloads">
+        <a href={standard.manifestUrl} download><span>JSON</span><strong>Component manifest</strong><small>구성 요소·출처 명세</small></a>
+        <a href={standard.cssUrl} download><span>CSS</span><strong>Design tokens</strong><small>색상·서체·간격 토큰</small></a>
+      </div>
+    </section>
+  </main>
+  <PsFooter showReview={false} />
+
+  <script is:inline>
+    const root = document.documentElement;
+    const button = document.querySelector('.theme-toggle');
+    const saved = localStorage.getItem('ps-standard-theme');
+    if (saved === 'dark') root.dataset.theme = 'dark';
+    const sync = () => {
+      const dark = root.dataset.theme === 'dark';
+      button?.setAttribute('aria-pressed', String(dark));
+      button?.setAttribute('aria-label', dark ? '밝은 화면으로 전환' : '어두운 화면으로 전환');
+    };
+    sync();
+    button?.addEventListener('click', () => {
+      root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('ps-standard-theme', root.dataset.theme);
+      sync();
+    });
+  </script>
+</body>
+</html>
+
+<style is:global>
+  :root{--ps:#ffb11a;--bg:#f5f2ea;--paper:#fff;--ink:#101010;--muted:#6e6b65;--line:#d9d4c8;--brand:#3364d9;--brand-dark:#0f3aa0;--brand-soft:#f0f4ff;color-scheme:light}
+  :root[data-theme='dark']{--bg:#111;--paper:#191919;--ink:#f4f1e9;--muted:#aaa59d;--line:#393631;color-scheme:dark}
+  *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:'Pretendard Variable','Pretendard',sans-serif;font-weight:350;line-height:1.65;word-break:keep-all;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}
+  .site-header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;height:68px;padding:0 clamp(20px,4vw,64px);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px)}.studio{font-family:Montserrat,sans-serif;font-size:13px;font-weight:600;letter-spacing:-.02em}.studio span{color:var(--muted);font-weight:400}.site-header nav{display:flex;align-items:center;gap:24px;font-family:Montserrat,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em}.theme-toggle{width:34px;height:34px;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--ink);cursor:pointer}
+  main{overflow:hidden}.hero,.section{max-width:1440px;margin:auto;padding:clamp(88px,11vw,168px) clamp(22px,6vw,92px)}.hero{display:grid;grid-template-columns:1fr 2.2fr;gap:40px;min-height:calc(100vh - 68px);align-content:center;border-bottom:1px solid var(--line)}.hero-index,.hero-copy>p,.section-heading p,.stage-label{font:500 10px/1.4 Montserrat,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}.hero-copy h1{margin:20px 0 0;font:500 clamp(58px,10vw,144px)/.88 Montserrat,sans-serif;letter-spacing:-.075em}.hero-copy h2{margin:22px 0 0;font-size:clamp(17px,2vw,28px);font-weight:400;color:var(--brand-dark)}.hero-summary{grid-column:2;max-width:720px;margin:54px 0 0;font-size:clamp(20px,2vw,30px);line-height:1.55;letter-spacing:-.025em}.hero-meta{grid-column:2;display:flex;gap:20px;margin-top:34px;padding-top:20px;border-top:1px solid var(--line);font-size:12px}.hero-meta span{color:var(--muted)}
+  .section{border-bottom:1px solid var(--line)}.section-heading{display:grid;grid-template-columns:1fr 2.2fr;gap:40px;margin-bottom:70px}.section-heading>span{font:500 11px Montserrat,sans-serif;color:var(--ps)}.section-heading p{margin:0 0 18px}.section-heading h2{margin:0;font-size:clamp(34px,4.5vw,66px);font-weight:350;line-height:1.1;letter-spacing:-.045em}
+  .palette{display:grid;grid-template-columns:repeat(6,1fr);border:1px solid var(--line)}.palette article{min-width:0;padding:12px;border-right:1px solid var(--line)}.palette article:last-child{border:0}.swatch{aspect-ratio:1;background:var(--swatch);border:1px solid color-mix(in srgb,var(--line) 60%,transparent)}.palette span,.palette code{display:block;margin-top:12px;font-size:11px}.palette code{margin-top:2px;color:var(--muted)}.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:54px;background:var(--line);border:1px solid var(--line)}.type-grid article{padding:28px;background:var(--paper)}.type-grid span,.type-grid p{font-size:11px;color:var(--muted)}.type-grid strong{display:block;margin:30px 0 18px;font-size:clamp(24px,3vw,42px);font-weight:500}
+  .brand-stage{position:relative;display:grid;grid-template-columns:1fr 1.7fr;align-items:end;min-height:680px;max-width:none;background:var(--brand);color:#fff}.is-masterclass .brand-stage{background:#07090f}.stage-label{position:absolute;top:54px;left:clamp(22px,6vw,92px);color:#fff9}.stage-mark{font:600 clamp(180px,30vw,460px)/.7 Montserrat,sans-serif;letter-spacing:-.14em;color:#fff}.is-masterclass .stage-mark{color:#3364d9}.stage-copy{max-width:740px}.stage-copy span{font:500 12px Montserrat,sans-serif;letter-spacing:.1em}.stage-copy h2{margin:22px 0 0;font-size:clamp(32px,4.6vw,70px);font-weight:350;line-height:1.1;letter-spacing:-.045em}
+  .inventory{border-top:1px solid var(--ink)}.inventory article{display:grid;grid-template-columns:60px 1fr minmax(160px,260px);gap:24px;align-items:start;padding:30px 0;border-bottom:1px solid var(--line)}.inventory>article>span{font:500 11px Montserrat,sans-serif;color:var(--brand)}.inventory h3{margin:0 0 8px;font-size:22px;font-weight:550}.inventory p{max-width:650px;margin:0;color:var(--muted)}.inventory code,.section-cards code{font-size:10px;color:var(--muted);overflow-wrap:anywhere}
+  .section-tinted{background:var(--paper)}.section-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.section-cards article{display:flex;min-height:270px;flex-direction:column;padding:28px;border:1px solid var(--line);background:var(--bg)}.section-cards span{font:500 9px Montserrat,sans-serif;letter-spacing:.12em;color:var(--brand)}.section-cards h3{margin:45px 0 12px;font-size:24px}.section-cards p{margin:0;color:var(--muted)}.section-cards code{margin-top:auto;padding-top:24px}
+  .rules ol{margin:0 0 70px;padding:0;counter-reset:rule;list-style:none;border-top:1px solid var(--ink)}.rules li{counter-increment:rule;display:grid;grid-template-columns:60px 1fr;padding:28px 0;border-bottom:1px solid var(--line);font-size:clamp(16px,1.6vw,22px)}.rules li:before{content:'0' counter(rule);font:500 11px Montserrat,sans-serif;color:var(--brand)}.downloads{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.downloads a{display:grid;grid-template-columns:64px 1fr;gap:4px 20px;padding:28px;border:1px solid var(--line);transition:background .2s ease,border-color .2s ease}.downloads a:hover,.downloads a:focus-visible{border-color:var(--ps);background:color-mix(in srgb,var(--ps) 8%,var(--paper));outline:none}.downloads span{grid-row:1/3;display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:var(--ps);color:#000;font:600 10px Montserrat,sans-serif}.downloads strong{font-size:18px}.downloads small{color:var(--muted)}
+  @media(max-width:760px){.site-header nav>a{display:none}.hero,.section-heading{grid-template-columns:1fr}.hero{min-height:auto}.hero-summary,.hero-meta{grid-column:1}.palette{grid-template-columns:repeat(2,1fr)}.palette article:nth-child(2n){border-right:0}.type-grid,.section-cards{grid-template-columns:1fr}.brand-stage{grid-template-columns:1fr;gap:90px;min-height:600px}.stage-mark{margin-top:100px}.inventory article{grid-template-columns:40px 1fr}.inventory code{grid-column:2}.downloads{grid-template-columns:1fr}}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>

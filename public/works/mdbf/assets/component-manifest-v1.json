@@ -1,0 +1,22 @@
+{
+  "brand": "MDBF",
+  "version": "1.0.0",
+  "mode": "Editorial",
+  "sourceProject": "mdbf-masterclass-next",
+  "tokens": "mdbf-standard-v1.css",
+  "objects": [
+    { "name": "MDBF Header", "source": "components/mdbf-site/MdbfHeader.tsx" },
+    { "name": "Route Link", "source": "components/mdbf-site/MdbfRouteLink.tsx" },
+    { "name": "Hand-drawn Action", "source": "components/mdbf-site/HanddrawnArrow.tsx" },
+    { "name": "Modal Layer", "source": "components/mdbf-site/useMdbfModalLayer.ts" },
+    { "name": "Member Gate", "source": "components/mdbf-site/MemberGate.tsx" },
+    { "name": "Inquiry Composer", "source": "components/mdbf-site/InquiryComposer.tsx" }
+  ],
+  "sections": [
+    { "name": "What we do", "source": "components/mdbf-site/MdbfHomeWork.tsx" },
+    { "name": "Board Archive", "source": "components/mdbf-site/MdbfBoardArchive.tsx" },
+    { "name": "Business Detail", "source": "components/mdbf-site/CoreBusinessDetailModal.tsx" },
+    { "name": "Partner Marquee", "source": "components/mdbf-site/MdbfPartnerMarquee.tsx" },
+    { "name": "Channel Grid", "source": "components/mdbf-site/MdbfChannelGrid.tsx" }
+  ]
+}

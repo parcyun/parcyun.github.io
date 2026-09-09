@@ -1,0 +1,23 @@
+{
+  "brand": "the Masterclass",
+  "version": "1.0.0",
+  "mode": "Editorial",
+  "sourceProject": "mdbf-masterclass-next",
+  "tokens": "masterclass-standard-v1.css",
+  "objects": [
+    { "name": "Masterclass Logo", "source": "components/ui/MasterclassLogo.tsx" },
+    { "name": "Navigation Search", "source": "components/ui/NavSearch.tsx" },
+    { "name": "Course Card", "source": "components/sections/CourseCard.tsx" },
+    { "name": "Course Carousel", "source": "components/sections/CourseCarousel.tsx" },
+    { "name": "Access Action", "source": "components/content/ContentAccessAction.tsx" },
+    { "name": "Action Buttons", "source": "components/ui/FlatButton.tsx; components/ui/GlassButton.tsx" }
+  ],
+  "sections": [
+    { "name": "Public Chrome", "source": "components/PublicChrome.tsx" },
+    { "name": "Hero Stage", "source": "components/sections/HeroSection.tsx" },
+    { "name": "Curated Row", "source": "components/sections/CourseCarousel.tsx" },
+    { "name": "Course Detail", "source": "components/board/CourseDetailView.tsx" },
+    { "name": "Original Series", "source": "components/original/OriginalCategory.tsx; components/original/SeriesCarousel.tsx" },
+    { "name": "About Sequence", "source": "components/sections/MasterclassAboutSections.tsx" }
+  ]
+}

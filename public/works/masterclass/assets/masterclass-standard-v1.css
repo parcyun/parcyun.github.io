@@ -1,0 +1,51 @@
+:root {
+  --mc-blue: #3364d9;
+  --mc-highlight: #5b8cff;
+  --mc-night: #07090f;
+  --mc-panel: #0b0d16;
+  --mc-text: #e8eaf0;
+  --mc-muted: #8c93a6;
+  --mc-line: rgba(255, 255, 255, .12);
+  --mc-font-body: 'Pretendard Variable', 'Pretendard', sans-serif;
+  --mc-font-latin: 'Montserrat', sans-serif;
+  --mc-content-width: 1280px;
+  --mc-card-radius: 10px;
+  --mc-control-radius: 8px;
+  --mc-ease: cubic-bezier(.16, 1, .3, 1);
+}
+
+.mc-shell {
+  min-height: 100dvh;
+  background: var(--mc-night);
+  color: var(--mc-text);
+  font-family: var(--mc-font-body);
+}
+
+.mc-thumbnail {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--mc-card-radius);
+  background: var(--mc-panel);
+}
+
+.mc-thumbnail > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mc-card-title {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--mc-text);
+  font-weight: 620;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.mc-focusable:focus-visible {
+  outline: 2px solid var(--mc-highlight);
+  outline-offset: 4px;
+}

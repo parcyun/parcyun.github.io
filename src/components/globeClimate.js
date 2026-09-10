@@ -11,4 +11,9 @@ export const CLIMATE_ZONES = {
   highland:  { ko: '고산', en: 'Highland', color: '#69C4C7', fact: '높은 산지라 같은 위도의 낮은 곳보다 기온이 낮아요.' },
 };
 
+// 기후 토글을 처음 켰을 때는 여섯 기후대가 모두 보이고, 범례에서 각각 끌 수 있다.
+export const ALL_CLIMATE_SELECTION = Object.freeze(Object.fromEntries(
+  CLIMATE_ZONE_ORDER.map((key) => [key, true]),
+));
+
 export const CLIMATE_TEXTURE_URL = '/lab-data/geoweb-climate-1991-2020.png';

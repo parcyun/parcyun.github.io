@@ -23,6 +23,9 @@ test('landform data includes representative school geography and rivers stay as 
   for (const name of ['알프스산맥', '히말라야산맥', '우랄산맥', '캅카스산맥', '아틀라스산맥', '로키산맥', '애팔래치아산맥', '안데스산맥', '그레이트디바이딩산맥']) {
     assert.ok(category('mountains').some((feature) => feature.properties.nameKo === name), `${name} is required`);
   }
+  for (const name of ['몽골고원', '콜로라도고원', '알티플라노고원', '만주평원', '팜파스', '야노스', '그란차코', '아라비아 사막', '타르 사막', '타클라마칸 사막']) {
+    assert.ok(data.features.some((feature) => feature.properties.nameKo === name), `${name} is required`);
+  }
   for (const feature of category('rivers')) assert.match(feature.geometry.type, /^(?:Multi)?LineString$/, 'rivers must render only as paths');
   for (const feature of data.features.filter((feature) => feature.properties.category !== 'rivers')) assert.match(feature.geometry.type, /^(?:Multi)?Polygon$/, 'area features must be polygons');
 });
@@ -37,4 +40,6 @@ test('GeoWeb draws selected terrain categories at 70 percent opacity over climat
   assert.match(source, /checked=\{terrain\}/);
   assert.match(source, /setTerrainLayers\(current=>\(\{\.\.\.current,\[key\]:event\.target\.checked\}\)\)/);
   assert.match(source, /className="terrain-legend"/);
+  assert.match(source, /ctx\.strokeText\(feature\.properties\.nameKo,x,y\)/);
+  assert.match(source, /ctx\.fillText\(feature\.properties\.nameKo,x,y\)/);
 });

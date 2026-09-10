@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { inflateSync } from 'node:zlib';
-import { CLIMATE_TEXTURE_URL, CLIMATE_ZONE_ORDER, CLIMATE_ZONES } from '../src/components/globeClimate.js';
+import { ALL_CLIMATE_SELECTION, CLIMATE_TEXTURE_URL, CLIMATE_ZONE_ORDER, CLIMATE_ZONES } from '../src/components/globeClimate.js';
 
 const source = () => readFile(new URL('../src/components/GlobeLab.jsx', import.meta.url), 'utf8');
 
@@ -58,6 +58,7 @@ test('elementary climate layer exposes exactly six pastel climate zones', () => 
   ]);
   assert.equal(CLIMATE_ZONE_ORDER.length, 6);
   for (const key of CLIMATE_ZONE_ORDER) assert.match(CLIMATE_ZONES[key].color, /^#[A-F0-9]{6}$/);
+  assert.deepEqual(ALL_CLIMATE_SELECTION, { tropical:true, dry:true, temperate:true, cold:true, polar:true, highland:true });
 });
 
 test('the generated climate texture classifies representative places correctly', async () => {
@@ -77,14 +78,17 @@ test('the generated climate texture classifies representative places correctly',
   assert.equal(zoneAt(-70, -16), 6, 'central Andes must be highland');
 });
 
-test('GeoWeb provides a left-toolbox toggle, map overlay, and visible six-color legend', async () => {
+test('GeoWeb provides a left-toolbox toggle, map overlay, and individually selectable six-color legend', async () => {
   const globe = await source();
+  assert.match(globe, /const \[climate,setClimate\]=useState\(true\)/);
+  assert.match(globe, /const \[climateZones,setClimateZones\]=useState\(\(\)=>\(\{\.\.\.ALL_CLIMATE_SELECTION\}\)\)/);
   assert.match(globe, /checked=\{climate\}/);
   assert.match(globe, /setClimate\(e\.target\.checked\)/);
   assert.match(globe, /loadTileImg\(CLIMATE_TEXTURE_URL\)/);
-  assert.match(globe, /buildOverlay\(\{sel:s,world,oceans,oceansFill,climate:S\.current\.climate,climateImage,terrain:S\.current\.terrain,terrainLayers:S\.current\.terrainLayers,landforms,targetTexture:overlayTex\}\)/);
+  assert.match(globe, /buildOverlay\(\{sel:s,world,oceans,oceansFill,climate:S\.current\.climate,climateImage,climateZones:S\.current\.climateZones,terrain:S\.current\.terrain,terrainLayers:S\.current\.terrainLayers,landforms,targetTexture:overlayTex\}\)/);
   assert.match(globe, /className="climate-legend"/);
   assert.match(globe, /CLIMATE_ZONE_ORDER\.map/);
+  assert.match(globe, /setClimateZones\(current=>\(\{\.\.\.current,\[key\]:event\.target\.checked\}\)\)/);
   assert.match(globe, /T\.climateSimplified/);
   assert.match(globe, /GEOWEB_CLIMATE_ATTRIBUTION\.txt/);
 });
@@ -92,7 +96,7 @@ test('GeoWeb provides a left-toolbox toggle, map overlay, and visible six-color 
 test('climate colors fully replace continent colors instead of blending with them', async () => {
   const globe = await source();
   assert.doesNotMatch(globe, /globalAlpha=0\.88/);
-  assert.match(globe, /globalAlpha=1;paintClimate\(ctx,climateImage\)/);
+  assert.match(globe, /globalAlpha=1;paintClimate\(ctx,climateImage,climateZones\)/);
 });
 
 test('climate and selection updates reuse one GPU texture without a blank swap frame', async () => {

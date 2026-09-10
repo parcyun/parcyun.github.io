@@ -48,7 +48,7 @@
 | 타르 사막 | `THAR DESERT` | 인도·파키스탄 경계의 대표 사막을 추가한다. |
 | 타클라마칸 사막 | `TAKLIMAKAN DESERT` | 중앙아시아·중국 내륙의 대표 사막을 추가한다. |
 
-`PATAGONIAN DESERT`도 원자료에 단일 사막 다각형이 없다. `PATAGONIA`는 지형 분류가 `geoarea`라 사막 범례에 넣지 않는다. 따라서 실제 원자료에 있는 `DESIERTO DE ATACAMA`를 남아메리카의 대표 건조 지형으로 사용한다.
+`PATAGONIAN DESERT`는 원자료에 단일 사막 다각형이 없다. 다만 수업에서 파타고니아의 건조 지형을 함께 비교할 수 있도록, 사용자의 요청에 따라 Natural Earth의 `PATAGONIA` `geoarea` 다각형을 **파타고니아 사막 수업용 대표 범위**로 표시한다. 이는 정확한 사막 경계가 아닌 축척화된 학습 범위이며, 데이터의 `sourceClass: Geoarea`로 원래 분류를 보존한다. 아타카마 사막(`DESIERTO DE ATACAMA`)도 별도 대표 건조 지형으로 유지한다.
 
 ## 구현에 쓸 정확한 선택 집합
 

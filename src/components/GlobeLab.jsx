@@ -8,7 +8,7 @@ import { ALL_CLIMATE_SELECTION, CLIMATE_TEXTURE_URL, CLIMATE_ZONE_ORDER, CLIMATE
 import { EMPTY_LANDFORM_SELECTION, LANDFORM_CATEGORIES, LANDFORM_CATEGORY_ORDER, LANDFORM_DATA_URL } from './globeLandforms.js';
 import { GLSL, STRADDLE, LENSCLIP, meshVert, cloneVert, OCEANGRAD, meshFrag, cloneFrag, lineVert, lineFrag, fatLineVert, fatLineFrag, fillVert, fillFrag } from './globeShaders.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { geoCentroid, geoEquirectangular, geoPath, geoContains } from 'd3-geo';
+import { geoArea, geoCentroid, geoEquirectangular, geoPath, geoContains } from 'd3-geo';
 
 THREE.ColorManagement.enabled = false; // 원본 HTML과 색 정확히 일치(sRGB 값 passthrough)
 
@@ -96,7 +96,10 @@ function paintLandforms(ctx,landforms,activeLayers){
     if(!activeLayers?.[feature.properties.category])continue;
     const label=feature.properties.nameKo;if(!label)continue;
     const key=`${feature.properties.category}:${label}`;
-    if(!labels.has(key))labels.set(key,feature);
+    // 하나의 수업용 지형권이 여러 원자료 조각으로 구성될 때, 가장 넓은 조각에만
+    // 이름을 붙여 다른 조각의 작은 중심점 때문에 라벨이 화면 밖으로 밀리지 않게 한다.
+    const current=labels.get(key);
+    if(!current||geoArea(feature)>geoArea(current))labels.set(key,feature);
   }
   ctx.save();ctx.font='600 25px Pretendard, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';ctx.lineWidth=5;
   for(const feature of labels.values()){
@@ -298,13 +301,13 @@ function DraggablePanel({corner,onDock,otherCorner,className,children,collapsed,
 
 export default function GlobeLab(){
   const mountRef=useRef(null),labelRef=useRef(null),api=useRef({});
-  const S=useRef({view:'flat',country:false,dayNight:false,dnPlay:true,month:6,grat:true,eq:true,prime:false,step:20,sunLon:-90,climate:true,climateZones:ALL_CLIMATE_SELECTION,terrain:false,terrainLayers:EMPTY_LANDFORM_SELECTION});
+  const S=useRef({view:'flat',country:false,dayNight:false,dnPlay:true,month:6,grat:true,eq:true,prime:true,dateline:true,step:20,sunLon:-90,climate:false,climateZones:ALL_CLIMATE_SELECTION,terrain:false,terrainLayers:EMPTY_LANDFORM_SELECTION});
   const [view,setView]=useState('flat');
   const [country,setCountry]=useState(false),[dayNight,setDayNight]=useState(false),[dnPlay,setDnPlay]=useState(true),[month,setMonth]=useState(6);
-  const [grat,setGrat]=useState(true),[eq,setEq]=useState(true),[prime,setPrime]=useState(false),[dateline,setDateline]=useState(false),[step,setStep]=useState(20);
+  const [grat,setGrat]=useState(true),[eq,setEq]=useState(true),[prime,setPrime]=useState(true),[dateline,setDateline]=useState(true),[step,setStep]=useState(20);
   const [sel,setSel]=useState(null),[status,setStatus]=useState('로딩 중…');
   const [sat,setSat]=useState(false); // #2 위성 사진 보기
-  const [climate,setClimate]=useState(true); // 초등 학습용 6개 기후대 오버레이
+  const [climate,setClimate]=useState(false); // 초등 학습용 6개 기후대 오버레이
   const [climateZones,setClimateZones]=useState(()=>({...ALL_CLIMATE_SELECTION}));
   const [terrain,setTerrain]=useState(false); // 초등 사회 수업용 주요 지형 레이어
   const [terrainLayers,setTerrainLayers]=useState(()=>({...EMPTY_LANDFORM_SELECTION}));

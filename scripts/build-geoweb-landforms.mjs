@@ -19,7 +19,7 @@ const areaSelections = {
     ['NORTHERN EUROPEAN PLAIN',['북유럽평원','Northern European Plain']],['NORTH CHINA PLAIN',['화베이평원','North China Plain']],['GREAT PLAINS',['그레이트플레인스','Great Plains']],['WESTERN SIBERIAN PLAIN',['서시베리아평원','Western Siberian Plain']],['GANGES PLAIN',['갠지스평원','Ganges Plain']],['MANCHURIAN PLAIN',['만주평원','Manchurian Plain']],['PAMPAS',['팜파스','Pampas']],['LLANOS',['야노스','Llanos']],['GRAN CHACO',['그란차코','Gran Chaco']],['CHACO BOREAL',['그란차코','Gran Chaco']],['CHACO AUSTRAL',['그란차코','Gran Chaco']],['TURAN LOWLAND',['중앙아시아 평원·저지','Central Asian Lowlands']],['KAZAKH STEPPE',['중앙아시아 평원·저지','Central Asian Lowlands']],
   ]),
   deserts: new Map([
-    ['SAHARA',['사하라 사막','Sahara']],['GOBI DESERT',['고비 사막','Gobi Desert']],['ARABIAN PENINSULA',['아라비아 사막','Arabian Desert']],['THAR DESERT',['타르 사막','Thar Desert']],['TAKLIMAKAN DESERT',['타클라마칸 사막','Taklamakan Desert']],['QIZILQUM DESERT',['중앙아시아 사막권','Central Asian Desert Region']],['GARAGUM DESERT',['중앙아시아 사막권','Central Asian Desert Region']],['KALAHARI DESERT',['칼라하리 사막','Kalahari Desert']],['NAMIB DESERT',['나미브 사막','Namib Desert']],['DESIERTO DE ATACAMA',['아타카마 사막','Atacama Desert']],['GREAT SANDY DESERT',['오스트레일리아 사막권','Australian Desert Region']],['GIBSON DESERT',['오스트레일리아 사막권','Australian Desert Region']],['GREAT VICTORIA DESERT',['오스트레일리아 사막권','Australian Desert Region']],['SIMPSON DESERT',['오스트레일리아 사막권','Australian Desert Region']],['TANAMI DESERT',['오스트레일리아 사막권','Australian Desert Region']],['STRZELECKI DESERT',['오스트레일리아 사막권','Australian Desert Region']],
+    ['SAHARA',['사하라 사막','Sahara']],['GOBI DESERT',['고비 사막','Gobi Desert']],['ARABIAN PENINSULA',['아라비아 사막','Arabian Desert']],['THAR DESERT',['타르 사막','Thar Desert']],['TAKLIMAKAN DESERT',['타클라마칸 사막','Taklamakan Desert']],['QIZILQUM DESERT',['중앙아시아 사막권','Central Asian Desert Region']],['GARAGUM DESERT',['중앙아시아 사막권','Central Asian Desert Region']],['KALAHARI DESERT',['칼라하리 사막','Kalahari Desert']],['NAMIB DESERT',['나미브 사막','Namib Desert']],['DESIERTO DE ATACAMA',['아타카마 사막','Atacama Desert']],['PATAGONIA',['파타고니아 사막','Patagonian Desert']],['GREAT SANDY DESERT',['오스트레일리아 사막권','Australian Desert Region']],['GIBSON DESERT',['오스트레일리아 사막권','Australian Desert Region']],['GREAT VICTORIA DESERT',['오스트레일리아 사막권','Australian Desert Region']],['SIMPSON DESERT',['오스트레일리아 사막권','Australian Desert Region']],['TANAMI DESERT',['오스트레일리아 사막권','Australian Desert Region']],['STRZELECKI DESERT',['오스트레일리아 사막권','Australian Desert Region']],
   ]),
 };
 
@@ -37,7 +37,7 @@ const macroSpreadDegrees = {
   mountains: { '로키산맥': 0.95, '안데스산맥': 1.0, '히말라야산맥': 0.9, '우랄산맥': 0.85, '그레이트디바이딩산맥': 0.85, default: 0.7 },
   plateaus: { '티베트고원': 0.9, '브라질고원': 0.8, default: 0.55 },
   plains: { '그레이트플레인스': 0.95, '북유럽평원': 0.9, '서시베리아평원': 0.8, default: 0.55 },
-  deserts: { '아라비아 사막': 0.5, '사하라 사막': 0.65, '고비 사막': 0.55, '타클라마칸 사막': 0.7, '중앙아시아 사막권': 0.5, '오스트레일리아 사막권': 0.5, default: 0.45 },
+  deserts: { '아라비아 사막': 0.5, '사하라 사막': 0.65, '고비 사막': 0.55, '타클라마칸 사막': 0.7, '중앙아시아 사막권': 0.5, '파타고니아 사막': 0.55, '오스트레일리아 사막권': 0.5, default: 0.45 },
 };
 
 const fetchJson = async (url) => {

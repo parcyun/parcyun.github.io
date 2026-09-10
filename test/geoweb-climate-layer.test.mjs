@@ -80,7 +80,9 @@ test('the generated climate texture classifies representative places correctly',
 
 test('GeoWeb provides a left-toolbox toggle, map overlay, and individually selectable six-color legend', async () => {
   const globe = await source();
-  assert.match(globe, /const \[climate,setClimate\]=useState\(true\)/);
+  assert.match(globe, /const \[climate,setClimate\]=useState\(false\)/);
+  assert.match(globe, /\[prime,setPrime\]=useState\(true\),\[dateline,setDateline\]=useState\(true\)/);
+  assert.match(globe, /prime:true,dateline:true,[^\n]*climate:false/);
   assert.match(globe, /const \[climateZones,setClimateZones\]=useState\(\(\)=>\(\{\.\.\.ALL_CLIMATE_SELECTION\}\)\)/);
   assert.match(globe, /checked=\{climate\}/);
   assert.match(globe, /setClimate\(e\.target\.checked\)/);

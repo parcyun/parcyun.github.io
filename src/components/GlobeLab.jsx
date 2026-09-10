@@ -4,6 +4,7 @@ import { countryInfo } from './globeCountryData.js';
 import { countryByBoundaryName, formatPopulation, searchCountryMatches, SYSTEM_EXPLANATIONS, SYSTEM_LABELS } from './globeCountries.js';
 import { STR, MONTHS_I18N } from './globeI18n.js';
 import { markGeoUpdateSeen } from './geoUpdateStory.js';
+import { CLIMATE_BANDS, CLIMATE_REGIONS, CLIMATE_ZONE_ORDER, CLIMATE_ZONES } from './globeClimate.js';
 import { GLSL, STRADDLE, LENSCLIP, meshVert, cloneVert, OCEANGRAD, meshFrag, cloneFrag, lineVert, lineFrag, fatLineVert, fatLineFrag, fillVert, fillFrag } from './globeShaders.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { geoEquirectangular, geoPath, geoContains } from 'd3-geo';
@@ -57,6 +58,24 @@ function buildBase({world,night}){
   for(const [c,feats] of Object.entries(byC)){ctx.beginPath();for(const f of feats)path(f);const col=(CONT[c]||{}).color||'#888';ctx.fillStyle=night?shade(col,-0.6):col;ctx.fill();ctx.lineWidth=0.5;ctx.strokeStyle=night?'rgba(255,255,255,0.06)':'#04060B';ctx.stroke();}
   return rawTex(cv);
 }
+function paintClimate(ctx,world){
+  const W=RES,H=RES/2;
+  // 기본 기후대는 위도 띠로 단순화한다. 북반구에만 넓은 냉대 육지가 있다는 점도 반영했다.
+  for(const {zone,minLat,maxLat} of CLIMATE_BANDS){
+    const top=latRow(maxLat),bottom=latRow(minLat);
+    ctx.fillStyle=CLIMATE_ZONES[zone].color;ctx.fillRect(0,top,W,bottom-top);
+  }
+  // 사막과 큰 산맥은 위도만으로 설명할 수 없어 대표 지역을 덧칠한다.
+  const path=geoPath(projFor(ctx),ctx);
+  for(const {zone,points} of CLIMATE_REGIONS){
+    ctx.beginPath();path({type:'Feature',geometry:{type:'Polygon',coordinates:[points]}});
+    ctx.fillStyle=CLIMATE_ZONES[zone].color;ctx.fill();
+  }
+  // 바다에는 색을 칠하지 않고 육지 안에서만 기후색이 보이게 한다.
+  const mask=document.createElement('canvas');mask.width=W;mask.height=H;const mc=mask.getContext('2d');const maskPath=geoPath(projFor(mc),mc);
+  mc.fillStyle='#fff';mc.beginPath();for(const f of world.features)maskPath(f);mc.fill();
+  ctx.globalCompositeOperation='destination-in';ctx.drawImage(mask,0,0);ctx.globalCompositeOperation='source-over';
+}
 const OCEAN_LAT_CLIP={pacific:{smin:-60},atlantic:{smin:-60,smax:66.5},indian:{smin:-60},southern:{smax:-60},arctic:{smin:66.5}}; // 대양 영역 분할: 개방대양은 60°S 위(smin)만·남극해는 60°S 아래(smax)만 / 북극권 66.5°N에서 대서양(위 잘림)·북극해(아래 잘림) 분할(그린란드 동쪽 겹침 제거)
 const latRow=(lat)=>RES/4-(RES/(2*Math.PI))*(lat*D2R);                                              // projFor(equirect) 위도→텍스처 y (equator=RES/4, 남쪽일수록 큼)
 function featherOcean(baseCtx,geom,color,world,key){
@@ -95,8 +114,9 @@ function featherOcean(baseCtx,geom,color,world,key){
   baseCtx.save();baseCtx.globalAlpha=0.68;baseCtx.drawImage(off,0,0);baseCtx.restore(); // 채움 강도(0.62→0.68, 이전보다 ~10%↑)
 }
 
-function buildOverlay({sel,world,oceans,oceansFill}){
+function buildOverlay({sel,world,oceans,oceansFill,climate=false}){
   const W=RES,H=RES/2,cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');const path=geoPath(projFor(ctx),ctx);
+  if(climate){ctx.save();ctx.globalAlpha=0.82;paintClimate(ctx,world);ctx.restore();}
   if(sel){ if(sel.type==='ocean'&&oceans[sel.key]) featherOcean(ctx,{type:'Feature',geometry:(oceansFill&&oceansFill[sel.key])||oceans[sel.key]},(OCEAN[sel.key]||{}).color||'#3E8FB0',world,sel.key); // 채움은 매끈하게 정리된 폴리곤(있으면), 클릭 판정은 원본. world=육지 빼기용(안개 페더)
     else if(sel.type==='continent'||sel.type==='country'){
       const drawSel=()=>{ctx.beginPath();for(const f of world.features){const m=sel.type==='continent'?f.properties.c===sel.key:f.properties.n===sel.name;if(m)path(f);}};
@@ -250,6 +270,7 @@ export default function GlobeLab(){
   const [grat,setGrat]=useState(true),[eq,setEq]=useState(true),[prime,setPrime]=useState(false),[dateline,setDateline]=useState(false),[step,setStep]=useState(20);
   const [sel,setSel]=useState(null),[status,setStatus]=useState('로딩 중…');
   const [sat,setSat]=useState(false); // #2 위성 사진 보기
+  const [climate,setClimate]=useState(false); // 초등 학습용 6개 기후대 오버레이
   const [satBusy,setSatBusy]=useState(null); // {pct,label} 위성 타일 로딩 진행 or null
   const [trueSize,setTrueSize]=useState(false); // #5 실제 크기 비교(평면 전용)
   const [tsInfo,setTsInfo]=useState(false); // 실제 크기 비교 설명 팝업
@@ -275,6 +296,7 @@ export default function GlobeLab(){
   useEffect(()=>{S.current.sel=sel;api.current.applySel&&api.current.applySel(sel);},[sel]);
   useEffect(()=>{if(api.current.onDN)api.current.onDN(dayNight);},[dayNight]);
   useEffect(()=>{S.current.sat=sat;if(api.current.applySat)api.current.applySat(sat);},[sat]);
+  useEffect(()=>{S.current.climate=climate;if(api.current.applySel)api.current.applySel(S.current.sel);},[climate]);
   useEffect(()=>{S.current.trueSize=trueSize;if(api.current.refreshTrueSize)api.current.refreshTrueSize();},[trueSize,sel,view]);
   useEffect(()=>{S.current.northUp=northUp;if(api.current.applyNorthUp)api.current.applyNorthUp(northUp);},[northUp,view]);
   useEffect(()=>{S.current.lang=lang;if(api.current.setMapLang)api.current.setMapLang(lang);},[lang]); // #3 지도 라벨 언어 동기화
@@ -451,7 +473,7 @@ export default function GlobeLab(){
           fillGeoRef.setAttribute('aGeo',new THREE.Float32BufferAttribute(aGeo,2));fillGeoRef.setAttribute('aColor',new THREE.Float32BufferAttribute(aCol,3));fillGeoRef.setAttribute('aTriLon',new THREE.Float32BufferAttribute(aTri,3));fillGeoRef.setAttribute('aTriLat',new THREE.Float32BufferAttribute(aTriLat,3));fillGeoRef.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));}};
 
       const oceanLblEls=[]; // 대양 라벨 활성/딤 상태용(원본 .ocean-label.active/.dim)
-      const applySel=(s)=>{overlayTex.dispose();overlayTex=buildOverlay({sel:s,world,oceans,oceansFill});u.overlayTex.value=overlayTex;
+      const applySel=(s)=>{overlayTex.dispose();overlayTex=buildOverlay({sel:s,world,oceans,oceansFill,climate:S.current.climate});u.overlayTex.value=overlayTex;
         const oc=!!s&&s.type==='ocean';
         for(const {el,o} of oceanLblEls){el.classList.toggle('active',oc&&o===s.key);el.classList.toggle('dim',oc&&o!==s.key);}};
       const centerLonRad=()=>U.lens.value>0.5?U.uLon0.value:(U.morph.value>0.5?controls.target.x/MS:-Math.PI/2-U.uRotY.value);
@@ -743,6 +765,12 @@ export default function GlobeLab(){
         <div className="step"><span>{T.interval}</span><input type="number" min="5" max="90" step="5" value={step} onChange={e=>setStep(e.target.value)} /><span>°</span></div>
         <label className="tg tg-sep"><input type="checkbox" checked={country} onChange={e=>{setCountry(e.target.checked);setSel(null);}} /><span>{T.pickCountry}</span></label>
         <label className="tg"><input type="checkbox" checked={trueSize} disabled={view!=='flat'} onChange={e=>setTrueSize(e.target.checked)} /><span>{T.trueSize}{view!=='flat'&&<small style={{color:'var(--text-2)',marginLeft:4,fontSize:9}}>{T.flatOnly}</small>}<button className="ts-info-btn" onClick={e=>{e.preventDefault();setTsInfo(v=>!v);}} title={T.tsTitle}>!</button></span></label>
+        <label className="tg tg-sep"><input type="checkbox" checked={climate} onChange={e=>setClimate(e.target.checked)} /><span>{T.climate}</span></label>
+        {climate && <div className="climate-legend" role="region" aria-label={T.climateLegend}>
+          <div className="climate-legend-title">{T.climateLegend}</div>
+          <div className="climate-legend-grid">{CLIMATE_ZONE_ORDER.map(key=><div key={key} className="climate-key" title={CLIMATE_ZONES[key].fact}><span style={{background:CLIMATE_ZONES[key].color}} />{EN?CLIMATE_ZONES[key].en:CLIMATE_ZONES[key].ko}</div>)}</div>
+          <p>{T.climateSimplified}</p>
+        </div>}
         <label className="tg tg-sep"><input type="checkbox" checked={sat} onChange={e=>setSat(e.target.checked)} /><span>{T.sat}</span></label>
         <label className="tg"><input type="checkbox" checked={dayNight} onChange={e=>setDayNight(e.target.checked)} /><span>{T.dayNight}</span></label>
         <div className="lang-seg tg-sep"><span className="lang-lbl">{T.langLabel}</span><div className="lang-btns"><button className={lang==='ko'?'on':''} onClick={()=>setLang('ko')}>한국어</button><button className={lang==='en'?'on':''} onClick={()=>setLang('en')}>ENG</button></div></div>
@@ -839,11 +867,13 @@ export default function GlobeLab(){
             <li><b>대륙과 대양</b>을 선택하면 그 영역을 집중해서 살펴볼 수 있어요.</li>
             <li><b>낮과 밤</b>을 켜면 태양빛에 따라 지구의 밝기가 어떻게 달라지는지 보여요.</li>
             <li><b>위도와 경도</b> 격자를 따라 지구상의 위치를 읽어 보세요.</li>
+            <li><b>세계의 기후</b>를 켜면 여섯 기후대를 파스텔 색으로 비교할 수 있어요.</li>
           </ul>
           <p className="update-story-sign">교실에서 더 유용한 지도가 되도록 계속 다듬을게요. — parcyun</p>
           <button onClick={closeUpdateStory}>시작하기</button>
           <button className="update-history-toggle" aria-expanded={showUpdateHistory} onClick={()=>setShowUpdateHistory(value=>!value)}>업데이트 내역 보기 <span>{showUpdateHistory?'−':'+'}</span></button>
           <div className={'update-history'+(showUpdateHistory?' open':'')}>
+            <div><b>2026.09</b><p>열대·온대·냉대·한대·건조·고산 기후를 비교하는 학습용 레이어와 범례를 추가했어요.</p></div>
             <div><b>2026.07</b><p>195개국 정적 데이터, 국가 검색, 수도·인구·체제 정보와 부드러운 지도 탐색을 추가했어요.</p></div>
             <div><b>2026.06</b><p>평면·Focus Lens·지구본 전환과 낮과 밤, 위경도 격자 도구를 다듬었어요.</p></div>
           </div>
@@ -879,7 +909,7 @@ export default function GlobeLab(){
         .kicker{font-family:var(--font-en);font-size:10px;letter-spacing:.28em;color:var(--ps-primary);font-weight:600;text-transform:uppercase}
         .title{font-size:19px;font-weight:600;letter-spacing:-.01em;margin-top:3px}.title .en{font-family:var(--font-en);color:var(--text-2);font-weight:300;font-size:13px;margin-left:8px}
         .floaty{z-index:30}
-        .tools-fixed{position:fixed;left:20px;top:64px}
+        .tools-fixed{position:fixed;left:20px;top:64px;z-index:31}
         .right-stack{position:fixed;right:20px;top:64px;z-index:30;display:flex;flex-direction:column;gap:10px;align-items:stretch;width:340px;max-width:calc(100vw - 40px)}
         .drag-grip{display:flex;flex-direction:column;align-items:center;gap:2px;opacity:.4;transition:opacity .2s;flex-shrink:0}
         .floaty:hover .drag-grip{opacity:.7}.drag-grip span{width:22px;height:2px;border-radius:2px;background:var(--text-2)}
@@ -951,6 +981,13 @@ export default function GlobeLab(){
         .grid-panel .tg input[type=checkbox]{appearance:none;width:30px;height:17px;border-radius:9999px;background:var(--surface-2);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
         .grid-panel .tg input[type=checkbox]::after{content:"";position:absolute;top:1.5px;left:1.5px;width:12px;height:12px;border-radius:50%;background:#8C93A1;transition:all .2s}
         .grid-panel .tg input:checked{background:rgba(255,177,26,.28);border-color:var(--ps-primary)}.grid-panel .tg input:checked::after{left:14px;background:var(--ps-primary)}
+        .climate-legend{margin-top:2px;padding:9px 0 2px;border-top:1px solid var(--border);animation:climateLegendIn .3s var(--ease)}
+        @keyframes climateLegendIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+        .climate-legend-title{margin-bottom:7px;color:#D9DDE5;font-size:10px;font-weight:600}
+        .climate-legend-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 8px}
+        .climate-key{display:flex;align-items:center;gap:6px;color:#C8CDD6;font-size:10.5px;font-weight:400;white-space:nowrap}
+        .climate-key>span{width:13px;height:10px;border:1px solid rgba(255,255,255,.26);border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.18);flex:none}
+        .climate-legend p{margin:8px 0 0;color:#777F8D;font-size:9px;line-height:1.45;word-break:keep-all}
         .grid-panel .step{display:flex;align-items:center;gap:6px;margin-top:3px;border-top:1px solid var(--border);padding-top:8px}
         .grid-panel .step span{font-size:12px;color:var(--text-2);font-weight:300}
         .grid-panel .step input[type=number]{width:50px;background:var(--surface-1);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font-en);font-size:12px;padding:4px 6px;text-align:center}
@@ -1007,7 +1044,7 @@ export default function GlobeLab(){
         .projseg button{border:0;background:transparent;color:var(--text-2);font-family:var(--font-kr);font-size:12px;font-weight:500;padding:6px 13px;border-radius:9px;cursor:pointer;transition:all .18s var(--ease);white-space:nowrap}
         .projseg button:hover{color:#fff}.projseg button.on{background:var(--ps-primary);color:#0A0C10;font-weight:600}
         .watermark{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);z-index:5;font-family:var(--font-en);font-size:9px;letter-spacing:.4em;color:#323a4a;text-transform:uppercase;pointer-events:none}
-        @media(max-width:640px){.info{width:200px;padding:16px}.info .kr{font-size:24px}.legend{max-width:200px;padding:11px 13px}.legend-col{min-width:88px}.controls{right:14px;top:14px}.topbar{padding:14px 16px}.title{font-size:16px}.title .en{display:none}.grid-panel{min-width:0;padding:10px 12px}}
+        @media(max-width:640px){.info{width:200px;padding:16px}.info .kr{font-size:24px}.legend{max-width:200px;padding:11px 13px}.legend-col{min-width:88px}.controls{right:14px;top:14px}.topbar{padding:14px 16px}.title{font-size:16px}.title .en{display:none}.grid-panel{min-width:0;padding:10px 12px}.tools-fixed{left:14px}.tools-fixed .panel-body{max-height:calc(100vh - 160px);overflow-y:auto;scrollbar-width:none}.tools-fixed .panel-body::-webkit-scrollbar{display:none}}
       `}</style>
     </div>
   );

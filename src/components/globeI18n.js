@@ -2,10 +2,10 @@
 // 사용: const T=STR[lang]; T.gridTitle 등. 대륙/대양/국가명은 globeCountryData.js + CONT/OCEAN에서 별도 처리.
 export const STR = {
   ko: {
-    title:'세계 지도', subtitle:'6대륙 5대양', kicker:'World Map · Interactive · v1.2.1',
+    title:'세계 지도', subtitle:'6대륙 5대양', kicker:'World Map · Interactive · v1.3.0',
     gridTitle:'격자', grat:'위경도 격자', equator:'적도', prime:'본초자오선', dateline:'날짜변경선',
     interval:'간격', pickCountry:'국가 선택', trueSize:'실제 크기 비교', flatOnly:'평면 전용',
-    sat:'위성 사진', dayNight:'낮과 밤', climate:'세계의 기후', climateLegend:'기후대 범례', climateSimplified:'1991–2020 자료를 초등 학습용 6개 범주로 재분류했어요.', climateSource:'자료 보기', langLabel:'언어', earth:'구글 어스 바로가기',
+    sat:'위성 사진', dayNight:'낮과 밤', climate:'세계의 기후', climateLegend:'기후대 범례', climateSimplified:'1991–2020 자료를 초등 학습용 6개 범주로 재분류했어요.', climateSource:'자료 보기', terrain:'세계의 지형', terrainLegend:'지형 범례 · 여러 범주를 함께 볼 수 있어요', terrainSimplified:'주요 강은 흐르는 길만, 나머지는 대표 영역을 70% 투명도로 표시해요.', terrainSource:'자료 보기', langLabel:'언어', earth:'구글 어스 바로가기',
     share:'쌤 동료에게 공유하기', shareCopied:'링크가 복사되었습니다 · 동료에게 붙여넣어 공유하세요',
     flat:'평면', lens:'Focus Lens', globe:'지구본',
     zoomIn:'확대', zoomOut:'축소', home:'처음으로', northUp:'정북 고정',
@@ -14,7 +14,7 @@ export const STR = {
     noCountryResults:'일치하는 국가가 없어요.', capitalLabel:'수도', populationLabel:'인구', approximate:'약',
     politicalLabel:'정치체제', economicLabel:'경제체제',
     // 가이드
-    gTools:'← 지도 도구: 격자·세계의 기후·위성사진·낮과 밤·실제 크기 비교',
+    gTools:'← 지도 도구: 격자·세계의 기후·세계의 지형·위성사진·낮과 밤·실제 크기 비교',
     gProj:'위 버튼으로 평면·렌즈·지구본 도법을 전환해요 ↑',
     gLegend:'대륙·대양·국가를 클릭하면 정보 카드가 떠요 →',
     gCtrl:'확대 · 축소 · 정북 고정 · 처음으로 →',
@@ -41,10 +41,10 @@ export const STR = {
     langsLabel:'언어', unknownCountry:'대륙의 나라예요.',
   },
   en: {
-    title:'World Map', subtitle:'6 Continents · 5 Oceans', kicker:'World Map · Interactive · v1.2.1',
+    title:'World Map', subtitle:'6 Continents · 5 Oceans', kicker:'World Map · Interactive · v1.3.0',
     gridTitle:'Grid', grat:'Graticule', equator:'Equator', prime:'Prime Meridian', dateline:'Date Line',
     interval:'Interval', pickCountry:'Select country', trueSize:'True size', flatOnly:'Flat only',
-    sat:'Satellite', dayNight:'Day & Night', climate:'World climates', climateLegend:'Climate legend', climateSimplified:'1991–2020 data regrouped into six elementary-level zones.', climateSource:'Sources', langLabel:'Language', earth:'Open Google Earth',
+    sat:'Satellite', dayNight:'Day & Night', climate:'World climates', climateLegend:'Climate legend', climateSimplified:'1991–2020 data regrouped into six elementary-level zones.', climateSource:'Sources', terrain:'World landforms', terrainLegend:'Landform legend · choose more than one', terrainSimplified:'Rivers use only their flow paths; other features use representative areas at 70% opacity.', terrainSource:'Sources', langLabel:'Language', earth:'Open Google Earth',
     share:'Share with colleagues', shareCopied:'Link copied · paste it to share with colleagues',
     flat:'Flat', lens:'Focus Lens', globe:'Globe',
     zoomIn:'Zoom in', zoomOut:'Zoom out', home:'Reset', northUp:'North up',
@@ -52,7 +52,7 @@ export const STR = {
     countrySearch:'Search countries', countrySearchPlaceholder:'Country, capital, or code', searching:'Searching…',
     noCountryResults:'No matching country.', capitalLabel:'Capital', populationLabel:'Population', approximate:'Approx.',
     politicalLabel:'Political system', economicLabel:'Economic system',
-    gTools:'← Map tools: grid · climates · satellite · day/night · true size',
+    gTools:'← Map tools: grid · climates · landforms · satellite · day/night · true size',
     gProj:'Switch Flat · Lens · Globe projections above ↑',
     gLegend:'Click a continent, ocean, or country for an info card →',
     gCtrl:'Zoom in · out · north-up · reset →',

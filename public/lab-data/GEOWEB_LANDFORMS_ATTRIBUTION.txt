@@ -1,0 +1,13 @@
+GeoWeb 세계의 지형 레이어
+
+원자료: Natural Earth 50m Physical Vectors
+- Physical label areas: 주요 산맥·고원·평원·사막의 대표 영역
+- Rivers + lake centerlines: 주요 강의 단일 흐름선
+- Natural Earth data is Public Domain.
+- https://www.naturalearthdata.com/downloads/50m-physical-vectors/
+
+표현 원칙
+- 초등 사회 수업용으로 대표 지형만 선별했습니다.
+- 강은 면을 칠하지 않고 원자료의 흐름선만 표시합니다.
+- 산맥·고원·평원·사막의 경계는 교육용 대표 영역이며 정밀 측량 경계가 아닙니다.
+- 각 범주는 70% 불투명도로 동시에 겹쳐 볼 수 있습니다.

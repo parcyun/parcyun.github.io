@@ -82,7 +82,7 @@ test('GeoWeb provides a left-toolbox toggle, map overlay, and visible six-color 
   assert.match(globe, /checked=\{climate\}/);
   assert.match(globe, /setClimate\(e\.target\.checked\)/);
   assert.match(globe, /loadTileImg\(CLIMATE_TEXTURE_URL\)/);
-  assert.match(globe, /buildOverlay\(\{sel:s,world,oceans,oceansFill,climate:S\.current\.climate,climateImage,targetTexture:overlayTex\}\)/);
+  assert.match(globe, /buildOverlay\(\{sel:s,world,oceans,oceansFill,climate:S\.current\.climate,climateImage,terrain:S\.current\.terrain,terrainLayers:S\.current\.terrainLayers,landforms,targetTexture:overlayTex\}\)/);
   assert.match(globe, /className="climate-legend"/);
   assert.match(globe, /CLIMATE_ZONE_ORDER\.map/);
   assert.match(globe, /T\.climateSimplified/);

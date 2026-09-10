@@ -1,4 +1,4 @@
-export const GEOWEB_UPDATE_VERSION = '2026-07-onboarding-search-v2';
+export const GEOWEB_UPDATE_VERSION = '2026-09-landforms-v1';
 export const GEOWEB_UPDATE_STORAGE_KEY = 'parcyun:geoweb:update';
 
 export function hasSeenGeoUpdate(storage) {

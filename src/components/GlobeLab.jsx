@@ -64,8 +64,15 @@ function paintClimate(ctx,climateImage,activeZones){
   if(enabled.length===CLIMATE_ZONE_ORDER.length){ctx.imageSmoothingEnabled=true;ctx.drawImage(climateImage,0,0,RES,RES/2);return;}
   const scratch=document.createElement('canvas');scratch.width=RES;scratch.height=RES/2;
   const scratchCtx=scratch.getContext('2d',{willReadFrequently:true});scratchCtx.drawImage(climateImage,0,0,scratch.width,scratch.height);
-  const data=scratchCtx.getImageData(0,0,scratch.width,scratch.height),colors=new Set(enabled.map((key)=>CLIMATE_ZONES[key].color.slice(1).match(/../g).map((part)=>Number.parseInt(part,16)).join(',')));
-  for(let offset=0;offset<data.data.length;offset+=4){if(!colors.has(`${data.data[offset]},${data.data[offset+1]},${data.data[offset+2]}`))data.data[offset+3]=0;}
+  const data=scratchCtx.getImageData(0,0,scratch.width,scratch.height);
+  const palette=CLIMATE_ZONE_ORDER.map((key)=>({key,rgb:CLIMATE_ZONES[key].color.slice(1).match(/../g).map((part)=>Number.parseInt(part,16))}));
+  // 확대 시 보간된 경계 픽셀은 원래 팔레트 색과 완전히 같지 않다. 가장 가까운 기후대로 분류해야 선택된 두 기후 사이에 투명한 틈이 생기지 않는다.
+  for(let offset=0;offset<data.data.length;offset+=4){
+    if(data.data[offset+3]===0)continue;
+    let nearest=palette[0],distance=Infinity;
+    for(const candidate of palette){const dr=data.data[offset]-candidate.rgb[0],dg=data.data[offset+1]-candidate.rgb[1],db=data.data[offset+2]-candidate.rgb[2],next=dr*dr+dg*dg+db*db;if(next<distance){distance=next;nearest=candidate;}}
+    if(!activeZones?.[nearest.key])data.data[offset+3]=0;
+  }
   scratchCtx.putImageData(data,0,0);ctx.drawImage(scratch,0,0);
 }
 function paintLandforms(ctx,landforms,activeLayers){
@@ -80,7 +87,7 @@ function paintLandforms(ctx,landforms,activeLayers){
       ctx.lineWidth=5.5;ctx.lineCap='round';ctx.lineJoin='round';
       for(const feature of landforms.features){if(feature.properties.category!==category)continue;ctx.beginPath();path(feature);ctx.stroke();}
     }else{
-      for(const feature of landforms.features){if(feature.properties.category!==category)continue;ctx.beginPath();path(feature);ctx.fill('evenodd');}
+      for(const feature of landforms.features){if(feature.properties.category!==category)continue;ctx.beginPath();path(feature);ctx.fill('evenodd');const spread=feature.properties.spreadDegrees||0;if(spread>0){ctx.lineWidth=2*spread*RES/360;ctx.stroke();}}
     }
     ctx.restore();
   }

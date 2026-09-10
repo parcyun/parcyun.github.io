@@ -1,4 +1,4 @@
-export const GEOWEB_UPDATE_VERSION = '2026-09-landforms-labels-v1';
+export const GEOWEB_UPDATE_VERSION = '2026-09-macro-landforms-v1';
 export const GEOWEB_UPDATE_STORAGE_KEY = 'parcyun:geoweb:update';
 
 export function hasSeenGeoUpdate(storage) {

@@ -97,6 +97,8 @@ test('climate colors fully replace continent colors instead of blending with the
   const globe = await source();
   assert.doesNotMatch(globe, /globalAlpha=0\.88/);
   assert.match(globe, /globalAlpha=1;paintClimate\(ctx,climateImage,climateZones\)/);
+  assert.match(globe, /가장 가까운 기후대로 분류해야 선택된 두 기후 사이에 투명한 틈이 생기지 않는다/);
+  assert.match(globe, /let nearest=palette\[0\],distance=Infinity/);
 });
 
 test('climate and selection updates reuse one GPU texture without a blank swap frame', async () => {

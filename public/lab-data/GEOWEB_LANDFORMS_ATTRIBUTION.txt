@@ -1,7 +1,8 @@
 GeoWeb 세계의 지형 레이어
 
-원자료: Natural Earth 50m Physical Vectors
+원자료: Natural Earth 50m Physical Vectors + selected 10m Physical Labels fallback
 - Physical label areas: 주요 산맥·고원·평원·사막의 대표 영역
+- 10m fallback: 50m에 없는 오스트레일리아 내륙 사막의 대표 영역
 - Rivers + lake centerlines: 주요 강의 단일 흐름선
 - Natural Earth data is Public Domain.
 - https://www.naturalearthdata.com/downloads/50m-physical-vectors/

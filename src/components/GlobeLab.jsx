@@ -318,8 +318,11 @@ export default function GlobeLab(){
     (async()=>{
       const w=mount.clientWidth,h=mount.clientHeight;
       const scene=new THREE.Scene();
+      // 전체 화면 지도는 투명 캔버스로 합성하지 않는다. 포인터 이동 때 유리 패널의 재합성 사이로
+      // 빈 WebGL 프레임이 드러나며 번쩍일 수 있어, 지도 배경을 캔버스 안에서 항상 불투명하게 유지한다.
+      scene.background=new THREE.Color(0x04060B);
       const aspect=w/h;const camera=new THREE.OrthographicCamera(-aspect,aspect,1,-1,0.01,100);camera.position.set(0,0,10);camera.zoom=VIEW.flat.zoom;camera.updateProjectionMatrix();
-      renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.outputColorSpace=THREE.LinearSRGBColorSpace;renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(w,h);mount.appendChild(renderer.domElement);
+      renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setClearColor(0x04060B,1);renderer.outputColorSpace=THREE.LinearSRGBColorSpace;renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(w,h);mount.appendChild(renderer.domElement);
       controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.08;controls.enablePan=false;controls.screenSpacePanning=true;controls.zoomSpeed=2.4;
 
       const sg=new THREE.BufferGeometry(),Ns=1100,spp=new Float32Array(Ns*3);

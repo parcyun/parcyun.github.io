@@ -101,3 +101,10 @@ test('climate and selection updates reuse one GPU texture without a blank swap f
   assert.match(globe, /targetTexture:overlayTex/);
   assert.match(globe, /targetTexture\.needsUpdate=true/);
 });
+
+test('pointer movement cannot expose a transparent WebGL frame behind the map', async () => {
+  const globe = await source();
+  assert.doesNotMatch(globe, /new THREE\.WebGLRenderer\(\{[^}]*alpha:true/);
+  assert.match(globe, /scene\.background=new THREE\.Color\(0x04060B\)/);
+  assert.match(globe, /renderer\.setClearColor\(0x04060B,1\)/);
+});

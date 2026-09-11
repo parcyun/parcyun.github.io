@@ -4,6 +4,7 @@
   "mode": "Editorial",
   "sourceProject": "mdbf-masterclass-next",
   "tokens": "mdbf-standard-v1.css",
+  "spacing": [4, 8, 16, 24, 32, 48, 64, 80, 96, 120],
   "objects": [
     { "name": "MDBF Header", "source": "components/mdbf-site/MdbfHeader.tsx" },
     { "name": "Route Link", "source": "components/mdbf-site/MdbfRouteLink.tsx" },

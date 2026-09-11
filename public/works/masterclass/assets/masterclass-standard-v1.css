@@ -9,6 +9,16 @@
   --mc-font-body: 'Pretendard Variable', 'Pretendard', sans-serif;
   --mc-font-latin: 'Montserrat', sans-serif;
   --mc-content-width: 1280px;
+  --mc-space-1: 4px;
+  --mc-space-2: 8px;
+  --mc-space-3: 16px;
+  --mc-space-4: 24px;
+  --mc-space-5: 32px;
+  --mc-space-6: 48px;
+  --mc-space-7: 64px;
+  --mc-space-8: 80px;
+  --mc-space-9: 96px;
+  --mc-space-10: 120px;
   --mc-card-radius: 10px;
   --mc-control-radius: 8px;
   --mc-ease: cubic-bezier(.16, 1, .3, 1);
@@ -47,5 +57,5 @@
 
 .mc-focusable:focus-visible {
   outline: 2px solid var(--mc-highlight);
-  outline-offset: 4px;
+  outline-offset: var(--mc-space-1);
 }

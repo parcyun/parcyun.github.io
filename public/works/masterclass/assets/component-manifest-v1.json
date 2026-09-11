@@ -4,6 +4,7 @@
   "mode": "Editorial",
   "sourceProject": "mdbf-masterclass-next",
   "tokens": "masterclass-standard-v1.css",
+  "spacing": [4, 8, 16, 24, 32, 48, 64, 80, 96, 120],
   "objects": [
     { "name": "Masterclass Logo", "source": "components/ui/MasterclassLogo.tsx" },
     { "name": "Navigation Search", "source": "components/ui/NavSearch.tsx" },

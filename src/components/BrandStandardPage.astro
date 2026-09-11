@@ -49,6 +49,10 @@ const title = `${standard.name} · Web Standard — parcyun studio Works`;
       <div class="type-grid">
         {standard.typography.map((type) => <article><span>{type.role}</span><strong style={`font-family:${type.family === 'Pretendard' ? "'Pretendard Variable', sans-serif" : `'${type.family}', sans-serif`}`}>{type.family}</strong><p>{type.note}</p></article>)}
       </div>
+      <div class="asset-actions" aria-label={`${standard.name} 표준 파일`}>
+        <button type="button" data-asset-open data-url={standard.manifestUrl} data-label="Component manifest"><span>JSON</span><strong>구성 요소 명세 보기</strong><small>파일·출처·재사용 기준</small></button>
+        <button type="button" data-asset-open data-url={standard.cssUrl} data-label="Design tokens"><span>CSS</span><strong>토큰 파일 미리보기</strong><small>색상·서체·간격 기준</small></button>
+      </div>
     </section>
 
     <section class="brand-stage section" aria-label={`${standard.name} 브랜드 미리보기`}>
@@ -59,15 +63,16 @@ const title = `${standard.name} · Web Standard — parcyun studio Works`;
 
     <section class="section" id="components">
       <header class="section-heading"><span>02</span><div><p>Objects</p><h2>작게 나누되,<br />역할은 선명하게.</h2></div></header>
+      <p class="catalog-hint">각 항목을 누르면 동작 형태와 재사용 기준을 확인할 수 있습니다.</p>
       <div class="inventory">
-        {standard.objects.map((item, index) => <article><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{item.name}</h3><p>{item.description}</p></div><code>{item.source}</code></article>)}
+        {standard.objects.map((item, index) => <button type="button" data-catalog-open data-catalog-kind="object" data-catalog-title={item.name} data-catalog-description={item.description} data-catalog-source={item.source}><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{item.name}</h3><p>{item.description}</p></div><code>{item.source}</code><b aria-hidden="true">↗</b></button>)}
       </div>
     </section>
 
     <section class="section section-tinted" id="sections">
       <header class="section-heading"><span>03</span><div><p>Sections</p><h2>반복되는 화면을<br />하나의 문법으로.</h2></div></header>
       <div class="section-cards">
-        {standard.sections.map((item, index) => <article><span>SECTION {String(index + 1).padStart(2, '0')}</span><h3>{item.name}</h3><p>{item.description}</p><code>{item.source}</code></article>)}
+        {standard.sections.map((item, index) => <button type="button" data-catalog-open data-catalog-kind="section" data-catalog-title={item.name} data-catalog-description={item.description} data-catalog-source={item.source}><span>SECTION {String(index + 1).padStart(2, '0')}</span><h3>{item.name}</h3><p>{item.description}</p><code>{item.source}</code><b aria-hidden="true">Preview ↗</b></button>)}
       </div>
     </section>
 
@@ -80,11 +85,32 @@ const title = `${standard.name} · Web Standard — parcyun studio Works`;
       </div>
     </section>
   </main>
+  <dialog class="catalog-dialog" aria-labelledby="catalog-title">
+    <div class="catalog-dialog-inner">
+      <button class="catalog-close" type="button" aria-label="미리보기 닫기">×</button>
+      <p class="catalog-eyebrow">Interactive standard preview</p>
+      <h2 id="catalog-title"></h2>
+      <p class="catalog-description"></p>
+      <div class="catalog-preview" aria-live="polite"></div>
+      <p class="catalog-source"><span>Source</span><code></code></p>
+      <div class="catalog-actions"><a class="catalog-file" href="#" target="_blank" rel="noreferrer">표준 파일 열기</a><button class="catalog-demo-action" type="button">상태 전환</button></div>
+      <pre class="catalog-code" hidden></pre>
+    </div>
+  </dialog>
   <PsFooter showReview={false} />
 
   <script is:inline>
     const root = document.documentElement;
     const button = document.querySelector('.theme-toggle');
+    const dialog = document.querySelector('.catalog-dialog');
+    const dialogTitle = dialog?.querySelector('#catalog-title');
+    const dialogDescription = dialog?.querySelector('.catalog-description');
+    const dialogPreview = dialog?.querySelector('.catalog-preview');
+    const dialogSource = dialog?.querySelector('.catalog-source code');
+    const dialogFile = dialog?.querySelector('.catalog-file');
+    const dialogCode = dialog?.querySelector('.catalog-code');
+    const dialogAction = dialog?.querySelector('.catalog-demo-action');
+    const isMdbf = document.body.classList.contains('is-masterclass') === false;
     const saved = localStorage.getItem('ps-standard-theme');
     if (saved === 'dark') root.dataset.theme = 'dark';
     const sync = () => {
@@ -97,6 +123,53 @@ const title = `${standard.name} · Web Standard — parcyun studio Works`;
       root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
       localStorage.setItem('ps-standard-theme', root.dataset.theme);
       sync();
+    });
+
+    const escapeMarkup = (value) => value.replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' })[char]);
+    const previewMarkup = (title, kind) => {
+      const blue = isMdbf ? 'MDBF Blue' : 'Masterclass Blue';
+      const modifier = isMdbf ? 'preview-mdbf' : 'preview-masterclass';
+      if (/Header|Chrome|Navigation/.test(title)) return `<div class="mini-shell ${modifier}"><div class="mini-nav"><strong>${isMdbf ? '몽당분필' : 'the Masterclass'}</strong><span>소개</span><span>사업</span><span>소식</span><button>메뉴</button></div><p>공용 내비게이션은 페이지 이동에도 같은 위치와 정보 위계를 유지합니다.</p></div>`;
+      if (/Carousel|Marquee|Row|Series/.test(title)) return `<div class="mini-shell ${modifier}"><div class="mini-row"><article></article><article></article><article></article></div><div class="mini-controls"><button aria-label="이전">←</button><span>1 / 3</span><button aria-label="다음">→</button></div></div>`;
+      if (/Modal|Detail|Gate|Access/.test(title)) return `<div class="mini-shell ${modifier}"><div class="mini-modal"><span>${blue}</span><strong>${escapeMarkup(title)}</strong><p>현재 화면 위에서 내용을 이어 보는 상세 레이어입니다.</p><button>계속 보기</button></div></div>`;
+      if (/Action|Link|Button/.test(title)) return `<div class="mini-shell ${modifier}"><div class="mini-actions"><button>자세히 보기 <i>→</i></button><button class="ghost">저장하기</button></div><p>핵심 행동은 한 번에 구분되도록 대비와 여백을 고정합니다.</p></div>`;
+      if (/Inquiry|Board|Archive|Channel/.test(title)) return `<div class="mini-shell ${modifier}"><div class="mini-list"><span>2026.09.11</span><strong>${escapeMarkup(title)} 예시 제목</strong><button>열기</button></div><div class="mini-list is-muted"><span>2026.09.08</span><strong>일관된 카드와 목록 구조</strong><button>열기</button></div></div>`;
+      return `<div class="mini-shell ${modifier}"><span class="mini-label">${kind.toUpperCase()}</span><h3>${escapeMarkup(title)}</h3><p>실제 화면에서 반복되는 구조를 축소해 보여 주는 표준 미리보기입니다.</p><button>인터랙션 확인</button></div>`;
+    };
+    const openDialog = ({ title, description, source, kind, url, code }) => {
+      if (!dialog || !dialogTitle || !dialogDescription || !dialogPreview || !dialogSource || !dialogFile || !dialogCode) return;
+      dialogTitle.textContent = title;
+      dialogDescription.textContent = description;
+      dialogSource.textContent = source || url || '';
+      dialogPreview.innerHTML = code ? '' : previewMarkup(title, kind || 'asset');
+      dialogFile.href = url || '#';
+      dialogFile.textContent = code ? '파일 다운로드' : '표준 파일 열기';
+      dialogCode.hidden = !code;
+      if (code) dialogCode.textContent = code;
+      dialog.showModal();
+    };
+    document.querySelectorAll('[data-catalog-open]').forEach((item) => item.addEventListener('click', () => openDialog({
+      title: item.dataset.catalogTitle || '', description: item.dataset.catalogDescription || '', source: item.dataset.catalogSource || '', kind: item.dataset.catalogKind || '',
+    })));
+    document.querySelectorAll('[data-asset-open]').forEach((item) => item.addEventListener('click', async () => {
+      const url = item.dataset.url || '';
+      const label = item.dataset.label || 'Standard asset';
+      openDialog({ title: label, description: '배포 중인 표준 파일의 내용을 직접 확인할 수 있습니다.', source: url, kind: 'asset', url });
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('asset request failed');
+        const code = await response.text();
+        if (dialogCode && dialogPreview) { dialogPreview.innerHTML = ''; dialogCode.hidden = false; dialogCode.textContent = code; }
+      } catch {
+        if (dialogCode) { dialogCode.hidden = false; dialogCode.textContent = '미리보기를 불러오지 못했습니다. 파일 열기 버튼으로 다시 확인해 주세요.'; }
+      }
+    }));
+    dialog?.querySelector('.catalog-close')?.addEventListener('click', () => dialog.close());
+    dialog?.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+    dialogAction?.addEventListener('click', () => {
+      if (!dialogPreview) return;
+      dialogPreview.classList.toggle('is-active');
+      dialogAction.textContent = dialogPreview.classList.contains('is-active') ? '적용됨' : '상태 전환';
     });
   </script>
 </body>
@@ -111,9 +184,11 @@ const title = `${standard.name} · Web Standard — parcyun studio Works`;
   .section{border-bottom:1px solid var(--line)}.section-heading{display:grid;grid-template-columns:1fr 2.2fr;gap:40px;margin-bottom:70px}.section-heading>span{font:500 11px Montserrat,sans-serif;color:var(--ps)}.section-heading p{margin:0 0 18px}.section-heading h2{margin:0;font-size:clamp(34px,4.5vw,66px);font-weight:350;line-height:1.1;letter-spacing:-.045em}
   .palette{display:grid;grid-template-columns:repeat(6,1fr);border:1px solid var(--line)}.palette article{min-width:0;padding:12px;border-right:1px solid var(--line)}.palette article:last-child{border:0}.swatch{aspect-ratio:1;background:var(--swatch);border:1px solid color-mix(in srgb,var(--line) 60%,transparent)}.palette span,.palette code{display:block;margin-top:12px;font-size:11px}.palette code{margin-top:2px;color:var(--muted)}.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:54px;background:var(--line);border:1px solid var(--line)}.type-grid article{padding:28px;background:var(--paper)}.type-grid span,.type-grid p{font-size:11px;color:var(--muted)}.type-grid strong{display:block;margin:30px 0 18px;font-size:clamp(24px,3vw,42px);font-weight:500}
   .brand-stage{position:relative;display:grid;grid-template-columns:1fr 1.7fr;align-items:end;min-height:680px;max-width:none;background:var(--brand);color:#fff}.is-masterclass .brand-stage{background:#07090f}.stage-label{position:absolute;top:54px;left:clamp(22px,6vw,92px);color:#fff9}.stage-mark{font:600 clamp(180px,30vw,460px)/.7 Montserrat,sans-serif;letter-spacing:-.14em;color:#fff}.is-masterclass .stage-mark{color:#3364d9}.stage-copy{max-width:740px}.stage-copy span{font:500 12px Montserrat,sans-serif;letter-spacing:.1em}.stage-copy h2{margin:22px 0 0;font-size:clamp(32px,4.6vw,70px);font-weight:350;line-height:1.1;letter-spacing:-.045em}
-  .inventory{border-top:1px solid var(--ink)}.inventory article{display:grid;grid-template-columns:60px 1fr minmax(160px,260px);gap:24px;align-items:start;padding:30px 0;border-bottom:1px solid var(--line)}.inventory>article>span{font:500 11px Montserrat,sans-serif;color:var(--brand)}.inventory h3{margin:0 0 8px;font-size:22px;font-weight:550}.inventory p{max-width:650px;margin:0;color:var(--muted)}.inventory code,.section-cards code{font-size:10px;color:var(--muted);overflow-wrap:anywhere}
-  .section-tinted{background:var(--paper)}.section-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.section-cards article{display:flex;min-height:270px;flex-direction:column;padding:28px;border:1px solid var(--line);background:var(--bg)}.section-cards span{font:500 9px Montserrat,sans-serif;letter-spacing:.12em;color:var(--brand)}.section-cards h3{margin:45px 0 12px;font-size:24px}.section-cards p{margin:0;color:var(--muted)}.section-cards code{margin-top:auto;padding-top:24px}
+  .asset-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:32px}.asset-actions button{display:grid;grid-template-columns:64px 1fr;gap:4px 20px;padding:24px 28px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:background .2s ease,border-color .2s ease,transform .2s ease}.asset-actions button:hover,.asset-actions button:focus-visible{border-color:var(--ps);background:color-mix(in srgb,var(--ps) 8%,var(--paper));outline:none;transform:translateY(-2px)}.asset-actions span{grid-row:1/3;display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:var(--ps);color:#000;font:600 10px Montserrat,sans-serif}.asset-actions strong{font-size:17px}.asset-actions small{color:var(--muted)}
+  .catalog-hint{margin:-34px 0 30px;color:var(--muted);font-size:14px}.inventory{border-top:1px solid var(--ink)}.inventory button{display:grid;width:100%;grid-template-columns:60px 1fr minmax(160px,260px) 28px;gap:24px;align-items:start;padding:30px 0;border:0;border-bottom:1px solid var(--line);background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}.inventory button:hover,.inventory button:focus-visible{background:color-mix(in srgb,var(--ps) 7%,transparent);outline:none}.inventory>button>span{font:500 11px Montserrat,sans-serif;color:var(--brand)}.inventory h3{margin:0 0 8px;font-size:22px;font-weight:550}.inventory p{max-width:650px;margin:0;color:var(--muted)}.inventory code,.section-cards code{font-size:10px;color:var(--muted);overflow-wrap:anywhere}.inventory b{font:400 20px/1 Montserrat,sans-serif;color:var(--ps);transition:transform .2s ease}.inventory button:hover b{transform:translate(3px,-3px)}
+  .section-tinted{background:var(--paper)}.section-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.section-cards button{display:flex;min-height:270px;flex-direction:column;padding:28px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:border-color .2s ease,transform .2s ease}.section-cards button:hover,.section-cards button:focus-visible{border-color:var(--ps);outline:none;transform:translateY(-3px)}.section-cards span{font:500 9px Montserrat,sans-serif;letter-spacing:.12em;color:var(--brand)}.section-cards h3{margin:45px 0 12px;font-size:24px}.section-cards p{margin:0;color:var(--muted)}.section-cards code{margin-top:auto;padding-top:24px}.section-cards b{margin-top:14px;color:var(--ps);font:500 11px Montserrat,sans-serif;letter-spacing:.06em;text-transform:uppercase}
   .rules ol{margin:0 0 70px;padding:0;counter-reset:rule;list-style:none;border-top:1px solid var(--ink)}.rules li{counter-increment:rule;display:grid;grid-template-columns:60px 1fr;padding:28px 0;border-bottom:1px solid var(--line);font-size:clamp(16px,1.6vw,22px)}.rules li:before{content:'0' counter(rule);font:500 11px Montserrat,sans-serif;color:var(--brand)}.downloads{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.downloads a{display:grid;grid-template-columns:64px 1fr;gap:4px 20px;padding:28px;border:1px solid var(--line);transition:background .2s ease,border-color .2s ease}.downloads a:hover,.downloads a:focus-visible{border-color:var(--ps);background:color-mix(in srgb,var(--ps) 8%,var(--paper));outline:none}.downloads span{grid-row:1/3;display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:var(--ps);color:#000;font:600 10px Montserrat,sans-serif}.downloads strong{font-size:18px}.downloads small{color:var(--muted)}
-  @media(max-width:760px){.site-header nav>a{display:none}.hero,.section-heading{grid-template-columns:1fr}.hero{min-height:auto}.hero-summary,.hero-meta{grid-column:1}.palette{grid-template-columns:repeat(2,1fr)}.palette article:nth-child(2n){border-right:0}.type-grid,.section-cards{grid-template-columns:1fr}.brand-stage{grid-template-columns:1fr;gap:90px;min-height:600px}.stage-mark{margin-top:100px}.inventory article{grid-template-columns:40px 1fr}.inventory code{grid-column:2}.downloads{grid-template-columns:1fr}}
+  .catalog-dialog{width:min(840px,calc(100vw - 32px));max-height:calc(100dvh - 32px);padding:0;border:1px solid #d8d2c5;background:var(--paper);color:var(--ink);box-shadow:0 24px 80px rgba(0,0,0,.28)}.catalog-dialog::backdrop{background:rgba(10,10,10,.58);backdrop-filter:blur(8px)}.catalog-dialog-inner{position:relative;overflow:auto;max-height:calc(100dvh - 32px);padding:clamp(30px,5vw,56px)}.catalog-close{position:absolute;top:18px;right:18px;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--ink);font-size:28px;font-weight:300;line-height:1;cursor:pointer}.catalog-eyebrow{margin:0;color:var(--ps);font:500 10px/1.4 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase}.catalog-dialog h2{max-width:680px;margin:14px 44px 0 0;font-size:clamp(34px,5vw,60px);font-weight:450;line-height:1.04;letter-spacing:-.05em}.catalog-description{max-width:650px;margin:20px 0 30px;color:var(--muted);font-size:17px}.catalog-preview{min-height:230px;padding:24px;border:1px solid var(--line);background:#f4f1e9;transition:background .2s ease}.catalog-preview.is-active{background:#ebe5d7}.mini-shell{display:grid;gap:18px;min-height:180px;padding:22px;border-radius:2px;font-family:'Pretendard Variable',sans-serif}.preview-mdbf{background:#fff;color:#010f2f}.preview-masterclass{background:#07090f;color:#e8eaf0}.mini-nav{display:flex;align-items:center;gap:16px;padding-bottom:16px;border-bottom:1px solid currentColor}.mini-nav strong{margin-right:auto;font-family:Montserrat,sans-serif}.mini-nav span{font-size:13px}.mini-shell button{width:max-content;padding:8px 12px;border:1px solid currentColor;background:transparent;color:inherit;font:600 12px/1 Pretendard,sans-serif;cursor:pointer}.mini-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.mini-row article{min-height:112px;background:linear-gradient(135deg,#3364d9 0 34%,#8eafea 34% 66%,#ece8dc 66%)}.preview-masterclass .mini-row article{background:linear-gradient(135deg,#3364d9 0 34%,#1d2946 34% 66%,#0e1220 66%)}.mini-controls,.mini-actions{display:flex;align-items:center;gap:10px}.mini-controls span{font:12px Montserrat,sans-serif;opacity:.7}.mini-actions button:first-child,.mini-modal button{border-color:#3364d9;background:#3364d9;color:#fff}.mini-actions .ghost{background:transparent;color:inherit}.mini-modal{display:grid;gap:14px;width:min(410px,100%);margin:auto;padding:24px;border:1px solid currentColor;background:inherit}.mini-modal span,.mini-label{font:600 10px Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#3364d9}.mini-modal strong{font-size:25px}.mini-modal p,.mini-shell>p{margin:0;opacity:.7}.mini-list{display:grid;grid-template-columns:100px 1fr auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid currentColor}.mini-list span{font:11px Montserrat,sans-serif;opacity:.65}.mini-list strong{font-size:15px}.mini-list.is-muted{opacity:.52}.catalog-source{display:flex;gap:14px;margin:24px 0 0;padding-top:20px;border-top:1px solid var(--line);font-size:12px}.catalog-source span{color:var(--muted);font-family:Montserrat,sans-serif}.catalog-source code{overflow-wrap:anywhere}.catalog-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}.catalog-actions a,.catalog-actions button{display:inline-flex;align-items:center;min-height:42px;padding:0 16px;border:1px solid var(--ink);background:transparent;color:var(--ink);font:600 12px/1 Pretendard,sans-serif;text-decoration:none;cursor:pointer}.catalog-actions .catalog-file{border-color:var(--ps);background:var(--ps);color:#111}.catalog-code{max-height:360px;overflow:auto;margin:24px 0 0;padding:18px;background:#151515;color:#e8e5dc;font:12px/1.65 ui-monospace,SFMono-Regular,monospace;white-space:pre-wrap;word-break:break-word}
+  @media(max-width:760px){.site-header nav>a{display:none}.hero,.section-heading{grid-template-columns:1fr}.hero{min-height:auto}.hero-summary,.hero-meta{grid-column:1}.palette{grid-template-columns:repeat(2,1fr)}.palette article:nth-child(2n){border-right:0}.type-grid,.section-cards,.asset-actions{grid-template-columns:1fr}.brand-stage{grid-template-columns:1fr;gap:90px;min-height:600px}.stage-mark{margin-top:100px}.inventory button{grid-template-columns:40px 1fr 20px;gap:14px}.inventory code{grid-column:2}.inventory b{grid-column:3;grid-row:1}.downloads{grid-template-columns:1fr}.catalog-preview{padding:14px}.mini-nav{flex-wrap:wrap}.mini-nav span{display:none}.mini-row{gap:6px}.mini-list{grid-template-columns:1fr}.catalog-actions{display:grid;grid-template-columns:1fr}.catalog-actions a,.catalog-actions button{justify-content:center}}
   @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 </style>

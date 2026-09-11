@@ -9,6 +9,16 @@
   --mdbf-font-body: 'Pretendard Variable', 'Pretendard', sans-serif;
   --mdbf-font-logo: 'Nanum Gothic', sans-serif;
   --mdbf-content-width: 1180px;
+  --mdbf-space-1: 4px;
+  --mdbf-space-2: 8px;
+  --mdbf-space-3: 16px;
+  --mdbf-space-4: 24px;
+  --mdbf-space-5: 32px;
+  --mdbf-space-6: 48px;
+  --mdbf-space-7: 64px;
+  --mdbf-space-8: 80px;
+  --mdbf-space-9: 96px;
+  --mdbf-space-10: 120px;
   --mdbf-space-section: clamp(88px, 9vw, 140px);
   --mdbf-radius-control: 4px;
   --mdbf-ease: cubic-bezier(.22, 1, .36, 1);

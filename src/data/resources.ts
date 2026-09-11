@@ -20,6 +20,7 @@ export interface Resource {
   date?: string;
   meta?: string[];      // 메타 칩 (날짜·형식·대상 등)
   tags: string[];
+  visitPath?: string;  // 독립 서비스의 실제 누적 방문자수가 있으면 카드 클릭 수보다 우선한다.
 }
 
 export const resources: Resource[] = [
@@ -137,6 +138,7 @@ export const resources: Resource[] = [
     title: '한글 맞춤법 연습 게임',
     desc: '헷갈리기 쉬운 한글 맞춤법을 게임으로 익히는 학생용 학습 도구. 짧은 자투리 시간에 교실에서 바로 활용 가능합니다.',
     url: '/spell-drill/',
+    visitPath: '/spell-drill/',
     external: true,
     category: '교육 활동 자료',
     type: '게임',
@@ -183,6 +185,7 @@ export const resources: Resource[] = [
     title: '세계 지도 · 6대륙 5대양',
     desc: '메르카토르·렌즈·지구본 3가지 도법을 오가며 6대륙과 5대양을 탐색하는 인터랙티브 세계지도. 대륙·대양·국가를 클릭해 강조·설명을 보고, 격자·확대·회전으로 자유롭게 살펴봅니다.',
     url: '/world-map/',
+    visitPath: '/world-map/',
     category: '교육 활동 자료',
     type: '인터랙티브',
     subject: '사회',

@@ -34,7 +34,7 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
 
   useEffect(() => {
     let active = true;
-    loadResourceViewTotals(resources.map((resource) => resource.id))
+    loadResourceViewTotals(resources)
       .then((totals) => { if (active) setViewTotals(totals); })
       .catch(() => { /* 조회수 오류가 자료 탐색을 방해하지 않도록 조용히 유지 */ });
     return () => { active = false; };

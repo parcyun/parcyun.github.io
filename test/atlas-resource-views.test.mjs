@@ -29,14 +29,16 @@ test('resource view totals reuse the existing click counter and expose only a co
 });
 
 test('cards for independent services prefer their own all-time visitor totals', async () => {
-  const [resources, views, migration] = await Promise.all([
+  const [resources, views, migration, resourceStore] = await Promise.all([
     read('src/data/resources.ts'),
     read('src/lib/resourceViews.ts'),
     read('supabase/migrations/0030_atlas_service_visit_totals.sql'),
+    read('src/lib/useResources.ts'),
   ]);
   assert.match(resources, /id: 'spell-drill'[\s\S]*?visitPath: '\/spell-drill\/'/);
   assert.match(resources, /id: 'world-map'[\s\S]*?visitPath: '\/world-map\/'/);
   assert.match(views, /resource\.visitPath \? \(services\[resource\.visitPath\] \|\| 0\) : \(clicks\[resource\.id\] \|\| 0\)/);
   assert.match(migration, /create or replace function public\.list_page_visit_totals/);
   assert.match(migration, /sum\(visits\.count\)::bigint as total/);
+  assert.match(resourceStore, /\{ \.\.\.override, visitPath: r\.visitPath \}/);
 });

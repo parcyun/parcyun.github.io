@@ -44,7 +44,12 @@ export function useResources(category: Category) {
       const dbById = new Map(rows.map((r) => [r.id, r]));
       const base = staticResources.filter((r) => r.category === category);
       const staticIds = new Set(base.map((r) => r.id));
-      const merged = base.map((r) => dbById.get(r.id) ?? r);      // 정적 순서 유지 + DB로 덮어쓰기
+      // DB 편집본이 제목·설명 등 공개 내용을 덮어쓰되, 정적 카탈로그에만 있는
+      // 서비스 방문자수 연결 정보(visitPath)는 유지한다.
+      const merged = base.map((r) => {
+        const override = dbById.get(r.id);
+        return override ? { ...override, visitPath: r.visitPath } : r;
+      });
       const dbOnly = rows.filter((r) => !staticIds.has(r.id));    // DB에만 있는 신규 항목
       setItems([...merged, ...dbOnly]);
       setSource('db');

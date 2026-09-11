@@ -126,11 +126,12 @@ export default function WorksFilter() {
               <div className="work-card-wrap" key={w.num}>
                 <a href={w.url} className="work-card live" target="_blank" rel="noopener noreferrer" aria-describedby={workPreviewId(w.num)}>
                   <div className="work-poster">
+                    <img className="work-card-image" src={`/images/work-previews/${w.num}.png`} alt={`${w.title} 화면 미리보기`} loading="lazy" />
                     <span className="status live">Live</span>
                     <span className="pnum">{w.num}</span>
-                    <span className="ptitle" dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(w.titleHtml) }} />
                   </div>
                   <div className="work-body">
+                    <span className="work-title" dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(w.titleHtml) }} />
                     <span className="work-week">{w.week}</span>
                     <p className="work-desc">{w.desc}</p>
                     <div className="work-tags">
@@ -147,11 +148,12 @@ export default function WorksFilter() {
               <div className="work-card-wrap" key={w.num}>
                 <div className="work-card soon" tabIndex={0} aria-describedby={workPreviewId(w.num)}>
                   <div className="work-poster">
+                    <img className="work-card-image" src={`/images/work-previews/${w.num}.png`} alt={`${w.title} 화면 미리보기`} loading="lazy" />
                     <span className="status soon">Soon</span>
                     <span className="pnum">{w.num}</span>
-                    <span className="ptitle" dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(w.titleHtml) }} />
                   </div>
                   <div className="work-body">
+                    <span className="work-title" dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(w.titleHtml) }} />
                     <span className="work-week">{w.week}</span>
                     <p className="work-desc">{w.desc}</p>
                     <div className="work-tags">

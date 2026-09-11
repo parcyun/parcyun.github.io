@@ -41,11 +41,8 @@ test('database Works remain authoritative while bundled standards fill missing c
   assert.match(source, /!databaseNums\.has\(work\.num\)/);
 });
 
-test('Works portfolio order is I am Serif, MDBF, then the Masterclass', async () => {
+test('Works portfolio cards are arranged in ascending project-number order', async () => {
   const source = await read('src/data/works.ts');
-  const serif = source.indexOf("'/works/002-i-am-serif/': 10");
-  const mdbf = source.indexOf("'/works/mdbf/': 20");
-  const masterclass = source.indexOf("'/works/masterclass/': 30");
-  assert.ok(serif > -1 && serif < mdbf && mdbf < masterclass);
   assert.match(source, /sortWorksForPortfolio/);
+  assert.match(source, /a\.num\.localeCompare\(b\.num, undefined, \{ numeric: true \}\)/);
 });

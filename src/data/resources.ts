@@ -3,7 +3,7 @@
 export type Category = '강의 자료' | '교육 활동 자료';
 // 활동 타입: 게임 · 활동지 · 커리큘럼 · 인터랙티브
 // 강의 타입: 강의 · 실습 · 가이드 · 아카이브
-export type ResourceType = '게임' | '활동지' | '커리큘럼' | '인터랙티브' | '수업 보조 도구' | 'AI, 에듀테크 도구 찾아보기' | '강의' | '실습' | '가이드' | '아카이브';
+export type ResourceType = '게임' | '활동지' | '커리큘럼' | '인터랙티브' | '수업 보조 도구' | '수업준비' | '강의' | '실습' | '가이드' | '아카이브';
 
 export interface Resource {
   id: string;
@@ -91,7 +91,7 @@ export const resources: Resource[] = [
     url: 'https://parcyun.notion.site/AI-5a56a8c4c29e43edbced6a71a1d6e67b?source=copy_link',
     external: true,
     category: '교육 활동 자료',
-    type: 'AI, 에듀테크 도구 찾아보기',
+    type: '수업준비',
     subject: 'AI · 에듀테크',
     thumb: '🧰',
     lid: 'Tool · AI EdTech',
@@ -107,7 +107,7 @@ export const resources: Resource[] = [
     url: 'https://www.edubeige.com/',
     external: true,
     category: '교육 활동 자료',
-    type: 'AI, 에듀테크 도구 찾아보기',
+    type: '수업준비',
     subject: 'AI · 에듀테크',
     thumb: '🔎',
     lid: 'Explore · EdTech',
@@ -115,6 +115,22 @@ export const resources: Resource[] = [
     date: '2026.07.26',
     meta: ['2026.07.26', 'EDUBEIGE ↗', 'FOR EDUCATORS'],
     tags: ['에듀테크', '도구찾기', '수업사례', '교사용'],
+  },
+  {
+    id: 'yearly-life-archive',
+    title: '한 해 살이 아카이브',
+    desc: '한 해 동안의 수업과 학교생활을 기록하고 되돌아볼 수 있도록 모아둔 Notion 아카이브.',
+    url: 'https://app.notion.com/p/parcyun/3133f99a82238159a0b3e9eba02d462c?source=copy_link',
+    external: true,
+    category: '교육 활동 자료',
+    type: '수업준비',
+    subject: '학급 운영 · 기록',
+    thumb: '📚',
+    lid: 'Archive · School Year',
+    posterTitle: '<strong>한 해 살이</strong><br>아카이브',
+    date: '2026.09.11',
+    meta: ['NOTION ↗', '학급 운영', '교사용'],
+    tags: ['학급운영', '기록', '수업준비', '아카이브'],
   },
   {
     id: 'spell-drill',
@@ -244,4 +260,4 @@ export const resources: Resource[] = [
 ];
 
 // 활동 타입 순서 (ATLAS GEARS 카테고리 표시 순)
-export const ACTIVITY_TYPES: ResourceType[] = ['게임', '인터랙티브', '활동지', '커리큘럼', '수업 보조 도구', 'AI, 에듀테크 도구 찾아보기'];
+export const ACTIVITY_TYPES: ResourceType[] = ['게임', '인터랙티브', '활동지', '커리큘럼', '수업 보조 도구', '수업준비'];

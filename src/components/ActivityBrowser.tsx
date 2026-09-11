@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Category, Resource } from '../data/resources';
 import { icon, typeIcon } from '../lib/icons';
 import { useResources } from '../lib/useResources';
 import { useAdmin } from '../lib/useAdmin';
 import { adminDeleteResource } from '../lib/adminPw';
+import { loadResourceViewTotals, recordResourceView, type ResourceViewTotals } from '../lib/resourceViews';
 import ResourceEditModal from './admin/ResourceEditModal';
 import ResourceHoverPreview, { resourcePreviewId } from './ResourceHoverPreview';
 
@@ -13,7 +14,7 @@ const TYPE_META: Record<string, { en: string; ph: string }> = {
   '활동지': { en: 'Worksheet', ph: '새 활동지 준비 중' },
   '커리큘럼': { en: 'Curriculum', ph: '새 커리큘럼 준비 중' },
   '수업 보조 도구': { en: 'Teaching Tools', ph: '새 수업 보조 도구 준비 중' },
-  'AI, 에듀테크 도구 찾아보기': { en: 'AI · EdTech Tools', ph: '새 AI·에듀테크 도구 준비 중' },
+  '수업준비': { en: 'Lesson Preparation', ph: '새 수업준비 자료 준비 중' },
 };
 
 function norm(s: string) {
@@ -29,6 +30,15 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
   const [type, setType] = useState<string>('전체');
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [editing, setEditing] = useState<Resource | 'new' | null>(null);
+  const [viewTotals, setViewTotals] = useState<ResourceViewTotals>({});
+
+  useEffect(() => {
+    let active = true;
+    loadResourceViewTotals(resources.map((resource) => resource.id))
+      .then((totals) => { if (active) setViewTotals(totals); })
+      .catch(() => { /* 조회수 오류가 자료 탐색을 방해하지 않도록 조용히 유지 */ });
+    return () => { active = false; };
+  }, [resources]);
 
   const allTags = useMemo(() => {
     const count = new Map<string, number>();
@@ -72,6 +82,23 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
     }
   }
 
+  function countView(resourceId: string) {
+    recordResourceView(resourceId).then((counted) => {
+      if (!counted) return;
+      setViewTotals((current) => ({ ...current, [resourceId]: (current[resourceId] || 0) + 1 }));
+    });
+  }
+
+  const hotResourceId = useMemo(() => {
+    let hottest = '';
+    let highest = 0;
+    for (const resource of resources) {
+      const total = viewTotals[resource.id] || 0;
+      if (total > highest) { hottest = resource.id; highest = total; }
+    }
+    return hottest;
+  }, [resources, viewTotals]);
+
   const card = (r: Resource) => (
     <div className="act-card-wrap" key={r.id}>
       <a
@@ -81,10 +108,14 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
         aria-describedby={resourcePreviewId(r.id)}
         target="_blank"
         rel="noopener"
+        onClick={() => countView(r.id)}
       >
         <div className="act-thumb ico" dangerouslySetInnerHTML={{ __html: icon(typeIcon[r.type], 28) }} />
         <div className="act-body">
-          <span className="act-type">{r.type}</span>
+          <div className="act-meta">
+            <span className="act-type">{r.type}</span>
+            {hotResourceId === r.id && <span className="act-hot">HOT</span>}
+          </div>
           <h3 className="act-title">{r.title}</h3>
           <p className="act-desc">{r.desc}</p>
           <div className="act-tags">
@@ -94,6 +125,7 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
               </span>
             ))}
           </div>
+          <span className="act-views"><span className="ico" dangerouslySetInnerHTML={{ __html: icon('eye', 13) }} /> 누적 조회 {new Intl.NumberFormat('ko-KR').format(viewTotals[r.id] || 0)}</span>
         </div>
       </a>
       <ResourceHoverPreview resource={r} />
@@ -212,6 +244,9 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
         .ab-add{align-self:flex-start;font-family:var(--ps-font-body);font-size:12.5px;font-weight:600;color:#000;background:#B8B8B8;border:0;border-radius:100px;padding:8px 16px;cursor:pointer;transition:background .18s}
         .ab-add:hover{background:#fff}
         .act-card-wrap{position:relative}
+        .act-meta{display:flex;align-items:center;gap:7px}
+        .act-hot{display:inline-flex;align-items:center;border:1px solid rgba(255,177,26,.58);border-radius:99px;padding:2px 6px;color:var(--ps-primary);font-family:var(--ps-font-en);font-size:8px;font-weight:700;letter-spacing:.08em;line-height:1}
+        .act-views{display:inline-flex;align-items:center;gap:4px;margin-top:13px;color:#8C8C8C;font-family:var(--ps-font-en);font-size:10px;font-weight:400;letter-spacing:.02em}.act-views .ico{display:inline-flex;color:#B8B8B8}
         .act-admin{position:absolute;top:8px;right:8px;display:flex;gap:5px;z-index:2}
         .act-admin-btn{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.65);color:#B8B8B8;cursor:pointer;font-size:12px;line-height:1;padding:0}
         @media(max-width:767px){.act-admin{gap:8px}.act-admin-btn{width:34px;height:34px;font-size:15px}}

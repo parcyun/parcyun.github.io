@@ -16,6 +16,7 @@ const PATHS: Record<string, string> = {
   arrowUpRight: '<path d="M7 17 17 7"/><path d="M8 7h9v9"/>',
   home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/>',
   coffee: '<path d="M17 8h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M3 8h14v6.5A4.5 4.5 0 0 1 12.5 19h-5A4.5 4.5 0 0 1 3 14.5Z"/><line x1="7" y1="2.5" x2="7" y2="4.5"/><line x1="11" y1="2.5" x2="11" y2="4.5"/>',
+  eye: '<path d="M2.5 12s3.4-5.5 9.5-5.5S21.5 12 21.5 12 18.1 17.5 12 17.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.5"/>',
 };
 
 export function icon(name: string, size = 22): string {
@@ -30,7 +31,7 @@ export const typeIcon: Record<string, string> = {
   '커리큘럼': 'curriculum',
   '인터랙티브': 'interactive',
   '수업 보조 도구': 'gears',
-  'AI, 에듀테크 도구 찾아보기': 'search',
+  '수업준비': 'search',
   '강의': 'lecture',
   '실습': 'handson',
   '가이드': 'guide',

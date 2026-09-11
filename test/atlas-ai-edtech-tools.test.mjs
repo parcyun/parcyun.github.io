@@ -27,7 +27,7 @@ test('lesson preparation includes AI EdTech tools and the yearly-life archive', 
   assert.match(resources, /id: 'ai-edtech-tools'[\s\S]*?type: '수업준비'/);
   assert.match(resources, /id: 'edubeige'[\s\S]*?url: 'https:\/\/www\.edubeige\.com\/'/);
   assert.match(resources, /id: 'yearly-life-archive'[\s\S]*?한 해 살이 아카이브/);
-  assert.match(resources, /id: 'yearly-life-archive'[\s\S]*?app\.notion\.com\/p\/parcyun\/3133f99a82238159a0b3e9eba02d462c/);
+  assert.match(resources, /id: 'yearly-life-archive'[\s\S]*?parcyun\.notion\.site\/3133f99a82238159a0b3e9eba02d462c/);
   assert.match(migration, /where id = 'ai-edtech-tools'/);
   assert.match(migration, /'edubeige'[\s\S]*?'https:\/\/www\.edubeige\.com\/'/);
   assert.match(update, /set type = '수업준비'/);

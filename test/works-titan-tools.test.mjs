@@ -4,7 +4,7 @@ import test from 'node:test';
 
 const source = await readFile(new URL('../src/pages/works.astro', import.meta.url), 'utf8');
 
-test('Works publishes the five Titan tools as descriptive external links', () => {
+test('Works publishes the Titan tools as descriptive external links', () => {
   assert.match(source, /개발을 도와주는 타이탄의 도구들/);
   for (const url of [
     'https://getdesign.md/',
@@ -12,11 +12,12 @@ test('Works publishes the five Titan tools as descriptive external links', () =>
     'https://github.com/Q00/ouroboros/blob/main/README.ko.md',
     'https://astryx.atmeta.com/',
     'https://github.com/parcyun/pre-design',
+    'https://github.com/Yeachan-Heo/oh-my-codex/blob/main/skills/deep-interview/SKILL.md',
   ]) {
     assert.match(source, new RegExp(url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
-  assert.equal((source.match(/class="titan-item"/g) || []).length, 5);
-  assert.equal((source.match(/target="_blank" rel="noopener noreferrer"/g) || []).length >= 5, true);
+  assert.equal((source.match(/class="titan-item"/g) || []).length, 6);
+  assert.equal((source.match(/target="_blank" rel="noopener noreferrer"/g) || []).length >= 6, true);
 });
 
 test('Titan tools keep the existing cinematic hierarchy and responsive list layout', () => {

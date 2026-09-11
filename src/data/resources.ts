@@ -121,7 +121,7 @@ export const resources: Resource[] = [
     id: 'yearly-life-archive',
     title: '한 해 살이 아카이브',
     desc: '한 해 동안의 수업과 학교생활을 기록하고 되돌아볼 수 있도록 모아둔 Notion 아카이브.',
-    url: 'https://app.notion.com/p/parcyun/3133f99a82238159a0b3e9eba02d462c?source=copy_link',
+    url: 'https://parcyun.notion.site/3133f99a82238159a0b3e9eba02d462c?source=copy_link',
     external: true,
     category: '교육 활동 자료',
     type: '수업준비',

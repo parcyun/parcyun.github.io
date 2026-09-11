@@ -5,10 +5,10 @@ import test from 'node:test';
 const source = await readFile(new URL('../src/pages/works.astro', import.meta.url), 'utf8');
 
 test('all Titan tools expose actual-site image and detailed summary previews', async () => {
-  const slugs = ['getdesign', 'grill-me', 'ouroboros', 'astryx', 'pre-design'];
+  const slugs = ['getdesign', 'grill-me', 'ouroboros', 'astryx', 'pre-design', 'deep-interview'];
 
-  assert.equal((source.match(/class="titan-hover-preview"/g) || []).length, 5);
-  assert.equal((source.match(/aria-describedby="titan-preview-/g) || []).length, 5);
+  assert.equal((source.match(/class="titan-hover-preview"/g) || []).length, 6);
+  assert.equal((source.match(/aria-describedby="titan-preview-/g) || []).length, 6);
   for (const slug of slugs) {
     assert.match(source, new RegExp(`/images/titan-previews/${slug}\\.png`));
     await access(new URL(`../public/images/titan-previews/${slug}.png`, import.meta.url));

@@ -125,7 +125,7 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
               </span>
             ))}
           </div>
-          <span className="act-views"><span className="ico" dangerouslySetInnerHTML={{ __html: icon('eye', 13) }} /> 누적 조회 {new Intl.NumberFormat('ko-KR').format(viewTotals[r.id] || 0)}</span>
+          <span className="act-views" aria-label={`전체 기간 조회수 ${new Intl.NumberFormat('ko-KR').format(viewTotals[r.id] || 0)}`} title="전체 기간 조회수"><span className="ico" dangerouslySetInnerHTML={{ __html: icon('eye', 13) }} /> {new Intl.NumberFormat('ko-KR').format(viewTotals[r.id] || 0)}</span>
         </div>
       </a>
       <ResourceHoverPreview resource={r} />

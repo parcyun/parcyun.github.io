@@ -245,7 +245,7 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
         .ab-add:hover{background:#fff}
         .act-card-wrap{position:relative}
         .act-meta{display:flex;align-items:center;gap:7px}
-        .act-hot{display:inline-flex;align-items:center;border:1px solid rgba(255,177,26,.58);border-radius:99px;padding:2px 6px;color:var(--ps-primary);font-family:var(--ps-font-en);font-size:8px;font-weight:700;letter-spacing:.08em;line-height:1}
+        .act-hot{display:inline-flex;align-items:center;border:0;border-radius:100px;padding:2px 8px;background:#D96A6A;color:#fff;font-family:var(--ps-font-en);font-size:10px;font-weight:700;letter-spacing:.08em;line-height:1}
         .act-views{display:inline-flex;align-items:center;gap:4px;margin-top:13px;color:#8C8C8C;font-family:var(--ps-font-en);font-size:10px;font-weight:400;letter-spacing:.02em}.act-views .ico{display:inline-flex;color:#B8B8B8}
         .act-admin{position:absolute;top:8px;right:8px;display:flex;gap:5px;z-index:2}
         .act-admin-btn{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.65);color:#B8B8B8;cursor:pointer;font-size:12px;line-height:1;padding:0}

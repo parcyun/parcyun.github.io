@@ -10,6 +10,7 @@ test('ATLAS cards show cumulative resource views and identify one non-zero HOT i
   assert.match(browser, /recordResourceView\(resourceId\)/);
   assert.match(browser, /hotResourceId === r\.id/);
   assert.match(browser, /act-hot">HOT/);
+  assert.match(browser, /\.act-hot\{[^}]*padding:2px 8px[^}]*background:#D96A6A[^}]*color:#fff[^}]*font-size:10px/);
   assert.doesNotMatch(browser, /누적 조회/);
   assert.match(browser, /aria-label=\{`전체 기간 조회수 \$\{new Intl\.NumberFormat/);
 });

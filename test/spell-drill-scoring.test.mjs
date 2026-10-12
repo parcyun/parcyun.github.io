@@ -26,6 +26,14 @@ test('correct-answer score follows base plus speed plus current combo bonus, the
   assert.deepEqual({ ...hinted }, { baseScore: 50, speedBonus: 50, comboBonus: 30, multiplier: 1.5, total: 195 });
 });
 
+test('base score comes from each question difficulty and Mix has no base score', () => {
+  const { baseScoreForDifficulty } = loadScoring();
+  assert.equal(baseScoreForDifficulty('easy'), 100);
+  assert.equal(baseScoreForDifficulty('med'), 200);
+  assert.equal(baseScoreForDifficulty('hard'), 300);
+  assert.equal(baseScoreForDifficulty('mix'), null);
+});
+
 test('pass penalty increases by ten points on each pass', () => {
   const { passPenalty } = loadScoring();
   assert.deepEqual([1,2,3,4,5,6,7,8].map(passPenalty), [10,20,30,40,50,60,70,80]);

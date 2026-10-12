@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>맞춤법 고치기 — Arcade Bold v2.1.2 · parcyun studio</title>
+<title>맞춤법 고치기 — Arcade Bold v2.1.4 · parcyun studio</title>
 <meta name="description" content="틀린 문장을 바르게 고쳐 타이핑하는 콤보형 맞춤법·문법 드릴 게임. 한국어·영어(북미) 모드. Designed by parcyun studio.">
 <!-- 공유 미리보기 (게임 첫 화면 커버) -->
 <meta property="og:type" content="website">
@@ -356,6 +356,7 @@
   .spell-onboarding[hidden]{display:none}.spell-onboarding-card{width:min(510px,100%);max-height:calc(100vh - 40px);overflow:auto;padding:30px;border:1px solid rgba(255,177,26,.34);border-radius:24px;background:rgba(12,12,12,.98);box-shadow:0 30px 100px rgba(0,0,0,.7),0 0 48px rgba(255,177,26,.08);animation:spellOnboardingIn .42s cubic-bezier(.16,1,.3,1)}
   @keyframes spellOnboardingIn{from{opacity:0;transform:translateY(15px) scale(.97)}to{opacity:1;transform:none}}.spell-onboarding-kicker{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.22em}.spell-onboarding h2{margin:8px 0 13px;font-size:23px;line-height:1.35}.spell-onboarding p,.spell-onboarding li{color:rgba(255,255,255,.68);font-size:13px;font-weight:300;line-height:1.7}.spell-onboarding ul{display:grid;gap:6px;margin:16px 0;padding:0;list-style:none}.spell-onboarding li{position:relative;padding-left:17px}.spell-onboarding li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;background:var(--amber)}.spell-onboarding li b{color:#fff;font-weight:600}.spell-onboarding-sign{color:rgba(255,255,255,.43)!important}.spell-onboarding-start{width:100%;margin-top:18px;padding:12px;border:0;border-radius:12px;background:var(--amber);color:#050505;font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;cursor:pointer}.spell-update-toggle{display:flex;width:100%;align-items:center;justify-content:center;gap:7px;margin-top:8px;padding:5px;border:0;background:transparent;color:rgba(255,255,255,.38);font-family:Pretendard,sans-serif;font-size:10.5px;cursor:pointer}.spell-update-history{max-height:0;overflow:hidden;opacity:0;transition:max-height .42s cubic-bezier(.16,1,.3,1),opacity .24s ease,margin .42s cubic-bezier(.16,1,.3,1)}.spell-update-history.open{max-height:250px;margin-top:8px;opacity:1}.spell-update-history>div{padding:9px 0;border-top:1px solid rgba(255,255,255,.08)}.spell-update-history b{color:rgba(255,255,255,.58);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em}.spell-update-history p{margin:3px 0 0;color:rgba(255,255,255,.4);font-size:10.5px;line-height:1.55}
 </style>
+<style>#spell-update-history.open{max-height:340px}</style>
 </head>
 <body>
 <div class="bg"></div>
@@ -377,7 +378,7 @@
     <button data-ps-edit-id="ps-spell-079" data-ps-design-id="ps-spell-079" class="spell-onboarding-start" id="spell-onboarding-start">시작하기</button>
     <button data-ps-edit-id="ps-spell-080" data-ps-design-id="ps-spell-080" class="spell-update-toggle" id="spell-update-toggle" aria-expanded="false">업데이트 내역 보기 <span data-ps-edit-id="ps-spell-081" data-ps-design-id="ps-spell-081">+</span></button>
     <div class="spell-update-history" id="spell-update-history">
-      <div><b>2026.10</b><p data-ps-edit-id="ps-spell-084" data-ps-design-id="ps-spell-084">패스 입력이 연타 방지에 막혀 다음 문제로 넘어가지 않던 오류를 고쳤어요. 패스는 3개로 시작하고, 정답 획득 점수 1,000점마다 1개씩 충전돼요. 같은 문항의 패스 연타는 한 번만 처리하고, 연속 오답 감점은 정답을 맞히면 초기화돼요.</p></div>
+      <div><b>2026.10 · v2.1.4</b><p data-ps-edit-id="ps-spell-084" data-ps-design-id="ps-spell-084">타이머 재시작 시 빨간 경고가 남던 문제를 고쳤어요. 믹스는 현재 문항 난이도에 따라 초급 100점·중급 200점·고급 300점으로 계산하고, 점수 옆에서 난이도를 확인할 수 있어요. 점수식을 안내하고 패스 충전·연타 처리도 개선했어요.</p></div>
       <div><b>2026.09</b><p data-ps-edit-id="ps-spell-085" data-ps-design-id="ps-spell-085">힌트 뒤 바로 입력할 수 있게 고치고, ‘먹든지/먹던지’와 ‘아프대/아프데’ 설명을 보강했어요. 헷갈리는 표현 문항도 19개 추가했어요.</p></div>
       <div><b>2026.07</b><p data-ps-edit-id="ps-spell-082" data-ps-design-id="ps-spell-082">새 콤보 배율과 누적 패스·오답 감점, 점수 크기에 따른 화면 효과를 추가했어요.</p></div>
       <div><b>v2.1.2</b><p data-ps-edit-id="ps-spell-083" data-ps-design-id="ps-spell-083">한국어·영어 문항을 각 1,000개로 늘리고 난이도와 문장을 다시 검토했어요.</p></div>
@@ -385,13 +386,16 @@
   </div>
 </div>
 <div id="version-tip">
-  <b id="version-tip-title">v2.1.2 업데이트</b>
+  <b id="version-tip-title">v2.1.4 업데이트</b>
   <ul id="version-tip-list">
     <li data-ps-edit-id="ps-spell-001" data-ps-design-id="ps-spell-001">문항 대폭 확충 — 한국어·영어 각 1,000문항으로 확대</li>
     <li data-ps-edit-id="ps-spell-002" data-ps-design-id="ps-spell-002">초급 난이도 재배치 — 짧고 자주 쓰는 문장 위주로 개선</li>
     <li data-ps-edit-id="ps-spell-003" data-ps-design-id="ps-spell-003">전 문항 맞춤법·문법 교차 검증</li>
     <li data-ps-edit-id="ps-spell-088" data-ps-design-id="ps-spell-088">패스 3개로 시작, 정답 획득 점수 1,000점마다 1개 충전</li>
     <li data-ps-edit-id="ps-spell-089" data-ps-design-id="ps-spell-089">패스가 다음 문제로 넘어가지 않던 오류 수정</li>
+    <li data-ps-edit-id="ps-spell-099" data-ps-design-id="ps-spell-099">믹스에서 현재 문항 난이도별 기본점수 적용</li>
+    <li data-ps-edit-id="ps-spell-100" data-ps-design-id="ps-spell-100">타이머 다시 시작할 때 경고 색상 초기화</li>
+    <li data-ps-edit-id="ps-spell-101" data-ps-design-id="ps-spell-101">점수 옆에서 난이도와 기본점수 확인</li>
   </ul>
 </div>
 
@@ -403,7 +407,7 @@
       <p data-ps-edit-id="ps-spell-007" data-ps-design-id="ps-spell-007" class="hero-sub" id="hero-sub">› 위에 틀린 문장이 뜨면, 아래에 정확한 문장을 처음부터 타이핑해서 ENTER. 콤보를 쌓아 최고기록을 부숴라.</p>
 
       <div class="hero-meta">
-        <div class="logo"><span data-ps-edit-id="ps-spell-008" data-ps-design-id="ps-spell-008" class="dot"></span> SPELL DRILL // v2.1.2
+        <div class="logo"><span data-ps-edit-id="ps-spell-008" data-ps-design-id="ps-spell-008" class="dot"></span> SPELL DRILL // v2.1.4
           <span data-ps-edit-id="ps-spell-009" data-ps-design-id="ps-spell-009" class="version-note" tabindex="0"><span data-ps-edit-id="ps-spell-010" data-ps-design-id="ps-spell-010" class="vq">i</span></span>
         </div>
         <div class="hero-meta-right">
@@ -582,7 +586,9 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="./scoring.js?v=20260720.1"></script>
+<script src="./scoring.js?v=20261012.1"></script>
+<script src="./questions.js?v=20261012.1"></script>
+<script src="./timer-ui.js?v=20261012.1"></script>
 <script>
 /* ────────────────────────── corpus ────────────────────────── */
 const SENTENCES = {
@@ -10892,7 +10898,6 @@ const $ = (s,r=document)=>r.querySelector(s);
 const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
 const shuffle = a => { const b=a.slice(); for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]} return b };
 const normalize = s => (s||'').replace(/\s+/g,' ').trim();
-const SCORE_BASES = { easy:100, med:200, hard:300, mix:200 };
 const SPELL_UPDATE_KEY='parcyun:spell-drill:update',SPELL_UPDATE_VERSION='2026-07-scoring-onboarding';
 const spellOnboarding=$('#spell-onboarding'),spellOnboardingStart=$('#spell-onboarding-start'),spellUpdateToggle=$('#spell-update-toggle'),spellUpdateHistory=$('#spell-update-history');
 spellOnboarding.hidden=false;
@@ -10914,15 +10919,16 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('#score-formula-trigger')&&!e.target.closest('#score-formula')) toggleScoreFormula(false);
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')toggleScoreFormula(false)});
-function updateScoreDifficulty(){
-  const t=I18N[state.lang],base=SCORE_BASES[state.diff];
-  $('#score-difficulty').textContent=t.scoreDifficulty.replace('{difficulty}',t.diffLabels[state.diff]).replace('{score}',base);
+function updateScoreDifficulty(difficulty=state.diff){
+  const t=I18N[state.lang],base=SpellScoring.baseScoreForDifficulty(difficulty);
+  const label=base===null?t.scoreMixDifficulty:t.scoreDifficulty.replace('{difficulty}',t.diffLabels[difficulty]).replace('{score}',base);
+  $('#score-difficulty').textContent=label;
   $('#score-label').firstChild.textContent=`// ${t.scoreLabel} `;
   $('#score-formula-title').textContent=t.scoreFormulaTitle;
   $('#score-formula-text').textContent=t.scoreFormula;
   $('#score-hint-rule').textContent=t.scoreHintRule;
   $('#score-speed-rule').textContent=t.scoreSpeedRule;
-  $('#score-formula-trigger').setAttribute('aria-label',`${t.scoreLabel}: ${t.scoreDifficulty.replace('{difficulty}',t.diffLabels[state.diff]).replace('{score}',base)}. ${t.scoreInfoLabel}`);
+  $('#score-formula-trigger').setAttribute('aria-label',`${t.scoreLabel}: ${label}. ${t.scoreInfoLabel}`);
 }
 function loadRecords(){
   let rec;
@@ -10976,8 +10982,8 @@ function renderBest(){
 $('#start').addEventListener('click',()=>{ ensureAudio(); startGame(); });
 function buildPool(diff){
   const pool = SENTENCES[state.lang];
-  if(diff==='mix') return [...pool.easy, ...pool.med, ...pool.hard];
-  return pool[diff] || [];
+  if(diff==='mix') return ['easy','med','hard'].flatMap(tier=>SpellQuestions.withDifficulty(pool[tier]||[],tier));
+  return SpellQuestions.withDifficulty(pool[diff]||[],diff);
 }
 function startGame(){
   // 모드별 limit + timer 결정
@@ -10997,16 +11003,18 @@ function startGame(){
   $('#q-idx').textContent='1';
   $('#q-total').textContent = limit ?? '∞';
   $('#bar').style.width='0%';
-  if(timerSec > 0){ state.timerLimit = timerSec; state.remaining = timerSec; $('#timer-cell').style.display=''; $('#timer').textContent=state.remaining; startTimer(); }
+  if(timerSec > 0){ state.timerLimit = timerSec; state.remaining = timerSec; $('#timer-cell').style.display=''; }
   else { $('#timer-cell').style.display='none'; stopTimer(); }
+  SpellTimerUI.reset($('#timer'),state.remaining);
+  if(timerSec > 0) startTimer();
   loadQuestion(); show('play'); $('#q-input').focus();
 }
-function startTimer(){ stopTimer(); state.timerId=setInterval(()=>{ state.remaining--; const t=$('#timer'); t.textContent=state.remaining; t.classList.toggle('warn',state.remaining<=15&&state.remaining>5); t.classList.toggle('danger',state.remaining<=5); if(state.remaining<=0){stopTimer();endGame()} },1000); }
+function startTimer(){ stopTimer(); SpellTimerUI.reset($('#timer'),state.remaining); state.timerId=setInterval(()=>{ state.remaining--; SpellTimerUI.render($('#timer'),state.remaining); if(state.remaining<=0){stopTimer();endGame()} },1000); }
 function stopTimer(){ if(state.timerId){clearInterval(state.timerId);state.timerId=null} }
 
 function loadQuestion(){
   const q = state.qList[state.qIdx % state.qList.length];
-  state.current=q;state.hintUsed=false;
+  state.current=q;state.hintUsed=false;updateScoreDifficulty(q.difficulty);
   state.qStartTs = performance.now();
   $('#q-prompt').textContent = q.wrong;
   $('#q-input').value = '';
@@ -11045,7 +11053,7 @@ function submit(){
     state.locked = true; // 다음 문제 로드까지 추가 제출 차단
     state.correctCount++;
     SpellScoring.resetWrongAnswerStreak(state);
-    const base = SCORE_BASES[state.diff];
+    const base = SpellScoring.baseScoreForDifficulty(state.current.difficulty);
     // 속도 보너스 — 고정 컷오프 대신 문장 길이 기반 기대시간(par) 대비 비율로 판정.
     // 문장 전체를 다시 타이핑해야 하므로, 짧은 한글 문장부터 긴 영어 문장까지 공평하게
     // 보상하려면 길이에 비례한 기준이 필요하다.
@@ -11373,7 +11381,7 @@ document.addEventListener('keydown',e=>{
 /* ────────────────────────── i18n ────────────────────────── */
 const I18N = {
   ko: {
-    docTitle: '맞춤법 고치기 — Arcade Bold v2.1.2 · parcyun studio',
+    docTitle: '맞춤법 고치기 — Arcade Bold v2.1.4 · parcyun studio',
     marqueePill: '★ Korean Orthography',
     heroY: '맞춤법', heroStroke: '고치기',
     heroSub: '› 위에 틀린 문장이 뜨면, 아래에 정확한 문장을 처음부터 타이핑해서 ENTER. 콤보를 쌓아 최고기록을 부숴라.',
@@ -11393,8 +11401,8 @@ const I18N = {
     resultLabels: { correct:'맞힌 개수', attempts:'시도', combo:'최고 콤보', time:'클리어 시간' },
     bestLabels: { easy:'초급 best', med:'중급 best', hard:'고급 best', solved:'누적 정답' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
-    versionTitle: 'v2.1.2 업데이트',
-    scoreLabel: 'Score', scoreDifficulty: '{difficulty} · 기본 {score}점', scoreInfoLabel: '점수 계산 보기',
+    versionTitle: 'v2.1.4 업데이트',
+    scoreLabel: 'Score', scoreDifficulty: '{difficulty} · 기본 {score}점', scoreMixDifficulty: '믹스 · 문항별 기본점수', scoreInfoLabel: '점수 계산 보기',
     scoreFormulaTitle: '점수 계산 방식', scoreFormula: '(기본점수 + 속도점수 + 콤보 횟수 × 10점) × 콤보 배율',
     scoreHintRule: '힌트를 사용하면 기본점수만 절반으로 줄어요.',
     scoreSpeedRule: '속도점수는 LIGHTNING +100, FAST +50, QUICK +20점이며, 콤보 배율 적용 전 점수예요.',
@@ -11403,11 +11411,14 @@ const I18N = {
       '초급 난이도 재배치 — 짧고 자주 쓰는 문장 위주로 개선',
       '전 문항 맞춤법·문법 교차 검증',
       '패스 3개로 시작, 정답 획득 점수 1,000점마다 1개 충전',
-      '패스가 다음 문제로 넘어가지 않던 오류 수정'
+      '패스가 다음 문제로 넘어가지 않던 오류 수정',
+      '믹스는 문항 난이도에 따라 초급 100점·중급 200점·고급 300점 적용',
+      '타이머 재시작 때 경고 색상 초기화',
+      '점수 옆에서 현재 문항 난이도와 기본점수 확인'
     ]
   },
   en: {
-    docTitle: 'Grammar Fixer — Arcade Bold v2.1.2 · parcyun studio',
+    docTitle: 'Grammar Fixer — Arcade Bold v2.1.4 · parcyun studio',
     marqueePill: '★ American English',
     heroY: 'Grammar', heroStroke: 'Fixer',
     heroSub: '› When the wrong sentence appears above, type the correct sentence from scratch below and hit ENTER. Chain combos to smash your high score.',
@@ -11427,8 +11438,8 @@ const I18N = {
     resultLabels: { correct:'Correct', attempts:'Attempts', combo:'Max Combo', time:'Clear Time' },
     bestLabels: { easy:'Beginner Best', med:'Intermediate Best', hard:'Advanced Best', solved:'Total Solved' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
-    versionTitle: 'v2.1.2 Update',
-    scoreLabel: 'Score', scoreDifficulty: '{difficulty} · Base {score} pts', scoreInfoLabel: 'View score calculation',
+    versionTitle: 'v2.1.4 Update',
+    scoreLabel: 'Score', scoreDifficulty: '{difficulty} · Base {score} pts', scoreMixDifficulty: 'Mix · question-specific base score', scoreInfoLabel: 'View score calculation',
     scoreFormulaTitle: 'How scoring works', scoreFormula: '(Base points + Speed bonus + Combo count × 10) × Combo multiplier',
     scoreHintRule: 'Using a hint halves only the base points.',
     scoreSpeedRule: 'Speed bonus: LIGHTNING +100, FAST +50, QUICK +20; these are added before the combo multiplier.',
@@ -11437,7 +11448,10 @@ const I18N = {
       'Beginner level rebalanced — shorter, everyday sentences',
       'All items cross-checked for correctness',
       'Start with 3 passes; earn 1 more per 1,000 points gained from correct answers',
-      'Fixed an issue that could prevent Pass from advancing to the next question'
+      'Fixed an issue that could prevent Pass from advancing to the next question',
+      'Mix uses each question tier: 100 Beginner, 200 Intermediate, 300 Advanced points',
+      'Cleared stale warning color when restarting a timer game',
+      'Shows the current question difficulty and base score beside Score'
     ]
   }
 };

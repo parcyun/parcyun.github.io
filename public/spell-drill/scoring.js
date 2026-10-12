@@ -1,4 +1,10 @@
 (function attachSpellScoring(global) {
+  const baseScores = Object.freeze({ easy: 100, med: 200, hard: 300 });
+
+  function baseScoreForDifficulty(difficulty) {
+    return Object.prototype.hasOwnProperty.call(baseScores, difficulty) ? baseScores[difficulty] : null;
+  }
+
   function comboMultiplier(combo) {
     if (combo >= 15) return 5;
     if (combo >= 12) return 4;
@@ -71,5 +77,5 @@
     return count * 10;
   }
 
-  global.SpellScoring = Object.freeze({ comboMultiplier, calculateCorrectGain, passPenalty, takePass, passesEarned, addEarnedScore, takeWrongAnswer, resetWrongAnswerStreak, wrongAnswerPenalty });
+  global.SpellScoring = Object.freeze({ baseScoreForDifficulty, comboMultiplier, calculateCorrectGain, passPenalty, takePass, passesEarned, addEarnedScore, takeWrongAnswer, resetWrongAnswerStreak, wrongAnswerPenalty });
 })(typeof window === 'undefined' ? globalThis : window);

@@ -17,6 +17,15 @@ test('combo multiplier advances every three and caps at five', () => {
   assert.deepEqual([0,2,3,5,6,8,9,11,12,14,15,40].map(comboMultiplier), [1,1,1.5,1.5,2,2,3,3,4,4,5,5]);
 });
 
+test('correct-answer score follows base plus speed plus current combo bonus, then multiplier', () => {
+  const { calculateCorrectGain } = loadScoring();
+
+  const ordinary = calculateCorrectGain({ baseScore: 200, speedBonus: 50, comboCount: 3 });
+  assert.deepEqual({ ...ordinary }, { baseScore: 200, speedBonus: 50, comboBonus: 30, multiplier: 1.5, total: 420 });
+  const hinted = calculateCorrectGain({ baseScore: 100, speedBonus: 50, comboCount: 3, hintUsed: true });
+  assert.deepEqual({ ...hinted }, { baseScore: 50, speedBonus: 50, comboBonus: 30, multiplier: 1.5, total: 195 });
+});
+
 test('pass penalty increases by ten points on each pass', () => {
   const { passPenalty } = loadScoring();
   assert.deepEqual([1,2,3,4,5,6,7,8].map(passPenalty), [10,20,30,40,50,60,70,80]);
@@ -104,7 +113,10 @@ test('wrong answer deduction and displayed amount cannot exceed the remaining sc
 
 test('spell drill applies scoring helpers and magnitude effects without explaining hidden rules', async () => {
   const page = await pageSource();
-  assert.match(page, /SpellScoring\.comboMultiplier\(state\.combo\)/);
+  assert.match(page, /SpellScoring\.calculateCorrectGain\(/);
+  assert.match(page, /score-formula-trigger/);
+  assert.match(page, /기본점수 \+ 속도점수 \+ 콤보 횟수 × 10점/);
+  assert.match(page, /pointPop\('\+'\+gain,false,gain\)/);
   assert.match(page, /SpellScoring\.takePass\(state\)/);
   assert.match(page, /if\(state\.locked \|\| spam\.blocked\) return/);
   assert.doesNotMatch(page, /function skip\(\)\{[^}]*registerRapid\(\)/);

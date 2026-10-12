@@ -8,6 +8,22 @@
     return 1;
   }
 
+  function calculateCorrectGain({ baseScore, speedBonus = 0, comboCount = 0, hintUsed = false }) {
+    const base = Math.max(0, Number(baseScore) || 0);
+    const scoredBase = hintUsed ? Math.floor(base * 0.5) : base;
+    const combo = Math.max(0, Math.floor(Number(comboCount) || 0));
+    const comboBonus = combo * 10;
+    const speed = Math.max(0, Number(speedBonus) || 0);
+    const multiplier = comboMultiplier(combo);
+    return {
+      baseScore: scoredBase,
+      speedBonus: speed,
+      comboBonus,
+      multiplier,
+      total: Math.round((scoredBase + speed + comboBonus) * multiplier)
+    };
+  }
+
   function passPenalty(passCount) {
     const count = Math.max(1, Math.floor(Number(passCount) || 1));
     return count * 10;
@@ -55,5 +71,5 @@
     return count * 10;
   }
 
-  global.SpellScoring = Object.freeze({ comboMultiplier, passPenalty, takePass, passesEarned, addEarnedScore, takeWrongAnswer, resetWrongAnswerStreak, wrongAnswerPenalty });
+  global.SpellScoring = Object.freeze({ comboMultiplier, calculateCorrectGain, passPenalty, takePass, passesEarned, addEarnedScore, takeWrongAnswer, resetWrongAnswerStreak, wrongAnswerPenalty });
 })(typeof window === 'undefined' ? globalThis : window);

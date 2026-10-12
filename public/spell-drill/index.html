@@ -148,6 +148,17 @@
   .cell .v{font-family:'JetBrains Mono',monospace;font-weight:800;line-height:1}
   .cell.score .v{font-size:48px;color:var(--amber);text-shadow:0 0 18px rgba(255,177,26,.4)}
   .cell.score .v.bump{animation:scoreBump .6s cubic-bezier(.2,1.4,.4,1)}
+  .cell.score{position:relative;z-index:2}
+  .score-formula-trigger{display:flex;flex-direction:column;align-items:flex-end;gap:5px;width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:right;cursor:pointer}
+  .score-formula-trigger:focus-visible{outline:2px solid var(--amber);outline-offset:5px}
+  .score-formula-trigger .h{display:flex;align-items:center;gap:5px}
+  .score-info-mark{color:var(--amber);font-size:11px;letter-spacing:0}
+  .score-difficulty{margin-top:8px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.04em}
+  .score-formula{position:absolute;top:calc(100% + 8px);right:10px;width:min(330px,calc(100vw - 48px));padding:16px;background:var(--panel);border:1px solid var(--line-hot);box-shadow:0 12px 32px rgba(0,0,0,.55);z-index:30;text-align:left;color:var(--ink);font-family:Pretendard,sans-serif;font-size:13px;line-height:1.6}
+  .score-formula[hidden]{display:none}
+  .score-formula strong{display:block;margin-bottom:8px;color:var(--amber);font-size:13px}
+  .score-formula p{margin:6px 0 0;color:var(--muted)}
+  .score-formula .formula-main{color:var(--ink);font-weight:700}
   @keyframes scoreBump{0%{transform:scale(1)}30%{transform:scale(1.25);color:#fff}100%{transform:scale(1);color:var(--amber)}}
   /* combo number scales with combo count; glow ≥10, burn ≥15 (size set inline via JS) */
   .cell.combo .v{font-size:32px;color:var(--ink);line-height:1;transition:font-size .25s cubic-bezier(.2,1.4,.4,1);will-change:font-size,text-shadow}
@@ -450,7 +461,19 @@
       <div class="hud">
         <div class="cell qidx"><div class="h">// Question</div><div class="v"><span data-ps-edit-id="ps-spell-034" data-ps-design-id="ps-spell-034" id="q-idx">1</span><small> / <span data-ps-edit-id="ps-spell-035" data-ps-design-id="ps-spell-035" id="q-total">25</span></small></div></div>
         <div class="cell timer center-cell" id="timer-cell" style="display:none"><div class="h">// Time</div><div class="v mono" id="timer">60</div></div>
-        <div class="cell score" style="text-align:right;align-items:flex-end"><div class="h">// Score</div><div class="v mono" id="score">0</div></div>
+        <div class="cell score" style="text-align:right;align-items:flex-end">
+          <button class="score-formula-trigger" data-ps-edit-id="ps-spell-095" data-ps-design-id="ps-spell-095" id="score-formula-trigger" type="button" aria-expanded="false" aria-controls="score-formula">
+            <span class="h" data-ps-edit-id="ps-spell-096" data-ps-design-id="ps-spell-096" id="score-label">// Score <span class="score-info-mark" data-ps-edit-id="ps-spell-097" data-ps-design-id="ps-spell-097" aria-hidden="true">ⓘ</span></span>
+            <span class="v mono" data-ps-edit-id="ps-spell-098" data-ps-design-id="ps-spell-098" id="score">0</span>
+          </button>
+          <div class="score-difficulty" id="score-difficulty" data-ps-edit-id="ps-spell-090" data-ps-design-id="ps-spell-090">초급 · 기본 100점</div>
+          <div class="score-formula" id="score-formula" role="region" aria-labelledby="score-formula-title" hidden>
+            <strong id="score-formula-title" data-ps-edit-id="ps-spell-091" data-ps-design-id="ps-spell-091">점수 계산 방식</strong>
+            <div class="formula-main" id="score-formula-text" data-ps-edit-id="ps-spell-092" data-ps-design-id="ps-spell-092">(기본점수 + 속도점수 + 콤보 횟수 × 10점) × 콤보 배율</div>
+            <p id="score-hint-rule" data-ps-edit-id="ps-spell-093" data-ps-design-id="ps-spell-093">힌트를 사용하면 기본점수만 절반으로 줄어요.</p>
+            <p id="score-speed-rule" data-ps-edit-id="ps-spell-094" data-ps-design-id="ps-spell-094">속도점수는 LIGHTNING +100, FAST +50, QUICK +20점이며, 콤보 배율 적용 전 점수예요.</p>
+          </div>
+        </div>
       </div>
 
       <div class="qstage" id="qcard">
@@ -10869,6 +10892,7 @@ const $ = (s,r=document)=>r.querySelector(s);
 const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
 const shuffle = a => { const b=a.slice(); for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]} return b };
 const normalize = s => (s||'').replace(/\s+/g,' ').trim();
+const SCORE_BASES = { easy:100, med:200, hard:300, mix:200 };
 const SPELL_UPDATE_KEY='parcyun:spell-drill:update',SPELL_UPDATE_VERSION='2026-07-scoring-onboarding';
 const spellOnboarding=$('#spell-onboarding'),spellOnboardingStart=$('#spell-onboarding-start'),spellUpdateToggle=$('#spell-update-toggle'),spellUpdateHistory=$('#spell-update-history');
 spellOnboarding.hidden=false;
@@ -10880,6 +10904,26 @@ spellUpdateToggle.addEventListener('click',()=>{
 // 타자 수 추정: 한글 음절은 평균 ~2.5 타(초·중·종성), 그 외(영문·공백·문장부호)는 1 타
 const estKeystrokes = s => { let k=0; for(const ch of (s||'')){ k += /[가-힣]/.test(ch) ? 2.5 : 1; } return k; };
 const show = id => { $$('.screen').forEach(s=>s.classList.remove('active')); $('#'+id).classList.add('active') };
+function toggleScoreFormula(open){
+  const trigger=$('#score-formula-trigger'),formula=$('#score-formula');
+  const next=typeof open==='boolean'?open:formula.hidden;
+  formula.hidden=!next;trigger.setAttribute('aria-expanded',String(next));
+}
+$('#score-formula-trigger').addEventListener('click',()=>toggleScoreFormula());
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#score-formula-trigger')&&!e.target.closest('#score-formula')) toggleScoreFormula(false);
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')toggleScoreFormula(false)});
+function updateScoreDifficulty(){
+  const t=I18N[state.lang],base=SCORE_BASES[state.diff];
+  $('#score-difficulty').textContent=t.scoreDifficulty.replace('{difficulty}',t.diffLabels[state.diff]).replace('{score}',base);
+  $('#score-label').firstChild.textContent=`// ${t.scoreLabel} `;
+  $('#score-formula-title').textContent=t.scoreFormulaTitle;
+  $('#score-formula-text').textContent=t.scoreFormula;
+  $('#score-hint-rule').textContent=t.scoreHintRule;
+  $('#score-speed-rule').textContent=t.scoreSpeedRule;
+  $('#score-formula-trigger').setAttribute('aria-label',`${t.scoreLabel}: ${t.scoreDifficulty.replace('{difficulty}',t.diffLabels[state.diff]).replace('{score}',base)}. ${t.scoreInfoLabel}`);
+}
 function loadRecords(){
   let rec;
   try{ rec = JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ rec = {}; }
@@ -10896,7 +10940,7 @@ function loadRecords(){
 }
 const saveRecords = r => localStorage.setItem(LS_KEY,JSON.stringify(r));
 
-$$('#diff-row button').forEach(c=>c.addEventListener('click',()=>{$$('#diff-row button').forEach(x=>x.classList.remove('on'));c.classList.add('on');state.diff=c.dataset.diff;renderBest()}));
+$$('#diff-row button').forEach(c=>c.addEventListener('click',()=>{$$('#diff-row button').forEach(x=>x.classList.remove('on'));c.classList.add('on');state.diff=c.dataset.diff;updateScoreDifficulty();renderBest()}));
 $$('#lang-toggle button').forEach(c=>c.addEventListener('click',()=>{
   if(c.classList.contains('on')) return;
   $$('#lang-toggle button').forEach(x=>x.classList.remove('on'));c.classList.add('on');
@@ -11001,10 +11045,7 @@ function submit(){
     state.locked = true; // 다음 문제 로드까지 추가 제출 차단
     state.correctCount++;
     SpellScoring.resetWrongAnswerStreak(state);
-    const base = state.diff==='easy'?100:state.diff==='med'?200:state.diff==='hard'?300:200;
-    let gain = base;
-    if(state.hintUsed) gain = Math.floor(gain*0.5);
-    gain += state.combo*10;
+    const base = SCORE_BASES[state.diff];
     // 속도 보너스 — 고정 컷오프 대신 문장 길이 기반 기대시간(par) 대비 비율로 판정.
     // 문장 전체를 다시 타이핑해야 하므로, 짧은 한글 문장부터 긴 영어 문장까지 공평하게
     // 보상하려면 길이에 비례한 기준이 필요하다.
@@ -11016,10 +11057,9 @@ function submit(){
     if(ratio <= 0.9){ speedBonus = 100; speedTag = 'LIGHTNING'; }   // par보다 빠름
     else if(ratio <= 1.15){ speedBonus = 50; speedTag = 'FAST'; }   // par 근처
     else if(ratio <= 1.5){ speedBonus = 20; speedTag = 'QUICK'; }   // par의 1.5배 이내
-    gain += speedBonus;
     state.combo++; state.bestCombo=Math.max(state.bestCombo,state.combo);
-    const mult = SpellScoring.comboMultiplier(state.combo);
-    gain = Math.round(gain * mult);
+    const breakdown=SpellScoring.calculateCorrectGain({baseScore:base,speedBonus,comboCount:state.combo,hintUsed:state.hintUsed});
+    const gain=breakdown.total,mult=breakdown.multiplier;
     state.score += gain;
     SpellScoring.addEarnedScore(state,gain);
     updatePassesLeft();
@@ -11027,7 +11067,7 @@ function submit(){
     sc.classList.remove('bump');void sc.offsetWidth;sc.classList.add('bump');
     const co = $('#combo-n'); co.textContent = state.combo;
     updateComboVisual();  // 콤보 크기 + glow/burn 갱신 + 팝 애니메이션 + 배수 뱃지
-    pointPop('+'+gain + (mult>1 ? ' ×'+mult : ''),false,gain);
+    pointPop('+'+gain,false,gain);
     scoreEffect(gain, false);
     const c = $('#qcard'); c.classList.remove('correct','wrong'); void c.offsetWidth; c.classList.add('correct');
     playCorrect();
@@ -11354,6 +11394,10 @@ const I18N = {
     bestLabels: { easy:'초급 best', med:'중급 best', hard:'고급 best', solved:'누적 정답' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
     versionTitle: 'v2.1.2 업데이트',
+    scoreLabel: 'Score', scoreDifficulty: '{difficulty} · 기본 {score}점', scoreInfoLabel: '점수 계산 보기',
+    scoreFormulaTitle: '점수 계산 방식', scoreFormula: '(기본점수 + 속도점수 + 콤보 횟수 × 10점) × 콤보 배율',
+    scoreHintRule: '힌트를 사용하면 기본점수만 절반으로 줄어요.',
+    scoreSpeedRule: '속도점수는 LIGHTNING +100, FAST +50, QUICK +20점이며, 콤보 배율 적용 전 점수예요.',
     versionItems: [
       '문항 대폭 확충 — 한국어·영어 각 1,000문항으로 확대',
       '초급 난이도 재배치 — 짧고 자주 쓰는 문장 위주로 개선',
@@ -11384,6 +11428,10 @@ const I18N = {
     bestLabels: { easy:'Beginner Best', med:'Intermediate Best', hard:'Advanced Best', solved:'Total Solved' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
     versionTitle: 'v2.1.2 Update',
+    scoreLabel: 'Score', scoreDifficulty: '{difficulty} · Base {score} pts', scoreInfoLabel: 'View score calculation',
+    scoreFormulaTitle: 'How scoring works', scoreFormula: '(Base points + Speed bonus + Combo count × 10) × Combo multiplier',
+    scoreHintRule: 'Using a hint halves only the base points.',
+    scoreSpeedRule: 'Speed bonus: LIGHTNING +100, FAST +50, QUICK +20; these are added before the combo multiplier.',
     versionItems: [
       'Major expansion — 1,000 items each for Korean & English',
       'Beginner level rebalanced — shorter, everyday sentences',
@@ -11430,6 +11478,7 @@ function setLanguage(lang){
   $('#r-time-label').textContent = t.resultLabels.time;
   $('#version-tip-title').textContent = t.versionTitle;
   $('#version-tip-list').innerHTML = t.versionItems.map(li=>`<li>${li}</li>`).join('');
+  updateScoreDifficulty();
   renderBest();
   if($('#rank').classList.contains('active')){
     const onTab = $$('#rank .rank-tab.on')[0];

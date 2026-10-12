@@ -10,7 +10,29 @@
 
   function passPenalty(passCount) {
     const count = Math.max(1, Math.floor(Number(passCount) || 1));
-    return 10 * (2 ** (count - 1));
+    return count * 10;
+  }
+
+  function takePass(state) {
+    if (state.locked) return null;
+    state.locked = true;
+    state.passCount = Math.max(0, Math.floor(Number(state.passCount) || 0)) + 1;
+    const score = Math.max(0, Number(state.score) || 0);
+    const deduction = Math.min(score, passPenalty(state.passCount));
+    state.score = score - deduction;
+    return deduction;
+  }
+
+  function takeWrongAnswer(state) {
+    state.wrongCount = Math.max(0, Math.floor(Number(state.wrongCount) || 0)) + 1;
+    const score = Math.max(0, Number(state.score) || 0);
+    const deduction = Math.min(score, wrongAnswerPenalty(state.wrongCount));
+    state.score = score - deduction;
+    return deduction;
+  }
+
+  function resetWrongAnswerStreak(state) {
+    state.wrongCount = 0;
   }
 
   function wrongAnswerPenalty(wrongCount) {
@@ -18,5 +40,5 @@
     return count * 10;
   }
 
-  global.SpellScoring = Object.freeze({ comboMultiplier, passPenalty, wrongAnswerPenalty });
+  global.SpellScoring = Object.freeze({ comboMultiplier, passPenalty, takePass, takeWrongAnswer, resetWrongAnswerStreak, wrongAnswerPenalty });
 })(typeof window === 'undefined' ? globalThis : window);

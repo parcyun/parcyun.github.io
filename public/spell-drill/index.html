@@ -366,7 +366,7 @@
     <button data-ps-edit-id="ps-spell-079" data-ps-design-id="ps-spell-079" class="spell-onboarding-start" id="spell-onboarding-start">시작하기</button>
     <button data-ps-edit-id="ps-spell-080" data-ps-design-id="ps-spell-080" class="spell-update-toggle" id="spell-update-toggle" aria-expanded="false">업데이트 내역 보기 <span data-ps-edit-id="ps-spell-081" data-ps-design-id="ps-spell-081">+</span></button>
     <div class="spell-update-history" id="spell-update-history">
-      <div><b>2026.10</b><p data-ps-edit-id="ps-spell-084" data-ps-design-id="ps-spell-084">패스와 연속 오답 감점을 10점씩 누적하고, 같은 문항의 패스 연타는 한 번만 처리해요. 정답을 맞히면 오답 감점이 초기화되고, 남은 점수보다 큰 감점은 실제 차감한 점수만 표시해요.</p></div>
+      <div><b>2026.10</b><p data-ps-edit-id="ps-spell-084" data-ps-design-id="ps-spell-084">패스와 연속 오답 감점을 10점씩 누적하고, 같은 문항의 패스 연타는 한 번만 처리해요. 패스는 3개로 시작하고 정답 획득 점수 1,000점마다 1개씩 충전돼요. 정답을 맞히면 오답 감점이 초기화되고, 남은 점수보다 큰 감점은 실제 차감한 점수만 표시해요.</p></div>
       <div><b>2026.09</b><p data-ps-edit-id="ps-spell-085" data-ps-design-id="ps-spell-085">힌트 뒤 바로 입력할 수 있게 고치고, ‘먹든지/먹던지’와 ‘아프대/아프데’ 설명을 보강했어요. 헷갈리는 표현 문항도 19개 추가했어요.</p></div>
       <div><b>2026.07</b><p data-ps-edit-id="ps-spell-082" data-ps-design-id="ps-spell-082">새 콤보 배율과 누적 패스·오답 감점, 점수 크기에 따른 화면 효과를 추가했어요.</p></div>
       <div><b>v2.1.2</b><p data-ps-edit-id="ps-spell-083" data-ps-design-id="ps-spell-083">한국어·영어 문항을 각 1,000개로 늘리고 난이도와 문장을 다시 검토했어요.</p></div>
@@ -472,7 +472,7 @@
       <div class="actions">
         <button data-ps-edit-id="ps-spell-042" data-ps-design-id="ps-spell-042" class="act primary" id="submit"><span data-ps-edit-id="ps-spell-043" data-ps-design-id="ps-spell-043" id="submit-text">제출</span> <span data-ps-edit-id="ps-spell-044" data-ps-design-id="ps-spell-044" class="key">ENTER</span></button>
         <button data-ps-edit-id="ps-spell-045" data-ps-design-id="ps-spell-045" class="act" id="hint-btn">힌트 (−50%)</button>
-        <button data-ps-edit-id="ps-spell-046" data-ps-design-id="ps-spell-046" class="act" id="skip-btn">패스</button>
+        <button data-ps-edit-id="ps-spell-046" data-ps-design-id="ps-spell-046" class="act" id="skip-btn"><span data-ps-edit-id="ps-spell-086" data-ps-design-id="ps-spell-086" id="skip-label">패스</span> <span class="key" data-ps-edit-id="ps-spell-087" data-ps-design-id="ps-spell-087" id="passes-left">3</span></button>
         <button data-ps-edit-id="ps-spell-047" data-ps-design-id="ps-spell-047" class="act ghost" id="quit-btn">종료</button>
       </div>
       <div class="progress"><div class="bar" id="bar"></div></div>
@@ -10945,7 +10945,8 @@ function startGame(){
   }
   let qList = shuffle(buildPool(state.diff));
   if(limit && limit < qList.length){ qList = qList.slice(0, limit); }
-  Object.assign(state,{score:0,combo:0,bestCombo:0,passCount:0,wrongCount:0,correctCount:0,totalCount:0,qList,qIdx:0,seq:1,hintUsed:false,locked:false,totalLimit:limit,gameStartTs:performance.now()});
+  Object.assign(state,{score:0,earnedScore:0,passesRemaining:3,combo:0,bestCombo:0,passCount:0,wrongCount:0,correctCount:0,totalCount:0,qList,qIdx:0,seq:1,hintUsed:false,locked:false,totalLimit:limit,gameStartTs:performance.now()});
+  updatePassesLeft();
   $('#score').textContent='0';$('#combo-n').textContent='0';updateComboVisual();
   $('#q-idx').textContent='1';
   $('#q-total').textContent = limit ?? '∞';
@@ -11018,6 +11019,8 @@ function submit(){
     const mult = SpellScoring.comboMultiplier(state.combo);
     gain = Math.round(gain * mult);
     state.score += gain;
+    SpellScoring.addEarnedScore(state,gain);
+    updatePassesLeft();
     const sc = $('#score'); sc.textContent = state.score;
     sc.classList.remove('bump');void sc.offsetWidth;sc.classList.add('bump');
     const co = $('#combo-n'); co.textContent = state.combo;
@@ -11047,10 +11050,17 @@ function submit(){
   }
 }
 function showHint(){ if(state.locked || state.hintUsed) return; state.hintUsed=true; $('#hint').textContent = state.current.hint; $('#hint').classList.add('show'); $('#q-input').focus(); }
+function updatePassesLeft(){
+  const el=$('#passes-left');
+  if(!el) return;
+  el.textContent=String(state.passesRemaining);
+  $('#skip-btn').disabled=state.passesRemaining<=0;
+  $('#skip-btn').setAttribute('aria-label',`${I18N[state.lang].skipBtn} (${state.passesRemaining})`);
+}
 function skip(){
-  if(state.locked) return;if(registerRapid()) return;
+  if(state.locked || spam.blocked) return;
   const penalty=SpellScoring.takePass(state);if(penalty===null) return;
-  state.combo=0;$('#combo-n').textContent=0;updateComboVisual();state.totalCount++;
+  updatePassesLeft();state.combo=0;$('#combo-n').textContent=0;updateComboVisual();state.totalCount++;
   const sc=$('#score');sc.textContent=state.score;sc.classList.remove('bump');void sc.offsetWidth;sc.classList.add('bump');
   pointPop(penalty ? '-'+penalty : '0',true,penalty);if(penalty>0)scoreEffect(penalty, true);setTimeout(next,160);
 }
@@ -11396,7 +11406,8 @@ function setLanguage(lang){
   $('#q-input').placeholder = t.inputPlaceholder;
   $('#submit-text').textContent = t.submitBtn;
   $('#hint-btn').textContent = t.hintBtn;
-  $('#skip-btn').textContent = t.skipBtn;
+  $('#skip-label').textContent = t.skipBtn;
+  updatePassesLeft();
   $('#quit-btn').textContent = t.quitBtn;
   $('#back-home-text').textContent = t.homeBtn;
   $('#rank-clear-text').textContent = t.clearRecordsBtn;

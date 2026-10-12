@@ -24,7 +24,7 @@ test('pass penalty increases by ten points on each pass', () => {
 
 test('a repeated pass is ignored until the next question unlocks', () => {
   const { takePass } = loadScoring();
-  const state = { locked: false, passCount: 0, score: 100 };
+  const state = { locked: false, passCount: 0, passesRemaining: 3, score: 100 };
 
   assert.equal(takePass(state), 10);
   assert.equal(takePass(state), null);
@@ -36,11 +36,12 @@ test('a repeated pass is ignored until the next question unlocks', () => {
   assert.equal(takePass(state), 20);
   assert.equal(state.passCount, 2);
   assert.equal(state.score, 70);
+  assert.equal(state.passesRemaining, 1);
 });
 
 test('pass deduction and displayed amount cannot exceed the remaining score', () => {
   const { takePass } = loadScoring();
-  const state = { locked: false, passCount: 0, score: 5 };
+  const state = { locked: false, passCount: 0, passesRemaining: 3, score: 5 };
 
   assert.equal(takePass(state), 5);
   assert.equal(state.score, 0);
@@ -48,6 +49,28 @@ test('pass deduction and displayed amount cannot exceed the remaining score', ()
   state.locked = false;
   assert.equal(takePass(state), 0);
   assert.equal(state.score, 0);
+});
+
+test('passes are limited to the available balance', () => {
+  const { takePass } = loadScoring();
+  const state = { locked: false, passCount: 0, passesRemaining: 0, score: 100 };
+
+  assert.equal(takePass(state), null);
+  assert.equal(state.locked, false);
+  assert.equal(state.score, 100);
+});
+
+test('each 1000 earned points grants one pass, including multiple thresholds at once', () => {
+  const { addEarnedScore } = loadScoring();
+  const state = { earnedScore: 0, passesRemaining: 3 };
+
+  assert.equal(addEarnedScore(state, 850), 0);
+  assert.equal(state.passesRemaining, 3);
+  assert.equal(addEarnedScore(state, 300), 1);
+  assert.equal(state.passesRemaining, 4);
+  assert.equal(addEarnedScore(state, 1900), 2);
+  assert.equal(state.earnedScore, 3050);
+  assert.equal(state.passesRemaining, 6);
 });
 
 test('wrong answer penalty increases by ten points each time', () => {
@@ -83,6 +106,10 @@ test('spell drill applies scoring helpers and magnitude effects without explaini
   const page = await pageSource();
   assert.match(page, /SpellScoring\.comboMultiplier\(state\.combo\)/);
   assert.match(page, /SpellScoring\.takePass\(state\)/);
+  assert.match(page, /if\(state\.locked \|\| spam\.blocked\) return/);
+  assert.doesNotMatch(page, /function skip\(\)\{[^}]*registerRapid\(\)/);
+  assert.match(page, /passesRemaining:3/);
+  assert.match(page, /SpellScoring\.addEarnedScore\(state,gain\)/);
   assert.match(page, /pointPop\(penalty \? '-'\+penalty : '0',true,penalty\)/);
   assert.match(page, /scoreEffect\(gain, false\)/);
   assert.match(page, /if\(penalty>0\)scoreEffect\(penalty, true\)/);

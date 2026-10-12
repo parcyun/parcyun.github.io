@@ -15,12 +15,27 @@
 
   function takePass(state) {
     if (state.locked) return null;
+    if (state.passesRemaining <= 0) return null;
     state.locked = true;
-    state.passCount = Math.max(0, Math.floor(Number(state.passCount) || 0)) + 1;
+    state.passesRemaining -= 1;
     const score = Math.max(0, Number(state.score) || 0);
-    const deduction = Math.min(score, passPenalty(state.passCount));
+    const deduction = Math.min(score, passPenalty(state.passCount + 1));
+    state.passCount = Math.max(0, Math.floor(Number(state.passCount) || 0)) + 1;
     state.score = score - deduction;
     return deduction;
+  }
+
+  function passesEarned(totalEarnedScore) {
+    return Math.floor(Math.max(0, Number(totalEarnedScore) || 0) / 1000);
+  }
+
+  function addEarnedScore(state, gain) {
+    const earned = Math.max(0, Number(state.earnedScore) || 0);
+    const previousPasses = passesEarned(earned);
+    state.earnedScore = earned + Math.max(0, Number(gain) || 0);
+    const newPasses = passesEarned(state.earnedScore);
+    state.passesRemaining = Math.max(0, Number(state.passesRemaining) || 0) + newPasses - previousPasses;
+    return newPasses - previousPasses;
   }
 
   function takeWrongAnswer(state) {
@@ -40,5 +55,5 @@
     return count * 10;
   }
 
-  global.SpellScoring = Object.freeze({ comboMultiplier, passPenalty, takePass, takeWrongAnswer, resetWrongAnswerStreak, wrongAnswerPenalty });
+  global.SpellScoring = Object.freeze({ comboMultiplier, passPenalty, takePass, passesEarned, addEarnedScore, takeWrongAnswer, resetWrongAnswerStreak, wrongAnswerPenalty });
 })(typeof window === 'undefined' ? globalThis : window);

@@ -12,12 +12,23 @@ test('Works publishes the Titan tools as descriptive external links', () => {
     'https://github.com/Q00/ouroboros/blob/main/README.ko.md',
     'https://astryx.atmeta.com/',
     'https://github.com/parcyun/pre-design',
+    'https://github.com/parcyun/parcyun-studio-skill/blob/main/references/authentic-web-design.md',
     'https://github.com/Yeachan-Heo/oh-my-codex/blob/main/skills/deep-interview/SKILL.md',
   ]) {
     assert.match(source, new RegExp(url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
-  assert.equal((source.match(/class="titan-item"/g) || []).length, 6);
-  assert.equal((source.match(/target="_blank" rel="noopener noreferrer"/g) || []).length >= 6, true);
+  assert.equal((source.match(/class="titan-item"/g) || []).length, 7);
+  assert.equal((source.match(/target="_blank" rel="noopener noreferrer"/g) || []).length >= 7, true);
+  const titles = [...source.matchAll(/class="titan-title">([^<]+)</g)].map((match) => match[1]);
+  assert.deepEqual(titles, [
+    'Pre-design',
+    'Authentic Web Design',
+    'Grill Me',
+    'Deep Interview',
+    '우로보로스',
+    '기업 홈페이지 디자인 소스 훔쳐오기',
+    'Meta 개발자들의 디자인 컴포넌트 훔쳐쓰기',
+  ]);
 });
 
 test('Titan tools keep the existing cinematic hierarchy and responsive list layout', () => {

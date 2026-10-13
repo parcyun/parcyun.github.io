@@ -12,7 +12,7 @@ test('Works publishes the Titan tools as descriptive external links', () => {
     'https://github.com/Q00/ouroboros/blob/main/README.ko.md',
     'https://astryx.atmeta.com/',
     'https://github.com/parcyun/pre-design',
-    'https://github.com/parcyun/parcyun-studio-skill/blob/main/references/authentic-web-design.md',
+    'https://github.com/parcyun/authentic-web-design',
     'https://github.com/Yeachan-Heo/oh-my-codex/blob/main/skills/deep-interview/SKILL.md',
   ]) {
     assert.match(source, new RegExp(url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));

@@ -378,7 +378,7 @@
     <button data-ps-edit-id="ps-spell-079" data-ps-design-id="ps-spell-079" class="spell-onboarding-start" id="spell-onboarding-start">시작하기</button>
     <button data-ps-edit-id="ps-spell-080" data-ps-design-id="ps-spell-080" class="spell-update-toggle" id="spell-update-toggle" aria-expanded="false">업데이트 내역 보기 <span data-ps-edit-id="ps-spell-081" data-ps-design-id="ps-spell-081">+</span></button>
     <div class="spell-update-history" id="spell-update-history">
-      <div><b>2026.10 · v2.1.4</b><p data-ps-edit-id="ps-spell-084" data-ps-design-id="ps-spell-084">타이머 재시작 시 빨간 경고가 남던 문제를 고쳤어요. 믹스는 현재 문항 난이도에 따라 초급 100점·중급 200점·고급 300점으로 계산하고, 점수 옆에서 난이도를 확인할 수 있어요. 점수식을 안내하고 패스 충전·연타 처리도 개선했어요.</p></div>
+      <div><b>2026.10 · v2.1.4</b><p data-ps-edit-id="ps-spell-084" data-ps-design-id="ps-spell-084">헷갈리는 표현 92문항의 맥락은 문장이 뜻하는 상황만 먼저 보여 주고, 표현 차이는 힌트에서 확인하도록 분리했어요. 타이머 경고 초기화, 믹스 난이도별 기본점수, 점수 안내와 패스 처리도 개선했어요.</p></div>
       <div><b>2026.09</b><p data-ps-edit-id="ps-spell-085" data-ps-design-id="ps-spell-085">힌트 뒤 바로 입력할 수 있게 고치고, ‘먹든지/먹던지’와 ‘아프대/아프데’ 설명을 보강했어요. 헷갈리는 표현 문항도 19개 추가했어요.</p></div>
       <div><b>2026.07</b><p data-ps-edit-id="ps-spell-082" data-ps-design-id="ps-spell-082">새 콤보 배율과 누적 패스·오답 감점, 점수 크기에 따른 화면 효과를 추가했어요.</p></div>
       <div><b>v2.1.2</b><p data-ps-edit-id="ps-spell-083" data-ps-design-id="ps-spell-083">한국어·영어 문항을 각 1,000개로 늘리고 난이도와 문장을 다시 검토했어요.</p></div>
@@ -396,6 +396,7 @@
     <li data-ps-edit-id="ps-spell-099" data-ps-design-id="ps-spell-099">믹스에서 현재 문항 난이도별 기본점수 적용</li>
     <li data-ps-edit-id="ps-spell-100" data-ps-design-id="ps-spell-100">타이머 다시 시작할 때 경고 색상 초기화</li>
     <li data-ps-edit-id="ps-spell-101" data-ps-design-id="ps-spell-101">점수 옆에서 난이도와 기본점수 확인</li>
+    <li data-ps-edit-id="ps-spell-102" data-ps-design-id="ps-spell-102">맥락은 문장 의도만 표시하고 표현 구별법은 힌트로 분리</li>
   </ul>
 </div>
 
@@ -589,6 +590,7 @@
 <script src="./scoring.js?v=20261012.1"></script>
 <script src="./questions.js?v=20261012.1"></script>
 <script src="./timer-ui.js?v=20261012.1"></script>
+<script src="./context-hints.js?v=20261015.1"></script>
 <script>
 /* ────────────────────────── corpus ────────────────────────── */
 const SENTENCES = {
@@ -11019,9 +11021,10 @@ function loadQuestion(){
   $('#q-prompt').textContent = q.wrong;
   $('#q-input').value = '';
   $('#hint').textContent='';$('#hint').classList.remove('show');
-  // 헷갈리는 표현의 상황 설명은 상단에 무료로(점수 차감 없음) 항상 표시
+  // 정답 표기를 드러내지 않고 문장이 의도한 상황만 무료로 항상 표시한다.
   const noteEl = $('#q-note');
-  if(q.note){ noteEl.textContent = q.note; noteEl.hidden = false; }
+  const context = SpellContextHints.contextFor(q);
+  if(context){ noteEl.textContent = context; noteEl.hidden = false; }
   else { noteEl.textContent = ''; noteEl.hidden = true; }
   // 문제 번호는 누적 seq 기반 — 정답(next())/패스 때만 증가하고 오답 재시도로는 안 올라간다.
   // 무제한 모드에서 풀을 다 돌아 reshuffle해도 1로 리셋되지 않고 계속 이어진다
@@ -11099,7 +11102,7 @@ function submit(){
     playWrong();
   }
 }
-function showHint(){ if(state.locked || state.hintUsed) return; state.hintUsed=true; $('#hint').textContent = state.current.hint; $('#hint').classList.add('show'); $('#q-input').focus(); }
+function showHint(){ if(state.locked || state.hintUsed) return; state.hintUsed=true; $('#hint').textContent = SpellContextHints.hintFor(state.current); $('#hint').classList.add('show'); $('#q-input').focus(); }
 function updatePassesLeft(){
   const el=$('#passes-left');
   if(!el) return;
@@ -11414,7 +11417,8 @@ const I18N = {
       '패스가 다음 문제로 넘어가지 않던 오류 수정',
       '믹스는 문항 난이도에 따라 초급 100점·중급 200점·고급 300점 적용',
       '타이머 재시작 때 경고 색상 초기화',
-      '점수 옆에서 현재 문항 난이도와 기본점수 확인'
+      '점수 옆에서 현재 문항 난이도와 기본점수 확인',
+      '맥락은 문장 의도만 표시하고 표현 구별법은 힌트로 분리'
     ]
   },
   en: {
@@ -11451,6 +11455,7 @@ const I18N = {
       'Fixed an issue that could prevent Pass from advancing to the next question',
       'Mix uses each question tier: 100 Beginner, 200 Intermediate, 300 Advanced points',
       'Cleared stale warning color when restarting a timer game',
+      'Separated sentence intent from expression guidance across 92 Korean items',
       'Shows the current question difficulty and base score beside Score'
     ]
   }

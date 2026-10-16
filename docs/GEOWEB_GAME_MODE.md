@@ -2,6 +2,8 @@
 
 ## Design and behavior
 
+- 2026-10-16 follow-up: Quiz answer buttons show ENTER/TAB beneath their labels; the repeated hint below the input is removed. Practice mode is available in the lobby and active round, keeps each answer visible, removes scoring and text entry, and advances with its button, Tab, or Enter. Finishing a flag round turns off its day/night animation and returns to the default globe framing. The globe background uses the Masterclass Stargaze layered-star shader with GeoWeb amber/black colors; the game entry button has no border and an orange diagonal hover sweep. Reduced motion keeps the stars still and disables the sweep. Local UI checks covered practice answer/next/keyboard focus, quiz button labels, flag finish, and globe rendering.
+
 - Follow-up: game entry immediately transitions to the default globe view before a game is selected. Input-only Tab skips (Shift+Tab keeps keyboard navigation). Skip reveals only the answer name centrally for 1.4 seconds before the next question. Country/flag answers are country names; capitals/landforms/landmarks retain their actual answer names. Score bursts reuse Spell Drill point/ring/particle timing and speed styles, with combo below; no full-screen flashing. Flag entrance waits for image load, then comes from right and exits left. Preserve reduced-motion and cancel effects on exit.
 
 - Existing amber/black parcyun studio design; preserve the existing map renderer and data. One diagonal sweep on entry, reduced-motion alternative, keyboard-first answers.

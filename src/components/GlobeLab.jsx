@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import GeoGame from './GeoGame.jsx';
 import { buildGamePools } from './geoGameData.js';
+import { STARDUST_FRAGMENT } from './globeStarlight.js';
 import * as THREE from 'three';
 import { countryInfo } from './globeCountryData.js';
 import { countryByBoundaryName, formatPopulation, searchCountryMatches, SYSTEM_EXPLANATIONS, SYSTEM_LABELS } from './globeCountries.js';
@@ -420,6 +421,9 @@ export default function GlobeLab(){
       scene.add(mesh);
       // 평면 seam 배경: 화면 전체를 base oceanGrad로 채우는 fullscreen 삼각형(뒤에 깔림). 모프 seam 갭이 페이지 검정 대신 바다색으로 채워져 검은 세로선 제거. 평면에서만 표시(구/렌즈의 검은 우주 배경 보존).
       const bgGeo=new THREE.BufferGeometry();bgGeo.setAttribute('position',new THREE.Float32BufferAttribute([-1,-1,0,3,-1,0,-1,3,0],3));
+      const starTime={value:0};
+      const starBg=new THREE.Mesh(bgGeo,new THREE.ShaderMaterial({depthTest:false,depthWrite:false,uniforms:{uScreen,uTime:starTime},vertexShader:'void main(){gl_Position=vec4(position,1.0);}',fragmentShader:STARDUST_FRAGMENT}));
+      starBg.frustumCulled=false;starBg.renderOrder=-4;starBg.visible=false;scene.add(starBg);
       const bgMesh=new THREE.Mesh(bgGeo,new THREE.ShaderMaterial({depthTest:false,depthWrite:false,uniforms:{uScreen},vertexShader:'void main(){gl_Position=vec4(position,1.0);}',fragmentShader:OCEANGRAD+'uniform vec2 uScreen;void main(){gl_FragColor=vec4(oceanGrad(gl_FragCoord.xy,uScreen),1.0);}'}));
       bgMesh.frustumCulled=false;bgMesh.renderOrder=-3;bgMesh.visible=false;scene.add(bgMesh);
       // 평면 좌우 순환용 클론 타일(±월드폭)
@@ -663,6 +667,10 @@ export default function GlobeLab(){
         applyGrid();removeGhost();applySat(false);onDN(mode==='flag');applySel(gameSel);
         const coordinates=question.coordinates||[0,20];S.current.focusReq={lon:coordinates[0],lat:coordinates[1]};goView('globe');
       };
+      api.current.finishGame=(mode)=>{
+        if(mode==='flag'){S.current.dayNight=false;S.current.dnPlay=false;onDN(false);}
+        Object.assign(S.current,{gameMode:null,gameQuestion:null,homeReq:true,focusReq:null});applySel(null);goView('globe');
+      };
       api.current.restoreGame=()=>{applyGrid();applySat(S.current.sat);onDN(S.current.dayNight);applySel(S.current.sel);goView(S.current.view);refreshTrueSize();};
       setGamePools(gameData);
       applyGrid();settleView('flat');
@@ -736,7 +744,10 @@ export default function GlobeLab(){
         camera.updateProjectionMatrix();renderer.setSize(W,H);uRes.value.set(W,H);uScreen.value.set(renderer.domElement.width,renderer.domElement.height);};
       window.addEventListener('resize',onResize);
       const clock=new THREE.Clock(),v3=new THREE.Vector3();
+      const reducedStars=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const loop=()=>{if(disposed)return;raf=requestAnimationFrame(loop);const dt=clock.getDelta();const st=S.current;
+        starBg.visible=U.morph.value<0.5&&U.lens.value<0.5;
+        if(starBg.visible&&!reducedStars)starTime.value+=dt;
         u.sunLat.value=solarDeclDeg(st.month);
         if(st.dayNight&&st.dnPlay&&!ptrDown&&!tr){ // 낮과 밤: 태양 경도(sunLon)를 흘려보내 명암 경계선(터미네이터)이 지표를 가로질러 이동.
           // 지구본도 이제 지구를 자전시키지 않고 sunLon만 이동 → 그림자가 표면에 붙어 함께 도는 게 아니라 표면 위를 따로 지나감(요청 #3).
@@ -833,7 +844,7 @@ export default function GlobeLab(){
   return (
     <div id="app" className={'gl-app'+(gameActive?' game-active':'')}>
       {gameWipe&&<div className="gg-wipe" aria-hidden="true"/>}
-      {gameActive&&gamePools&&<GeoGame pools={gamePools} onTarget={gameTarget} onExit={exitGame}/>}
+      {gameActive&&gamePools&&<GeoGame pools={gamePools} onTarget={gameTarget} onExit={exitGame} onFinish={mode=>api.current.finishGame?.(mode)}/>}
       <div className="topbar">
         <a className="home-fab" href="/" title="parcyun studio 홈으로" aria-label="홈으로"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
         <div className="title-wrap"><div className="kicker">{T.kicker}</div><div className="title">{T.title}<span className="en">{T.subtitle}</span></div></div>

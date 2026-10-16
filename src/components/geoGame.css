@@ -2,6 +2,7 @@
 .gg-menu{max-height:calc(100dvh - 120px);overflow:auto}.gg-menu .gg-record{display:block;font-size:10px;line-height:1.5;margin-top:5px;font-weight:400;opacity:.8}.gg-score>small{display:block;margin:7px 0 0;color:#bec4ce}
 .gl-app.game-active>.topbar,.gl-app.game-active>.tools-fixed,.gl-app.game-active>.right-stack,.gl-app.game-active>.projseg,.gl-app.game-active>.controls,.gl-app.game-active>.hint,.gl-app.game-active>.daynight-ctl,.gl-app.game-active>.watermark,.gl-app.game-active .gl-labels{display:none}
 body:has(.game-active) .ps-share-fab,body:has(.game-active) #ps-share-widget,body:has(.game-active) .ps-visitor-counter{display:none!important}
+body:has(.game-active) #visitor-stats{display:none!important}
 .geo-game{position:absolute;inset:0;z-index:40;pointer-events:none;color:#fff;--gg-surface:rgba(16,19,25,.94)}
 .geo-game button,.geo-game input{font:inherit;box-sizing:border-box}.geo-game button{cursor:pointer}.geo-game button:disabled{opacity:.45;cursor:default}.geo-game button:focus-visible,.geo-game a:focus-visible{outline:2px solid #ffb11a;outline-offset:4px}
 .gg-menu{position:absolute;left:24px;top:28px;width:236px;padding:24px;background:var(--gg-surface);border:1px solid #2a2f3a;border-radius:20px;pointer-events:auto;box-sizing:border-box}

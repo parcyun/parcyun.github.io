@@ -11,6 +11,11 @@ test('question pools contain unique, answerable and located entries',()=>{
   for(const q of pool){assert.ok(matchesAnswer(q.name,q));if(mode!=='flag')assert.ok(q.coordinates.every(Number.isFinite),q.name);}
  }
  for(const q of pools.flag)assert.ok(existsSync(new URL(`../public${q.country.flag}`,import.meta.url)));
+ for(const q of pools.nature){
+  assert.ok(q.image?.startsWith('https://'),`${q.name} photo`);
+  assert.ok(q.source?.startsWith('https://commons.wikimedia.org/wiki/File:'),`${q.name} source`);
+  assert.ok(q.author&&q.license&&q.licenseUrl,`${q.name} attribution`);
+ }
 });
 test('answers normalize spacing/case but do not accept partial guesses',()=>{
  assert.ok(matchesAnswer(' EIFFEL-TOWER ',{answers:['Eiffel Tower']}));

@@ -1,6 +1,7 @@
 import { COUNTRIES, COUNTRY_ALIASES } from './globeCountries.js';
 import { geoCentroid } from 'd3-geo';
 import additionalLandmarks from './geoGameLandmarks.json' with { type: 'json' };
+import naturePhotos from './geoGameNaturePhotos.json' with { type: 'json' };
 import '../../public/spell-drill/scoring.js';
 
 export const scoring = globalThis.SpellScoring;
@@ -58,7 +59,7 @@ export function buildGamePools(world, landforms) {
     if(!groups.has(id))groups.set(id,{id,name:nameKo,category,answers:[nameKo,nameEn],features:[]});
     groups.get(id).features.push(feature);
   }
-  const nature=[...groups.values()].map(q=>({...q,coordinates:geoCentroid({type:'FeatureCollection',features:q.features})}));
+  const nature=[...groups.values()].map(q=>({...q,...naturePhotos[q.id],coordinates:geoCentroid({type:'FeatureCollection',features:q.features})}));
   return {country:countries,'capital-easy':capitals,'capital-hard':capitals,
     flag:COUNTRIES.map(country=>({id:country.iso2,country,name:country.name.ko,answers:[country.name.ko,country.name.en,country.officialName.ko,country.officialName.en,...(COUNTRY_ALIASES[country.iso2]||[])]})),
     nature,landmark:LANDMARKS.map(q=>({...q,coordinates:boundaries.has(q.country.boundaryName)?geoCentroid(boundaries.get(q.country.boundaryName)):q.country.coordinates})),

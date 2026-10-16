@@ -596,8 +596,8 @@ export default function GlobeLab(){
           if(v==='lens') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom/STE,VIEW.lens.zmin,VIEW.lens.zmax);
           else if(v==='globe') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom,VIEW.globe.zmin,VIEW.globe.zmax); // 지구본 월드스케일=1
           else toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom*cosLat/MS,flatSafeZmin(),VIEW.flat.zmax); }        // 평면 월드스케일=MS/cos
-        if(S.current.game&&S.current.gameMode==='landmark'&&v==='globe'){
-          const shift=.48*(mount.clientWidth/mount.clientHeight)/toZoomv;
+        if(S.current.game&&['landmark','nature'].includes(S.current.gameMode)&&v==='globe'){
+          const shift=(S.current.gameMode==='nature' ? -.48 : .48)*(mount.clientWidth/mount.clientHeight)/toZoomv;
           toTgt.x=shift;toPos.x=shift;
         }
         tr={t:0,dur:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? .01 : 0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:fromRotY,rotX:fromRotX,lon0:fromLon0,lat0:fromLat0,lonC:fromLonC,zoom:camera.zoom,pos:camera.position.clone(),tgt:controls.target.clone()},

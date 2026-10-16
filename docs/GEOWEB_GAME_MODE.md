@@ -10,7 +10,7 @@
 - Lobby lists six games and each browser-local best score with time to attain that score. Selecting a game slides the menu left. The playing header contains only GEOWEB PLAY and game title.
 - End game shows the current round result and returns to game selection. The separate bottom-right exit restores map exploration settings.
 - Country prompt above the input is intentionally absent. Country info in easy capitals shares its width with the score card. Score/answer notices clear after 2.2 seconds.
-- Landmarks center the selected country on the left and show its photograph on the right.
+- Landmarks center the selected country on the left and show its photograph on the right. Nature questions center the highlighted landform on the right and show a sourced representative photograph on the left. All 52 natural-landform entries have Commons author/license/source metadata; if a photo fails, the map question remains answerable.
 
 ## Data and scoring
 

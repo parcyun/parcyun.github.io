@@ -37,7 +37,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     locked.current=true;setBusy(true);setLeaving(false);setAnswer('');setMediaError(false);setMediaReady(false);setQuestion(next);
     onTarget(next,activeMode);
     const token=serial.current;
-    if(activeMode!=='flag'&&activeMode!=='landmark')later(()=>{if(serial.current===token)ready();},reduced()?60:850);
+    if(!['flag','landmark','nature'].includes(activeMode)||(activeMode==='nature'&&!next.image))later(()=>{if(serial.current===token)ready();},reduced()?60:850);
   }
   useEffect(()=>{
     if(!playing)return;
@@ -60,12 +60,13 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     });
   }
   useEffect(()=>{
-    if(!playing||summary||!question || !['flag','landmark'].includes(mode))return;
-    // A failed/slow photo never starts the speed clock or blocks skipping.
-    const timer=setTimeout(()=>{if(!mediaReady){setMediaError(true);setBusy(false);}},12000);
+    if(!playing||summary||!question?.image||mediaError||!['flag','landmark','nature'].includes(mode))return;
+    // Nature stays answerable from the map when its representative photo fails.
+    const timer=setTimeout(()=>{if(!mediaReady)mediaFailed();},12000);
     return()=>clearTimeout(timer);
-  },[question,mode,mediaReady,playing,summary]);
-  function mediaLoaded(){if(summary||!playing||leaving)return;const token=serial.current;setMediaReady(true);setMediaError(false);later(()=>{if(token===serial.current)ready();},reduced()?0:450);}
+  },[question,mode,mediaReady,mediaError,playing,summary]);
+  function mediaFailed(){setMediaError(true);if(mode==='nature'){const token=serial.current;later(()=>{if(token===serial.current)ready();},reduced()?60:850);}else setBusy(false);}
+  function mediaLoaded(){if(summary||!playing||leaving||mediaError)return;const token=serial.current;setMediaReady(true);later(()=>{if(token===serial.current)ready();},reduced()?0:450);}
   function advance(message){
     locked.current=true;setBusy(true);setLeaving(true);setResult(message);setAnswer('');
     later(()=>{if(message.skipped)setResult(null);nextQuestion();},practice?reduced()?80:420:message.skipped?1400:reduced()?80:420);
@@ -114,18 +115,18 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     </div>
     {mode==='capital-easy'&&question&&<aside className="gg-country" aria-label="국가 정보"><img src={question.country.flag} alt=""/><h2>{question.country.name.ko}</h2><p>{question.country.officialName.ko}</p><p>{question.country.continent} · 인구 {question.country.population.toLocaleString()}명</p>{!practice&&<small>수도는 직접 떠올려 보세요.</small>}</aside>}
     </div>}
-    {question&&['flag','landmark'].includes(mode)&&<figure key={`${mode}-${question.id}`} className={`gg-media ${mode==='flag'?'gg-flag':'gg-landmark'} ${leaving?'gg-leaving':''} ${!mediaReady&&!mediaError?'gg-loading':''}`}>
-      <img src={mode==='flag'?question.country.flag:question.image} alt={mode==='flag'?'맞혀야 할 국기':'이름을 맞혀야 할 랜드마크 사진'} onLoad={mediaLoaded} onError={()=>{setMediaError(true);setBusy(false);}}/>
-      {mediaError&&<div className="gg-media-error">사진을 불러오지 못했어요.<button onClick={skip}>다음 문제로</button></div>}
-      {mode==='landmark'&&<figcaption>사진: {question.author} · <a href={question.licenseUrl} target="_blank" rel="noreferrer">{question.license}</a> · <a href={question.source} target="_blank" rel="noreferrer">원본</a></figcaption>}
+    {question&&['flag','landmark','nature'].includes(mode)&&(mode!=='nature'||question.image)&&<figure key={`${mode}-${question.id}`} className={`gg-media ${mode==='flag'?'gg-flag':mode==='landmark'?'gg-landmark':'gg-nature'} ${leaving?'gg-leaving':''} ${!mediaReady&&!mediaError?'gg-loading':''}`}>
+      <img src={mode==='flag'?question.country.flag:question.image} alt={mode==='flag'?'맞혀야 할 국기':mode==='nature'?'이름을 맞혀야 할 자연환경의 대표 사진':'이름을 맞혀야 할 랜드마크 사진'} onLoad={mediaLoaded} onError={mediaFailed}/>
+      {mediaError&&<div className="gg-media-error">사진을 불러오지 못했어요.{mode==='nature'?' 지도만 보고 풀어 보세요.':<button onClick={skip}>다음 문제로</button>}</div>}
+      {mode!=='flag'&&<figcaption>{mode==='nature'?'대표 사진':'사진'}: {question.author} · <a href={question.licenseUrl} target="_blank" rel="noreferrer">{question.license}</a> · <a href={question.source} target="_blank" rel="noreferrer">원본</a></figcaption>}
     </figure>}
     {practice&&question&&<div className="gg-practice-answer" role="status">{question.name}</div>}
     <div className="gg-answer">
       {!practice&&<div className="gg-feedback" role="status" aria-live="polite">{result&&!result.skipped&&!result.gain&&<span>{result.text}</span>}</div>}
       {!practice&&mode!=='country'&&<label htmlFor="gg-input">{config.prompt}</label>}
       {!practice&&<form onSubmit={submit}>
-        <input ref={input} id="gg-input" aria-label={config.label} value={answer} onChange={e=>setAnswer(e.target.value)} onCompositionStart={()=>{composing.current=true;}} onCompositionEnd={()=>{composing.current=false;}} onKeyDown={e=>{if(e.key==='Enter'&&e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();if(!e.repeat&&!composing.current&&!e.nativeEvent.isComposing&&e.nativeEvent.keyCode!==229)skip();return;}if(e.key==='Enter'&&(e.nativeEvent.isComposing||e.nativeEvent.keyCode===229))e.preventDefault();}} placeholder={busy?'지도를 살펴보세요…':`${config.label} 입력`} autoComplete="off" spellCheck={false} readOnly={busy||mediaError||summary}/>
-        <button type="submit" disabled={busy||mediaError||summary||!answer.trim()}><span>확인</span><small>ENTER</small></button>
+        <input ref={input} id="gg-input" aria-label={config.label} value={answer} onChange={e=>setAnswer(e.target.value)} onCompositionStart={()=>{composing.current=true;}} onCompositionEnd={()=>{composing.current=false;}} onKeyDown={e=>{if(e.key==='Enter'&&e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();if(!e.repeat&&!composing.current&&!e.nativeEvent.isComposing&&e.nativeEvent.keyCode!==229)skip();return;}if(e.key==='Enter'&&(e.nativeEvent.isComposing||e.nativeEvent.keyCode===229))e.preventDefault();}} placeholder={busy?'지도를 살펴보세요…':`${config.label} 입력`} autoComplete="off" spellCheck={false} readOnly={busy||(mediaError&&mode!=='nature')||summary}/>
+        <button type="submit" disabled={busy||(mediaError&&mode!=='nature')||summary||!answer.trim()}><span>확인</span><small>ENTER</small></button>
         <button type="button" className="gg-skip" disabled={(busy&&!mediaError)||summary} onClick={skip}><span>넘기기</span><small>SHIFT+ENTER</small></button>
       </form>}
       {practice&&<button ref={nextButton} type="button" className="gg-practice-next" disabled={(busy&&!mediaError)||summary} onClick={skip} onKeyDown={e=>{if(e.key==='Enter'&&e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();if(!e.repeat)skip();}}}><span>넘기기</span><small>SHIFT+ENTER</small></button>}

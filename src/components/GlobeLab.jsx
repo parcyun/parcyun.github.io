@@ -1,4 +1,6 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import GeoGame from './GeoGame.jsx';
+import { buildGamePools } from './geoGameData.js';
 import * as THREE from 'three';
 import { countryInfo } from './globeCountryData.js';
 import { countryByBoundaryName, formatPopulation, searchCountryMatches, SYSTEM_EXPLANATIONS, SYSTEM_LABELS } from './globeCountries.js';
@@ -75,7 +77,7 @@ function paintClimate(ctx,climateImage,activeZones){
   }
   scratchCtx.putImageData(data,0,0);ctx.drawImage(scratch,0,0);
 }
-function paintLandforms(ctx,landforms,activeLayers){
+function paintLandforms(ctx,landforms,activeLayers,showLabels=true){
   if(!landforms?.features)return;
   const path=geoPath(projFor(ctx),ctx);
   // 범주형 학습 레이어: 같은 지형 범주의 색은 전 세계에서 같고, 여러 범주가 켜지면 70% 불투명도로 겹친다.
@@ -91,6 +93,7 @@ function paintLandforms(ctx,landforms,activeLayers){
     }
     ctx.restore();
   }
+  if(!showLabels)return;
   const labels=new Map();
   for(const feature of landforms.features){
     if(!activeLayers?.[feature.properties.category])continue;
@@ -301,6 +304,8 @@ function DraggablePanel({corner,onDock,otherCorner,className,children,collapsed,
 
 export default function GlobeLab(){
   const mountRef=useRef(null),labelRef=useRef(null),api=useRef({});
+  const [gameActive,setGameActive]=useState(false),[gameWipe,setGameWipe]=useState(false),[gamePools,setGamePools]=useState(null);
+  const gameSnapshot=useRef(null),gameTimers=useRef([]);
   const S=useRef({view:'flat',country:false,dayNight:false,dnPlay:true,month:6,grat:true,eq:true,prime:true,dateline:true,step:20,sunLon:-90,climate:false,climateZones:ALL_CLIMATE_SELECTION,terrain:false,terrainLayers:EMPTY_LANDFORM_SELECTION});
   const [view,setView]=useState('flat');
   const [country,setCountry]=useState(false),[dayNight,setDayNight]=useState(false),[dnPlay,setDnPlay]=useState(true),[month,setMonth]=useState(6);
@@ -329,6 +334,19 @@ export default function GlobeLab(){
   const [searchResults,setSearchResults]=useState([]);
   const [selectedCountry,setSelectedCountry]=useState(null);
   const [systemPopover,setSystemPopover]=useState(null);
+  useEffect(()=>()=>gameTimers.current.forEach(clearTimeout),[]);
+  const gameTarget=useCallback((question,mode)=>api.current.gameTarget?.(question,mode),[]);
+  const enterGame=()=>{
+    if(!gamePools||gameWipe)return;
+    gameSnapshot.current={...S.current};setGuide(false);setUpdateStory(false);setGameWipe(true);
+    const delay=window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:320;
+    gameTimers.current.push(setTimeout(()=>{S.current.game=true;setGameActive(true);},delay));
+    gameTimers.current.push(setTimeout(()=>setGameWipe(false),delay?680:0));
+  };
+  const exitGame=()=>{
+    if(gameSnapshot.current){Object.assign(S.current,gameSnapshot.current,{game:false,gameQuestion:null});api.current.restoreGame?.();}
+    setGameActive(false);setTimeout(()=>document.querySelector('.game-entry')?.focus(),0);
+  };
 
   useEffect(()=>{Object.assign(S.current,{view,country,dayNight,dnPlay,month,grat,eq,prime,dateline,step:Math.max(5,Math.min(90,+step||20))});},[view,country,dayNight,dnPlay,month,grat,eq,prime,dateline,step]); // 간격 5–90 클램프(원본과 동일)
   useEffect(()=>{api.current.goView&&api.current.goView(view);},[view]);
@@ -383,6 +401,8 @@ export default function GlobeLab(){
 
       setStatus('지형 데이터 로딩…');
       const [world,oceans,oceansFill,climateImage,landforms]=await Promise.all([fetch('/lab-data/world.json').then(r=>r.json()),fetch('/lab-data/oceans.json').then(r=>r.json()),fetch('/lab-data/oceans-fill.json').then(r=>r.json()).catch(()=>({})),loadTileImg(CLIMATE_TEXTURE_URL),fetch(LANDFORM_DATA_URL).then(r=>r.json())]);
+      if(disposed)return;
+      const gameData=buildGamePools(world,landforms);
       if(disposed)return;
       const vDay=buildBase({world,night:false}),vNight=buildBase({world,night:true});
       const U={morph:{value:VIEW.flat.morph},lens:{value:VIEW.flat.lens},uRotY:{value:VIEW.flat.rotY},uRotX:{value:0},uLon0:{value:0},uLat0:{value:0},uLonC:{value:0}}; // uLonC=메르카토 중앙자오선(rad, seam=uLonC+π)
@@ -519,6 +539,7 @@ export default function GlobeLab(){
       const oceanLblEls=[]; // 대양 라벨 활성/딤 상태용(원본 .ocean-label.active/.dim)
       // 같은 CanvasTexture를 다시 그려 GPU 텍스처 교체 때 생기던 빈 프레임(화면 깜빡임)을 없앤다.
       const applySel=(s)=>{buildOverlay({sel:s,world,oceans,oceansFill,climate:S.current.climate,climateImage,climateZones:S.current.climateZones,terrain:S.current.terrain,terrainLayers:S.current.terrainLayers,landforms,targetTexture:overlayTex});
+        if(S.current.gameQuestion?.features){const q=S.current.gameQuestion;paintLandforms(overlayTex.image.getContext('2d'),{features:q.features},{[q.category]:true},false);overlayTex.needsUpdate=true;}
         const oc=!!s&&s.type==='ocean';
         for(const {el,o} of oceanLblEls){el.classList.toggle('active',oc&&o===s.key);el.classList.toggle('dim',oc&&o!==s.key);}};
       const centerLonRad=()=>U.lens.value>0.5?U.uLon0.value:(U.morph.value>0.5?controls.target.x/MS:-Math.PI/2-U.uRotY.value);
@@ -551,7 +572,9 @@ export default function GlobeLab(){
         //   보이는 상태로 전환될 땐 회전을 유지. 구는 morph=1(평면)·lens=1(렌즈)일 때 안 보이고, 렌즈 st는 lens=0일 때 안 보임.
         let fromRotY=U.uRotY.value,fromRotX=U.uRotX.value,fromLon0=U.uLon0.value,fromLat0=U.uLat0.value;
         let toRotY,toRotXv,toLon0,toLat0,toTgt,toPos;
-        if(v==='globe'){ toRotY=-Math.PI/2-clR;toRotXv=claR;fromRotY=toRotY;fromRotX=toRotXv; // 구 방향 즉시(시작 시 안 보임)→회전 없이 펼쳐짐
+        if(v==='globe'){ toRotY=-Math.PI/2-clR;toRotXv=claR;
+          if(m>.5||l>.5){fromRotY=toRotY;fromRotX=toRotXv;}
+          else{toRotY=fromRotY+Math.atan2(Math.sin(toRotY-fromRotY),Math.cos(toRotY-fromRotY));}
           toLon0=fromLon0;toLat0=fromLat0;toTgt=new THREE.Vector3(0,0,0);toPos=new THREE.Vector3(0,0,10);}
         else if(v==='lens'){ toLon0=clR;toLat0=claR;fromLon0=toLon0;fromLat0=toLat0; // 렌즈 중심 즉시(시작 시 lens=0)
           toRotY=fromRotY;toRotXv=fromRotX;toTgt=new THREE.Vector3(0,0,0);toPos=new THREE.Vector3(0,0,10);} // 구 회전 유지(구→렌즈 스핀 방지)
@@ -569,7 +592,11 @@ export default function GlobeLab(){
           if(v==='lens') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom/STE,VIEW.lens.zmin,VIEW.lens.zmax);
           else if(v==='globe') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom,VIEW.globe.zmin,VIEW.globe.zmax); // 지구본 월드스케일=1
           else toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom*cosLat/MS,flatSafeZmin(),VIEW.flat.zmax); }        // 평면 월드스케일=MS/cos
-        tr={t:0,dur:0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:fromRotY,rotX:fromRotX,lon0:fromLon0,lat0:fromLat0,lonC:fromLonC,zoom:camera.zoom,pos:camera.position.clone(),tgt:controls.target.clone()},
+        if(S.current.game&&S.current.gameMode==='landmark'&&v==='globe'){
+          const shift=.48*(mount.clientWidth/mount.clientHeight)/toZoomv;
+          toTgt.x=shift;toPos.x=shift;
+        }
+        tr={t:0,dur:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? .01 : 0.72,v,from:{morph:U.morph.value,lens:U.lens.value,rotY:fromRotY,rotX:fromRotX,lon0:fromLon0,lat0:fromLat0,lonC:fromLonC,zoom:camera.zoom,pos:camera.position.clone(),tgt:controls.target.clone()},
           to:{morph:to.morph,lens:to.lens,rotY:toRotY,rotX:toRotXv,lon0:toLon0,lat0:toLat0,lonC:toLonC,zoom:toZoomv,pos:toPos,tgt:toTgt}};controls.enabled=false;}; // uLonC를 fromLonC→toLonC 최단호로 애니메이션(seam이 카메라 반대편을 따라 이동), patch가 매 프레임 동기화되어 항상 안 보임
       const settleView=(v)=>{const p=VIEW[v];controls.enabled=true;controls.enableRotate=p.rotate;controls.enablePan=p.pan;controls.minZoom=v==='flat'?flatSafeZmin():p.zmin;controls.maxZoom=p.zmax;
         if(v==='globe'){controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};}
@@ -625,6 +652,15 @@ export default function GlobeLab(){
         pickContinent:(k)=>setSel(sameSel(S.current.sel,{type:'continent',key:k})?null:{type:'continent',key:k}),
         pickOcean:(k)=>setSel(sameSel(S.current.sel,{type:'ocean',key:k})?null:{type:'ocean',key:k}),
         focusCountry:(nextCountry)=>{S.current.focusReq={lon:nextCountry.coordinates[0],lat:nextCountry.coordinates[1]};goView(S.current.view);}};
+      api.current.gameTarget=(question,mode)=>{
+        Object.assign(S.current,{game:true,gameMode:mode,gameQuestion:question,view:'globe',grat:false,eq:false,prime:false,dateline:false,climate:false,terrain:false,trueSize:false,sat:false,northUp:false,dayNight:mode==='flag',dnPlay:true});
+        const feature=question.country&&world.features.find(f=>f.properties.n===question.country.boundaryName);
+        const gameSel=mode==='flag'||question.features?null:feature?{type:'country',name:feature.properties.n,key:feature.properties.c}:null;
+        applyGrid();removeGhost();applySat(false);onDN(mode==='flag');applySel(gameSel);
+        const coordinates=question.coordinates||[0,20];S.current.focusReq={lon:coordinates[0],lat:coordinates[1]};goView('globe');
+      };
+      api.current.restoreGame=()=>{applyGrid();applySat(S.current.sat);onDN(S.current.dayNight);applySel(S.current.sel);goView(S.current.view);refreshTrueSize();};
+      setGamePools(gameData);
       applyGrid();settleView('flat');
 
       const labels={};
@@ -674,7 +710,7 @@ export default function GlobeLab(){
           sph.theta-=e.deltaX*0.005;sph.phi=THREE.MathUtils.clamp(sph.phi+e.deltaY*0.005,0.05,Math.PI-0.05); // 정북 고정이어도 세로 이동 허용(uRotX=0이라 북극은 계속 화면 위)
           camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(sph));camera.lookAt(controls.target);}
       },{passive:false,capture:true});
-      dom.addEventListener('pointerup',e=>{if(!downXY)return;const mv=Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1]);downXY=null;if(mv>6||tr)return;
+      dom.addEventListener('pointerup',e=>{if(!downXY)return;const mv=Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1]);downXY=null;if(mv>6||tr||S.current.game)return;
         const rect=dom.getBoundingClientRect();ptr.x=((e.clientX-rect.left)/rect.width)*2-1;ptr.y=-((e.clientY-rect.top)/rect.height)*2+1;ray.setFromCamera(ptr,camera);const v=S.current.view;let lon,lat;
         if(v==='globe'){const hit=ray.ray.intersectSphere(unit,new THREE.Vector3());if(!hit)return;[lon,lat]=vec3ToLonLat(rotY(rotX(hit,-U.uRotX.value),-U.uRotY.value));}
         else if(v==='flat'){const hit=ray.ray.intersectPlane(plane0,new THREE.Vector3());if(!hit)return;lon=R2D*(hit.x/MS);lat=R2D*(2*Math.atan(Math.exp(hit.y/MS))-Math.PI/2);lon=((lon+180)%360+360)%360-180;if(Math.abs(lat)>85)return;}
@@ -791,7 +827,9 @@ export default function GlobeLab(){
   }
 
   return (
-    <div id="app" className="gl-app">
+    <div id="app" className={'gl-app'+(gameActive?' game-active':'')}>
+      {gameWipe&&<div className="gg-wipe" aria-hidden="true"/>}
+      {gameActive&&gamePools&&<GeoGame pools={gamePools} onTarget={gameTarget} onExit={exitGame}/>}
       <div className="topbar">
         <a className="home-fab" href="/" title="parcyun studio 홈으로" aria-label="홈으로"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
         <div className="title-wrap"><div className="kicker">{T.kicker}</div><div className="title">{T.title}<span className="en">{T.subtitle}</span></div></div>
@@ -909,6 +947,7 @@ export default function GlobeLab(){
       </div>
       <div className={'controls'+(guide?' guide-lift':'')}>
         {view==='globe' && <button className={'ctrl northup'+(northUp?' on':'')} aria-label={T.northUp} title={T.northUp} onClick={()=>setNorthUp(v=>!v)}><span key={northUp?'on':'off'} className="nu-glyph">N</span></button>}
+        <button className="ctrl game-entry" disabled={!gamePools||gameWipe} onClick={enterGame}>게임 모드</button>
         <button className="ctrl" aria-label={T.zoomIn} onClick={()=>api.current.dolly&&api.current.dolly(0.8)}>+</button>
         <button className="ctrl" aria-label={T.zoomOut} onClick={()=>api.current.dolly&&api.current.dolly(1.25)}>−</button>
         <button className="ctrl home" aria-label={T.home} onClick={()=>{setSel(null);S.current.homeReq=true;if(view==='flat')api.current.goView&&api.current.goView('flat');else setView('flat');}}>⟳</button>
@@ -938,6 +977,7 @@ export default function GlobeLab(){
           <button onClick={closeUpdateStory}>시작하기</button>
           <button className="update-history-toggle" aria-expanded={showUpdateHistory} onClick={()=>setShowUpdateHistory(value=>!value)}>업데이트 내역 보기 <span>{showUpdateHistory?'−':'+'}</span></button>
           <div className={'update-history'+(showUpdateHistory?' open':'')}>
+            <div><b>2026.10</b><p>나라·수도·국기·자연환경·랜드마크를 맞히는 6가지 게임을 추가했어요. 정답을 이어 가며 스펠 드릴과 같은 콤보·속도 점수를 쌓아 보세요.</p></div>
             <div><b>2026.09</b><p>지형마다 이름을 표시하고, 고원·평원·사막의 대표 범위를 넓혔어요. 기후대도 각각 켜고 끌 수 있어요.</p></div>
             <div><b>2026.09</b><p>주요 강·산맥·고원·평원·사막을 선택해 함께 볼 수 있는 지형 레이어를 추가했어요.</p></div>
             <div><b>2026.09</b><p>열대·온대·냉대·한대·건조·고산 기후를 비교하는 학습용 레이어와 범례를 추가했어요.</p></div>

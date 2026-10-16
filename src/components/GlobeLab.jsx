@@ -991,7 +991,7 @@ export default function GlobeLab(){
         </div>
       </div>}
       {/* 푸터/공유/방문자/커피는 공용 컴포넌트(PsFooter.astro + share-widget.js + visitor-counter.js)를 world-map.astro에서 렌더 */}
-      {/* #13 가이드 리워크: 모달 대신 옅은 쉐이드로 화면을 덮되 도구 상자는 덮지 않고, 각 기능 옆에 한 줄 설명 */}
+      {/* 가이드 설명은 지도 도구와 공용 플로팅 UI보다 위에 표시한다. */}
       {guide && <div className="guide-shade" onClick={()=>setGuide(false)}>
         <div className="gtip gtip-tools">{T.gTools}</div>
         <div className="gtip gtip-proj">{T.gProj}</div>
@@ -1127,8 +1127,9 @@ export default function GlobeLab(){
         .info .kr{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:2px 0 10px}.info .fact{font-size:13px;line-height:1.6;color:#C5CAD4;font-weight:300}
         .hint{position:absolute;bottom:54px;left:50%;transform:translateX(-50%);z-index:25;font-size:11px;color:var(--text-2);font-weight:300;text-align:center;background:rgba(4,6,11,.5);padding:6px 14px;border-radius:9999px;transition:opacity .4s}
         .hint.off{opacity:0;pointer-events:none}
-        /* #13 가이드 쉐이드: 화면을 옅게 덮되 도구 상자(.guide-lift, z55)는 위로 띄워 안 덮음. 팁은 쉐이드 위(z51). */
-        .guide-shade{position:fixed;inset:0;z-index:50;background:rgba(4,6,11,.72);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);animation:guideIn .3s var(--ease);cursor:pointer}
+        /* Intro stacking context must also cover the shared share button (z9990). */
+        .gl-app:has(.update-story),.gl-app:has(.guide-shade){z-index:10000}
+        .guide-shade{position:fixed;inset:0;z-index:60;background:rgba(4,6,11,.72);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);animation:guideIn .3s var(--ease);cursor:pointer}
         /* #1 가이드: 도구·대륙대양·도법·컨트롤 상자 전부 쉐이드 위로(안 덮음), 나머지 영역만 어둡게 */
         .tools-fixed.guide-lift,.right-stack.guide-lift,.projseg.guide-lift,.controls.guide-lift{z-index:55}
         .gtip{position:absolute;z-index:51;font-size:12.5px;line-height:1.5;color:#EAECF0;font-weight:400;text-shadow:0 1px 6px rgba(0,0,0,.9);max-width:230px}

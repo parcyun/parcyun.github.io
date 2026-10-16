@@ -5,6 +5,14 @@ import { GEOWEB_UPDATE_VERSION, hasSeenGeoUpdate, markGeoUpdateSeen } from '../s
 
 const source = () => readFile(new URL('../src/components/GlobeLab.jsx', import.meta.url), 'utf8');
 
+test('Intro layers cover map controls and shared floating UI', async () => {
+  const globe = await source();
+  assert.match(globe, /\.gl-app:has\(\.update-story\),\.gl-app:has\(\.guide-shade\)\{z-index:10000\}/);
+  const shade = Number(globe.match(/\.guide-shade\{[^}]*z-index:(\d+)/)[1]);
+  const controls = Number(globe.match(/\.controls\.guide-lift\{z-index:(\d+)/)[1]);
+  assert.ok(shade > controls);
+});
+
 test('GeoWeb update story is versioned and safely persisted', () => {
   assert.equal(GEOWEB_UPDATE_VERSION, '2026-09-defaults-patagonia-v1');
   const values = new Map();

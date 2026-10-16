@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
-import {buildGamePools,LANDMARKS,matchesAnswer,scoreAnswer,scoring,shuffledDeck} from '../src/components/geoGameData.js';
+import {buildGamePools,LANDMARKS,matchesAnswer,normalizeAnswer,scoreAnswer,scoring,shuffledDeck} from '../src/components/geoGameData.js';
 import {readRecords,updateRecord,formatTime} from '../src/components/geoGameRecords.js';
 const pools=buildGamePools(JSON.parse(readFileSync(new URL('../public/lab-data/world.json',import.meta.url))),JSON.parse(readFileSync(new URL('../public/lab-data/geoweb-landforms.json',import.meta.url))));
 test('question pools contain unique, answerable and located entries',()=>{
@@ -21,6 +21,26 @@ test('answers normalize spacing/case but do not accept partial guesses',()=>{
  assert.ok(matchesAnswer(' EIFFEL-TOWER ',{answers:['Eiffel Tower']}));
  assert.ok(!matchesAnswer('Tower',{answers:['Eiffel Tower']}));
  assert.ok(!matchesAnswer('',{answers:['Eiffel Tower']}));
+});
+test('country and flag games accept unambiguous common names and abbreviations without spaces',()=>{
+ for(const mode of ['country','flag']){
+  const byId=new Map(pools[mode].map(q=>[q.id,q]));
+  for(const [id,answers] of Object.entries({CD:['민주 콩고','DR 콩고','DRC'],CF:['중앙 아공'],ZA:['남 아 공'],SA:['사 우 디'],TR:['튀르키예'],AU:['오스트레일리아']})){
+   for(const answer of answers)assert.ok(matchesAnswer(answer,byId.get(id)),`${mode} ${id}: ${answer}`);
+  }
+  for(const question of pools[mode]){
+   assert.ok(matchesAnswer(question.country.iso2,question));
+   assert.ok(matchesAnswer(question.country.iso3,question));
+  }
+  assert.ok(!matchesAnswer('두바이',byId.get('AE')));
+  assert.ok(!matchesAnswer('콩고',byId.get('CD')));
+  const owners=new Map();
+  for(const question of pools[mode])for(const answer of question.answers){
+   const normalized=normalizeAnswer(answer);
+   assert.ok(!owners.has(normalized)||owners.get(normalized)===question.id,`${mode}: ${answer} is ambiguous`);
+   owners.set(normalized,question.id);
+  }
+ }
 });
 test('score uses shared Spell Drill formula and speed thresholds',()=>{
  for(const tier of ['easy','med','hard'])for(const comboCount of [1,3,6,9,12,15]){

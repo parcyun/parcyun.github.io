@@ -46,7 +46,7 @@ export function buildGamePools(world, landforms) {
   const countries=COUNTRIES.filter(c=>boundaries.has(c.boundaryName)).map(country=>({
     id:country.iso2, country, name:country.name.ko,
     coordinates:geoCentroid(boundaries.get(country.boundaryName)),
-    answers:[country.name.ko,country.name.en,country.officialName.ko,country.officialName.en,...(COUNTRY_ALIASES[country.iso2]||[])],
+    answers:[country.name.ko,country.name.en,country.officialName.ko,country.officialName.en,country.iso2,country.iso3,...(COUNTRY_ALIASES[country.iso2]||[])],
   }));
   const capitals=countries.filter(q=>q.country.capital.ko && q.country.capital.en).map(q=>({...q,
     name:q.country.capital.ko,answers:[q.country.capital.ko,q.country.capital.en,...(CAPITAL_ALIASES[q.id]||[])],
@@ -61,7 +61,7 @@ export function buildGamePools(world, landforms) {
   }
   const nature=[...groups.values()].map(q=>({...q,...naturePhotos[q.id],coordinates:geoCentroid({type:'FeatureCollection',features:q.features})}));
   return {country:countries,'capital-easy':capitals,'capital-hard':capitals,
-    flag:COUNTRIES.map(country=>({id:country.iso2,country,name:country.name.ko,answers:[country.name.ko,country.name.en,country.officialName.ko,country.officialName.en,...(COUNTRY_ALIASES[country.iso2]||[])]})),
+    flag:COUNTRIES.map(country=>({id:country.iso2,country,name:country.name.ko,answers:[country.name.ko,country.name.en,country.officialName.ko,country.officialName.en,country.iso2,country.iso3,...(COUNTRY_ALIASES[country.iso2]||[])]})),
     nature,landmark:LANDMARKS.map(q=>({...q,coordinates:boundaries.has(q.country.boundaryName)?geoCentroid(boundaries.get(q.country.boundaryName)):q.country.coordinates})),
   };
 }

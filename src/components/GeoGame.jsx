@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { GAME_MODES, matchesAnswer, scoreAnswer, scoring, shuffledDeck } from './geoGameData.js';
 import './geoGame.css';
+import GeoScoreEffect from './GeoScoreEffect.jsx';
 import { RECORD_KEY, readRecords, updateRecord, formatTime } from './geoGameRecords.js';
 
 export default function GeoGame({ pools, onTarget, onExit }) {
@@ -62,10 +63,10 @@ export default function GeoGame({ pools, onTarget, onExit }) {
     const timer=setTimeout(()=>{if(!mediaReady){setMediaError(true);setBusy(false);}},12000);
     return()=>clearTimeout(timer);
   },[question,mode,mediaReady,playing,summary]);
-  function mediaLoaded(){const token=serial.current;setMediaReady(true);setMediaError(false);later(()=>{if(token===serial.current)ready();},reduced()?0:350);}
+  function mediaLoaded(){if(summary||!playing||leaving)return;const token=serial.current;setMediaReady(true);setMediaError(false);later(()=>{if(token===serial.current)ready();},reduced()?0:450);}
   function advance(message){
     locked.current=true;setBusy(true);setLeaving(true);setResult(message);setAnswer('');
-    later(()=>nextQuestion(),reduced()?80:420);
+    later(()=>{if(message.skipped)setResult(null);nextQuestion();},message.skipped?1400:reduced()?80:420);
   }
   function submit(event){
     event.preventDefault();
@@ -75,7 +76,7 @@ export default function GeoGame({ pools, onTarget, onExit }) {
       const gain=scoreAnswer(answer,(performance.now()-started.current)/1000,config.tier,combo);
       recordScore(stats.score+gain.total);
       setStats(s=>({score:s.score+gain.total,combo,bestCombo:Math.max(combo,s.bestCombo),correct:s.correct+1,attempts:s.attempts+1}));
-      advance({good:true,text:`${question.name} · 정답!`,gain});
+      advance({good:true,text:`${question.name} · 정답!`,gain,combo,id:performance.now()});
     }else{
       setStats(s=>({...s,combo:0,attempts:s.attempts+1}));
       setResult({good:false,text:'다시 생각해 보세요. 콤보가 초기화됐어요.'});
@@ -84,7 +85,7 @@ export default function GeoGame({ pools, onTarget, onExit }) {
   }
   function skip(){
     if(leaving||(locked.current&&!mediaError)||summary)return;
-    setStats(s=>({...s,combo:0}));advance({good:false,text:`정답은 ${question.name}`});
+    setStats(s=>({...s,combo:0}));advance({good:false,skipped:true,text:question.name,id:performance.now()});
   }
   function finish(){cancelPending();locked.current=true;setSummary(true);}
   function returnToMenu(){setSummary(false);setPlaying(false);setQuestion(null);setFormula(false);later(()=>document.querySelector('.gg-menu nav button')?.focus(),0);}
@@ -100,6 +101,8 @@ export default function GeoGame({ pools, onTarget, onExit }) {
     </aside>
     {!summary&&<button className="gg-mode-exit" onClick={onExit}>게임모드 종료 ↗</button>}
     {playing&&<><header className="gg-play-title"><span>GEOWEB PLAY</span><h1>{config.title}</h1></header>
+    {!summary&&result?.gain&&<GeoScoreEffect key={result.id} gain={result.gain} combo={result.combo}/>}
+    {!summary&&result?.skipped&&<div key={result.id} className="gg-skip-answer" role="status">{result.text}</div>}
     <button className="gg-finish" disabled={summary} onClick={finish}>게임 마치기</button>
     <div className="gg-right-cards"><div className="gg-hud">
       <button className="gg-score" disabled={summary} onClick={()=>setFormula(v=>!v)} aria-expanded={formula} aria-controls="gg-formula"><span>SCORE ⓘ <small>{({easy:'초급',med:'중급',hard:'고급'})[config.tier]} · 기본 {scoring.baseScoreForDifficulty(config.tier)}점</small></span><strong>{stats.score.toLocaleString()}</strong><small>플레이 {formatTime(elapsed)}</small></button>
@@ -108,19 +111,19 @@ export default function GeoGame({ pools, onTarget, onExit }) {
     </div>
     {mode==='capital-easy'&&question&&<aside className="gg-country" aria-label="국가 정보"><img src={question.country.flag} alt=""/><h2>{question.country.name.ko}</h2><p>{question.country.officialName.ko}</p><p>{question.country.continent} · 인구 {question.country.population.toLocaleString()}명</p><small>수도는 직접 떠올려 보세요.</small></aside>}
     </div>
-    {question&&['flag','landmark'].includes(mode)&&<figure key={`${mode}-${question.id}`} className={`gg-media ${mode==='flag'?'gg-flag':'gg-landmark'} ${leaving?'gg-leaving':''}`}>
+    {question&&['flag','landmark'].includes(mode)&&<figure key={`${mode}-${question.id}`} className={`gg-media ${mode==='flag'?'gg-flag':'gg-landmark'} ${leaving?'gg-leaving':''} ${!mediaReady&&!mediaError?'gg-loading':''}`}>
       <img src={mode==='flag'?question.country.flag:question.image} alt={mode==='flag'?'맞혀야 할 국기':'이름을 맞혀야 할 랜드마크 사진'} onLoad={mediaLoaded} onError={()=>{setMediaError(true);setBusy(false);}}/>
       {mediaError&&<div className="gg-media-error">사진을 불러오지 못했어요.<button onClick={skip}>다음 문제로</button></div>}
       {mode==='landmark'&&<figcaption>사진: {question.author} · <a href={question.licenseUrl} target="_blank" rel="noreferrer">{question.license}</a> · <a href={question.source} target="_blank" rel="noreferrer">원본</a></figcaption>}
     </figure>}
     <div className="gg-answer">
-      <div className="gg-feedback" role="status" aria-live="polite">{result&&<span className={result.good?'gg-good':''}>{result.text}{result.gain&&<> <b>+{result.gain.total}</b><small>{result.gain.speedTag&&`${result.gain.speedTag} +${result.gain.speedBonus} · `}({result.gain.baseScore}+{result.gain.speedBonus}+{result.gain.comboBonus}) ×{result.gain.multiplier}</small></>}</span>}</div>
+      <div className="gg-feedback" role="status" aria-live="polite">{result&&!result.skipped&&!result.gain&&<span>{result.text}</span>}</div>
       {mode!=='country'&&<label htmlFor="gg-input">{config.prompt}</label>}
       <form onSubmit={submit}>
-        <input ref={input} id="gg-input" aria-label={config.label} value={answer} onChange={e=>setAnswer(e.target.value)} onCompositionStart={()=>{composing.current=true;}} onCompositionEnd={()=>{composing.current=false;}} onKeyDown={e=>{if(e.key==='Enter'&&(e.nativeEvent.isComposing||e.nativeEvent.keyCode===229))e.preventDefault();}} placeholder={busy?'지도를 살펴보세요…':`${config.label} 입력`} autoComplete="off" spellCheck={false} readOnly={busy||mediaError||summary}/>
+        <input ref={input} id="gg-input" aria-label={config.label} value={answer} onChange={e=>setAnswer(e.target.value)} onCompositionStart={()=>{composing.current=true;}} onCompositionEnd={()=>{composing.current=false;}} onKeyDown={e=>{if(e.key==='Tab'&&!e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();if(!e.repeat&&!composing.current)skip();return;}if(e.key==='Enter'&&(e.nativeEvent.isComposing||e.nativeEvent.keyCode===229))e.preventDefault();}} placeholder={busy?'지도를 살펴보세요…':`${config.label} 입력`} autoComplete="off" spellCheck={false} readOnly={busy||mediaError||summary}/>
         <button type="submit" disabled={busy||mediaError||summary||!answer.trim()}>확인 ↵</button>
         <button type="button" className="gg-skip" disabled={(busy&&!mediaError)||summary} onClick={skip}>넘기기</button>
-      </form><small>ENTER 정답 확인 · 맞히면 다음 문제로 이동해요</small>
+      </form><small>ENTER 정답 확인 · TAB 넘기기 · SHIFT+TAB 버튼 이동</small>
     </div>
     {summary&&<div className="gg-summary" role="dialog" aria-modal="true" aria-labelledby="gg-summary-title" onKeyDown={e=>{if(e.key==='Escape')returnToMenu();if(e.key==='Tab'){const buttons=[...e.currentTarget.querySelectorAll('button')];const index=buttons.indexOf(document.activeElement);e.preventDefault();buttons[(index+(e.shiftKey?-1:1)+buttons.length)%buttons.length].focus();}}}><div><div className="gg-eyebrow">ROUND COMPLETE</div><h2 id="gg-summary-title">오늘의 지구 탐험</h2><strong>{stats.score.toLocaleString()}<small>점</small></strong><p>정답 {stats.correct}개 · 최고 콤보 {stats.bestCombo} · {formatTime(elapsed)}</p><button autoFocus onClick={returnToMenu}>게임 선택으로</button><button className="gg-mode-exit" onClick={onExit}>게임모드 종료 ↗</button></div></div>}
     </>}

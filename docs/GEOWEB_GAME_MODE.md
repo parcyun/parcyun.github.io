@@ -2,6 +2,8 @@
 
 ## Design and behavior
 
+- Follow-up: game entry immediately transitions to the default globe view before a game is selected. Input-only Tab skips (Shift+Tab keeps keyboard navigation). Skip reveals only the answer name centrally for 1.4 seconds before the next question. Country/flag answers are country names; capitals/landforms/landmarks retain their actual answer names. Score bursts reuse Spell Drill point/ring/particle timing and speed styles, with combo below; no full-screen flashing. Flag entrance waits for image load, then comes from right and exits left. Preserve reduced-motion and cancel effects on exit.
+
 - Existing amber/black parcyun studio design; preserve the existing map renderer and data. One diagonal sweep on entry, reduced-motion alternative, keyboard-first answers.
 - Lobby lists six games and each browser-local best score with time to attain that score. Selecting a game slides the menu left. The playing header contains only GEOWEB PLAY and game title.
 - End game shows the current round result and returns to game selection. The separate bottom-right exit restores map exploration settings.

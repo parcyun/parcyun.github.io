@@ -340,7 +340,7 @@ export default function GlobeLab(){
     if(!gamePools||gameWipe)return;
     gameSnapshot.current={...S.current};setGuide(false);setUpdateStory(false);setGameWipe(true);
     const delay=window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:320;
-    gameTimers.current.push(setTimeout(()=>{S.current.game=true;setGameActive(true);},delay));
+    gameTimers.current.push(setTimeout(()=>{api.current.enterGameLobby?.();setGameActive(true);},delay));
     gameTimers.current.push(setTimeout(()=>setGameWipe(false),delay?680:0));
   };
   const exitGame=()=>{
@@ -652,6 +652,10 @@ export default function GlobeLab(){
         pickContinent:(k)=>setSel(sameSel(S.current.sel,{type:'continent',key:k})?null:{type:'continent',key:k}),
         pickOcean:(k)=>setSel(sameSel(S.current.sel,{type:'ocean',key:k})?null:{type:'ocean',key:k}),
         focusCountry:(nextCountry)=>{S.current.focusReq={lon:nextCountry.coordinates[0],lat:nextCountry.coordinates[1]};goView(S.current.view);}};
+      api.current.enterGameLobby=()=>{
+        Object.assign(S.current,{game:true,gameMode:null,gameQuestion:null,view:'globe',homeReq:true,focusReq:null,grat:false,eq:false,prime:false,dateline:false,climate:false,terrain:false,trueSize:false,sat:false,northUp:false,dayNight:false});
+        applyGrid();removeGhost();applySat(false);onDN(false);applySel(null);goView('globe');
+      };
       api.current.gameTarget=(question,mode)=>{
         Object.assign(S.current,{game:true,gameMode:mode,gameQuestion:question,view:'globe',grat:false,eq:false,prime:false,dateline:false,climate:false,terrain:false,trueSize:false,sat:false,northUp:false,dayNight:mode==='flag',dnPlay:true});
         const feature=question.country&&world.features.find(f=>f.properties.n===question.country.boundaryName);

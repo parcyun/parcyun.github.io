@@ -548,7 +548,7 @@ export default function GlobeLab(){
         for(const {el,o} of oceanLblEls){el.classList.toggle('active',oc&&o===s.key);el.classList.toggle('dim',oc&&o!==s.key);}};
       const centerLonRad=()=>U.lens.value>0.5?U.uLon0.value:(U.morph.value>0.5?controls.target.x/MS:-Math.PI/2-U.uRotY.value);
       const centerLatRad=()=>U.lens.value>0.5?U.uLat0.value:(U.morph.value>0.5?(2*Math.atan(Math.exp(controls.target.y/MS))-Math.PI/2):U.uRotX.value); // #8 격자 라벨 배치용 뷰 중심 위도
-      const onDN=(on)=>{if(on)S.current.sunLon=R2D*centerLonRad()-90;u.dayNightOn.value=on?1:0;}; // 켤 때 명암 경계선이 현재 뷰에 걸치게(원본과 동일)
+      const onDN=(on)=>{if(on&&!u.dayNightOn.value)S.current.sunLon=R2D*centerLonRad()-90;u.dayNightOn.value=on?1:0;}; // 새로 켤 때만 명암 경계선을 현재 뷰에 맞춘다.
       const dolly=(f)=>{camera.zoom=THREE.MathUtils.clamp(camera.zoom/f,controls.minZoom,controls.maxZoom);camera.updateProjectionMatrix();controls.update();};
       // 평면 seam은 항상 화면 중심 대척점(WORLD_W/2 거리)에 파킹되지만, 그 가정은 "화면 반너비(월드단위) < WORLD_W/2"일 때만 성립.
       // 와이드 화면에서 zmin(0.64)까지 축소하면 aspect/zoom이 WORLD_W/2(=π·MS)를 넘어 seam이 좌우 가장자리로 들어와 보였음
@@ -749,7 +749,7 @@ export default function GlobeLab(){
         starBg.visible=U.morph.value<0.5&&U.lens.value<0.5;
         if(starBg.visible&&!reducedStars)starTime.value+=dt;
         u.sunLat.value=solarDeclDeg(st.month);
-        if(st.dayNight&&st.dnPlay&&!ptrDown&&!tr){ // 낮과 밤: 태양 경도(sunLon)를 흘려보내 명암 경계선(터미네이터)이 지표를 가로질러 이동.
+        if(st.dayNight&&st.dnPlay&&!ptrDown&&(!tr||st.gameMode==='flag')){ // 국기 문제 전환 중에도 낮과 밤 재생을 이어간다.
           // 지구본도 이제 지구를 자전시키지 않고 sunLon만 이동 → 그림자가 표면에 붙어 함께 도는 게 아니라 표면 위를 따로 지나감(요청 #3).
           if(st.view==='lens')U.uLon0.value=((U.uLon0.value+dt*8*D2R+Math.PI*3)%(Math.PI*2))-Math.PI; // 렌즈=시선 자전(원본 유지)
           else st.sunLon=((st.sunLon-dt*12+540)%360)-180; // 평면·지구본=터미네이터 이동(12°/s)

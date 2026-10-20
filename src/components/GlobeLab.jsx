@@ -846,7 +846,7 @@ export default function GlobeLab(){
       {gameWipe&&<div className="gg-wipe" aria-hidden="true"/>}
       {gameActive&&gamePools&&<GeoGame pools={gamePools} onTarget={gameTarget} onExit={exitGame} onFinish={mode=>api.current.finishGame?.(mode)}/>}
       <div className="topbar">
-        <a className="home-fab" href="/" title="parcyun studio 홈으로" aria-label="홈으로"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
+        <a className="home-fab" href="/atlas-gears/" title="아틀라스 기어즈로 이동" aria-label="아틀라스 기어즈로 이동"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
         <div className="title-wrap"><div className="kicker">{T.kicker}</div><div className="title">{T.title}<span className="en">{T.subtitle}</span></div></div>
       </div>
       <div id="stage" onPointerDownCapture={()=>setHint(false)}><div ref={mountRef} className="gl-canvas" /><div ref={labelRef} className="gl-labels" /></div>

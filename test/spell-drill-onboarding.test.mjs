@@ -28,8 +28,8 @@ test('Spell Drill onboarding dismissal does not start a game or audio', async ()
   assert.doesNotMatch(handler, /startGame|ensureAudio/);
 });
 
-test('Spell Drill back control returns to its canonical route instead of browser history', async () => {
+test('Spell Drill home control goes to Atlas Gears instead of browser history', async () => {
   const page = await source();
-  assert.match(page, /id="ps-back-btn"[^>]*onclick="location\.href='\/spell-drill\/'"/);
+  assert.match(page, /id="ps-back-btn" href="\/atlas-gears\/"/);
   assert.doesNotMatch(page, /id="ps-back-btn"[^>]*history\.back\(\)/);
 });

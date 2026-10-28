@@ -55,6 +55,8 @@
 
   css += '.ps-qr-tools{display:flex;gap:4px;align-items:center;}.ps-qr-pin{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:0;border-radius:8px;background:rgba(255,255,255,.08);color:#fff;cursor:pointer;}.ps-qr-pin svg{width:18px;height:18px;transform:rotate(40deg);transition:transform .2s ease;}.ps-qr-pin[aria-pressed="true"]{color:#FFB11A;background:rgba(255,177,26,.12);}.ps-qr-pin[aria-pressed="true"] svg{transform:rotate(0deg);}.ps-qr-pin:focus-visible{outline:2px solid #FFB11A;outline-offset:3px;}.ps-qr-popover.is-pinned{z-index:2147483647;}.ps-qr-popover[popover]{margin:0;bottom:auto;left:auto;}.ps-qr-popover::backdrop{background:transparent;pointer-events:none;}@media(prefers-reduced-motion:reduce){.ps-qr-pin svg{transition:none;}}';
 
+  css += '.ps-qr-popover{display:flex;flex-direction:column;height:390px;outline:none;}.ps-qr-popover:focus{outline:none;}.ps-qr-drag{display:block;flex:none;width:64px;height:16px;margin:-8px auto 8px;padding:0;border:0;background:transparent;cursor:grab;touch-action:none;}.ps-qr-drag::before{content:"";display:block;width:48px;height:4px;margin:auto;border-radius:4px;background:#FFB11A;}.ps-qr-drag:active{cursor:grabbing;}.ps-qr-art{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;}.ps-qr-code{height:100%;object-fit:contain;}.ps-qr-resize{position:absolute;right:3px;bottom:3px;width:24px;height:24px;border:0;padding:0;background:transparent;color:#FFB11A;cursor:nwse-resize;touch-action:none;}.ps-qr-resize::before{content:"";position:absolute;right:5px;bottom:5px;width:10px;height:10px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;border-radius:0 0 3px 0;}.ps-qr-popover.is-manipulating{transition:none;user-select:none;}';
+
   var shareIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '
     + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
     + '<circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle>'
@@ -121,6 +123,63 @@
         + '<div class="ps-qr-art"><img class="ps-qr-code" src="/qr/' + destination.page + '.svg?v=20261028-qr3" alt="' + destination.pageLabel + ' 페이지 QR 코드" width="240" height="240"></div>'
         + '<a class="ps-qr-url" href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
       document.body.appendChild(popover);
+      var dragHandle = document.createElement('button');
+      dragHandle.type = 'button';
+      dragHandle.className = 'ps-qr-drag';
+      dragHandle.setAttribute('aria-label', 'QR 팝업 이동');
+      popover.prepend(dragHandle);
+      var resizeHandle = document.createElement('button');
+      resizeHandle.type = 'button';
+      resizeHandle.className = 'ps-qr-resize';
+      resizeHandle.setAttribute('aria-label', 'QR 팝업 크기 조절');
+      popover.appendChild(resizeHandle);
+      function bounds() { return { width: document.documentElement.clientWidth, height: window.innerHeight }; }
+      function place(left, top, width, height) {
+        var viewport = bounds();
+        width = Math.min(Math.max(220, width), viewport.width - 16);
+        height = Math.min(Math.max(300, height), viewport.height - 16);
+        popover.style.width = width + 'px';
+        popover.style.height = height + 'px';
+        popover.style.left = Math.max(8, Math.min(left, viewport.width - width - 8)) + 'px';
+        popover.style.top = Math.max(8, Math.min(top, viewport.height - height - 8)) + 'px';
+        popover.style.right = 'auto';
+        popover.style.maxHeight = 'calc(100dvh - 16px)';
+      }
+      function enableHandle(handle, resize) {
+        handle.addEventListener('pointerdown', function (event) {
+          if (event.button !== 0) return;
+          event.preventDefault();
+          var rect = popover.getBoundingClientRect();
+          var startX = event.clientX, startY = event.clientY;
+          handle.setPointerCapture(event.pointerId);
+          popover.classList.add('is-manipulating');
+          function move(next) {
+            var dx = next.clientX - startX, dy = next.clientY - startY;
+            place(rect.left + (resize ? 0 : dx), rect.top + (resize ? 0 : dy), rect.width + (resize ? dx : 0), rect.height + (resize ? dy : 0));
+          }
+          function end() {
+            handle.removeEventListener('pointermove', move);
+            handle.removeEventListener('pointerup', end);
+            handle.removeEventListener('pointercancel', end);
+            popover.classList.remove('is-manipulating');
+          }
+          handle.addEventListener('pointermove', move);
+          handle.addEventListener('pointerup', end);
+          handle.addEventListener('pointercancel', end);
+        });
+        handle.addEventListener('keydown', function (event) {
+          var delta = { ArrowLeft: [-10, 0], ArrowRight: [10, 0], ArrowUp: [0, -10], ArrowDown: [0, 10] }[event.key];
+          if (!delta) return;
+          event.preventDefault();
+          var rect = popover.getBoundingClientRect();
+          place(rect.left + (resize ? 0 : delta[0]), rect.top + (resize ? 0 : delta[1]), rect.width + (resize ? delta[0] : 0), rect.height + (resize ? delta[1] : 0));
+        });
+      }
+      enableHandle(dragHandle, false);
+      enableHandle(resizeHandle, true);
+      window.addEventListener('resize', function () {
+        if (!popover.hidden && popover.style.left) { var rect = popover.getBoundingClientRect(); place(rect.left, rect.top, rect.width, rect.height); }
+      });
       var closeButton = popover.querySelector('.ps-qr-close');
       var pinButton = popover.querySelector('.ps-qr-pin');
       var pinned = false;
@@ -148,11 +207,11 @@
         qrButton.setAttribute('aria-expanded', 'false');
         if (restoreFocus) qrButton.focus();
       }
-      qrButton.addEventListener('click', function () {
+      qrButton.addEventListener('click', function (event) {
         if (!popover.hidden) { closeQr(true); return; }
         popover.hidden = false;
         qrButton.setAttribute('aria-expanded', 'true');
-        requestAnimationFrame(function () { if (!popover.hidden) { popover.classList.add('is-open'); closeButton.focus(); } });
+        requestAnimationFrame(function () { if (!popover.hidden) { popover.classList.add('is-open'); if (event.detail === 0) closeButton.focus(); } });
       });
       closeButton.addEventListener('click', function () { closeQr(true); });
       document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !popover.hidden && !pinned) closeQr(true); });

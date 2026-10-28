@@ -53,6 +53,8 @@
     + '.ps-share-fab span{display:none;}.ps-share-fab svg{width:18px;height:18px;}}'
     + '@media (prefers-reduced-motion:reduce){.ps-share-fab,.ps-share-toast,.ps-service-link,.ps-service-qr,.ps-qr-popover{transition:none;}}';
 
+  css += '.ps-qr-tools{display:flex;gap:4px;align-items:center;}.ps-qr-pin{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:0;border-radius:8px;background:rgba(255,255,255,.08);color:#fff;cursor:pointer;}.ps-qr-pin svg{width:18px;height:18px;transform:rotate(40deg);transition:transform .2s ease;}.ps-qr-pin[aria-pressed="true"]{color:#FFB11A;background:rgba(255,177,26,.12);}.ps-qr-pin[aria-pressed="true"] svg{transform:rotate(0deg);}.ps-qr-pin:focus-visible{outline:2px solid #FFB11A;outline-offset:3px;}.ps-qr-popover.is-pinned{z-index:2147483647;}.ps-qr-popover[popover]{margin:0;bottom:auto;left:auto;}.ps-qr-popover::backdrop{background:transparent;pointer-events:none;}@media(prefers-reduced-motion:reduce){.ps-qr-pin svg{transition:none;}}';
+
   var shareIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '
     + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
     + '<circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle>'
@@ -114,13 +116,33 @@
       popover.setAttribute('role', 'dialog');
       popover.setAttribute('aria-label', destination.pageLabel + ' QR 코드');
       popover.hidden = true;
-      popover.innerHTML = '<div class="ps-qr-head"><strong>휴대폰으로 이어보기</strong><button type="button" class="ps-qr-close" aria-label="QR 코드 닫기">×</button></div>'
+      popover.innerHTML = '<div class="ps-qr-head"><strong>휴대폰으로 이어보기</strong><div class="ps-qr-tools"><button type="button" class="ps-qr-pin" aria-label="QR 코드 고정" aria-pressed="false" title="QR 코드 고정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-4 4v2h12v-2l-4-4V3M12 15v6"/></svg></button><button type="button" class="ps-qr-close" aria-label="QR 코드 닫기">×</button></div></div>'
         + '<p>' + destination.pageLabel + ' 페이지를 휴대폰으로 열어 보세요.</p>'
         + '<div class="ps-qr-art"><img class="ps-qr-code" src="/qr/' + destination.page + '.svg?v=20261028-qr3" alt="' + destination.pageLabel + ' 페이지 QR 코드" width="240" height="240"></div>'
         + '<a class="ps-qr-url" href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
       document.body.appendChild(popover);
       var closeButton = popover.querySelector('.ps-qr-close');
+      var pinButton = popover.querySelector('.ps-qr-pin');
+      var pinned = false;
+      function setPinned(value) {
+        pinned = value;
+        pinButton.setAttribute('aria-pressed', String(value));
+        pinButton.setAttribute('aria-label', value ? 'QR 코드 고정 해제' : 'QR 코드 고정');
+        pinButton.title = value ? 'QR 코드 고정 해제' : 'QR 코드 고정';
+        popover.classList.toggle('is-pinned', value);
+        if (typeof popover.showPopover === 'function') {
+          if (value) {
+            popover.setAttribute('popover', 'manual');
+            popover.showPopover();
+          } else {
+            popover.hidePopover();
+            popover.removeAttribute('popover');
+          }
+        }
+      }
+      pinButton.addEventListener('click', function () { setPinned(!pinned); });
       function closeQr(restoreFocus) {
+        if (pinned) setPinned(false);
         popover.classList.remove('is-open');
         popover.hidden = true;
         qrButton.setAttribute('aria-expanded', 'false');
@@ -133,9 +155,9 @@
         requestAnimationFrame(function () { if (!popover.hidden) { popover.classList.add('is-open'); closeButton.focus(); } });
       });
       closeButton.addEventListener('click', function () { closeQr(true); });
-      document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !popover.hidden) closeQr(true); });
+      document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !popover.hidden && !pinned) closeQr(true); });
       document.addEventListener('pointerdown', function (event) {
-        if (!popover.hidden && !popover.contains(event.target) && !qrButton.contains(event.target)) closeQr(false);
+        if (!popover.hidden && !pinned && !popover.contains(event.target) && !qrButton.contains(event.target)) closeQr(false);
       });
     } else {
       document.body.appendChild(btn);

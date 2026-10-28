@@ -24,3 +24,24 @@ test('floating actions link only the two games and keep one position owner', asy
   assert.match(widget, /safe-area-inset-bottom/);
   assert.match(widget, /focus-visible/);
 });
+
+test('both games expose a compact Dexter QR popover for their own public URL', async () => {
+  const widget = await read('public/share-widget.js');
+  const generator = await read('scripts/generate-game-qr.mjs');
+  const [geowebQr, spellQr, mascot] = await Promise.all([
+    read('public/qr/world-map.svg'),
+    read('public/qr/spell-drill.svg'),
+    readFile(new URL('public/images/dexter-base-character-01.png', root)),
+  ]);
+  assert.match(widget, /row\.appendChild\(qrButton\);\s*row\.appendChild\(link\)/);
+  assert.match(widget, /aria-expanded/);
+  assert.match(widget, /role', 'dialog'/);
+  assert.match(widget, /ps-qr-popover\{position:fixed;top:/);
+  assert.match(widget, /event\.key === 'Escape'/);
+  assert.match(widget, /dexter-base-character-01\.png/);
+  assert.match(generator, /https:\/\/parcyun\.github\.io\/\$\{page\}\//);
+  assert.match(generator, /margin: 4/);
+  assert.match(geowebQr, /<svg/);
+  assert.match(spellQr, /<svg/);
+  assert.ok(mascot.length > 0);
+});

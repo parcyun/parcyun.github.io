@@ -22,12 +22,21 @@
     + '.ps-share-fab svg{width:14px;height:14px;flex:0 0 auto;}'
     + '.ps-service-actions{position:fixed;right:20px;bottom:calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + 18px + env(safe-area-inset-bottom,0px));z-index:9990;display:flex;flex-direction:column;align-items:flex-end;gap:10px;}'
     + '.ps-service-actions .ps-share-fab{position:static;}'
+    + '.ps-service-row{display:flex;align-items:center;gap:8px;}'
     + '.ps-service-link{display:inline-flex;min-height:44px;align-items:center;justify-content:center;gap:9px;padding:0 15px;border:1px solid rgba(255,255,255,.22);border-radius:100px;background:rgba(15,18,24,.88);color:#fff;text-decoration:none;'
     + "font:500 12px/1.2 'Pretendard Variable','Pretendard','Montserrat',sans-serif;"
     + 'box-shadow:0 8px 24px rgba(0,0,0,.32);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);transition:background .18s ease,border-color .18s ease,transform .18s ease;}'
     + '.ps-service-link:hover{background:rgba(35,38,44,.96);border-color:' + AMBER + ';transform:translateY(-2px);}'
     + '.ps-service-link:focus-visible{outline:2px solid ' + AMBER + ';outline-offset:3px;}'
     + '.ps-service-link svg{width:14px;height:14px;flex:none;color:' + AMBER + ';}'
+    + '.ps-service-qr{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid rgba(255,255,255,.22);border-radius:50%;background:rgba(15,18,24,.88);color:' + AMBER + ';cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.32);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);transition:background .18s ease,border-color .18s ease,transform .18s ease;}'
+    + '.ps-service-qr:hover{background:rgba(35,38,44,.96);border-color:' + AMBER + ';transform:translateY(-2px);}'
+    + '.ps-service-qr:focus-visible,.ps-qr-close:focus-visible{outline:2px solid ' + AMBER + ';outline-offset:3px;}'
+    + '.ps-service-qr svg{width:20px;height:20px;}'
+    + '.ps-qr-popover{position:fixed;top:76px;right:max(20px,env(safe-area-inset-right,0px));z-index:10010;box-sizing:border-box;width:min(284px,calc(100vw - 28px));max-height:calc(100dvh - 90px);overflow:auto;padding:16px;border:1px solid rgba(255,177,26,.34);border-radius:18px;background:rgba(16,19,25,.97);color:#fff;box-shadow:0 18px 48px rgba(0,0,0,.48);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);font-family:"Pretendard Variable","Pretendard","Montserrat",sans-serif;opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .2s ease,transform .2s ease;}'
+    + '.ps-qr-popover[hidden]{display:none;}.ps-qr-popover.is-open{opacity:1;transform:translateY(0);pointer-events:auto;}'
+    + '.ps-qr-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}.ps-qr-head strong{font-size:14px;font-weight:600;}.ps-qr-close{width:30px;height:30px;border:0;border-radius:8px;background:rgba(255,255,255,.08);color:#fff;font-size:20px;line-height:1;cursor:pointer;}'
+    + '.ps-qr-popover p{margin:5px 0 12px;color:#AEB4BF;font-size:11px;line-height:1.4;}.ps-qr-art{position:relative;padding:12px;border-radius:14px;background:#fff;text-align:center;}.ps-qr-code{display:block;width:100%;height:auto;aspect-ratio:1;image-rendering:pixelated;}.ps-qr-mascot{position:absolute;right:-10px;top:-22px;width:60px;height:60px;object-fit:contain;border:2px solid ' + AMBER + ';border-radius:50%;background:#fff;box-shadow:0 4px 10px rgba(0,0,0,.24);}.ps-qr-url{display:block;margin-top:10px;color:#FFB11A;font:500 10px/1.4 Montserrat,sans-serif;overflow-wrap:anywhere;text-decoration:none;}.ps-qr-url:hover{text-decoration:underline;}'
     + '.ps-share-toast{position:fixed;right:20px;bottom:calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + 72px);z-index:9991;padding:10px 16px;'
     + 'border-radius:10px;background:rgba(20,20,20,.95);color:#fff;font-size:12px;font-weight:500;'
     + "font-family:'Pretendard Variable','Pretendard',sans-serif;border:1px solid rgba(255,177,26,.4);"
@@ -38,10 +47,11 @@
     + '@media (max-width:480px){.ps-share-fab{right:14px;bottom:calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + 18px);padding:9px 13px;font-size:11px;}'
     + '.ps-share-toast{right:14px;bottom:calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + 72px);}'
     + '.ps-service-actions{right:max(14px,env(safe-area-inset-right,0px));}}'
+    + '@media (max-width:480px){.ps-qr-popover{top:64px;right:14px;width:min(260px,calc(100vw - 28px));}}'
     // 아주 좁은 화면: 아이콘만 남긴 원형 FAB — 주요 버튼을 덜 가림
     + '@media (max-width:430px){.ps-share-fab{padding:0;width:44px;height:44px;border-radius:50%;justify-content:center;gap:0;}'
     + '.ps-share-fab span{display:none;}.ps-share-fab svg{width:18px;height:18px;}}'
-    + '@media (prefers-reduced-motion:reduce){.ps-share-fab,.ps-share-toast,.ps-service-link{transition:none;}}';
+    + '@media (prefers-reduced-motion:reduce){.ps-share-fab,.ps-share-toast,.ps-service-link,.ps-service-qr,.ps-qr-popover{transition:none;}}';
 
   var shareIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '
     + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
@@ -52,6 +62,9 @@
   var switchIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" '
     + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
     + '<path d="M7 17 17 7M8 7h9v9"/></svg>';
+  var qrIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    + '<path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM21 14v3M18 20h3M14 21v-2"/>'
+    + '<path d="M5.5 5.5h2v2h-2zM16.5 5.5h2v2h-2zM5.5 16.5h2v2h-2z"/></svg>';
 
   function build() {
     var style = document.createElement('style');
@@ -65,23 +78,66 @@
     btn.innerHTML = shareIcon + '<span>쌤 동료에게 공유하기</span>';
     var path = location.pathname.replace(/\/+$/, '') + '/';
     var destination = path === '/world-map/'
-      ? { href: '/spell-drill/', label: '맞춤법 게임' }
+      ? { href: '/spell-drill/', label: '맞춤법 게임', page: 'world-map', pageLabel: '지오웹' }
       : path === '/spell-drill/'
-        ? { href: '/world-map/', label: '지오웹' }
+        ? { href: '/world-map/', label: '지오웹', page: 'spell-drill', pageLabel: '맞춤법 게임' }
         : null;
     if (destination) {
       var actions = document.createElement('div');
       actions.className = 'ps-service-actions';
       actions.setAttribute('role', 'group');
-      actions.setAttribute('aria-label', '다른 게임 및 공유');
+      actions.setAttribute('aria-label', 'QR 코드, 다른 게임 및 공유');
+      var row = document.createElement('div');
+      row.className = 'ps-service-row';
+      var qrButton = document.createElement('button');
+      qrButton.type = 'button';
+      qrButton.className = 'ps-service-qr';
+      qrButton.setAttribute('aria-label', '현재 페이지 QR 코드 보기');
+      qrButton.setAttribute('aria-expanded', 'false');
+      qrButton.setAttribute('aria-controls', 'ps-qr-popover');
+      qrButton.innerHTML = qrIcon;
       var link = document.createElement('a');
       link.className = 'ps-service-link';
       link.href = destination.href;
       link.setAttribute('aria-label', destination.label + '으로 이동');
       link.innerHTML = '<span>' + destination.label + '</span>' + switchIcon;
-      actions.appendChild(link);
+      row.appendChild(qrButton);
+      row.appendChild(link);
+      actions.appendChild(row);
       actions.appendChild(btn);
       document.body.appendChild(actions);
+
+      var url = 'https://parcyun.github.io/' + destination.page + '/';
+      var popover = document.createElement('section');
+      popover.id = 'ps-qr-popover';
+      popover.className = 'ps-qr-popover';
+      popover.setAttribute('role', 'dialog');
+      popover.setAttribute('aria-label', destination.pageLabel + ' QR 코드');
+      popover.hidden = true;
+      popover.innerHTML = '<div class="ps-qr-head"><strong>휴대폰으로 이어보기</strong><button type="button" class="ps-qr-close" aria-label="QR 코드 닫기">×</button></div>'
+        + '<p>' + destination.pageLabel + ' 페이지를 휴대폰으로 열어 보세요.</p>'
+        + '<div class="ps-qr-art"><img class="ps-qr-code" src="/qr/' + destination.page + '.svg" alt="' + destination.pageLabel + ' 페이지 QR 코드" width="240" height="240">'
+        + '<img class="ps-qr-mascot" src="/images/dexter-base-character-01.png" alt="" width="60" height="60"></div>'
+        + '<a class="ps-qr-url" href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
+      document.body.appendChild(popover);
+      var closeButton = popover.querySelector('.ps-qr-close');
+      function closeQr(restoreFocus) {
+        popover.classList.remove('is-open');
+        popover.hidden = true;
+        qrButton.setAttribute('aria-expanded', 'false');
+        if (restoreFocus) qrButton.focus();
+      }
+      qrButton.addEventListener('click', function () {
+        if (!popover.hidden) { closeQr(true); return; }
+        popover.hidden = false;
+        qrButton.setAttribute('aria-expanded', 'true');
+        requestAnimationFrame(function () { if (!popover.hidden) { popover.classList.add('is-open'); closeButton.focus(); } });
+      });
+      closeButton.addEventListener('click', function () { closeQr(true); });
+      document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !popover.hidden) closeQr(true); });
+      document.addEventListener('pointerdown', function (event) {
+        if (!popover.hidden && !popover.contains(event.target) && !qrButton.contains(event.target)) closeQr(false);
+      });
     } else {
       document.body.appendChild(btn);
     }

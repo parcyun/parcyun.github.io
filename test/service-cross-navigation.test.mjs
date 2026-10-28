@@ -10,8 +10,8 @@ test('both games load the shared floating navigation', async () => {
     read('src/pages/world-map.astro'),
     read('public/spell-drill/index.html'),
   ]);
-  assert.match(geoweb, /src="\/share-widget\.js"/);
-  assert.match(spell, /src="\.\.\/share-widget\.js"/);
+  assert.match(geoweb, /src="\/share-widget\.js\?v=20261028-qr"/);
+  assert.match(spell, /src="\.\.\/share-widget\.js\?v=20261028-qr"/);
 });
 
 test('floating actions link only the two games and keep one position owner', async () => {

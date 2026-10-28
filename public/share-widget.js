@@ -123,6 +123,18 @@
         + '<div class="ps-qr-art"><img class="ps-qr-code" src="/qr/' + destination.page + '.svg?v=20261028-qr3" alt="' + destination.pageLabel + ' 페이지 QR 코드" width="240" height="240"></div>'
         + '<a class="ps-qr-url" href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
       document.body.appendChild(popover);
+      var storageKey = 'ps-game-qr-window-v1';
+      var savedWindow = {};
+      try {
+        var storedWindow = JSON.parse(localStorage.getItem(storageKey));
+        if (storedWindow && typeof storedWindow === 'object') savedWindow = storedWindow;
+      } catch (error) { /* 저장 공간이 없어도 팝업 조작은 유지 */ }
+      var geometry = savedWindow.geometry;
+      if (!geometry || !['left', 'top', 'width', 'height'].every(function (key) { return Number.isFinite(geometry[key]); }) || geometry.width <= 0 || geometry.height <= 0) geometry = null;
+      function saveWindow() {
+        try { localStorage.setItem(storageKey, JSON.stringify({ geometry: geometry, pinned: pinned, open: !popover.hidden })); }
+        catch (error) { /* 비공개 모드·저장 공간 제한 시 메모리 상태 사용 */ }
+      }
       var dragHandle = document.createElement('button');
       dragHandle.type = 'button';
       dragHandle.className = 'ps-qr-drag';
@@ -144,6 +156,7 @@
         popover.style.top = Math.max(8, Math.min(top, viewport.height - height - 8)) + 'px';
         popover.style.right = 'auto';
         popover.style.maxHeight = 'calc(100dvh - 16px)';
+        geometry = { left: parseFloat(popover.style.left), top: parseFloat(popover.style.top), width: width, height: height };
       }
       function enableHandle(handle, resize) {
         handle.addEventListener('pointerdown', function (event) {
@@ -162,6 +175,7 @@
             handle.removeEventListener('pointerup', end);
             handle.removeEventListener('pointercancel', end);
             popover.classList.remove('is-manipulating');
+            saveWindow();
           }
           handle.addEventListener('pointermove', move);
           handle.addEventListener('pointerup', end);
@@ -173,16 +187,17 @@
           event.preventDefault();
           var rect = popover.getBoundingClientRect();
           place(rect.left + (resize ? 0 : delta[0]), rect.top + (resize ? 0 : delta[1]), rect.width + (resize ? delta[0] : 0), rect.height + (resize ? delta[1] : 0));
+          saveWindow();
         });
       }
       enableHandle(dragHandle, false);
       enableHandle(resizeHandle, true);
       window.addEventListener('resize', function () {
-        if (!popover.hidden && popover.style.left) { var rect = popover.getBoundingClientRect(); place(rect.left, rect.top, rect.width, rect.height); }
+        if (!popover.hidden && popover.style.left) { var rect = popover.getBoundingClientRect(); place(rect.left, rect.top, rect.width, rect.height); saveWindow(); }
       });
       var closeButton = popover.querySelector('.ps-qr-close');
       var pinButton = popover.querySelector('.ps-qr-pin');
-      var pinned = false;
+      var pinned = savedWindow.pinned === true;
       function setPinned(value) {
         pinned = value;
         pinButton.setAttribute('aria-pressed', String(value));
@@ -190,34 +205,43 @@
         pinButton.title = value ? 'QR 코드 고정 해제' : 'QR 코드 고정';
         popover.classList.toggle('is-pinned', value);
         if (typeof popover.showPopover === 'function') {
-          if (value) {
+          if (value && !popover.hidden) {
             popover.setAttribute('popover', 'manual');
             popover.showPopover();
-          } else {
+          } else if (popover.hasAttribute('popover')) {
             popover.hidePopover();
             popover.removeAttribute('popover');
           }
         }
+        saveWindow();
       }
       pinButton.addEventListener('click', function () { setPinned(!pinned); });
       function closeQr(restoreFocus) {
-        if (pinned) setPinned(false);
+        if (popover.hasAttribute('popover')) { popover.hidePopover(); popover.removeAttribute('popover'); }
         popover.classList.remove('is-open');
         popover.hidden = true;
         qrButton.setAttribute('aria-expanded', 'false');
+        saveWindow();
         if (restoreFocus) qrButton.focus();
+      }
+      function openQr(keyboard) {
+        popover.hidden = false;
+        if (geometry) place(geometry.left, geometry.top, geometry.width, geometry.height);
+        setPinned(pinned);
+        qrButton.setAttribute('aria-expanded', 'true');
+        requestAnimationFrame(function () { if (!popover.hidden) { popover.classList.add('is-open'); if (keyboard) closeButton.focus(); } });
+        saveWindow();
       }
       qrButton.addEventListener('click', function (event) {
         if (!popover.hidden) { closeQr(true); return; }
-        popover.hidden = false;
-        qrButton.setAttribute('aria-expanded', 'true');
-        requestAnimationFrame(function () { if (!popover.hidden) { popover.classList.add('is-open'); if (event.detail === 0) closeButton.focus(); } });
+        openQr(event.detail === 0);
       });
       closeButton.addEventListener('click', function () { closeQr(true); });
       document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !popover.hidden && !pinned) closeQr(true); });
       document.addEventListener('pointerdown', function (event) {
         if (!popover.hidden && !pinned && !popover.contains(event.target) && !qrButton.contains(event.target)) closeQr(false);
       });
+      if (savedWindow.open === true) openQr(false);
     } else {
       document.body.appendChild(btn);
     }

@@ -36,7 +36,7 @@
     + '.ps-qr-popover{position:fixed;top:76px;right:max(20px,env(safe-area-inset-right,0px));z-index:10010;box-sizing:border-box;width:min(284px,calc(100vw - 28px));max-height:calc(100dvh - 90px);overflow:auto;padding:16px;border:1px solid rgba(255,177,26,.34);border-radius:18px;background:rgba(16,19,25,.97);color:#fff;box-shadow:0 18px 48px rgba(0,0,0,.48);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);font-family:"Pretendard Variable","Pretendard","Montserrat",sans-serif;opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .2s ease,transform .2s ease;}'
     + '.ps-qr-popover[hidden]{display:none;}.ps-qr-popover.is-open{opacity:1;transform:translateY(0);pointer-events:auto;}'
     + '.ps-qr-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}.ps-qr-head strong{font-size:14px;font-weight:600;}.ps-qr-close{width:30px;height:30px;border:0;border-radius:8px;background:rgba(255,255,255,.08);color:#fff;font-size:20px;line-height:1;cursor:pointer;}'
-    + '.ps-qr-popover p{margin:5px 0 12px;color:#AEB4BF;font-size:11px;line-height:1.4;}.ps-qr-art{position:relative;padding:12px;border-radius:14px;background:#fff;text-align:center;}.ps-qr-code{display:block;width:100%;height:auto;aspect-ratio:1;image-rendering:pixelated;}.ps-qr-mascot{position:absolute;right:-10px;top:-22px;width:60px;height:60px;object-fit:contain;border:2px solid ' + AMBER + ';border-radius:50%;background:#fff;box-shadow:0 4px 10px rgba(0,0,0,.24);}.ps-qr-url{display:block;margin-top:10px;color:#FFB11A;font:500 10px/1.4 Montserrat,sans-serif;overflow-wrap:anywhere;text-decoration:none;}.ps-qr-url:hover{text-decoration:underline;}'
+    + '.ps-qr-popover p{margin:5px 0 12px;color:#AEB4BF;font-size:11px;line-height:1.4;}.ps-qr-art{padding:12px;border-radius:14px;background:#fff;text-align:center;}.ps-qr-code{display:block;width:100%;height:auto;aspect-ratio:1;image-rendering:pixelated;}.ps-qr-url{display:block;margin-top:10px;color:#FFB11A;font:500 10px/1.4 Montserrat,sans-serif;overflow-wrap:anywhere;text-decoration:none;}.ps-qr-url:hover{text-decoration:underline;}'
     + '.ps-share-toast{position:fixed;right:20px;bottom:calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + 72px);z-index:9991;padding:10px 16px;'
     + 'border-radius:10px;background:rgba(20,20,20,.95);color:#fff;font-size:12px;font-weight:500;'
     + "font-family:'Pretendard Variable','Pretendard',sans-serif;border:1px solid rgba(255,177,26,.4);"
@@ -116,8 +116,7 @@
       popover.hidden = true;
       popover.innerHTML = '<div class="ps-qr-head"><strong>휴대폰으로 이어보기</strong><button type="button" class="ps-qr-close" aria-label="QR 코드 닫기">×</button></div>'
         + '<p>' + destination.pageLabel + ' 페이지를 휴대폰으로 열어 보세요.</p>'
-        + '<div class="ps-qr-art"><img class="ps-qr-code" src="/qr/' + destination.page + '.svg" alt="' + destination.pageLabel + ' 페이지 QR 코드" width="240" height="240">'
-        + '<img class="ps-qr-mascot" src="/images/dexter-base-character-01.png" alt="" width="60" height="60"></div>'
+        + '<div class="ps-qr-art"><img class="ps-qr-code" src="/qr/' + destination.page + '.svg?v=20261028-qr3" alt="' + destination.pageLabel + ' 페이지 QR 코드" width="240" height="240"></div>'
         + '<a class="ps-qr-url" href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
       document.body.appendChild(popover);
       var closeButton = popover.querySelector('.ps-qr-close');

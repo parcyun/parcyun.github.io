@@ -10,8 +10,8 @@ test('both games load the shared floating navigation', async () => {
     read('src/pages/world-map.astro'),
     read('public/spell-drill/index.html'),
   ]);
-  assert.match(geoweb, /src="\/share-widget\.js\?v=20261028-qr"/);
-  assert.match(spell, /src="\.\.\/share-widget\.js\?v=20261028-qr"/);
+  assert.match(geoweb, /src="\/share-widget\.js\?v=20261028-qr3"/);
+  assert.match(spell, /src="\.\.\/share-widget\.js\?v=20261028-qr3"/);
 });
 
 test('floating actions link only the two games and keep one position owner', async () => {
@@ -38,9 +38,9 @@ test('both games expose a compact Dexter QR popover for their own public URL', a
   assert.match(widget, /role', 'dialog'/);
   assert.match(widget, /ps-qr-popover\{position:fixed;top:/);
   assert.match(widget, /event\.key === 'Escape'/);
-  assert.match(widget, /dexter-base-character-01\.png/);
+  assert.doesNotMatch(widget, /ps-qr-mascot/);
   assert.match(generator, /https:\/\/parcyun\.github\.io\/\$\{page\}\//);
-  assert.match(generator, /margin: 4/);
+  assert.match(generator, /cutoutSize = 9/);
   assert.match(geowebQr, /<svg/);
   assert.match(spellQr, /<svg/);
   assert.ok(mascot.length > 0);

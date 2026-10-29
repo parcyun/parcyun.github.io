@@ -57,6 +57,8 @@
 
   css += '.ps-qr-popover{display:flex;flex-direction:column;height:390px;outline:none;}.ps-qr-popover:focus{outline:none;}.ps-qr-drag{display:block;flex:none;width:64px;height:16px;margin:-8px auto 8px;padding:0;border:0;background:transparent;cursor:grab;touch-action:none;}.ps-qr-drag::before{content:"";display:block;width:48px;height:4px;margin:auto;border-radius:4px;background:#FFB11A;}.ps-qr-drag:active{cursor:grabbing;}.ps-qr-art{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;}.ps-qr-code{height:100%;object-fit:contain;}.ps-qr-resize{position:absolute;right:3px;bottom:3px;width:24px;height:24px;border:0;padding:0;background:transparent;color:#FFB11A;cursor:nwse-resize;touch-action:none;}.ps-qr-resize::before{content:"";position:absolute;right:5px;bottom:5px;width:10px;height:10px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;border-radius:0 0 3px 0;}.ps-qr-popover.is-manipulating{transition:none;user-select:none;}';
 
+  css += '.ps-qr-resize{left:3px;right:auto;cursor:nesw-resize;}.ps-qr-resize::before{left:5px;right:auto;border-right:0;border-left:2px solid currentColor;border-radius:0 0 0 3px;}.ps-qr-reset{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:0;border-radius:8px;background:rgba(255,255,255,.08);color:#fff;cursor:pointer;}.ps-qr-reset svg{width:18px;height:18px;}.ps-qr-reset:focus-visible{outline:2px solid #FFB11A;outline-offset:3px;}.ps-qr-head{margin-bottom:10px;}';
+
   var shareIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '
     + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
     + '<circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle>'
@@ -119,7 +121,6 @@
       popover.setAttribute('aria-label', destination.pageLabel + ' QR 코드');
       popover.hidden = true;
       popover.innerHTML = '<div class="ps-qr-head"><strong>휴대폰으로 이어보기</strong><div class="ps-qr-tools"><button type="button" class="ps-qr-pin" aria-label="QR 코드 고정" aria-pressed="false" title="QR 코드 고정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-4 4v2h12v-2l-4-4V3M12 15v6"/></svg></button><button type="button" class="ps-qr-close" aria-label="QR 코드 닫기">×</button></div></div>'
-        + '<p>' + destination.pageLabel + ' 페이지를 휴대폰으로 열어 보세요.</p>'
         + '<div class="ps-qr-art"><img class="ps-qr-code" src="/qr/' + destination.page + '.svg?v=20261028-qr3" alt="' + destination.pageLabel + ' 페이지 QR 코드" width="240" height="240"></div>'
         + '<a class="ps-qr-url" href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
       document.body.appendChild(popover);
@@ -168,7 +169,7 @@
           popover.classList.add('is-manipulating');
           function move(next) {
             var dx = next.clientX - startX, dy = next.clientY - startY;
-            place(rect.left + (resize ? 0 : dx), rect.top + (resize ? 0 : dy), rect.width + (resize ? dx : 0), rect.height + (resize ? dy : 0));
+            place(rect.left + dx, rect.top + (resize ? 0 : dy), rect.width - (resize ? dx : 0), rect.height + (resize ? dy : 0));
           }
           function end() {
             handle.removeEventListener('pointermove', move);
@@ -186,7 +187,7 @@
           if (!delta) return;
           event.preventDefault();
           var rect = popover.getBoundingClientRect();
-          place(rect.left + (resize ? 0 : delta[0]), rect.top + (resize ? 0 : delta[1]), rect.width + (resize ? delta[0] : 0), rect.height + (resize ? delta[1] : 0));
+          place(rect.left + delta[0], rect.top + (resize ? 0 : delta[1]), rect.width - (resize ? delta[0] : 0), rect.height + (resize ? delta[1] : 0));
           saveWindow();
         });
       }
@@ -197,6 +198,18 @@
       });
       var closeButton = popover.querySelector('.ps-qr-close');
       var pinButton = popover.querySelector('.ps-qr-pin');
+      var resetButton = document.createElement('button');
+      resetButton.type = 'button';
+      resetButton.className = 'ps-qr-reset';
+      resetButton.setAttribute('aria-label', 'QR 팝업 위치와 크기 초기화');
+      resetButton.title = '위치와 크기 초기화';
+      resetButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2.6 7M3 4v7h7"/></svg>';
+      pinButton.before(resetButton);
+      resetButton.addEventListener('click', function () {
+        geometry = null;
+        popover.removeAttribute('style');
+        saveWindow();
+      });
       var pinned = savedWindow.pinned === true;
       function setPinned(value) {
         pinned = value;

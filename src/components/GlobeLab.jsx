@@ -373,7 +373,7 @@ export default function GlobeLab(){
   useEffect(()=>{setUpdateStory(true);},[]);
 
   const closeUpdateStory=()=>{
-    markGeoUpdateSeen(window.localStorage);setUpdateStory(false);setGuide(true);
+    markGeoUpdateSeen(window.localStorage);setUpdateStory(false);setGuide(false);
   };
 
   function chooseCountry(nextCountry){

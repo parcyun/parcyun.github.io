@@ -4,18 +4,18 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<title>맞춤법 고치기 — Arcade Bold v2.1.4 · parcyun studio</title>
+<title>스펠 드릴 · parcyun studio</title>
 <meta name="description" content="틀린 문장을 바르게 고쳐 타이핑하는 콤보형 맞춤법·문법 드릴 게임. 한국어·영어(북미) 모드. Designed by parcyun studio.">
 <!-- 공유 미리보기 (게임 첫 화면 커버) -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://parcyun.github.io/spell-drill/">
-<meta property="og:title" content="맞춤법 고치기 · Spell Drill">
+<meta property="og:title" content="스펠 드릴 · Spell Dirll">
 <meta property="og:description" content="틀린 문장을 바르게 고쳐 타이핑하는 콤보형 맞춤법·문법 드릴 게임 · parcyun studio">
 <meta property="og:image" content="https://parcyun.github.io/spell-drill/og-cover.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="맞춤법 고치기 · Spell Drill">
+<meta name="twitter:title" content="스펠 드릴 · Spell Dirll">
 <meta name="twitter:description" content="틀린 문장을 바르게 고쳐 타이핑하는 콤보형 맞춤법·문법 드릴 게임 · parcyun studio">
 <meta name="twitter:image" content="https://parcyun.github.io/spell-drill/og-cover.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -80,7 +80,14 @@
   .topbar .right .k{color:var(--amber)}
   .topbar-link{display:inline-flex;align-items:center;padding:6px 12px;border:1px solid var(--line-hot);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:all .15s linear}
   .topbar-link:hover{border-color:var(--amber);color:var(--amber)}
-  .lang-toggle{border:1px solid var(--line-hot)}
+  .lang-toggle{border:1px solid var(--line-hot);position:relative;isolation:isolate;display:grid;grid-template-columns:repeat(2,64px)}
+  .lang-toggle::before{content:"";position:absolute;inset:0 auto 0 0;width:50%;background:var(--amber);z-index:-1;transform:translateX(0);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+  .lang-toggle.is-english::before{transform:translateX(100%)}
+  .lang-toggle button,.lang-toggle button.on{width:64px;background:transparent!important;transition:color .3s ease}
+  .lang-toggle button.on{color:#050505!important}
+  #home .hero-title{display:flex;align-items:center;gap:.16em;min-height:1.1em;font-size:clamp(44px,9vw,100px);white-space:nowrap;text-transform:none}
+  #home #diff-row,#home #mode-row{min-height:64px}
+  @media(prefers-reduced-motion:reduce){.lang-toggle::before,.lang-toggle button{transition:none}}
   .lang-toggle button{padding:6px 12px;font-size:11px;letter-spacing:.08em}
   /* uniform topbar control height — all match the sound button */
   .topbar .right .topbar-link,
@@ -405,8 +412,7 @@
   <div class="stage">
 
     <section class="screen active" id="home">
-      <h1 data-ps-edit-id="ps-spell-004" data-ps-design-id="ps-spell-004" class="hero-title"><span data-ps-edit-id="ps-spell-005" data-ps-design-id="ps-spell-005" class="y" id="hero-y">맞춤법</span> <span data-ps-edit-id="ps-spell-006" data-ps-design-id="ps-spell-006" class="stroke" id="hero-stroke">고치기</span></h1>
-      <p data-ps-edit-id="ps-spell-007" data-ps-design-id="ps-spell-007" class="hero-sub" id="hero-sub">› 위에 틀린 문장이 뜨면, 아래에 정확한 문장을 처음부터 타이핑해서 ENTER. 콤보를 쌓아 최고기록을 부숴라.</p>
+      <h1 data-ps-edit-id="ps-spell-004" data-ps-design-id="ps-spell-004" class="hero-title"><span data-ps-edit-id="ps-spell-005" data-ps-design-id="ps-spell-005" class="y" id="hero-y">스펠</span> <span data-ps-edit-id="ps-spell-006" data-ps-design-id="ps-spell-006" class="stroke" id="hero-stroke">드릴</span></h1>
 
       <div class="hero-meta">
         <div class="logo"><span data-ps-edit-id="ps-spell-008" data-ps-design-id="ps-spell-008" class="dot"></span> SPELL DRILL // v2.1.4
@@ -11385,10 +11391,9 @@ document.addEventListener('keydown',e=>{
 /* ────────────────────────── i18n ────────────────────────── */
 const I18N = {
   ko: {
-    docTitle: '맞춤법 고치기 — Arcade Bold v2.1.4 · parcyun studio',
+    docTitle: '스펠 드릴 · parcyun studio',
     marqueePill: '★ Korean Orthography',
-    heroY: '맞춤법', heroStroke: '고치기',
-    heroSub: '› 위에 틀린 문장이 뜨면, 아래에 정확한 문장을 처음부터 타이핑해서 ENTER. 콤보를 쌓아 최고기록을 부숴라.',
+    heroY: '스펠', heroStroke: '드릴',
     diffLabels: { easy:'초급', med:'중급', hard:'고급', mix:'믹스' },
     modeLabels: { practice:'연습 ∞', timer:'타이머 60s · 10문제', custom:'커스텀' },
     customCountLabels: { '5':'5문제', '10':'10문제', '25':'25문제', '0':'∞' },
@@ -11423,10 +11428,9 @@ const I18N = {
     ]
   },
   en: {
-    docTitle: 'Grammar Fixer — Arcade Bold v2.1.4 · parcyun studio',
+    docTitle: 'Spell Dirll · parcyun studio',
     marqueePill: '★ American English',
-    heroY: 'Grammar', heroStroke: 'Fixer',
-    heroSub: '› When the wrong sentence appears above, type the correct sentence from scratch below and hit ENTER. Chain combos to smash your high score.',
+    heroY: 'Spell', heroStroke: 'Dirll',
     diffLabels: { easy:'Beginner', med:'Intermediate', hard:'Advanced', mix:'Mix' },
     modeLabels: { practice:'Practice ∞', timer:'Timer 60s · 10 Q', custom:'Custom' },
     customCountLabels: { '5':'5 Q', '10':'10 Q', '25':'25 Q', '0':'∞' },
@@ -11470,7 +11474,7 @@ function setLanguage(lang){
   document.title = t.docTitle;
   $('#hero-y').textContent = t.heroY;
   $('#hero-stroke').textContent = t.heroStroke;
-  $('#hero-sub').textContent = t.heroSub;
+  $('#lang-toggle').classList.toggle('is-english', lang === 'en');
   $$('#diff-row button').forEach(b=>b.textContent = t.diffLabels[b.dataset.diff]);
   $$('#rank .rank-tab').forEach(b=>b.textContent = t.diffLabels[b.dataset.rl]);
   $$('#mode-row button').forEach(b=>b.textContent = t.modeLabels[b.dataset.mode]);
@@ -11518,7 +11522,9 @@ function setLanguage(lang){
   setLanguage(saved);
 })();
 </script>
-<script src="../share-widget.js?v=20261028-qr6" defer></script>
+<script src="../share-widget.js?v=20261029-1" defer></script>
+<script src="/service-guide.js?v=20261029" defer></script>
+<script type="module" src="/game-account.js?v=20261029"></script>
 <script src="../visitor-counter.js" defer></script>
 <a data-ps-edit-id="ps-spell-072" data-ps-design-id="ps-spell-072" id="ps-back-btn" href="/atlas-gears/" aria-label="아틀라스 기어즈로 이동" title="아틀라스 기어즈로 이동" style="position:fixed;top:14px;left:14px;z-index:99999;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#8C8C8C;cursor:pointer;padding:0" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.28)'" onmouseout="this.style.color='#8C8C8C';this.style.borderColor='rgba(255,255,255,.12)'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
 <style>

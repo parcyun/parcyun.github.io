@@ -24,7 +24,7 @@ test('GeoWeb update story is versioned and safely persisted', () => {
   assert.equal(hasSeenGeoUpdate(null), false);
 });
 
-test('GeoWeb renders a friendly developer update story before the guide', async () => {
+test('GeoWeb renders a developer story without reopening a second guide after dismissal', async () => {
   const globe = await source();
   assert.match(globe, /className="update-story"/);
   assert.match(globe, /안녕하세요, 이 지도를 만드는 개발자예요/);
@@ -40,5 +40,5 @@ test('GeoWeb renders a friendly developer update story before the guide', async 
   assert.match(globe, /2026\.07/);
   assert.match(globe, /setUpdateStory\(true\)/);
   assert.doesNotMatch(globe, /if\(hasSeenGeoUpdate\(window\.localStorage\)\)setGuide\(true\)/);
-  assert.match(globe, /setGuide\(true\)/);
+  assert.match(globe, /setUpdateStory\(false\);setGuide\(false\)/);
 });

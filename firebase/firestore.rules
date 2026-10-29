@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /profiles/{uid} {
+      allow get, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['nickname', 'school', 'photo', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['nickname', 'school', 'photo', 'updatedAt'])
+        && request.resource.data.nickname is string
+        && request.resource.data.nickname.size() >= 2 && request.resource.data.nickname.size() <= 20
+        && request.resource.data.school is string && request.resource.data.school.size() <= 60
+        && request.resource.data.photo is string && request.resource.data.photo.size() <= 90000
+        && (request.resource.data.photo == '' || request.resource.data.photo.matches('data:image/webp;base64,[A-Za-z0-9+/=]+'))
+        && request.resource.data.updatedAt == request.time;
+    }
+  }
+}

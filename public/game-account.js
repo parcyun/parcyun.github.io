@@ -24,6 +24,7 @@ function menuAction(label, action) { const b = document.createElement('button');
 menuAction('기능 개선 요청', () => document.querySelector('#foot-report')?.click());
 menuAction('리뷰 남기기', () => { const link = document.querySelector('a[href*="/reviews/"]'); if (link) location.href = link.href; });
 const support = document.createElement('div'); support.className = 'ps-studio-support'; studio.append(support);
+style.textContent += '.ps-account-dialog .ps-studio-share{box-sizing:border-box;border-radius:24px!important;height:44px;min-height:44px;flex-shrink:0;line-height:1.2;appearance:none;-webkit-appearance:none}.ps-account-dialog .ps-studio-share svg{display:block;width:18px;height:18px;flex:0 0 18px}.ps-account-dialog .ps-studio-wordmark:focus{outline:none}.ps-account-dialog .ps-studio-wordmark:focus-visible{text-decoration:underline;text-underline-offset:6px}.ps-account-dialog header h2{min-width:0}.ps-account-dialog header .ps-close,.ps-account-dialog header img{flex-shrink:0}@media(max-width:360px){.ps-account-dialog .ps-studio-wordmark{font-size:26px}.ps-account-dialog{padding:20px}}';
 const account = dialog('내 프로필');
 const body = document.createElement('div'); account.append(body);
 let sdk, sdkPromise, user = null, profile = {}, photo = '', trigger;
@@ -65,9 +66,9 @@ function randomNickname() {
 }
 function renderAccount() {
   if (!user) {
-    body.innerHTML = '<p>Google 계정으로 로그인하면 별명과 프로필을 다른 기기에서도 사용할 수 있어요.</p><p class="ps-muted">게임 기록은 현재 브라우저에 저장돼요. 게임은 로그인 없이도 이용할 수 있어요.</p><label><input type="checkbox" id="ps-account-consent"> 만 14세 이상이며 이용약관과 개인정보처리방침을 확인했습니다.</label><button type="button" class="ps-primary" id="ps-google-login">Google 계정으로 로그인</button><p class="ps-message" role="status"></p>' + legalLinks();
+    body.innerHTML = '<p>Google 계정으로 로그인하면 별명과 프로필을 다른 기기에서도 사용할 수 있어요.</p><p class="ps-muted">게임 기록은 현재 브라우저에 저장돼요. 게임은 로그인 없이도 이용할 수 있어요.</p><label><input type="checkbox" id="ps-account-consent"> 이용약관과 개인정보처리방침을 확인했습니다.</label><button type="button" class="ps-primary" id="ps-google-login">Google 계정으로 로그인</button><p class="ps-message" role="status"></p>' + legalLinks();
     body.querySelector('#ps-google-login').onclick = async e => {
-      if (!body.querySelector('#ps-account-consent').checked) { message('만 14세 이상 여부와 약관을 확인해 주세요. 학생은 로그인 없이 게임을 이용할 수 있어요.'); return; }
+      if (!body.querySelector('#ps-account-consent').checked) { message('이용약관과 개인정보처리방침을 확인해 주세요.'); return; }
       e.currentTarget.disabled = true; message('Google 로그인 창을 여는 중입니다.');
       try { const s = await loadSdk(); const provider = new s.authApi.GoogleAuthProvider(); provider.setCustomParameters({ prompt: 'select_account' }); await s.authApi.signInWithPopup(s.auth, provider); }
       catch (error) { message(error.code === 'auth/popup-closed-by-user' ? '로그인 창을 닫았습니다.' : error.code === 'auth/popup-blocked' ? '브라우저에서 로그인 팝업을 허용해 주세요.' : '로그인에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.'); }
@@ -113,10 +114,10 @@ function install() {
   const shareOriginal = document.querySelector('.ps-share-fab');
   if (!support.childElementCount && coffeeOriginal && shareOriginal) {
     for (const [original, className] of [[coffeeOriginal, 'ps-studio-coffee'], [shareOriginal, 'ps-studio-share']]) {
-      const copy = original.cloneNode(true); copy.removeAttribute('id'); copy.querySelectorAll('[id]').forEach(node => node.removeAttribute('id')); copy.className = className;
+      const copy = original.cloneNode(true); copy.removeAttribute('id'); copy.removeAttribute('style'); copy.querySelectorAll('[id]').forEach(node => node.removeAttribute('id')); copy.className = className;
       const computed = getComputedStyle(original);
       for (const property of ['color', 'fontFamily', 'fontSize', 'fontWeight', 'letterSpacing', 'gap']) copy.style[property] = computed[property];
-      if (original === shareOriginal) { copy.style.backgroundColor = computed.backgroundColor; copy.style.borderRadius = computed.borderRadius; }
+      if (original === shareOriginal) copy.style.backgroundColor = computed.backgroundColor;
       copy.onclick = () => { studio.close(); original.click(); }; support.append(copy);
     }
   }

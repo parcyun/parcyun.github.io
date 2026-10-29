@@ -17,12 +17,13 @@ function dialog(title) {
   return el;
 }
 const studio = dialog('parcyun studio');
+const studioWordmark = document.createElement('a'); studioWordmark.href = '/'; studioWordmark.className = 'ps-studio-wordmark'; studioWordmark.textContent = 'parcyun studio'; studioWordmark.setAttribute('aria-label', 'parcyun studio 홈으로 이동');
+studio.querySelector('h2').replaceChildren(studioWordmark);
+style.textContent += '.ps-account-dialog .ps-studio-wordmark{display:inline-block;font-family:"Covered By Your Grace",cursive;font-size:30px;font-weight:400;color:#ffb11a;text-decoration:none;transition:color .2s ease,transform .2s ease}.ps-account-dialog .ps-studio-wordmark:hover{color:#ffd27a;transform:translateY(-2px)}.ps-studio-support{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:28px}.ps-studio-coffee,.ps-studio-share{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;background:transparent;cursor:pointer;white-space:nowrap}.ps-studio-coffee{color:#ffb11a;padding:0;font:300 12px Montserrat,Pretendard,sans-serif}.ps-studio-coffee:hover{color:#ffd27a}.ps-studio-share{background:#ffb11a;color:#000;padding:10px 15px!important;border-radius:100px;min-height:40px;font:700 12px Pretendard,sans-serif;transition:transform .2s ease,background .2s ease}.ps-studio-share svg{width:14px;height:14px;flex:none}.ps-studio-share:hover{background:#e89500!important;transform:translateY(-2px)}@media(max-width:480px){.ps-studio-support{flex-direction:column;align-items:stretch}.ps-studio-share{order:-1;width:100%;min-height:44px}.ps-studio-coffee{min-height:40px}}@media(prefers-reduced-motion:reduce){.ps-account-dialog .ps-studio-wordmark,.ps-studio-share{transition:none}.ps-account-dialog .ps-studio-wordmark:hover,.ps-studio-share:hover{transform:none}}';
 function menuAction(label, action) { const b = document.createElement('button'); b.type = 'button'; b.className = 'ps-menu-action'; b.textContent = label; b.onclick = () => { studio.close(); action(); }; studio.append(b); }
-menuAction('parcyun studio 홈으로 이동하기', () => { location.href = '/'; });
 menuAction('기능 개선 요청', () => document.querySelector('#foot-report')?.click());
 menuAction('리뷰 남기기', () => { const link = document.querySelector('a[href*="/reviews/"]'); if (link) location.href = link.href; });
-menuAction('쌤 동료에게 공유하기', () => document.querySelector('.ps-share-fab')?.click());
-menuAction('커피 사주기', () => document.querySelector('#ps-coffee')?.click());
+const support = document.createElement('div'); support.className = 'ps-studio-support'; studio.append(support);
 const account = dialog('내 프로필');
 const body = document.createElement('div'); account.append(body);
 let sdk, sdkPromise, user = null, profile = {}, photo = '', trigger;
@@ -108,6 +109,17 @@ function renderAccount() {
   body.querySelector('#ps-signout').onclick = async () => { try { const s = await loadSdk(); await s.authApi.signOut(s.auth); } catch { message('로그아웃하지 못했습니다. 다시 시도해 주세요.'); } };
 }
 function install() {
+  const coffeeOriginal = document.querySelector('#ps-coffee');
+  const shareOriginal = document.querySelector('.ps-share-fab');
+  if (!support.childElementCount && coffeeOriginal && shareOriginal) {
+    for (const [original, className] of [[coffeeOriginal, 'ps-studio-coffee'], [shareOriginal, 'ps-studio-share']]) {
+      const copy = original.cloneNode(true); copy.removeAttribute('id'); copy.querySelectorAll('[id]').forEach(node => node.removeAttribute('id')); copy.className = className;
+      const computed = getComputedStyle(original);
+      for (const property of ['color', 'fontFamily', 'fontSize', 'fontWeight', 'letterSpacing', 'gap']) copy.style[property] = computed[property];
+      if (original === shareOriginal) { copy.style.backgroundColor = computed.backgroundColor; copy.style.borderRadius = computed.borderRadius; }
+      copy.onclick = () => { studio.close(); original.click(); }; support.append(copy);
+    }
+  }
   const home = document.querySelector('#ps-back-btn,.home-fab');
   if (home && !home.dataset.studioMenu) {
     home.dataset.studioMenu = 'true'; home.classList.add('ps-studio-home'); home.setAttribute('role', 'button'); home.setAttribute('aria-label', 'parcyun studio 메뉴'); home.setAttribute('aria-haspopup', 'dialog'); home.title = 'parcyun studio 메뉴';

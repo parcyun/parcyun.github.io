@@ -87,6 +87,8 @@
   .lang-toggle button.on{color:#050505!important}
   #home .hero-title{display:flex;align-items:center;gap:.16em;min-height:1.1em;font-size:clamp(44px,9vw,100px);white-space:nowrap;text-transform:none}
   #home #diff-row,#home #mode-row{min-height:64px}
+  #home .ctrl{min-width:0}
+  @media(max-width:480px){#home #diff-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#home #diff-row button{min-width:0}#home #mode-row button{min-width:0;padding:10px 6px;line-height:1.3}#best-cards .h{min-height:26px;line-height:13px}}
   @media(prefers-reduced-motion:reduce){.lang-toggle::before,.lang-toggle button{transition:none}}
   .lang-toggle button{padding:6px 12px;font-size:11px;letter-spacing:.08em}
   /* uniform topbar control height — all match the sound button */
@@ -11524,7 +11526,7 @@ function setLanguage(lang){
 </script>
 <script src="../share-widget.js?v=20261029-1" defer></script>
 <script src="/service-guide.js?v=20261029" defer></script>
-<script type="module" src="/game-account.js?v=20261029"></script>
+<script type="module" src="/game-account.js?v=20261029-2"></script>
 <script src="../visitor-counter.js" defer></script>
 <a data-ps-edit-id="ps-spell-072" data-ps-design-id="ps-spell-072" id="ps-back-btn" href="/atlas-gears/" aria-label="아틀라스 기어즈로 이동" title="아틀라스 기어즈로 이동" style="position:fixed;top:14px;left:14px;z-index:99999;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#8C8C8C;cursor:pointer;padding:0" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.28)'" onmouseout="this.style.color='#8C8C8C';this.style.borderColor='rgba(255,255,255,.12)'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
 <style>

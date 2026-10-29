@@ -1,13 +1,18 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function availableNickname(name) {
+      return !name.matches('.*[dD][eE][xX][tT][eE][rR].*')
+        && !name.matches('.*[pP][aA][rR][cC][yY][uU][nN].*');
+    }
     match /spellBoards/{board}/players/{uid} {
       allow read: if board.matches('(ko|en)_(easy|med|hard|mix)_(practice|timer|custom)');
       allow create, update: if request.auth != null && request.auth.uid == uid
         && board.matches('(ko|en)_(easy|med|hard|mix)_(practice|timer|custom)')
         && request.resource.data.keys().hasOnly(['school','nickname','score','elapsedMs','playedAt','updatedAt'])
         && request.resource.data.keys().hasAll(['nickname','score','elapsedMs','playedAt','updatedAt'])
-        && request.resource.data.nickname is string && request.resource.data.nickname.size() >= 2 && request.resource.data.nickname.size() <= 20
+        && request.resource.data.nickname is string && availableNickname(request.resource.data.nickname)
+        && request.resource.data.nickname.size() >= 2 && request.resource.data.nickname.size() <= 20
         && (!('school' in request.resource.data) || (request.resource.data.school is string && request.resource.data.school.size() <= 60))
         && request.resource.data.score is int && request.resource.data.score >= 0 && request.resource.data.score <= 100000000
         && request.resource.data.elapsedMs is int && request.resource.data.elapsedMs >= 1000 && request.resource.data.elapsedMs <= 86400000
@@ -25,6 +30,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['nickname', 'school', 'photo', 'updatedAt'])
         && request.resource.data.keys().hasAll(['nickname', 'school', 'photo', 'updatedAt'])
         && request.resource.data.nickname is string
+        && availableNickname(request.resource.data.nickname)
         && request.resource.data.nickname.size() >= 2 && request.resource.data.nickname.size() <= 20
         && request.resource.data.school is string && request.resource.data.school.size() <= 60
         && request.resource.data.photo is string && request.resource.data.photo.size() <= 90000

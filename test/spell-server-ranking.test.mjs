@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,readdirSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
-import {createLeaderboard,rankingAffiliation} from '../public/spell-leaderboard.js';
+import {createLeaderboard,rankingAffiliation,isReservedNickname} from '../public/spell-leaderboard.js';
 test('submitted records preserve the best score and faster tie, with actual play timestamp',async()=>{
  let stored={score:200,elapsedMs:5000};let writes=0;
  const dbApi={doc:()=>({}),Timestamp:{fromMillis:x=>x},serverTimestamp:()=>123,runTransaction:async(_,fn)=>fn({get:async()=>({exists:()=>true,data:()=>stored}),set:(_,data)=>{stored=data;writes++}})};
@@ -31,4 +31,13 @@ test('ranking affiliation shows school, playful stable fallback, and Dexter deve
  const player={id:'user-123',nickname:'가나다',school:'  '};
  assert.equal(rankingAffiliation(player),rankingAffiliation(player));
  assert.match(rankingAffiliation(player),/탐험가|모험가|수집가|기사|마법사|사냥꾼/);
+});
+
+test('reserved developer nicknames are blocked case-insensitively, including substrings',async()=>{
+ for(const nickname of ['DEXTER','dexter','DeXtEr','superDEXTER123','parcyun','PARCYUN','helloParCyUn님']) {
+  assert.equal(isReservedNickname(nickname),true);
+  const api=createLeaderboard(async()=>({s:{},user:{uid:'owner'},profile:{nickname},nickname:'fallback'}));
+  await assert.rejects(()=>api.submit({}),/별명/);
+ }
+ assert.equal(isReservedNickname('별빛 탐험가'),false);
 });

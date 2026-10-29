@@ -1,3 +1,4 @@
+export const isReservedNickname = nickname => /dexter|parcyun/i.test(String(nickname || ''));
 // School names are published only with a new voluntary record submission.
 export function rankingAffiliation(player) {
   if (String(player.nickname || '').trim().toLowerCase() === 'dexter') return '개발자';
@@ -37,6 +38,7 @@ export function createLeaderboard(context) {
     },
     async submit(record) {
       const {s,user,profile,nickname}=await context();if(!user)throw new Error('로그인 후 등록할 수 있어요.');
+      if(isReservedNickname(profile.nickname||nickname))throw new Error('DEXTER와 parcyun이 포함된 별명은 사용할 수 없어요. 내 프로필에서 별명을 변경해 주세요.');
       const d=s.dbApi;const ref=d.doc(s.db,'spellBoards',boardId(record),'players',user.uid);
       const next={nickname:profile.nickname||nickname,school:typeof profile.school==='string'?profile.school.trim():'',score:record.score,elapsedMs:Math.round(record.elapsedMs),playedAt:d.Timestamp.fromMillis(record.playedAt),updatedAt:d.serverTimestamp()};
       await d.runTransaction(s.db,async transaction=>{

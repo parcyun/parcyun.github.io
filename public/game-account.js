@@ -1,6 +1,6 @@
 const CONFIG = { apiKey: 'AIzaSyBjkzvcIjyfnOU0TBF5VasoaQz3Xgw1C9I', authDomain: 'parcyun.firebaseapp.com', projectId: 'parcyun', appId: '1:1093702239224:web:021018208e667b21e7cc0d' };
 const MASCOT = '/images/dexter-base-character-01.png';
-import {createLeaderboard,rankingAffiliation} from './spell-leaderboard.js?v=20261029-2';
+import {createLeaderboard,rankingAffiliation,isReservedNickname} from './spell-leaderboard.js?v=20261029-3';
 const style = document.createElement('style');
 style.textContent = '.ps-account-trigger{width:44px;height:44px;border-radius:50%;border:1px solid #ffffff38;background:#101319;color:#ffb11a;display:grid;place-items:center;cursor:pointer;padding:0;overflow:hidden}.ps-account-trigger svg{width:20px;height:20px}.ps-account-trigger img{width:100%;height:100%;object-fit:cover}.ps-studio-avatar{width:100%;height:100%;border-radius:50%;object-fit:cover;background:#fff}.ps-account-dialog{box-sizing:border-box;width:min(430px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;margin:auto;padding:24px;border:1px solid #ffb11a50;border-radius:24px;background:#101319;color:#fff;font:14px/1.6 Pretendard,sans-serif;box-shadow:0 24px 90px #0009}.ps-account-dialog::backdrop{background:#0009;backdrop-filter:blur(6px)}.ps-account-dialog h2{font-size:22px;margin:0}.ps-account-dialog header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.ps-account-dialog header img{width:44px;height:44px;object-fit:cover;border-radius:50%;background:#fff}.ps-account-dialog button,.ps-account-dialog a{font:inherit}.ps-account-dialog .ps-menu-action{display:block;box-sizing:border-box;text-align:left;width:100%;padding:12px 0;border:0;border-bottom:1px solid #ffffff16;background:transparent;color:#fff;text-decoration:none;cursor:pointer}.ps-account-dialog .ps-menu-action:hover{color:#ffb11a}.ps-account-dialog .ps-close{width:32px;height:32px;border:0;border-radius:10px;background:#ffffff12;color:#fff;cursor:pointer}.ps-account-dialog label{display:block;margin-top:14px;color:#c6cbd3}.ps-account-dialog input:not([type=checkbox]){box-sizing:border-box;width:100%;padding:11px;margin-top:5px;border:1px solid #ffffff30;border-radius:10px;background:#080a0f;color:#fff;font:inherit}.ps-account-dialog small,.ps-account-dialog .ps-muted{display:block;font-size:12px;color:#9ca4b0}.ps-account-dialog .ps-primary{width:100%;margin:18px 0 8px;border:0;border-radius:12px;padding:12px;background:#ffb11a;color:#080a0f;font-weight:700;cursor:pointer}.ps-account-dialog .ps-primary:disabled{opacity:.5;cursor:wait}.ps-account-dialog .ps-profile-photo{display:block;width:72px;height:72px;border-radius:50%;object-fit:cover;background:#fff;margin:0 auto 8px}.ps-account-dialog .ps-message{min-height:1.6em;color:#ffb11a;font-size:12px}.ps-account-dialog :focus-visible,.ps-account-trigger:focus-visible{outline:2px solid #ffb11a;outline-offset:3px}';
 document.head.appendChild(style);
@@ -92,7 +92,8 @@ function renderAccount() {
   if (!user) {
     body.innerHTML = '<p>Google 계정으로 로그인하면 별명과 프로필을 다른 기기에서도 사용할 수 있어요.</p><p class="ps-muted">개인 기록은 브라우저에 저장돼요. 스펠 드릴에서 기록 제출을 누르면 별명과 최고 기록이 전체 랭킹에 공개돼요. 게임은 로그인 없이도 이용할 수 있어요.</p><button type="button" class="ps-primary" id="ps-google-login">Google 계정으로 로그인</button><p class="ps-message" role="status"></p>' + legalLinks();
     body.querySelector('#ps-google-login').onclick = async e => {
-      e.currentTarget.disabled = true; message('Google 로그인 창을 여는 중입니다.');
+      if (isReservedNickname(nickname)) { message('DEXTER와 parcyun이 포함된 별명은 사용할 수 없어요. 다른 별명을 입력해 주세요.'); return; }
+    e.currentTarget.disabled = true; message('Google 로그인 창을 여는 중입니다.');
       try { const s = await loadSdk(); const provider = new s.authApi.GoogleAuthProvider(); provider.setCustomParameters({ prompt: 'select_account' }); await s.authApi.signInWithPopup(s.auth, provider); }
       catch (error) { message(error.code === 'auth/popup-closed-by-user' ? '로그인 창을 닫았습니다.' : error.code === 'auth/popup-blocked' ? '브라우저에서 로그인 팝업을 허용해 주세요.' : '로그인에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.'); }
       finally { const button = body.querySelector('#ps-google-login'); if (button) button.disabled = false; }
@@ -122,6 +123,7 @@ function renderAccount() {
   body.querySelector('#ps-save-profile').onclick = async e => {
     const nickname = body.querySelector('#ps-nickname').value.trim(); const school = body.querySelector('#ps-school').value.trim();
     if (nickname.length < 2 || nickname.length > 20) { message('2~20자의 별명을 입력해 주세요. 실명은 사용하지 마세요.'); return; }
+    if (isReservedNickname(nickname)) { message('DEXTER와 parcyun이 포함된 별명은 사용할 수 없어요. 다른 별명을 입력해 주세요.'); return; }
     e.currentTarget.disabled = true;
     try {
       const s = await loadSdk(); const next = { nickname, school, photo: photo || profile.photo || '', updatedAt: s.dbApi.serverTimestamp() };

@@ -11251,9 +11251,10 @@ function endGame(){
   const clearTime = fmtTime(elapsedMs);
   const rec = loadRecords();
   const arr = rec[state.lang][state.diff] || [];
-  arr.push({score:state.score,correct:state.correctCount,total:state.totalCount,combo:state.bestCombo,time:clearTime,mode:state.mode,date:Date.now()});
-  arr.sort((a,b)=>b.score-a.score);
-  rec[state.lang][state.diff] = arr.slice(0,10);
+  arr.push({score:state.score,correct:state.correctCount,total:state.totalCount,combo:state.bestCombo,time:clearTime,elapsedMs,mode:state.mode,date:Date.now()});
+  arr.sort(compareRankRecords);
+  const modeCounts={};
+  rec[state.lang][state.diff] = arr.filter(r=>{const mode=r.mode||'practice';modeCounts[mode]=(modeCounts[mode]||0)+1;return modeCounts[mode]<=10});
   saveRecords(rec);
   $('#final-score').textContent = state.score;
   $('#r-correct').textContent = state.correctCount;
@@ -11271,7 +11272,39 @@ function endGame(){
 }
 $('#again').addEventListener('click',startGame);
 $('#back-home').addEventListener('click',()=>{renderBest();show('home')});
-$('#see-rank').addEventListener('click',()=>{renderRank('easy');show('rank')});
+$('#see-rank').addEventListener('click',()=>openRanking());
+
+function compareRankRecords(a,b){
+  const ms=r=>Number.isFinite(r.elapsedMs)?r.elapsedMs:String(r.time||'0:00').split(':').reduce((s,n)=>s*60+Number(n),0)*1000;
+  return b.score-a.score || ms(a)-ms(b);
+}
+const rankingDialog=document.createElement('dialog');
+rankingDialog.className='ranking-sheet';rankingDialog.setAttribute('aria-label','내 랭킹');
+rankingDialog.innerHTML='<header><h2>내 랭킹</h2><button type="button" class="act ghost" aria-label="랭킹 닫기">×</button></header><p class="ranking-note">이 브라우저의 개인 기록 · 점수 우선, 동점이면 빠른 시간 우선</p><div class="ranking-filters"></div><div class="ranking-scroll" tabindex="0"><table class="rank-table"><thead><tr><th>순위</th><th>점수</th><th>시간</th></tr></thead><tbody></tbody></table></div>';
+document.body.append(rankingDialog);
+let rankingDiff='easy',rankingMode='timer';
+for(const [source,key] of [['#diff-row','diff'],['#mode-row','mode']]){
+  const group=$(source).cloneNode(true);group.removeAttribute('id');
+  group.querySelectorAll('[id],[data-ps-edit-id],[data-ps-design-id]').forEach(n=>{n.removeAttribute('id');n.removeAttribute('data-ps-edit-id');n.removeAttribute('data-ps-design-id')});
+  group.querySelectorAll('button').forEach(button=>button.onclick=()=>{if(key==='diff')rankingDiff=button.dataset.diff;else rankingMode=button.dataset.mode;renderRankingSheet()});
+  rankingDialog.querySelector('.ranking-filters').append(group);
+}
+function renderRankingSheet(){
+  rankingDialog.querySelectorAll('[data-diff]').forEach(b=>b.classList.toggle('on',b.dataset.diff===rankingDiff));
+  rankingDialog.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===rankingMode));
+  const rows=(loadRecords()[state.lang][rankingDiff]||[]).filter(r=>(r.mode||'practice')===rankingMode).slice().sort(compareRankRecords);
+  const tbody=rankingDialog.querySelector('tbody');tbody.replaceChildren();
+  if(!rows.length){const row=tbody.insertRow();const cell=row.insertCell();cell.colSpan=3;cell.textContent='아직 기록이 없어요. 게임을 마치면 여기에 표시됩니다.';return}
+  rows.forEach((r,i)=>{const row=tbody.insertRow();[i+1,r.score,r.time||'—'].forEach(value=>{row.insertCell().textContent=String(value)})});
+  rankingDialog.querySelector('.ranking-scroll').scrollTop=0;
+}
+function openRanking(){rankingDiff=state.diff;rankingMode=state.mode;renderRankingSheet();rankingDialog.showModal()}
+rankingDialog.querySelector('header button').onclick=()=>rankingDialog.close();
+rankingDialog.addEventListener('click',e=>{if(e.target===rankingDialog){const r=rankingDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)rankingDialog.close()}});
+const soundStack=document.createElement('div');soundStack.className='sound-stack';stToggle.before(soundStack);
+const rankingButton=document.createElement('button');rankingButton.type='button';rankingButton.className='ranking-launch';rankingButton.setAttribute('aria-haspopup','dialog');
+rankingButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.2L5.8 21 7 14.2 2 9.3l6.9-1z"/></svg><span>랭킹</span>';
+rankingButton.onclick=openRanking;soundStack.append(rankingButton,stToggle);
 
 $$('#rank .rank-tab').forEach(c=>c.addEventListener('click',()=>{$$('#rank .rank-tab').forEach(x=>x.classList.remove('on'));c.classList.add('on');renderRank(c.dataset.rl)}));
 function renderRank(diff){
@@ -11539,6 +11572,8 @@ function setLanguage(lang){
 .hero-meta .topbar-link,.hero-meta .sound-toggle,.hero-meta .lang-toggle{height:34px}
 .hero-meta .lang-toggle button{height:100%;padding-top:0;padding-bottom:0}
 @media(max-width:600px){.hero-meta{gap:10px}.hero-meta-right{gap:8px}}
+.sound-stack{display:flex;flex-direction:column;gap:8px;width:132px;flex:none}.hero-meta .sound-stack .sound-toggle{box-sizing:border-box;width:132px;height:34px;justify-content:center}.sound-toggle:not(.on),.sound-toggle:not(.on):hover{color:#8c939e;border-color:#666;background:transparent}.ranking-launch{box-sizing:border-box;width:132px;height:68px;display:flex;align-items:center;justify-content:center;gap:8px;background:transparent;border:1px solid var(--line-hot);color:var(--ink);font:700 14px Pretendard,sans-serif;cursor:pointer}.ranking-launch svg{width:22px;height:22px;fill:var(--amber)}.ranking-launch:hover svg{animation:ranking-spin 1s linear infinite}@keyframes ranking-spin{to{transform:rotate(360deg)}}
+.ranking-sheet{box-sizing:border-box;width:min(640px,calc(100vw - 24px));max-height:85dvh;margin:auto auto 0;padding:24px;border:1px solid var(--line-hot);border-bottom:0;border-radius:24px 24px 0 0;background:#101319;color:var(--ink);overflow:hidden;box-shadow:0 -20px 80px #0008}.ranking-sheet[open]{display:flex;flex-direction:column;animation:ranking-rise .3s ease-out}.ranking-sheet::backdrop{background:#0008;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}.ranking-sheet header{display:flex;align-items:center;justify-content:space-between;gap:16px}.ranking-sheet h2{margin:0;color:var(--amber);font-size:24px}.ranking-sheet header button{padding:8px 16px}.ranking-note{color:var(--muted);font-size:12px;margin:16px 0}.ranking-filters{display:grid;gap:8px;margin-bottom:16px}.ranking-filters>div{display:flex;gap:6px;flex-wrap:wrap}.ranking-filters button{min-height:30px;padding:4px 10px;font-size:12px}.ranking-scroll{overflow:auto;overscroll-behavior:contain;min-height:120px;max-height:48dvh}.ranking-scroll th{position:sticky;top:0}.ranking-scroll td{overflow-wrap:anywhere}.ranking-scroll:focus-visible{outline:1px solid var(--amber);outline-offset:-1px}@keyframes ranking-rise{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}@media(prefers-reduced-motion:reduce){.ranking-sheet[open],.ranking-launch:hover svg{animation:none}}
 </style>
 </body>
 </html>

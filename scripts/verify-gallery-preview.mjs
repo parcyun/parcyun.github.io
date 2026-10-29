@@ -1,0 +1,24 @@
+import {createRequire} from 'node:module';
+import assert from 'node:assert/strict';
+const require=createRequire(import.meta.url);
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'/Users/parcyun/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const browser=await chromium.launch({channel:'chrome',headless:true});
+const page=await browser.newPage({viewport:{width:1440,height:900}});
+await page.goto(process.argv[2]||'http://127.0.0.1:47693/');
+for(let i=0;i<2;i++){await page.getByRole('button',{name:'다음 섹션',exact:true}).click();await page.waitForTimeout(750)}
+const first=page.locator('.experience-card.pinned').first();
+await first.locator('video').waitFor();
+await page.waitForFunction(()=>document.querySelector('.experience-card video')?.readyState>=2);
+assert.equal(await page.locator('.experience-card.pinned .experience-views').count(),0);
+await first.hover();
+const start=await first.locator('img').evaluate(e=>({opacity:Number(getComputedStyle(e).opacity),active:e.parentElement.classList.contains('preview-playing')}));
+assert.ok(start.active,'hover activates preview without playback-event delay');
+await page.waitForTimeout(250);
+const playing=await first.locator('video').evaluate(v=>({paused:v.paused,time:v.currentTime,duration:v.duration,loop:v.loop,muted:v.muted,fit:getComputedStyle(v).objectFit}));
+assert.equal(playing.paused,false);assert.ok(playing.time>0);assert.equal(playing.loop,true);assert.equal(playing.muted,true);assert.equal(playing.fit,'contain');
+assert.equal(await first.locator('img').evaluate(e=>Number(getComputedStyle(e).opacity)),0);
+await page.mouse.move(1,1);await page.waitForTimeout(80);
+assert.equal(await first.locator('video').evaluate(v=>v.paused),true);
+await page.screenshot({path:'/Users/parcyun/Downloads/Codex/Artifacts/2026-10-29/actual-recording-gallery.png'});
+console.log(JSON.stringify({start,playing,pinnedViews:0,exitPaused:true}));
+await browser.close();

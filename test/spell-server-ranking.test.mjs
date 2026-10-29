@@ -20,9 +20,10 @@ test('public ranking writes are owner-bound and do not expose private profile fi
  assert.match(rules,/request.auth.uid == uid/);assert.match(rules,/hasOnly\(\['school','nickname','score','elapsedMs','playedAt','updatedAt'\]\)/);
  assert.match(rules,/playedAt <= request.time/);
 });
-test('every gallery preview is a two-second video',()=>{
+test('gallery previews are real recordings with feature scenes under two seconds',()=>{
  const dir=new URL('../public/videos/gallery/',import.meta.url);const files=readdirSync(dir).filter(f=>f.endsWith('.mp4'));assert.equal(files.length,18);
- for(const file of files){const data=JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','json',new URL(file,dir).pathname.replaceAll('%20',' ')],{encoding:'utf8'}));assert.ok(Number(data.format.duration)<=2.01,file)}
+  const manifest=JSON.parse(readFileSync(new URL('recordings.json',dir),'utf8'));assert.equal(Object.keys(manifest).length,18);
+  for(const file of files){const entry=manifest[file.replace('.mp4','')];assert.equal(entry.kind,'real-browser-recording');assert.ok(entry.scenes.every(scene=>scene.duration<=2));const data=JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','json',new URL(file,dir).pathname.replaceAll('%20',' ')],{encoding:'utf8'}));assert.ok(Number(data.format.duration)<=entry.scenes.length*2+.1,file)}
 });
 
 test('ranking affiliation shows school, playful stable fallback, and Dexter developer label',()=>{

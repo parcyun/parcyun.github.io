@@ -1,0 +1,272 @@
+{
+  "academica": {
+    "kind": "real-browser-recording",
+    "url": "/academica-parcyun-studio/",
+    "scenes": [
+      {
+        "label": "주요 내용 실제 스크롤",
+        "duration": 1.8
+      },
+      {
+        "label": "다음 내용 탐색",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.566667
+  },
+  "agentic-ai": {
+    "kind": "real-browser-recording",
+    "url": "https://parcyun.notion.site/Agentic-AI-with-LLM-3593f99a82238070ab4be47cefd571d7",
+    "scenes": [
+      {
+        "label": "주요 내용 실제 스크롤",
+        "duration": 1.8
+      },
+      {
+        "label": "다음 내용 탐색",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.566667
+  },
+  "ai-class": {
+    "kind": "real-browser-recording",
+    "url": "https://parcyun.notion.site/6-12-3683f99a822380afb2b8ded430282603",
+    "scenes": [
+      {
+        "label": "주요 내용 실제 스크롤",
+        "duration": 1.8
+      },
+      {
+        "label": "다음 내용 탐색",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.533333
+  },
+  "ai-edtech-tools": {
+    "kind": "real-browser-recording",
+    "url": "https://parcyun.notion.site/AI-5a56a8c4c29e43edbced6a71a1d6e67b?source=copy_link",
+    "scenes": [
+      {
+        "label": "주요 내용 실제 스크롤",
+        "duration": 1.8
+      },
+      {
+        "label": "다음 내용 탐색",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.566667
+  },
+  "edubeige": {
+    "kind": "real-browser-recording",
+    "url": "https://www.edubeige.com/",
+    "scenes": [
+      {
+        "label": "과목별 에듀테크 탐색",
+        "duration": 1.8
+      },
+      {
+        "label": "도구 목록 스크롤",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.566667
+  },
+  "home-academica": {
+    "kind": "real-browser-recording",
+    "url": "/academica/",
+    "scenes": [
+      {
+        "label": "강의 카드 내용 미리보기",
+        "duration": 1.8
+      },
+      {
+        "label": "실습 가이드 미리보기",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.566667
+  },
+  "home-atlas": {
+    "kind": "real-browser-recording",
+    "url": "/atlas-gears/",
+    "scenes": [
+      {
+        "label": "게임 카테고리 필터",
+        "duration": 1.8
+      },
+      {
+        "label": "활동 자료 검색",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.6
+  },
+  "home-works": {
+    "kind": "real-browser-recording",
+    "url": "/works/",
+    "scenes": [
+      {
+        "label": "프로젝트 Live 필터",
+        "duration": 1.8
+      },
+      {
+        "label": "포트폴리오 내용 미리보기",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.566667
+  },
+  "kocomate": {
+    "kind": "real-browser-recording",
+    "url": "https://kocoafab.cc/edu/kocomate",
+    "scenes": [
+      {
+        "label": "주요 내용 실제 스크롤",
+        "duration": 1.8
+      },
+      {
+        "label": "다음 내용 탐색",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.533333
+  },
+  "llm-fundamentals": {
+    "kind": "real-browser-recording",
+    "url": "/llm-fundamentals/",
+    "scenes": [
+      {
+        "label": "주요 내용 실제 스크롤",
+        "duration": 1.8
+      },
+      {
+        "label": "다음 내용 탐색",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.566667
+  },
+  "math-volume": {
+    "kind": "real-browser-recording",
+    "url": "/math-solid-volume/",
+    "scenes": [
+      {
+        "label": "교사용 정답 숨기기",
+        "duration": 1.8
+      },
+      {
+        "label": "활동 단계 탐색",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.6
+  },
+  "notion-onboarding": {
+    "kind": "real-browser-recording",
+    "url": "https://parcyun.notion.site/Notion-8280d9f2847044e6bf48b25a1f199d76",
+    "scenes": [
+      {
+        "label": "주요 내용 실제 스크롤",
+        "duration": 1.8
+      },
+      {
+        "label": "다음 내용 탐색",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.566667
+  },
+  "snipaste": {
+    "kind": "real-browser-recording",
+    "url": "https://www.snipaste.com/",
+    "scenes": [
+      {
+        "label": "주요 내용 실제 스크롤",
+        "duration": 1.8
+      },
+      {
+        "label": "다음 내용 탐색",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.566667
+  },
+  "spell-drill": {
+    "kind": "real-browser-recording",
+    "url": "/spell-drill/",
+    "scenes": [
+      {
+        "label": "힌트 확인 및 입력 포커스",
+        "duration": 1.8
+      },
+      {
+        "label": "패스와 다음 문항 전환",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.533333
+  },
+  "world-city-research": {
+    "kind": "real-browser-recording",
+    "url": "/worksheets/world-city-research-worksheet-v1.pdf",
+    "scenes": [
+      {
+        "label": "주요 내용 실제 스크롤",
+        "duration": 1.8
+      },
+      {
+        "label": "다음 내용 탐색",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.533333
+  },
+  "world-map": {
+    "kind": "real-browser-recording",
+    "url": "/world-map/",
+    "scenes": [
+      {
+        "label": "평면에서 지구본으로 전환",
+        "duration": 1.8
+      },
+      {
+        "label": "기후대 켜기와 지도 표시",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.533333
+  },
+  "yearly-life-archive": {
+    "kind": "real-browser-recording",
+    "url": "https://parcyun.notion.site/3133f99a82238159a0b3e9eba02d462c?source=copy_link",
+    "scenes": [
+      {
+        "label": "주요 내용 실제 스크롤",
+        "duration": 1.8
+      },
+      {
+        "label": "다음 내용 탐색",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.566667
+  },
+  "zoomit": {
+    "kind": "real-browser-recording",
+    "url": "https://learn.microsoft.com/ko-kr/sysinternals/downloads/zoomit",
+    "scenes": [
+      {
+        "label": "주요 내용 실제 스크롤",
+        "duration": 1.8
+      },
+      {
+        "label": "다음 내용 탐색",
+        "duration": 1.8
+      }
+    ],
+    "duration": 3.533333
+  }
+}

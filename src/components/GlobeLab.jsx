@@ -423,7 +423,9 @@ export default function GlobeLab(){
       const phCv=document.createElement('canvas');phCv.width=phCv.height=1;{const pc=phCv.getContext('2d');pc.fillStyle='#0a0f18';pc.fillRect(0,0,1,1);}
       const satTexU={value:rawTex(phCv)};const uSat={value:0};
       let overlayTex=buildOverlay({sel:null,world,oceans,climate:S.current.climate,climateImage,climateZones:S.current.climateZones,landforms,terrain:S.current.terrain,terrainLayers:S.current.terrainLayers});
-      const u={dayTex:{value:vDay},nightTex:{value:vNight},overlayTex:{value:overlayTex},satTex:satTexU,uSat,...U,sunLon:{value:S.current.sunLon},sunLat:{value:solarDeclDeg(6)},nightBoost:{value:1},dayNightOn:{value:0},uScreen};
+      const overlayOpacity={value:1},fillOpacity={value:1};
+      const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');
+      const u={uOverlayOpacity:overlayOpacity,dayTex:{value:vDay},nightTex:{value:vNight},overlayTex:{value:overlayTex},satTex:satTexU,uSat,...U,sunLon:{value:S.current.sunLon},sunLat:{value:solarDeclDeg(6)},nightBoost:{value:1},dayNightOn:{value:0},uScreen};
       const mesh=new THREE.Mesh(morphGeom(180,90),new THREE.ShaderMaterial({vertexShader:meshVert,fragmentShader:meshFrag,uniforms:u,side:THREE.DoubleSide}));
       mesh.frustumCulled=false; // 커스텀 회전 셰이더 공통 규칙(아래 grat/border와 동일 이유) — 전체 구 형상이라 우연히 안 걸렸을 뿐, 명시적으로 방지
       scene.add(mesh);
@@ -436,7 +438,7 @@ export default function GlobeLab(){
       bgMesh.frustumCulled=false;bgMesh.renderOrder=-3;bgMesh.visible=false;scene.add(bgMesh);
       // 평면 좌우 순환용 클론 타일(±월드폭)
       const cloneMat=(off)=>new THREE.ShaderMaterial({vertexShader:cloneVert,fragmentShader:cloneFrag,side:THREE.DoubleSide,transparent:true,
-        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,satTex:satTexU,uSat,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},uCloneAmt,uScreen}});
+        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,uOverlayOpacity:overlayOpacity,satTex:satTexU,uSat,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},uCloneAmt,uScreen}});
       const tileL=new THREE.Mesh(mesh.geometry,cloneMat(-WORLD_W)),tileR=new THREE.Mesh(mesh.geometry,cloneMat(WORLD_W));
       tileL.frustumCulled=tileR.frustumCulled=false;tileL.visible=tileR.visible=false;scene.add(tileL,tileR);
       let borderClones=null,fillClones=null; // 국경·벡터채움의 ±WORLD_W 클론(아래서 채워짐) — 클론 타일 영역에서도 크리스프 렌더 유지
@@ -449,7 +451,7 @@ export default function GlobeLab(){
       const patchU=Object.assign({},u,{uLonC:uLonCPatch});
       const meshPatch=new THREE.Mesh(mesh.geometry,new THREE.ShaderMaterial({vertexShader:meshVert,fragmentShader:meshFrag,uniforms:patchU,side:THREE.DoubleSide}));
       const clonePatchMat=(off)=>new THREE.ShaderMaterial({vertexShader:cloneVert,fragmentShader:cloneFrag,side:THREE.DoubleSide,transparent:true,
-        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,satTex:satTexU,uSat,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:uLonCPatch,uOffsetX:{value:off},uCloneAmt,uScreen}});
+        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,uOverlayOpacity:overlayOpacity,satTex:satTexU,uSat,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:uLonCPatch,uOffsetX:{value:off},uCloneAmt,uScreen}});
       const tileLp=new THREE.Mesh(mesh.geometry,clonePatchMat(-WORLD_W)),tileRp=new THREE.Mesh(mesh.geometry,clonePatchMat(WORLD_W));
       meshPatch.frustumCulled=tileLp.frustumCulled=tileRp.frustumCulled=false;meshPatch.visible=tileLp.visible=tileRp.visible=false;scene.add(meshPatch,tileLp,tileRp);
 
@@ -512,10 +514,10 @@ export default function GlobeLab(){
         const fg=new THREE.BufferGeometry();fg.setAttribute('aGeo',new THREE.Float32BufferAttribute(aGeo,2));fg.setAttribute('aColor',new THREE.Float32BufferAttribute(aCol,3));fg.setAttribute('aTriLon',new THREE.Float32BufferAttribute(aTri,3));fg.setAttribute('aTriLat',new THREE.Float32BufferAttribute(aTriLat,3));
         fg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
         fillGeoRef=fg;
-        const fm=new THREE.ShaderMaterial({side:THREE.DoubleSide,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:0},overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,dayNightOn:u.dayNightOn},vertexShader:fillVert,fragmentShader:fillFrag});
+        const fm=new THREE.ShaderMaterial({side:THREE.DoubleSide,transparent:true,depthWrite:false,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:0},overlayTex:u.overlayTex,uOverlayOpacity:overlayOpacity,uFillOpacity:fillOpacity,sunLon:u.sunLon,sunLat:u.sunLat,dayNightOn:u.dayNightOn},vertexShader:fillVert,fragmentShader:fillFrag});
         const fmesh=new THREE.Mesh(fg,fm);fmesh.frustumCulled=false;fmesh.renderOrder=0.5;scene.add(fmesh);fillMain=fmesh;
         // 클론 타일용 벡터 대륙 채움 복제(국경과 동일 이유 — 클론 영역에서 텍스처 폴백만 남는 저해상도 버그 방지)
-        const cloneFillMat=(off)=>new THREE.ShaderMaterial({side:THREE.DoubleSide,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},overlayTex:u.overlayTex,sunLon:u.sunLon,sunLat:u.sunLat,dayNightOn:u.dayNightOn},vertexShader:fillVert,fragmentShader:fillFrag});
+        const cloneFillMat=(off)=>new THREE.ShaderMaterial({side:THREE.DoubleSide,transparent:true,depthWrite:false,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},overlayTex:u.overlayTex,uOverlayOpacity:overlayOpacity,uFillOpacity:fillOpacity,sunLon:u.sunLon,sunLat:u.sunLat,dayNightOn:u.dayNightOn},vertexShader:fillVert,fragmentShader:fillFrag});
         const fmeshL=new THREE.Mesh(fg,cloneFillMat(-WORLD_W)),fmeshR=new THREE.Mesh(fg,cloneFillMat(WORLD_W));
         fmeshL.frustumCulled=fmeshR.frustumCulled=false;fmeshL.renderOrder=fmeshR.renderOrder=0.5;fmeshL.visible=fmeshR.visible=false;scene.add(fmeshL,fmeshR);
         fillClones={fmeshL,fmeshR};
@@ -526,7 +528,8 @@ export default function GlobeLab(){
       let center=makeGridSet(0,curEff);
       let gridFlat=new THREE.Group();gridFlat.add(makeGridSet(-WORLD_W,curEff),makeGridSet(WORLD_W,curEff));
       scene.add(center,gridFlat);
-      const setGridVis=()=>{const st=S.current;for(const s of [center,...gridFlat.children]){const u2=s.userData;u2.grat.visible=st.grat;u2.eq.visible=st.eq;u2.pm.visible=st.prime;u2.dl.visible=st.dateline;}};
+      const gridFade={grat:S.current.grat?1:0,eq:S.current.eq?1:0,pm:S.current.prime?1:0,dl:S.current.dateline?1:0};
+      const setGridVis=()=>{for(const group of [center,...gridFlat.children]){for(const key of Object.keys(gridFade)){const layer=group.userData[key];layer.visible=gridFade[key]>.001;layer.traverse(object=>{const op=object.material?.uniforms?.uOp;if(op){object.userData.baseOpacity??=op.value;op.value=object.userData.baseOpacity*gridFade[key];}});}}};
       // #8 위경도 도수 라벨: 격자선마다 몇 도 선인지 DOM 라벨로 표기(매 프레임 뷰 중심 경/위도에 샘플점을 잡아 투영).
       let gridLabels=[];
       const buildGridLabels=(stp)=>{ for(const g of gridLabels)if(g.el.parentNode)g.el.parentNode.removeChild(g.el); gridLabels=[];
@@ -550,13 +553,15 @@ export default function GlobeLab(){
 
       const oceanLblEls=[]; // 대양 라벨 활성/딤 상태용(원본 .ocean-label.active/.dim)
       // 같은 CanvasTexture를 다시 그려 GPU 텍스처 교체 때 생기던 빈 프레임(화면 깜빡임)을 없앤다.
-      const applySel=(s)=>{buildOverlay({sel:s,world,oceans,oceansFill,climate:S.current.climate,climateImage,climateZones:S.current.climateZones,terrain:S.current.terrain,terrainLayers:S.current.terrainLayers,landforms,targetTexture:overlayTex});
+      let pendingOverlay=null;
+      const paintSelection=(s)=>{buildOverlay({sel:s,world,oceans,oceansFill,climate:S.current.climate,climateImage,climateZones:S.current.climateZones,terrain:S.current.terrain,terrainLayers:S.current.terrainLayers,landforms,targetTexture:overlayTex});
         if(S.current.gameQuestion?.features){const q=S.current.gameQuestion;paintLandforms(overlayTex.image.getContext('2d'),{features:q.features},{[q.category]:true},false);overlayTex.needsUpdate=true;}
         const oc=!!s&&s.type==='ocean';
         for(const {el,o} of oceanLblEls){el.classList.toggle('active',oc&&o===s.key);el.classList.toggle('dim',oc&&o!==s.key);}};
+      const applySel=(selection)=>{if(motionPreference.matches){pendingOverlay=null;paintSelection(selection);overlayOpacity.value=1;}else pendingOverlay=()=>paintSelection(selection);};
       const centerLonRad=()=>U.lens.value>0.5?U.uLon0.value:(U.morph.value>0.5?controls.target.x/MS:-Math.PI/2-U.uRotY.value);
       const centerLatRad=()=>U.lens.value>0.5?U.uLat0.value:(U.morph.value>0.5?(2*Math.atan(Math.exp(controls.target.y/MS))-Math.PI/2):U.uRotX.value); // #8 격자 라벨 배치용 뷰 중심 위도
-      const onDN=(on)=>{if(on&&!u.dayNightOn.value)S.current.sunLon=R2D*centerLonRad()-90;u.dayNightOn.value=on?1:0;}; // 새로 켤 때만 명암 경계선을 현재 뷰에 맞춘다.
+      const onDN=(on)=>{if(on&&!u.dayNightOn.value)S.current.sunLon=R2D*centerLonRad()-90;}; // 새로 켤 때만 명암 경계선을 현재 뷰에 맞춘다.
       const dolly=(f)=>{camera.zoom=THREE.MathUtils.clamp(camera.zoom/f,controls.minZoom,controls.maxZoom);camera.updateProjectionMatrix();controls.update();};
       // 평면 seam은 항상 화면 중심 대척점(WORLD_W/2 거리)에 파킹되지만, 그 가정은 "화면 반너비(월드단위) < WORLD_W/2"일 때만 성립.
       // 와이드 화면에서 zmin(0.64)까지 축소하면 aspect/zoom이 WORLD_W/2(=π·MS)를 넘어 seam이 좌우 가장자리로 들어와 보였음
@@ -639,8 +644,11 @@ export default function GlobeLab(){
         const r=await buildSatelliteTexture(4,(d,t)=>setSatBusy({pct:Math.round(d/t*100),label:'위성 사진 불러오는 중…'}),()=>disposed);
         setSatBusy(null); if(!r||disposed)return; satBaseTex=r.tex;satTexU.value=satBaseTex;satReady=true; };
       // ===== 실제 크기 비교(#5) =====
-      let tsShape=null,tsGhost=null,tsFillGeo=null,tsLineGeos=[],tsDragging=false,tsCenter=null,tsDragOffset=[0,0];
-      const removeGhost=()=>{if(tsGhost){scene.remove(tsGhost);tsGhost.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});}tsGhost=null;tsShape=null;tsLineGeos=[];tsFillGeo=null;tsDragging=false;if(controls){controls.enablePan=VIEW[S.current.view].pan;controls.enableRotate=VIEW[S.current.view].rotate;}};
+      let tsShape=null,tsGhost=null,tsFillGeo=null,tsLineGeos=[],tsDragging=false,tsCenter=null,tsDragOffset=[0,0],tsFade=0;
+      const retiredGhosts=[];
+      const disposeGhost=group=>{scene.remove(group);group.traverse(object=>{object.geometry?.dispose();object.material?.dispose();});};
+      const ghostOpacity=(group,alpha)=>group.traverse(object=>{if(object.material){object.userData.baseOpacity??=object.material.opacity;object.material.opacity=object.userData.baseOpacity*alpha;}});
+      const removeGhost=()=>{if(tsGhost){if(motionPreference.matches)disposeGhost(tsGhost);else retiredGhosts.push({group:tsGhost,alpha:tsFade,view:tsGhost.userData.view});}tsGhost=null;tsShape=null;tsLineGeos=[];tsFillGeo=null;tsDragging=false;if(controls){controls.enablePan=VIEW[S.current.view].pan;controls.enableRotate=VIEW[S.current.view].rotate;}};
       const updateGhost=(wx,wy)=>{ if(!tsShape||!tsGhost)return;
         tsCenter=[wx,wy];
         const spherical=S.current.view!=='flat';
@@ -657,7 +665,7 @@ export default function GlobeLab(){
         tsFillGeo=new THREE.BufferGeometry();tsFillGeo.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(sh.fill.length/2*3),3));
         const fillMesh=new THREE.Mesh(tsFillGeo,new THREE.MeshBasicMaterial({color:0xFFB11A,transparent:true,opacity:0.34,depthTest:S.current.view==='globe',depthWrite:false,side:THREE.DoubleSide}));fillMesh.frustumCulled=false;fillMesh.renderOrder=5;grp.add(fillMesh);
         tsLineGeos=[];for(const seg of sh.outlines){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(seg.length/2*3),3));tsLineGeos.push(g);const lm=new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0xFFB11A,transparent:true,opacity:0.95,depthTest:S.current.view==='globe',depthWrite:false}));lm.frustumCulled=false;lm.renderOrder=6;grp.add(lm);}
-        scene.add(grp);tsGhost=grp; updateGhost(sh.x0,sh.y0); }; // 처음엔 원위치(원래 나라 위에 겹침); 팬 비활성화(드래그=고스트 이동)
+        scene.add(grp);grp.userData.view=S.current.view;tsGhost=grp;tsFade=motionPreference.matches?1:0;ghostOpacity(grp,tsFade); updateGhost(sh.x0,sh.y0); }; // 처음엔 원위치(원래 나라 위에 겹침); 팬 비활성화(드래그=고스트 이동)
       const refreshTrueSize=()=>{ if(!S.current.trueSize){removeGhost();return;}
         const sel=S.current.sel; if(!sel){removeGhost();return;}
         let feats=null;
@@ -791,7 +799,15 @@ export default function GlobeLab(){
           U.uRotX.value=nuAnim.fromRotX*(1-k);
           camera.position.lerpVectors(nuAnim.fromPos,nuAnim.toPos,k);camera.up.set(0,1,0);camera.lookAt(nuAnim.tgt);
           if(nuAnim.t>=1){nuAnim=null;if(S.current.view==='globe')controls.enabled=true;} }
-        if(tsGhost){tsGhost.visible=!tr;if(!tr&&st.view!=='flat'&&tsCenter)updateGhost(...tsCenter);}
+        const fade=motionPreference.matches?1:1-Math.exp(-dt*12);
+        const targets={grat:st.grat,eq:st.eq,pm:st.prime,dl:st.dateline};
+        for(const key of Object.keys(gridFade))gridFade[key]+=(Number(targets[key])-gridFade[key])*fade;
+        setGridVis();
+        u.dayNightOn.value+=(Number(st.dayNight)-u.dayNightOn.value)*fade;
+        if(pendingOverlay){overlayOpacity.value+=(0-overlayOpacity.value)*(motionPreference.matches?1:1-Math.exp(-dt*24));if(overlayOpacity.value<.025||motionPreference.matches){pendingOverlay();pendingOverlay=null;overlayOpacity.value=0;}}
+        else overlayOpacity.value+=(1-overlayOpacity.value)*fade;
+        for(let i=retiredGhosts.length-1;i>=0;i--){const old=retiredGhosts[i];old.alpha+=(0-old.alpha)*fade;if(old.alpha<.005||old.view!==st.view||motionPreference.matches){disposeGhost(old.group);retiredGhosts.splice(i,1);}else ghostOpacity(old.group,old.alpha);}
+        if(tsGhost){tsFade+=((tr?0:1)-tsFade)*fade;ghostOpacity(tsGhost,tsFade);tsGhost.visible=!tr;if(!tr&&st.view!=='flat'&&tsCenter)updateGhost(...tsCenter);}
         if(!tr){applyGrid();applyDetail();} // 줌 적응형 격자(#2)·국경/해안선 디테일(#4) 갱신, 둘 다 레벨 바뀔 때만 재빌드
         // 클론 알파: 평면 정상상태에 "막 진입"했을 때만 짧게 페이드인(팝인 완화), 그 외(전환 도중 포함 다른 뷰로 나갈 때)엔 즉시 0 —
         // 예전엔 전환 중 morph≥0.8 구간에서 서서히 페이드했는데, 그 사이 카메라도 같이 움직여서 클론(월드 오프셋 사본)이
@@ -799,9 +815,9 @@ export default function GlobeLab(){
         // 슬라이드 아티팩트를 막고, 들어올 때만 0.25초 페이드로 settle 순간의 딱딱한 팝인을 부드럽게.
         if(!tr&&st.view==='flat')cloneFadeT=Math.min(1,cloneFadeT+dt/0.25);else cloneFadeT=0;
         uCloneAmt.value=cloneFadeT;
-        const satWant=(st.sat&&satReady)?1:0;uSat.value+=(satWant-uSat.value)*Math.min(1,dt*4); // 위성 크로스페이드(#2)
+        const satWant=(st.sat&&satReady)?1:0;uSat.value+=(satWant-uSat.value)*fade;fillOpacity.value=1-uSat.value; // 위성 크로스페이드(#2)
         const isFlat=st.view==='flat'&&!tr;tileL.visible=tileR.visible=uCloneAmt.value>0.004;gridFlat.visible=isFlat;
-        const satShown=uSat.value>0.5; // 위성 모드 절반 이상: 솔리드 대륙 채움 숨겨 실사 위성 육지 노출(#2). 국경·라벨·선택 강조는 유지.
+        const satShown=uSat.value>.999; // 위성 모드 절반 이상: 솔리드 대륙 채움 숨겨 실사 위성 육지 노출(#2). 국경·라벨·선택 강조는 유지.
         if(borderClones)borderClones.blsL.visible=borderClones.blsR.visible=tileL.visible;
         if(fillMain)fillMain.visible=!satShown;
         if(fillClones){fillClones.fmeshL.visible=fillClones.fmeshR.visible=tileL.visible&&!satShown;}
@@ -827,12 +843,12 @@ export default function GlobeLab(){
           if(!faceOk||p.z>1||Math.abs(p.x)>1.06||Math.abs(p.y)>1.06){el.style.display='none';continue;}
           el.style.display='block';el.style.left=((p.x*0.5+0.5)*mount.clientWidth)+'px';el.style.top=((-p.y*0.5+0.5)*mount.clientHeight)+'px';}
         // #8 격자 도수 라벨: 격자가 켜져 있고 전환 중이 아닐 때만. 경선은 뷰 중심 위도에, 위선은 뷰 중심 경도에 샘플점을 잡아 투영.
-        const showGrid=S.current.grat&&!tr; const cLon=R2D*centerLonRad(),cLat=THREE.MathUtils.clamp(R2D*centerLatRad(),-80,80);
+        const showGrid=gridFade.grat>.001&&!tr; const cLon=R2D*centerLonRad(),cLat=THREE.MathUtils.clamp(R2D*centerLatRad(),-80,80);
         // #4 위도 라벨은 카메라를 따라오도록: 평면에선 화면 좌측 가장자리 근처 경도에 고정(팬하면 함께 이동), 경도 라벨은 상단 근처 위도에.
         const flatMode=U.morph.value>0.5&&U.lens.value<0.5;
         const halfLonDeg=flatMode?R2D*(camera.right/camera.zoom)/MS:0; // 화면 반너비의 경도(도)
         const latSampleLon=flatMode?cLon-halfLonDeg*0.86:cLon; // 좌측 가장자리 근처
-        for(const gl of gridLabels){ if(!showGrid){gl.el.style.display='none';continue;}
+        for(const gl of gridLabels){gl.el.style.opacity=String(gridFade.grat); if(!showGrid){gl.el.style.display='none';continue;}
           const alon=gl.kind==='lon'?gl.v:latSampleLon, alat=gl.kind==='lat'?gl.v:cLat; const w3=projectJS(alon,alat);let faceOk=true;
           if(globeish){const nrm=rotX(rotY(lonLatToVec3(alon,alat,1),U.uRotY.value),U.uRotX.value);faceOk=nrm.dot(v3.copy(camera.position).sub(w3).normalize())>0.02;}
           const p=w3.clone().project(camera);
@@ -951,7 +967,7 @@ export default function GlobeLab(){
             </div>}
           </div>
         </div>
-        {info && <div className={'info-card '+info.kind} style={{borderColor:info.color}}>
+        {info && <div key={sel?.name||sel?.key} className={'info-card '+info.kind} style={{borderColor:info.color}}>
           <div className="ic-head">
             {info.kind==='country'
               ? (info.flag?<img className="ic-flag" src={info.flag} alt="" />:<span className="ic-flag">🏳️</span>)
@@ -1045,6 +1061,7 @@ export default function GlobeLab(){
         .gl-lbl.grid{font-family:var(--font-en);font-size:9px;font-weight:500;letter-spacing:.04em;color:#7E8798;text-shadow:0 0 3px #000,0 1px 3px #000;background:rgba(4,6,11,.35);padding:1px 4px;border-radius:4px;pointer-events:none}
         .gl-lbl.ocn .kr{color:#9DB0D6;font-weight:300;font-size:14px;letter-spacing:.18em}
         .gl-lbl.ocn .en{font-family:var(--font-en);font-weight:300;color:#56627E;font-size:8.5px;letter-spacing:.32em;text-transform:uppercase;margin-top:2px}
+        .gl-lbl.grid{will-change:opacity}
         .gl-lbl.ocn{transition:opacity .25s var(--ease),filter .25s var(--ease)}
         .gl-lbl.ocn.dim{opacity:.22}
         .gl-lbl.ocn.active{filter:drop-shadow(0 0 8px rgba(255,177,26,.55))}
@@ -1069,6 +1086,8 @@ export default function GlobeLab(){
         .floaty.collapsed{padding-bottom:9px}
         .legend{display:flex;flex-direction:column;gap:9px;background:rgba(16,19,25,.72);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:16px;padding:12px 16px 14px}
         /* #4~9 국가/선택 카드 — 대륙 색 테두리, 국기, 공식명, 언어, 정치·경제, 헤어라인, 한 줄 설명 */
+        .projseg button,.tg>span,.chip{transition:background .25s ease,color .25s ease,border-color .25s ease,box-shadow .25s ease}
+        @media(prefers-reduced-motion:reduce){.projseg button,.tg>span,.chip,.info-card{animation:none!important;transition:none!important}}
         .info-card{background:rgba(16,19,25,.86);backdrop-filter:blur(16px);border:1.5px solid var(--border);border-radius:16px;padding:15px 16px;box-shadow:0 12px 40px rgba(0,0,0,.35);animation:cardIn .34s var(--ease)}
         @keyframes cardIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
         .ic-head{display:flex;align-items:center;gap:11px;margin-bottom:9px}

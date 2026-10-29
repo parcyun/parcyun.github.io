@@ -35,7 +35,13 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   const tier=hasCountryDifficulty(mode)?difficulty:config.tier;
   useEffect(()=>{if(pendingMode){const node=difficultyDialog.current;node.showModal();return()=>node.close();}},[pendingMode]);
   function chooseMode(nextMode){if(hasCountryDifficulty(nextMode)){setPendingMode(nextMode);return;}setBusy(true);locked.current=true;setMode(nextMode);setPlaying(true);}
-  function startDifficulty(diff){setBusy(true);locked.current=true;setDifficulty(diff);setMode(pendingMode);setPendingMode(null);setPlaying(true);}
+  function closeDifficulty(after){
+    const node=difficultyDialog.current;if(!node||node.dataset.leaving)return;
+    const complete=()=>{if(difficultyDialog.current===node){setPendingMode(null);after?.();}};
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){complete();return;}
+    node.dataset.leaving='true';node.animate([{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(12px) scale(.98)'}],{duration:160,easing:'ease-in',fill:'forwards'}).finished.then(complete).catch(()=>{});
+  }
+  function startDifficulty(diff){const nextMode=pendingMode;closeDifficulty(()=>{setBusy(true);locked.current=true;setDifficulty(diff);setMode(nextMode);setPlaying(true);});}
   function recordSummary(item){
     if(!hasCountryDifficulty(item.id))return records[item.id]?`최고 ${records[item.id].score.toLocaleString()}점 · ${formatTime(records[item.id].seconds)}`:'최고 기록 없음';
     const levels=DIFFICULTIES.filter(d=>records[gameRecordKey(item.id,d.id)]).map(d=>`${d.label} ${records[gameRecordKey(item.id,d.id)].score.toLocaleString()}점`);
@@ -121,8 +127,8 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
       <small>시간은 최고 점수를 달성하기까지 걸린 시간이에요. 기록은 이 브라우저에 저장돼요. 게임을 마친 뒤 랭킹에서 제출하면 전체 순위에 등록돼요.</small>
       {storageError&&<small role="status">저장 공간을 사용할 수 없어 이번 접속 중에만 기록이 유지돼요.</small>}
     </aside>
-    {pendingMode&&<dialog ref={difficultyDialog} className="gg-difficulty-dialog" aria-labelledby="gg-difficulty-title" onCancel={()=>setPendingMode(null)}>
-      <header><span className="gg-eyebrow">GEOWEB / LEVEL</span><button type="button" onClick={()=>setPendingMode(null)} aria-label="난이도 선택 닫기">×</button></header>
+    {pendingMode&&<dialog ref={difficultyDialog} className="gg-difficulty-dialog" aria-labelledby="gg-difficulty-title" onCancel={event=>{event.preventDefault();closeDifficulty();}}>
+      <header><span className="gg-eyebrow">GEOWEB / LEVEL</span><button type="button" onClick={()=>closeDifficulty()} aria-label="난이도 선택 닫기">×</button></header>
       <h2 id="gg-difficulty-title">{GAME_MODES.find(item=>item.id===pendingMode)?.title}</h2><p>어떤 국가들이 더 자주 나올까요?</p>
       <div className="gg-difficulty-options">{DIFFICULTIES.map((item,i)=><button key={item.id} type="button" autoFocus={i===0} onClick={()=>startDifficulty(item.id)}><b>{item.label}</b><span>{item.description}</span></button>)}</div>
     </dialog>}

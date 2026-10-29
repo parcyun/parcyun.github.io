@@ -5,9 +5,14 @@ service cloud.firestore {
       return !name.matches('(?s).*[dD][eE][xX][tT][eE][rR].*')
         && !name.matches('(?s).*[pP][aA][rR][cC][yY][uU][nN].*');
     }
+    function ownsRankingEntry(id) {
+      return request.auth != null && (request.auth.token.firebase.sign_in_provider == 'anonymous'
+        ? id.matches(request.auth.uid + '_[a-f0-9]{32}')
+        : id == request.auth.uid);
+    }
     match /spellBoards/{board}/players/{uid} {
       allow read: if board.matches('(ko|en)_(easy|med|hard|mix)_(practice|timer|custom)');
-      allow create, update: if request.auth != null && request.auth.uid == uid
+      allow create, update: if ownsRankingEntry(uid)
         && board.matches('(ko|en)_(easy|med|hard|mix)_(practice|timer|custom)')
         && request.resource.data.keys().hasOnly(['school','nickname','score','elapsedMs','playedAt','updatedAt'])
         && request.resource.data.keys().hasAll(['nickname','score','elapsedMs','playedAt','updatedAt'])
@@ -19,14 +24,16 @@ service cloud.firestore {
         && request.resource.data.playedAt is timestamp && request.resource.data.playedAt <= request.time
         && request.resource.data.playedAt >= request.time - duration.value(1,'d')
         && request.resource.data.updatedAt == request.time
+        && (uid == request.auth.uid || !exists(/databases/$(database)/documents/spellBoards/$(board)/players/$(uid))
+          || (request.resource.data.nickname == resource.data.nickname && request.resource.data.get('school','') == resource.data.get('school','')))
         && (!exists(/databases/$(database)/documents/spellBoards/$(board)/players/$(uid))
           || request.resource.data.score > resource.data.score
           || (request.resource.data.score == resource.data.score && request.resource.data.elapsedMs < resource.data.elapsedMs));
-      allow delete: if request.auth != null && request.auth.uid == uid;
+      allow delete: if ownsRankingEntry(uid);
     }
     match /geoBoards/{board}/players/{uid} {
       allow read: if board.matches('((country|capital-easy|capital-hard|flag)(_(easy|med|hard))?|nature|landmark)');
-      allow create, update: if request.auth != null && request.auth.uid == uid
+      allow create, update: if ownsRankingEntry(uid)
         && board.matches('((country|capital-easy|capital-hard|flag)(_(easy|med|hard))?|nature|landmark)')
         && request.resource.data.keys().hasOnly(['school','nickname','score','elapsedMs','playedAt','updatedAt'])
         && request.resource.data.keys().hasAll(['nickname','score','elapsedMs','playedAt','updatedAt'])
@@ -38,20 +45,31 @@ service cloud.firestore {
         && request.resource.data.playedAt is timestamp && request.resource.data.playedAt <= request.time
         && request.resource.data.playedAt >= request.time - duration.value(1,'d')
         && request.resource.data.updatedAt == request.time
+        && (uid == request.auth.uid || !exists(/databases/$(database)/documents/geoBoards/$(board)/players/$(uid))
+          || (request.resource.data.nickname == resource.data.nickname && request.resource.data.get('school','') == resource.data.get('school','')))
         && (!exists(/databases/$(database)/documents/geoBoards/$(board)/players/$(uid))
           || request.resource.data.score > resource.data.score
           || (request.resource.data.score == resource.data.score && request.resource.data.elapsedMs < resource.data.elapsedMs));
-      allow delete: if request.auth != null && request.auth.uid == uid;
+      allow delete: if ownsRankingEntry(uid);
     }
     match /profiles/{uid} {
       allow get, delete: if request.auth != null && request.auth.uid == uid;
       allow create, update: if request.auth != null && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['nickname', 'school', 'photo', 'updatedAt'])
+        && request.auth.token.firebase.sign_in_provider != 'anonymous'
+        && request.resource.data.keys().hasOnly(['nickname', 'school', 'schoolInfo', 'photo', 'updatedAt'])
         && request.resource.data.keys().hasAll(['nickname', 'school', 'photo', 'updatedAt'])
         && request.resource.data.nickname is string
         && availableNickname(request.resource.data.nickname)
         && request.resource.data.nickname.size() >= 2 && request.resource.data.nickname.size() <= 20
         && request.resource.data.school is string && request.resource.data.school.size() <= 60
+        && (!('schoolInfo' in request.resource.data) || (request.resource.data.schoolInfo is map
+          && request.resource.data.schoolInfo.keys().hasOnly(['id','name','address','homepage'])
+          && request.resource.data.schoolInfo.keys().hasAll(['id','name','address','homepage'])
+          && request.resource.data.schoolInfo.id is string && request.resource.data.schoolInfo.id.size() <= 60
+          && request.resource.data.schoolInfo.name == request.resource.data.school
+          && request.resource.data.schoolInfo.address is string && request.resource.data.schoolInfo.address.size() <= 200
+          && request.resource.data.schoolInfo.homepage is string && request.resource.data.schoolInfo.homepage.size() <= 300
+          && (request.resource.data.schoolInfo.homepage == '' || request.resource.data.schoolInfo.homepage.matches('https://.*'))))
         && request.resource.data.photo is string && request.resource.data.photo.size() <= 90000
         && (request.resource.data.photo == '' || request.resource.data.photo.matches('data:image/webp;base64,[A-Za-z0-9+/=]+'))
         && request.resource.data.updatedAt == request.time;

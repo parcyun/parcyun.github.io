@@ -12,12 +12,12 @@ test('submitted records preserve the best score and faster tie, with actual play
  await api.submit({...record,score:200,elapsedMs:6000});assert.equal(writes,0);
  await api.submit({...record,score:200,elapsedMs:4000});assert.equal(writes,1);assert.equal(stored.playedAt,999);assert.equal(stored.nickname,'별빛수달');assert.equal(stored.school,'별빛초등학교');
 });
-test('guests cannot submit records',async()=>{
+test('players without any profile cannot submit records',async()=>{
  const api=createLeaderboard(async()=>({s:{},user:null}));await assert.rejects(()=>api.submit({}),/로그인/);
 });
 test('public ranking writes are owner-bound and do not expose private profile fields',()=>{
  const rules=readFileSync(new URL('../firebase/firestore.rules',import.meta.url),'utf8').split('match /profiles')[0];
- assert.match(rules,/request.auth.uid == uid/);assert.match(rules,/hasOnly\(\['school','nickname','score','elapsedMs','playedAt','updatedAt'\]\)/);
+ assert.match(rules,/ownsRankingEntry\(uid\)/);assert.match(rules,/hasOnly\(\['school','nickname','score','elapsedMs','playedAt','updatedAt'\]\)/);
  assert.match(rules,/playedAt <= request.time/);
 });
 test('gallery previews contain five real feature scenes of two seconds each',()=>{

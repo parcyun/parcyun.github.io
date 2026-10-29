@@ -27,29 +27,29 @@ export function createLeaderboard(context, game='spell') {
   };
   return {
     async load(filters, cursor) {
-      const {s,user}=await context(); const d=s.dbApi;
+      const {s,user,entryId}=await context(); const d=s.dbApi;
       const collection=d.collection(s.db,collectionName,boardId(filters),'players');
       const clauses=[d.orderBy('score','desc'),d.orderBy('elapsedMs','asc'),d.limit(50)];
       if(cursor)clauses.push(d.startAfter(cursor));
       const snapshot=await d.getDocsFromServer(d.query(collection,...clauses));
       let mine=null;
       if(user){
-        const own=await d.getDocFromServer(d.doc(collection,user.uid));
+        const own=await d.getDocFromServer(d.doc(collection,entryId||user.uid));
         if(own.exists()){
           const value=own.data();
           const [higher,faster]=await Promise.all([
             d.getCountFromServer(d.query(collection,d.where('score','>',value.score))),
             d.getCountFromServer(d.query(collection,d.where('score','==',value.score),d.where('elapsedMs','<',value.elapsedMs)))
           ]);
-          mine={id:user.uid,...value,rank:1+higher.data().count+faster.data().count};
+          mine={id:entryId||user.uid,...value,rank:1+higher.data().count+faster.data().count};
         }
       }
       return {rows:snapshot.docs.map(doc=>({id:doc.id,...doc.data()})),cursor:snapshot.docs.at(-1),more:snapshot.size===50,mine,signedIn:!!user};
     },
     async submit(record) {
-      const {s,user,profile,nickname}=await context();if(!user)throw new Error('로그인 후 등록할 수 있어요.');
+      const {s,user,profile,nickname,entryId}=await context();if(!user)throw new Error('프로필을 먼저 만들어 주세요. Google 로그인 없이 브라우저 프로필로도 제출할 수 있어요.');
       if(isReservedNickname(profile.nickname||nickname))throw new Error('DEXTER와 parcyun이 포함된 별명은 사용할 수 없어요. 내 프로필에서 별명을 변경해 주세요.');
-      const d=s.dbApi;const ref=d.doc(s.db,collectionName,boardId(record),'players',user.uid);
+      const d=s.dbApi;const ref=d.doc(s.db,collectionName,boardId(record),'players',entryId||user.uid);
       const next={nickname:profile.nickname||nickname,school:typeof profile.school==='string'?profile.school.trim():'',score:record.score,elapsedMs:Math.round(record.elapsedMs),playedAt:d.Timestamp.fromMillis(record.playedAt),updatedAt:d.serverTimestamp()};
       await d.runTransaction(s.db,async transaction=>{
         const previous=await transaction.get(ref);

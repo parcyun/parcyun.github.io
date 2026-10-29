@@ -113,3 +113,11 @@
 - [ ] Verify Spell Drill combo thresholds, repeated pass penalties, bonus/penalty effects, and game reset behavior.
 - [ ] Run `/opt/homebrew/bin/node --test test/*.test.mjs`, `npm run build`, and `git diff --check`.
 - [ ] Commit any verification fixes with `fix: polish GeoWeb and Spell Drill upgrade`.
+
+### 2026-10-29 follow-up: browser profiles, school identity, motion
+
+- Browser profiles remain in localStorage; anonymous Firebase Auth provides ranking ownership only. No anonymous `/profiles` writes. Meaningful edits rotate the profile version; submitted identity snapshots stay separate. Ordinary cache edits restore from frozen in-memory state within 100ms. Full browser/developer-tools control cannot be prevented by client code.
+- Verified locally with actual flag-game play: submit, rename via profile UI, submit again, two independent rows, no server profile, immutable prior identity enforced by Firestore. Both verification rows deleted. Google login was not exercised with a real account.
+- School source: official NEIS dataset `OPEN17020190531110010104913`, 17 regional exports, 12,561 valid school codes. Local directory search includes road addresses. `scripts/fetch-school-directory.mjs` refreshes raw rows; `scripts/collect-school-marks.mjs <raw rows>` collects official homepage logos/emblems into WebP, tracks source URL/status in `public/school-marks/manifest.json`, resumes by default; `RETRY_MISSING=1` retries unresolved schools. Missing marks show a generic icon, never a favicon/third-party search image. Nationwide collection verification is pending until scan completes; inspect manifest statuses and representative images before claiming all marks.
+- Map overlays, grid lines/labels, satellite/day-night, selection cards, true-size ghost appearance/removal and game choices use fades/motion with reduced-motion support. Preserve unrelated Vatican/zoom-label work in the working tree.
+- Checks: 29 targeted game/map/profile tests passed; 10 profile/server-ranking tests passed; Astro build passed. Real mobile school search 390px and desktop 1280px verified. Isolated release build and all 183 tests passed; fresh browser origin ranking → profile creation → school selection/server WebP verified. Live verification pending.

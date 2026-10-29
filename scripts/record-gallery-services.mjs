@@ -81,6 +81,9 @@ async function run(entry){
    await scene('연수 영상 카드 미리보기',()=>page.locator('.video-card').hover());
    await scene('연수 안내 내용 살펴보기',async()=>{await page.mouse.move(640,400);await page.mouse.wheel(0,240)});
    await scene('아카이브 소개로 돌아가기',()=>page.mouse.wheel(0,-700));
+  }else if(entry.id==='world-city-research'){
+   await page.mouse.move(700,400);
+   for(const [i,label] of ['도시 조사 활동지 전체','도시의 위치와 기본 정보','자연환경과 기후 조사','명소와 문화 조사','산업과 여행 계획'].entries())await scene(label,async()=>{if(i)await page.mouse.wheel(0,110)});
   }else{
    if(new URL(page.url()).hostname.endsWith('notion.site'))await page.locator('h1:visible,[role="heading"]:visible').first().waitFor({timeout:20000});
    await page.mouse.move(640,450);

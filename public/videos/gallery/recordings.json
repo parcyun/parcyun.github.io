@@ -383,23 +383,23 @@
     "url": "/worksheets/world-city-research-worksheet-v1.pdf",
     "scenes": [
       {
-        "label": "자료 주요 내용 탐색 1",
+        "label": "도시 조사 활동지 전체",
         "duration": 2
       },
       {
-        "label": "자료 주요 내용 탐색 2",
+        "label": "도시의 위치와 기본 정보",
         "duration": 2
       },
       {
-        "label": "자료 주요 내용 탐색 3",
+        "label": "자연환경과 기후 조사",
         "duration": 2
       },
       {
-        "label": "자료 주요 내용 탐색 4",
+        "label": "명소와 문화 조사",
         "duration": 2
       },
       {
-        "label": "자료 주요 내용 탐색 5",
+        "label": "산업과 여행 계획",
         "duration": 2
       }
     ],

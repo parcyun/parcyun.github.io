@@ -25,9 +25,9 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == uid;
     }
     match /geoBoards/{board}/players/{uid} {
-      allow read: if board.matches('(country|capital-easy|capital-hard|flag|nature|landmark)');
+      allow read: if board.matches('((country|capital-easy|capital-hard|flag)(_(easy|med|hard))?|nature|landmark)');
       allow create, update: if request.auth != null && request.auth.uid == uid
-        && board.matches('(country|capital-easy|capital-hard|flag|nature|landmark)')
+        && board.matches('((country|capital-easy|capital-hard|flag)(_(easy|med|hard))?|nature|landmark)')
         && request.resource.data.keys().hasOnly(['school','nickname','score','elapsedMs','playedAt','updatedAt'])
         && request.resource.data.keys().hasAll(['nickname','score','elapsedMs','playedAt','updatedAt'])
         && request.resource.data.nickname is string && availableNickname(request.resource.data.nickname)

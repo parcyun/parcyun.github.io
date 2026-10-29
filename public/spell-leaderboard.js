@@ -13,7 +13,15 @@ export function rankingAffiliation(player) {
 export function createLeaderboard(context, game='spell') {
   const collectionName=game==='geo'?'geoBoards':'spellBoards';
   const boardId = ({lang,diff,mode}) => {
-    if(game==='geo'){if(!['country','capital-easy','capital-hard','flag','nature','landmark'].includes(mode))throw new Error('Invalid board');return mode;}
+    if(game==='geo'){
+      const countryMode=['country','capital-easy','capital-hard','flag'].includes(mode);
+      if(!countryMode&&!['nature','landmark'].includes(mode))throw new Error('Invalid board');
+      if(countryMode&&diff!==undefined&&diff!=='legacy'){
+        if(!['easy','med','hard'].includes(diff))throw new Error('Invalid difficulty');
+        return `${mode}_${diff}`;
+      }
+      return mode;
+    }
     if (!['ko','en'].includes(lang)||!['easy','med','hard','mix'].includes(diff)||!['practice','timer','custom'].includes(mode)) throw new Error('Invalid board');
     return `${lang}_${diff}_${mode}`;
   };

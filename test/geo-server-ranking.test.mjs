@@ -18,3 +18,16 @@ test('GeoWeb ranking isolates all six game modes from Spell Drill and retains th
  const spell=createLeaderboard(context);stored=null;
  await spell.submit({...base,lang:'ko',diff:'easy',mode:'timer'});assert.deepEqual(paths.at(-1),['spellBoards','ko_easy_timer','players','player']);
 });
+
+test('GeoWeb difficulty boards isolate new records and keep legacy boards readable by old clients',async()=>{
+ const paths=[];
+ const dbApi={doc:(...p)=>{paths.push(p.slice(1));return {};},Timestamp:{fromMillis:x=>x},serverTimestamp:()=>123,
+ runTransaction:async(_,fn)=>fn({get:async()=>({exists:()=>false}),set:()=>{}})};
+ const api=createLeaderboard(async()=>({s:{db:{},dbApi},user:{uid:'player'},profile:{nickname:'별빛 탐험가'}}),'geo');
+ const record={score:200,elapsedMs:1000,playedAt:1};
+ for(const mode of ['country','capital-easy','capital-hard','flag']){
+  for(const diff of ['easy','med','hard']){await api.submit({...record,mode,diff});assert.equal(paths.at(-1)[1],`${mode}_${diff}`);}
+  await api.submit({...record,mode});assert.equal(paths.at(-1)[1],mode);
+  await assert.rejects(()=>api.submit({...record,mode,diff:'unknown'}),/Invalid difficulty/);
+ }
+});

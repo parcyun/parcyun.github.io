@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { GAME_MODES, matchesAnswer, scoreAnswer, scoring, shuffledDeck } from './geoGameData.js';
 import './geoGame.css';
+import { DIFFICULTIES, difficultyDeck, difficultyLabel, hasCountryDifficulty, gameRecordKey } from './geoGameDifficulty.js';
 import GeoRanking from './GeoRanking.jsx';
 import GeoScoreEffect from './GeoScoreEffect.jsx';
 import { RECORD_KEY, readRecords, updateRecord, formatTime } from './geoGameRecords.js';
 
 export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   const [mode,setMode]=useState('country');
+  const [difficulty,setDifficulty]=useState('easy'),[pendingMode,setPendingMode]=useState(null);
+  const difficultyDialog=useRef(null);
   const [practice,setPractice]=useState(false);
   const [playing,setPlaying]=useState(false);
   const [question,setQuestion]=useState(null);
@@ -29,6 +32,15 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   const closeRanking=()=>{setRankingOpen(false);requestAnimationFrame(()=>rankingOpener.current?.focus());};
   const input=useRef(null), nextButton=useRef(null), deck=useRef([]), current=useRef(null), started=useRef(0), locked=useRef(true), timers=useRef([]), serial=useRef(0), composing=useRef(false);
   const config=GAME_MODES.find(m=>m.id===mode);
+  const tier=hasCountryDifficulty(mode)?difficulty:config.tier;
+  useEffect(()=>{if(pendingMode){const node=difficultyDialog.current;node.showModal();return()=>node.close();}},[pendingMode]);
+  function chooseMode(nextMode){if(hasCountryDifficulty(nextMode)){setPendingMode(nextMode);return;}setBusy(true);locked.current=true;setMode(nextMode);setPlaying(true);}
+  function startDifficulty(diff){setBusy(true);locked.current=true;setDifficulty(diff);setMode(pendingMode);setPendingMode(null);setPlaying(true);}
+  function recordSummary(item){
+    if(!hasCountryDifficulty(item.id))return records[item.id]?`최고 ${records[item.id].score.toLocaleString()}점 · ${formatTime(records[item.id].seconds)}`:'최고 기록 없음';
+    const levels=DIFFICULTIES.filter(d=>records[gameRecordKey(item.id,d.id)]).map(d=>`${d.label} ${records[gameRecordKey(item.id,d.id)].score.toLocaleString()}점`);
+    return levels.join(' · ')||(records[item.id]?`이전 최고 ${records[item.id].score.toLocaleString()}점`:'난이도를 선택해 시작해요');
+  }
   useEffect(()=>{if(!result)return;const timer=setTimeout(()=>setResult(null),2200);return()=>clearTimeout(timer);},[result]);
   useEffect(()=>{if(practice&&playing&&!busy&&!summary)nextButton.current?.focus();},[practice,playing,busy,summary,question]);
   const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -37,7 +49,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   function ready(){locked.current=false;setBusy(false);started.current=performance.now();(practice?nextButton:input).current?.focus();}
   function nextQuestion(activeMode=mode){
     const pool=pools[activeMode];
-    if(!deck.current.length)deck.current=shuffledDeck(pool,current.current?.id);
+    if(!deck.current.length)deck.current=hasCountryDifficulty(activeMode)?difficultyDeck(pool,difficulty,current.current?.id):shuffledDeck(pool,current.current?.id);
     const next=deck.current.shift();current.current=next;
     locked.current=true;setBusy(true);setLeaving(false);setAnswer('');setMediaError(false);setMediaReady(false);setQuestion(next);
     onTarget(next,activeMode);
@@ -50,7 +62,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     roundRecord.current=null;roundStarted.current=performance.now();setElapsed(0);
     nextQuestion(mode);
     return cancelPending;
-  },[mode,playing,practice]);
+  },[mode,difficulty,playing,practice]);
   useEffect(()=>{
     if(summary||!playing)return;
     const timer=setInterval(()=>setElapsed(Math.floor((performance.now()-roundStarted.current)/1000)),1000);
@@ -58,9 +70,9 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   },[mode,summary,playing]);
   function recordScore(score){
     const seconds=(performance.now()-roundStarted.current)/1000;
-    roundRecord.current={mode,score,elapsedMs:Math.max(1000,Math.round(seconds*1000)),playedAt:Date.now()};
+    roundRecord.current={mode,diff:hasCountryDifficulty(mode)?difficulty:undefined,score,elapsedMs:Math.max(1000,Math.round(seconds*1000)),playedAt:Date.now()};
     setRecords(previous=>{
-      const next=updateRecord(previous,mode,score,seconds);
+      const next=updateRecord(previous,gameRecordKey(mode,difficulty),score,seconds);
       try{window.localStorage.setItem(RECORD_KEY,JSON.stringify(next));}catch{setStorageError(true);}
       return next;
     });
@@ -82,7 +94,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     if(practice||locked.current||composing.current||!answer.trim()||summary)return;
     if(matchesAnswer(answer,question)){
       const combo=stats.combo+1;
-      const gain=scoreAnswer(answer,(performance.now()-started.current)/1000,config.tier,combo);
+      const gain=scoreAnswer(answer,(performance.now()-started.current)/1000,tier,combo);
       recordScore(stats.score+gain.total);
       setStats(s=>({score:s.score+gain.total,combo,bestCombo:Math.max(combo,s.bestCombo),correct:s.correct+1,attempts:s.attempts+1}));
       advance({good:true,text:`${question.name} · 정답!`,gain,combo,id:performance.now()});
@@ -104,20 +116,25 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
       <div className="gg-eyebrow">GEOWEB / PLAY</div><h1>지구 한 바퀴</h1>
       <button type="button" className="gg-practice-toggle" aria-pressed={practice} onClick={()=>setPractice(v=>!v)}>{practice?'연습 모드 켜짐':'연습 모드'}</button>
       <p>어디까지 알고 있나요?</p>
-      <nav aria-label="게임 종류">{GAME_MODES.map((item,i)=><button key={item.id} disabled={summary} onClick={()=>{setMode(item.id);setPlaying(true);}}><span>0{i+1}</span><div>{item.title}<small className="gg-record">{records[item.id]?`최고 ${records[item.id].score.toLocaleString()}점 · ${formatTime(records[item.id].seconds)}`:'최고 기록 없음'}</small></div></button>)}</nav>
+      <nav aria-label="게임 종류">{GAME_MODES.map((item,i)=><button key={item.id} disabled={summary} onClick={()=>chooseMode(item.id)}><span>0{i+1}</span><div>{item.title}<small className="gg-record">{recordSummary(item)}</small></div></button>)}</nav>
       <small>게임을 바꾸면 점수가 새로 시작돼요.<br/>한국어·영어 이름 모두 사용할 수 있어요.</small>
       <small>시간은 최고 점수를 달성하기까지 걸린 시간이에요. 기록은 이 브라우저에 저장돼요. 게임을 마친 뒤 랭킹에서 제출하면 전체 순위에 등록돼요.</small>
       {storageError&&<small role="status">저장 공간을 사용할 수 없어 이번 접속 중에만 기록이 유지돼요.</small>}
     </aside>
+    {pendingMode&&<dialog ref={difficultyDialog} className="gg-difficulty-dialog" aria-labelledby="gg-difficulty-title" onCancel={()=>setPendingMode(null)}>
+      <header><span className="gg-eyebrow">GEOWEB / LEVEL</span><button type="button" onClick={()=>setPendingMode(null)} aria-label="난이도 선택 닫기">×</button></header>
+      <h2 id="gg-difficulty-title">{GAME_MODES.find(item=>item.id===pendingMode)?.title}</h2><p>어떤 난이도로 탐험할까요?</p>
+      <div className="gg-difficulty-options">{DIFFICULTIES.map((item,i)=><button key={item.id} type="button" autoFocus={i===0} onClick={()=>startDifficulty(item.id)}><b>{item.label}</b><span>{item.description}</span></button>)}</div>
+    </dialog>}
     {!playing&&<button type="button" className="gg-ranking-open" onClick={openRanking}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M8 3h8v5a4 4 0 0 1-8 0V3ZM8 5H4v2a4 4 0 0 0 4 4m8-6h4v2a4 4 0 0 1-4 4M12 12v6m-4 3h8m-6-3h4v3"/></svg>랭킹</button>}
-    {rankingOpen&&<GeoRanking initialMode={mode} record={finishedRecord} onClose={closeRanking}/>}
+    {rankingOpen&&<GeoRanking initialMode={mode} initialDifficulty={difficulty} record={finishedRecord} onClose={closeRanking}/>}
     {!summary&&<button className="gg-mode-exit" onClick={onExit}>게임모드 종료 ↗</button>}
-    {playing&&<><header className="gg-play-title"><span>GEOWEB PLAY</span><h1>{config.title}</h1><button type="button" className="gg-practice-toggle" aria-pressed={practice} onClick={()=>{setPractice(v=>!v);setSummary(false);}}>연습 모드 {practice?'켜짐':'꺼짐'}</button></header>
+    {playing&&<><header className="gg-play-title"><span>GEOWEB PLAY</span><h1>{config.title} · {difficultyLabel(tier)}</h1><button type="button" className="gg-practice-toggle" aria-pressed={practice} onClick={()=>{setPractice(v=>!v);setSummary(false);}}>연습 모드 {practice?'켜짐':'꺼짐'}</button></header>
     {!practice&&!summary&&result?.gain&&<GeoScoreEffect key={result.id} gain={result.gain} combo={result.combo}/>}
     {!practice&&!summary&&result?.skipped&&<div key={result.id} className="gg-skip-answer" role="status">{result.text}</div>}
     <button className="gg-finish" disabled={summary} onClick={finish}>게임 마치기</button>
     {!practice&&<div className="gg-right-cards"><div className="gg-hud">
-      <button className="gg-score" disabled={summary} onClick={()=>setFormula(v=>!v)} aria-expanded={formula} aria-controls="gg-formula"><span>SCORE ⓘ <small>{({easy:'초급',med:'중급',hard:'고급'})[config.tier]} · 기본 {scoring.baseScoreForDifficulty(config.tier)}점</small></span><strong>{stats.score.toLocaleString()}</strong><small>플레이 {formatTime(elapsed)}</small></button>
+      <button className="gg-score" disabled={summary} onClick={()=>setFormula(v=>!v)} aria-expanded={formula} aria-controls="gg-formula"><span>SCORE ⓘ <small>{({easy:'초급',med:'중급',hard:'고급'})[tier]} · 기본 {scoring.baseScoreForDifficulty(tier)}점</small></span><strong>{stats.score.toLocaleString()}</strong><small>플레이 {formatTime(elapsed)}</small></button>
       <div className="gg-combo"><span>COMBO</span><strong>{stats.combo}<small> ×{scoring.comboMultiplier(stats.combo)}</small></strong></div>
       {formula&&<div id="gg-formula" className="gg-formula"><b>(기본점수 + 속도점수 + 콤보 횟수 × 10점) × 콤보 배율</b><p>LIGHTNING +100 · FAST +50 · QUICK +20<br/>콤보 3회 ×1.5 / 6회 ×2 / 9회 ×3 / 12회 ×4 / 15회 ×5<br/>오답·넘기기는 콤보를 초기화해요.</p></div>}
     </div>
@@ -139,7 +156,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
       </form>}
       {practice&&<button ref={nextButton} type="button" className="gg-practice-next" disabled={(busy&&!mediaError)||summary} onClick={skip} onKeyDown={e=>{if(e.key==='Enter'&&e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();if(!e.repeat)skip();}}}><span>넘기기</span><small>SHIFT+ENTER</small></button>}
     </div>
-    {summary&&<div className="gg-summary" role="dialog" aria-modal="true" aria-labelledby="gg-summary-title" onKeyDown={e=>{if(e.key==='Escape')returnToMenu();if(e.key==='Tab'){const buttons=[...e.currentTarget.querySelectorAll('button')];const index=buttons.indexOf(document.activeElement);e.preventDefault();buttons[(index+(e.shiftKey?-1:1)+buttons.length)%buttons.length].focus();}}}><div><div className="gg-eyebrow">ROUND COMPLETE</div><h2 id="gg-summary-title">오늘의 지구 탐험</h2><strong>{stats.score.toLocaleString()}<small>점</small></strong><p>정답 {stats.correct}개 · 최고 콤보 {stats.bestCombo} · {formatTime(elapsed)}</p><button autoFocus onClick={returnToMenu}>게임 선택으로</button><button type="button" onClick={openRanking}>랭킹 · 기록 제출</button><button className="gg-mode-exit" onClick={onExit}>게임모드 종료 ↗</button></div></div>}
+    {summary&&<div className="gg-summary" role="dialog" aria-modal="true" aria-labelledby="gg-summary-title" onKeyDown={e=>{if(e.key==='Escape')returnToMenu();if(e.key==='Tab'){const buttons=[...e.currentTarget.querySelectorAll('button')];const index=buttons.indexOf(document.activeElement);e.preventDefault();buttons[(index+(e.shiftKey?-1:1)+buttons.length)%buttons.length].focus();}}}><div><div className="gg-eyebrow">ROUND COMPLETE</div><h2 id="gg-summary-title">오늘의 지구 탐험</h2><strong>{stats.score.toLocaleString()}<small>점</small></strong><p>정답 {stats.correct}개 · 최고 콤보 {stats.bestCombo} · {formatTime(elapsed)}</p><div className="gg-summary-actions"><button autoFocus onClick={returnToMenu}>게임 선택으로</button><button className="gg-mode-exit" onClick={onExit}>게임모드 종료 ↗</button></div><div className="gg-summary-submit"><button type="button" onClick={openRanking}>랭킹 · 기록 제출</button></div></div></div>}
     </>}
   </section>;
 }

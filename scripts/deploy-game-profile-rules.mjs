@@ -17,4 +17,4 @@ const existing = await fetch(`https://firebaserules.googleapis.com/v1/projects/$
 if (existing.ok) await request('releases/cloud.firestore', 'PATCH', { release, updateMask: 'rulesetName' });
 else if (existing.status === 404) await request('releases', 'POST', release);
 else throw new Error(`Cannot inspect current rules: ${existing.status}`);
-console.log(`Published owner-only profile rules to ${project}.`);
+console.log(`Published private-profile and public-ranking rules to ${project}.`);

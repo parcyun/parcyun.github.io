@@ -11269,7 +11269,16 @@ function endGame(){
   else if(state.score>0) grade='D';
   $('#grade').textContent = grade;
   show('result');
+  lastRankingResult={lang:state.lang,diff:state.diff,mode:state.mode,score:state.score,elapsedMs,playedAt:Date.now()};
+  rankingSubmitted=false;
+  submitRankingButton.disabled=false;submitRankingButton.textContent=state.lang==='en'?'Summit!':'기록 제출';
 }
+let lastRankingResult=null,rankingSubmitted=false;
+const submitRankingButton=document.createElement('button');submitRankingButton.type='button';submitRankingButton.className='act primary ranking-result-submit';submitRankingButton.textContent='기록 제출';
+$('#result .actions').after(submitRankingButton);
+const publishNotice=document.createElement('p');publishNotice.className='ranking-note';publishNotice.textContent='등록하면 별명·점수·소요 시간·플레이 시각이 전체 랭킹에 공개됩니다.';$('#result .actions').after(publishNotice);
+async function submitLatestRanking(button){if(!lastRankingResult||rankingSubmitted)return;button.disabled=true;try{if(!window.psGameRanking)throw new Error('서버 연결을 준비 중이에요. 다시 시도해 주세요.');await window.psGameRanking.submit(lastRankingResult);rankingSubmitted=true;submitRankingButton.disabled=true;submitRankingButton.textContent=state.lang==='en'?'Saved!':'제출 완료';button.textContent=state.lang==='en'?'Saved!':'제출 완료';if(rankingDialog.open){rankingDiff=lastRankingResult.diff;rankingMode=lastRankingResult.mode;await renderRankingSheet()}}catch(error){button.disabled=false;button.textContent=error.message||'제출 실패 · 다시 시도'}}
+submitRankingButton.onclick=()=>submitLatestRanking(submitRankingButton);
 $('#again').addEventListener('click',startGame);
 $('#back-home').addEventListener('click',()=>{renderBest();show('home')});
 $('#see-rank').addEventListener('click',()=>openRanking());
@@ -11279,25 +11288,41 @@ function compareRankRecords(a,b){
   return b.score-a.score || ms(a)-ms(b);
 }
 const rankingDialog=document.createElement('dialog');
-rankingDialog.className='ranking-sheet';rankingDialog.setAttribute('aria-label','내 랭킹');
-rankingDialog.innerHTML='<header><h2>내 랭킹</h2><button type="button" class="act ghost" aria-label="랭킹 닫기">×</button></header><p class="ranking-note">이 브라우저의 개인 기록 · 점수 우선, 동점이면 빠른 시간 우선</p><div class="ranking-filters"></div><div class="ranking-scroll" tabindex="0"><table class="rank-table"><thead><tr><th>순위</th><th>점수</th><th>시간</th></tr></thead><tbody></tbody></table></div>';
+rankingDialog.className='ranking-sheet';rankingDialog.setAttribute('aria-label','전체 플레이어 랭킹');
+rankingDialog.innerHTML='<header><h2>전체 플레이어 랭킹</h2><button type="button" class="act ghost" aria-label="랭킹 닫기">×</button></header><p class="ranking-note">서버에 등록된 플레이어별 최고 기록 · 점수 우선, 동점이면 소요 시간 우선</p><div class="ranking-filters"></div><div class="ranking-scroll" tabindex="0"><table class="rank-table"><thead><tr><th>순위</th><th>플레이어</th><th>점수</th><th>소요 시간</th><th>플레이 시간</th></tr></thead><tbody></tbody></table><button type="button" class="act" id="ranking-more" hidden>더 보기</button></div><div class="ranking-mine" role="status"></div>';
 document.body.append(rankingDialog);
 let rankingDiff='easy',rankingMode='timer';
+const mineBox=rankingDialog.querySelector('.ranking-mine');const mineInfo=document.createElement('span');mineInfo.className='ranking-mine-info';mineBox.append(mineInfo);
+const mineSubmit=document.createElement('button');mineSubmit.type='button';mineSubmit.className='act primary';mineSubmit.textContent='기록 제출';mineBox.append(mineSubmit);mineSubmit.onclick=()=>submitLatestRanking(mineSubmit);
 for(const [source,key] of [['#diff-row','diff'],['#mode-row','mode']]){
   const group=$(source).cloneNode(true);group.removeAttribute('id');
   group.querySelectorAll('[id],[data-ps-edit-id],[data-ps-design-id]').forEach(n=>{n.removeAttribute('id');n.removeAttribute('data-ps-edit-id');n.removeAttribute('data-ps-design-id')});
   group.querySelectorAll('button').forEach(button=>button.onclick=()=>{if(key==='diff')rankingDiff=button.dataset.diff;else rankingMode=button.dataset.mode;renderRankingSheet()});
   rankingDialog.querySelector('.ranking-filters').append(group);
 }
-function renderRankingSheet(){
+let rankingRequest=0,rankingCursor=null,rankingRows=[];
+async function renderRankingSheet(append=false){
+  const request=++rankingRequest;
   rankingDialog.querySelectorAll('[data-diff]').forEach(b=>b.classList.toggle('on',b.dataset.diff===rankingDiff));
   rankingDialog.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===rankingMode));
-  const rows=(loadRecords()[state.lang][rankingDiff]||[]).filter(r=>(r.mode||'practice')===rankingMode).slice().sort(compareRankRecords);
-  const tbody=rankingDialog.querySelector('tbody');tbody.replaceChildren();
-  if(!rows.length){const row=tbody.insertRow();const cell=row.insertCell();cell.colSpan=3;cell.textContent='아직 기록이 없어요. 게임을 마치면 여기에 표시됩니다.';return}
-  rows.forEach((r,i)=>{const row=tbody.insertRow();[i+1,r.score,r.time||'—'].forEach(value=>{row.insertCell().textContent=String(value)})});
-  rankingDialog.querySelector('.ranking-scroll').scrollTop=0;
+  const tbody=rankingDialog.querySelector('tbody'),mine=mineInfo,more=rankingDialog.querySelector('#ranking-more');
+  mineSubmit.disabled=!lastRankingResult||rankingSubmitted;mineSubmit.textContent=rankingSubmitted?(state.lang==='en'?'Saved!':'제출 완료'):(state.lang==='en'?'Summit!':'기록 제출');
+  if(!append){rankingRows=[];rankingCursor=null;tbody.innerHTML='<tr><td colspan="5">서버 기록을 불러오는 중…</td></tr>';mine.textContent='내 순위 확인 중…';more.hidden=true}
+  more.disabled=true;
+  try{
+    if(!window.psGameRanking)throw new Error('서버 연결을 준비 중입니다. 잠시 후 다시 열어 주세요.');
+    const data=await window.psGameRanking.load({lang:state.lang,diff:rankingDiff,mode:rankingMode},append?rankingCursor:null);
+    if(request!==rankingRequest)return;
+    rankingRows=rankingRows.concat(data.rows);rankingCursor=data.cursor;tbody.replaceChildren();
+    const playedAt=r=>r.playedAt?.toDate?new Intl.DateTimeFormat('ko-KR',{dateStyle:'short',timeStyle:'short'}).format(r.playedAt.toDate()):'—';
+    let rank=1;rankingRows.forEach((r,i)=>{if(i===0||compareRankRecords(r,rankingRows[i-1])!==0)rank=i+1;const row=tbody.insertRow();[rank,r.nickname,r.score,fmtTime(r.elapsedMs),playedAt(r)].forEach(value=>row.insertCell().textContent=String(value))});
+    if(!rankingRows.length){const cell=tbody.insertRow().insertCell();cell.colSpan=5;cell.textContent='등록된 기록이 없습니다. 첫 번째 기록을 남겨 보세요.'}
+    mine.textContent=data.mine?`내 순위 ${data.mine.rank}위 · ${data.mine.nickname} · ${data.mine.score.toLocaleString()}점 · 소요 ${fmtTime(data.mine.elapsedMs)} · 플레이 ${playedAt(data.mine)}`:data.signedIn?'내 기록 없음 · 게임을 마치고 전체 랭킹에 등록해 주세요.':'로그인하면 내 기록과 순위를 볼 수 있어요.';
+    more.hidden=!data.more;if(!append)rankingDialog.querySelector('.ranking-scroll').scrollTop=0;
+  }catch(error){if(request!==rankingRequest)return;if(!append)tbody.replaceChildren();const cell=tbody.insertRow().insertCell();cell.colSpan=5;cell.textContent='기록을 불러오지 못했습니다. 잠시 후 다시 열어 주세요.';mine.textContent='서버 기록 확인 불가';console.warn('Ranking load:',error.code||error.message)}
+  finally{if(request===rankingRequest)more.disabled=false}
 }
+rankingDialog.querySelector('#ranking-more').onclick=()=>renderRankingSheet(true);
 function openRanking(){rankingDiff=state.diff;rankingMode=state.mode;renderRankingSheet();rankingDialog.showModal()}
 rankingDialog.querySelector('header button').onclick=()=>rankingDialog.close();
 rankingDialog.addEventListener('click',e=>{if(e.target===rankingDialog){const r=rankingDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)rankingDialog.close()}});
@@ -11559,7 +11584,7 @@ function setLanguage(lang){
 </script>
 <script src="../share-widget.js?v=20261029-1" defer></script>
 <script src="/service-guide.js?v=20261029" defer></script>
-<script type="module" src="/game-account.js?v=20261029-4"></script>
+<script type="module" src="/game-account.js?v=20261029-6"></script>
 <script src="../visitor-counter.js" defer></script>
 <a data-ps-edit-id="ps-spell-072" data-ps-design-id="ps-spell-072" id="ps-back-btn" href="/atlas-gears/" aria-label="아틀라스 기어즈로 이동" title="아틀라스 기어즈로 이동" style="position:fixed;top:14px;left:14px;z-index:99999;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#8C8C8C;cursor:pointer;padding:0" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.28)'" onmouseout="this.style.color='#8C8C8C';this.style.borderColor='rgba(255,255,255,.12)'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
 <style>
@@ -11576,6 +11601,7 @@ function setLanguage(lang){
 .sound-stack{display:flex;flex-direction:column;gap:8px;width:132px;flex:none}.hero-meta .sound-stack .sound-toggle{box-sizing:border-box;width:132px;height:34px;justify-content:center}.sound-toggle:not(.on),.sound-toggle:not(.on):hover{color:#8c939e;border-color:#666;background:transparent}.ranking-launch{box-sizing:border-box;width:132px;height:68px;display:flex;align-items:center;justify-content:center;gap:8px;background:transparent;border:1px solid var(--line-hot);color:var(--ink);font:700 14px Pretendard,sans-serif;cursor:pointer}.ranking-launch svg{width:22px;height:22px;fill:var(--amber)}.ranking-launch:hover svg{animation:ranking-spin 1s linear infinite}@keyframes ranking-spin{to{transform:rotate(360deg)}}
 .ranking-sheet{box-sizing:border-box;width:min(640px,calc(100vw - 24px));max-height:85dvh;margin:auto auto 0;padding:24px;border:1px solid var(--line-hot);border-bottom:0;border-radius:24px 24px 0 0;background:#101319;color:var(--ink);overflow:hidden;box-shadow:0 -20px 80px #0008}.ranking-sheet[open]{display:flex;flex-direction:column;animation:ranking-rise .3s ease-out}.ranking-sheet::backdrop{background:#0008;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}.ranking-sheet header{display:flex;align-items:center;justify-content:space-between;gap:16px}.ranking-sheet h2{margin:0;color:var(--amber);font-size:24px}.ranking-sheet header button{padding:8px 16px}.ranking-note{color:var(--muted);font-size:12px;margin:16px 0}.ranking-filters{display:grid;gap:8px;margin-bottom:16px}.ranking-filters>div{display:flex;gap:6px;flex-wrap:wrap}.ranking-filters button{min-height:30px;padding:4px 10px;font-size:12px}.ranking-scroll{overflow:auto;overscroll-behavior:contain;min-height:120px;max-height:48dvh}.ranking-scroll th{position:sticky;top:0}.ranking-scroll td{overflow-wrap:anywhere}.ranking-scroll:focus-visible{outline:1px solid var(--amber);outline-offset:-1px}@keyframes ranking-rise{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}@media(prefers-reduced-motion:reduce){.ranking-sheet[open],.ranking-launch:hover svg{animation:none}}
 </style>
-<style>@media(max-width:600px){.hero-meta>.sound-stack,.hero-meta .ranking-launch{width:132px}}</style>
+<style>.ranking-sheet{height:90dvh;max-height:90dvh;width:min(900px,calc(100vw - 24px))}.ranking-scroll{flex:1;max-height:none;min-height:0}.ranking-scroll table{min-width:600px}.ranking-mine{flex:none;margin-top:16px;padding:18px;border:1px solid var(--amber);border-radius:12px;background:#ffb11a18;color:var(--amber);font-weight:700;line-height:1.7}.ranking-sheet h2{font-size:clamp(18px,3vw,24px)}@media(max-width:600px){.hero-meta>.sound-stack,.hero-meta .ranking-launch{width:132px}.ranking-sheet{padding:20px 16px}.ranking-mine{font-size:12px;padding:12px}}</style>
+<style>.ranking-result-submit{display:block;margin:24px auto 0;min-width:180px}.ranking-mine{display:flex;align-items:center;justify-content:space-between;gap:16px}.ranking-mine-info{min-width:0;flex:1}.ranking-mine button{flex:none;max-width:45%;padding:12px 16px;font-size:12px}.ranking-mine button:disabled{opacity:.5;cursor:not-allowed}</style>
 </body>
 </html>

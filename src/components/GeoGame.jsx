@@ -123,7 +123,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     </aside>
     {pendingMode&&<dialog ref={difficultyDialog} className="gg-difficulty-dialog" aria-labelledby="gg-difficulty-title" onCancel={()=>setPendingMode(null)}>
       <header><span className="gg-eyebrow">GEOWEB / LEVEL</span><button type="button" onClick={()=>setPendingMode(null)} aria-label="난이도 선택 닫기">×</button></header>
-      <h2 id="gg-difficulty-title">{GAME_MODES.find(item=>item.id===pendingMode)?.title}</h2><p>어떤 난이도로 탐험할까요?</p>
+      <h2 id="gg-difficulty-title">{GAME_MODES.find(item=>item.id===pendingMode)?.title}</h2><p>어떤 국가들이 더 자주 나올까요?</p>
       <div className="gg-difficulty-options">{DIFFICULTIES.map((item,i)=><button key={item.id} type="button" autoFocus={i===0} onClick={()=>startDifficulty(item.id)}><b>{item.label}</b><span>{item.description}</span></button>)}</div>
     </dialog>}
     {!playing&&<button type="button" className="gg-ranking-open" onClick={openRanking}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M8 3h8v5a4 4 0 0 1-8 0V3ZM8 5H4v2a4 4 0 0 0 4 4m8-6h4v2a4 4 0 0 1-4 4M12 12v6m-4 3h8m-6-3h4v3"/></svg>랭킹</button>}

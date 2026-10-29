@@ -7,8 +7,8 @@ import '../../public/spell-drill/scoring.js';
 export const scoring = globalThis.SpellScoring;
 export const GAME_MODES = [
   { id:'country', title:'나라 이름 맞추기', tier:'easy', prompt:'', label:'나라 이름' },
-  { id:'capital-easy', title:'수도 이름 · 국가 정보', tier:'easy', prompt:'이 나라의 수도는?', label:'수도 이름' },
-  { id:'capital-hard', title:'수도 이름 · 지도만', tier:'hard', prompt:'지도만 보고 수도를 맞혀 보세요', label:'수도 이름' },
+  { id:'capital-easy', title:'수도 이름 · 쉬움', tier:'easy', prompt:'이 나라의 수도는?', label:'수도 이름' },
+  { id:'capital-hard', title:'수도 이름 · 어려움', tier:'hard', prompt:'지도만 보고 수도를 맞혀 보세요', label:'수도 이름' },
   { id:'flag', title:'국기 맞추기', tier:'easy', prompt:'어느 나라의 국기일까요?', label:'나라 이름' },
   { id:'nature', title:'자연환경 이름 맞추기', tier:'med', prompt:'색칠된 자연환경의 이름은?', label:'강·산맥·고원·평원·사막 이름' },
   { id:'landmark', title:'인문환경 이름 맞추기', tier:'hard', prompt:'사진 속 랜드마크의 이름은?', label:'랜드마크 이름' },

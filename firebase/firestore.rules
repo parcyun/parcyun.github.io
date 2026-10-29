@@ -5,9 +5,10 @@ service cloud.firestore {
       allow read: if board.matches('(ko|en)_(easy|med|hard|mix)_(practice|timer|custom)');
       allow create, update: if request.auth != null && request.auth.uid == uid
         && board.matches('(ko|en)_(easy|med|hard|mix)_(practice|timer|custom)')
-        && request.resource.data.keys().hasOnly(['nickname','score','elapsedMs','playedAt','updatedAt'])
+        && request.resource.data.keys().hasOnly(['school','nickname','score','elapsedMs','playedAt','updatedAt'])
         && request.resource.data.keys().hasAll(['nickname','score','elapsedMs','playedAt','updatedAt'])
         && request.resource.data.nickname is string && request.resource.data.nickname.size() >= 2 && request.resource.data.nickname.size() <= 20
+        && (!('school' in request.resource.data) || (request.resource.data.school is string && request.resource.data.school.size() <= 60))
         && request.resource.data.score is int && request.resource.data.score >= 0 && request.resource.data.score <= 100000000
         && request.resource.data.elapsedMs is int && request.resource.data.elapsedMs >= 1000 && request.resource.data.elapsedMs <= 86400000
         && request.resource.data.playedAt is timestamp && request.resource.data.playedAt <= request.time

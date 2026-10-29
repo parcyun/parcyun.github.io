@@ -10,7 +10,7 @@ try{
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   if(process.argv.includes('--candidate'))await page.route('**/game-account.js?*',route=>route.fulfill({contentType:'text/javascript',body:readFileSync(new URL('../public/game-account.js',import.meta.url),'utf8')}));
   await page.goto(`https://parcyun.github.io/${path}/`);
-  if(path==='world-map')await page.locator('.update-story').waitFor();
+  if(path==='world-map')await page.locator('.update-story').waitFor({timeout:3000}).catch(()=>{});
   const intro=page.getByRole('button',{name:'시작하기',exact:true});if(await intro.isVisible())await intro.tap();
   await page.getByRole('button',{name:'Google 로그인 및 프로필',exact:true}).tap();
   const opened=page.waitForEvent('popup',{timeout:20000});

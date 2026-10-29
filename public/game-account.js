@@ -132,6 +132,7 @@ function renderAccount() {
   body.querySelector('#ps-signout').onclick = async () => { try { const s = await loadSdk(); await s.authApi.signOut(s.auth); } catch { message('로그아웃하지 못했습니다. 다시 시도해 주세요.'); } };
 }
 function install() {
+  studio.querySelector('.ps-menu-action').style.display = document.querySelector('#foot-report') ? '' : 'none';
   const coffeeOriginal = document.querySelector('#ps-coffee');
   const shareOriginal = document.querySelector('.ps-share-fab');
   if (!support.childElementCount && coffeeOriginal && shareOriginal) {
@@ -143,9 +144,9 @@ function install() {
       copy.onclick = () => { studio.close(); original.click(); }; support.append(copy);
     }
   }
-  const home = document.querySelector('#ps-back-btn,.home-fab');
+  const home = document.querySelector('#ps-back-btn,.home-fab,.ps-back');
   if (home && !home.dataset.studioMenu) {
-    home.dataset.studioMenu = 'true'; home.classList.add('ps-studio-home'); home.setAttribute('role', 'button'); home.setAttribute('aria-label', 'parcyun studio 메뉴'); home.setAttribute('aria-haspopup', 'dialog'); home.title = 'parcyun studio 메뉴';
+    home.dataset.studioMenu = 'true'; home.removeAttribute('onclick'); home.classList.add('ps-studio-home'); home.setAttribute('role', 'button'); home.setAttribute('aria-label', 'parcyun studio 메뉴'); home.setAttribute('aria-haspopup', 'dialog'); home.title = 'parcyun studio 메뉴';
     const img = document.createElement('img'); img.src = MASCOT; img.alt = ''; img.className = 'ps-studio-avatar'; home.querySelector('svg')?.setAttribute('style', 'display:none'); home.append(img);
     home.addEventListener('click', e => { e.preventDefault(); studio.showModal(); });
     home.addEventListener('keydown', e => { if (e.key === ' ') { e.preventDefault(); studio.showModal(); } });

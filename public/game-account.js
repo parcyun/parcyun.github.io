@@ -92,8 +92,7 @@ function renderAccount() {
   if (!user) {
     body.innerHTML = '<p>Google 계정으로 로그인하면 별명과 프로필을 다른 기기에서도 사용할 수 있어요.</p><p class="ps-muted">개인 기록은 브라우저에 저장돼요. 스펠 드릴에서 기록 제출을 누르면 별명과 최고 기록이 전체 랭킹에 공개돼요. 게임은 로그인 없이도 이용할 수 있어요.</p><button type="button" class="ps-primary" id="ps-google-login">Google 계정으로 로그인</button><p class="ps-message" role="status"></p>' + legalLinks();
     body.querySelector('#ps-google-login').onclick = async e => {
-      if (isReservedNickname(nickname)) { message('DEXTER와 parcyun이 포함된 별명은 사용할 수 없어요. 다른 별명을 입력해 주세요.'); return; }
-    e.currentTarget.disabled = true; message('Google 로그인 창을 여는 중입니다.');
+      e.currentTarget.disabled = true; message('Google 로그인 창을 여는 중입니다.');
       try { const s = await loadSdk(); const provider = new s.authApi.GoogleAuthProvider(); provider.setCustomParameters({ prompt: 'select_account' }); await s.authApi.signInWithPopup(s.auth, provider); }
       catch (error) { message(error.code === 'auth/popup-closed-by-user' ? '로그인 창을 닫았습니다.' : error.code === 'auth/popup-blocked' ? '브라우저에서 로그인 팝업을 허용해 주세요.' : '로그인에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.'); }
       finally { const button = body.querySelector('#ps-google-login'); if (button) button.disabled = false; }

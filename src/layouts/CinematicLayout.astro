@@ -9,6 +9,7 @@ export interface Props {
   lang?: string;
   showFeedback?: boolean;
   showReview?: boolean;
+  showBack?: boolean;
 }
 import { icon } from '../lib/icons';
 import PsFooter from '../components/PsFooter.astro';
@@ -193,7 +194,7 @@ section.in-view, .hero.in-view {
 </head>
 <body>
 
-<button type="button" class="ps-back" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}"><span class="ico" set:html={icon('arrowLeft', 20)}></span></button>
+{Astro.props.showBack !== false && <button type="button" class="ps-back" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}"><span class="ico" set:html={icon('arrowLeft', 20)}></span></button>}
 
 <slot />
 

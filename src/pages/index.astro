@@ -1,6 +1,6 @@
 ---
 import CinematicLayout from '../layouts/CinematicLayout.astro';
-import { icon } from '../lib/icons';
+import HomeCollections from '../components/HomeCollections';
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -25,15 +25,16 @@ const jsonLd = {
   ogUrl="https://parcyun.github.io/"
   showFeedback={false}
   showReview={false}
+  showBack={false}
 >
 <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)}></script>
 
 <!-- ===== HERO ===== -->
+<main id="home-scenes" aria-label="parcyun studio 소개">
 <section class="hero">
   <div class="hero-inner">
-    <div class="hero-eyebrow">Teacher. Product Builder. Education Studio.</div>
+    <img class="hero-dexter" src="/images/dexter-base-character-01.png" alt="덱스터" width="100" height="100" />
     <h1 data-ps-edit-id="ps-home-001" data-ps-design-id="ps-home-001" class="hero-wordmark">parcyun studio</h1>
-    <p data-ps-edit-id="ps-home-002" data-ps-design-id="ps-home-002" class="hero-name">parcyun · 박창현</p>
     <p data-ps-edit-id="ps-home-003" data-ps-design-id="ps-home-003" class="hero-tagline">교육 현장을 가장 잘 이해하는 사람이,<br><strong>좋은 교육 서비스를 만듭니다.</strong></p>
     <div class="hero-ctas">
       <a data-ps-edit-id="ps-home-004" data-ps-design-id="ps-home-004" href="/academica/" class="btn primary">강의 자료 <span data-ps-edit-id="ps-home-005" data-ps-design-id="ps-home-005" class="arrow">↗</span></a>
@@ -49,11 +50,6 @@ const jsonLd = {
 <!-- ===== ABOUT / MANIFESTO ===== -->
 <section class="about">
   <div class="wrap">
-    <header class="section-header">
-      <h2 data-ps-edit-id="ps-home-012" data-ps-design-id="ps-home-012" class="ko">parcyun studio는</h2>
-      <span data-ps-edit-id="ps-home-013" data-ps-design-id="ps-home-013" class="en">About</span>
-    </header>
-    <p data-ps-edit-id="ps-home-014" data-ps-design-id="ps-home-014" class="manifesto">초등학교 교사이자 교육용 <span data-ps-edit-id="ps-home-015" data-ps-design-id="ps-home-015" class="highlight">프로덕트 개발자</span>입니다.<br><span data-ps-edit-id="ps-home-016" data-ps-design-id="ps-home-016" class="highlight">교육 현장에 도움</span>을 줄 수 있는 지점을 찾고, <span data-ps-edit-id="ps-home-017" data-ps-design-id="ps-home-017" class="highlight">해결</span>하는 과정을 씁니다.</p>
     <div class="identity-tags">
       <span data-ps-edit-id="ps-home-018" data-ps-design-id="ps-home-018" class="tag-pill">초등 교사</span>
       <span data-ps-edit-id="ps-home-019" data-ps-design-id="ps-home-019" class="tag-pill">Prompt Engineer</span>
@@ -165,22 +161,12 @@ const jsonLd = {
       <h2 data-ps-edit-id="ps-home-073" data-ps-design-id="ps-home-073" class="ko">자료실</h2>
       <span data-ps-edit-id="ps-home-074" data-ps-design-id="ps-home-074" class="en">Collections</span>
     </header>
-    <div class="collections-grid">
-      <a data-ps-edit-id="ps-home-075" data-ps-design-id="ps-home-075" href="/academica/" class="collection-card">
-        <span data-ps-edit-id="ps-home-076" data-ps-design-id="ps-home-076" class="cc-brand">ACADEMICA</span>
-        <span data-ps-edit-id="ps-home-077" data-ps-design-id="ps-home-077" class="cc-ko">강의 자료</span>
-        <span data-ps-edit-id="ps-home-078" data-ps-design-id="ps-home-078" class="cc-desc">교육 · AI · 디자인 강의 자료를 카테고리별로 모아뒀어요.</span>
-        <span data-ps-edit-id="ps-home-079" data-ps-design-id="ps-home-079" class="cc-go">서가 열기 <span data-ps-edit-id="ps-home-080" data-ps-design-id="ps-home-080" class="ico" set:html={icon('arrowRight', 15)}></span></span>
-      </a>
-      <a data-ps-edit-id="ps-home-081" data-ps-design-id="ps-home-081" href="/atlas-gears/" class="collection-card">
-        <span data-ps-edit-id="ps-home-082" data-ps-design-id="ps-home-082" class="cc-brand">ATLAS GEARS</span>
-        <span data-ps-edit-id="ps-home-083" data-ps-design-id="ps-home-083" class="cc-ko">교육 활동 자료</span>
-        <span data-ps-edit-id="ps-home-084" data-ps-design-id="ps-home-084" class="cc-desc">게임 · 활동지 · 커리큘럼 · 인터랙티브를 검색해서 바로.</span>
-        <span data-ps-edit-id="ps-home-085" data-ps-design-id="ps-home-085" class="cc-go">자료 찾기 <span data-ps-edit-id="ps-home-086" data-ps-design-id="ps-home-086" class="ico" set:html={icon('arrowRight', 15)}></span></span>
-      </a>
-    </div>
+    <HomeCollections client:load />
   </div>
 </section>
+</main>
+<script is:inline src="/home-scenes.js?v=20261029" defer></script>
+<link rel="stylesheet" href="/home-scenes.css?v=20261029" />
 
 <style is:global>
   .collections-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:6px}

@@ -20,10 +20,14 @@ test('public ranking writes are owner-bound and do not expose private profile fi
  assert.match(rules,/request.auth.uid == uid/);assert.match(rules,/hasOnly\(\['school','nickname','score','elapsedMs','playedAt','updatedAt'\]\)/);
  assert.match(rules,/playedAt <= request.time/);
 });
-test('gallery previews are real recordings with feature scenes under two seconds',()=>{
+test('gallery previews contain five real feature scenes of two seconds each',()=>{
  const dir=new URL('../public/videos/gallery/',import.meta.url);const files=readdirSync(dir).filter(f=>f.endsWith('.mp4'));assert.equal(files.length,18);
   const manifest=JSON.parse(readFileSync(new URL('recordings.json',dir),'utf8'));assert.equal(Object.keys(manifest).length,18);
-  for(const file of files){const entry=manifest[file.replace('.mp4','')];assert.equal(entry.kind,'real-browser-recording');assert.ok(entry.scenes.every(scene=>scene.duration<=2));const data=JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','json',new URL(file,dir).pathname.replaceAll('%20',' ')],{encoding:'utf8'}));assert.ok(Number(data.format.duration)<=entry.scenes.length*2+.1,file)}
+  for(const file of files){const entry=manifest[file.replace('.mp4','')];assert.ok(['real-browser-recording','official-feature-demo','feature-demo'].includes(entry.kind));assert.equal(entry.scenes.length,5,file);assert.ok(entry.scenes.every(scene=>scene.duration===2));const data=JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','json',new URL(file,dir).pathname.replaceAll('%20',' ')],{encoding:'utf8'}));assert.ok(Math.abs(Number(data.format.duration)-10)<.1,file)}
+  assert.equal(manifest['home-works'].url,'/');
+  assert.ok(manifest['spell-drill'].scenes.some(s=>s.label.includes('정답')));
+  assert.ok(manifest['spell-drill'].scenes.some(s=>s.label.includes('랭킹')));
+  assert.ok(manifest['spell-drill'].scenes.some(s=>s.label.includes('언어')));
 });
 
 test('ranking affiliation shows school, playful stable fallback, and Dexter developer label',()=>{

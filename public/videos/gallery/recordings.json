@@ -4,60 +4,108 @@
     "url": "/academica-parcyun-studio/",
     "scenes": [
       {
-        "label": "주요 내용 실제 스크롤",
-        "duration": 1.8
+        "label": "온라인 연수 아카이브 소개",
+        "duration": 2
       },
       {
-        "label": "다음 내용 탐색",
-        "duration": 1.8
+        "label": "녹화본 목록으로 이동",
+        "duration": 2
+      },
+      {
+        "label": "연수 영상 카드 미리보기",
+        "duration": 2
+      },
+      {
+        "label": "연수 안내 내용 살펴보기",
+        "duration": 2
+      },
+      {
+        "label": "아카이브 소개로 돌아가기",
+        "duration": 2
       }
     ],
-    "duration": 3.566667
+    "duration": 10
   },
   "agentic-ai": {
     "kind": "real-browser-recording",
     "url": "https://parcyun.notion.site/Agentic-AI-with-LLM-3593f99a82238070ab4be47cefd571d7",
     "scenes": [
       {
-        "label": "주요 내용 실제 스크롤",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 1",
+        "duration": 2
       },
       {
-        "label": "다음 내용 탐색",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 2",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 3",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 4",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 5",
+        "duration": 2
       }
     ],
-    "duration": 3.566667
+    "duration": 10
   },
   "ai-class": {
     "kind": "real-browser-recording",
     "url": "https://parcyun.notion.site/6-12-3683f99a822380afb2b8ded430282603",
     "scenes": [
       {
-        "label": "주요 내용 실제 스크롤",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 1",
+        "duration": 2
       },
       {
-        "label": "다음 내용 탐색",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 2",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 3",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 4",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 5",
+        "duration": 2
       }
     ],
-    "duration": 3.533333
+    "duration": 10
   },
   "ai-edtech-tools": {
     "kind": "real-browser-recording",
     "url": "https://parcyun.notion.site/AI-5a56a8c4c29e43edbced6a71a1d6e67b?source=copy_link",
     "scenes": [
       {
-        "label": "주요 내용 실제 스크롤",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 1",
+        "duration": 2
       },
       {
-        "label": "다음 내용 탐색",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 2",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 3",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 4",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 5",
+        "duration": 2
       }
     ],
-    "duration": 3.566667
+    "duration": 10
   },
   "edubeige": {
     "kind": "real-browser-recording",
@@ -65,14 +113,26 @@
     "scenes": [
       {
         "label": "과목별 에듀테크 탐색",
-        "duration": 1.8
+        "duration": 2
       },
       {
         "label": "도구 목록 스크롤",
-        "duration": 1.8
+        "duration": 2
+      },
+      {
+        "label": "도구 사례 더 보기",
+        "duration": 2
+      },
+      {
+        "label": "수학 도구 비교",
+        "duration": 2
+      },
+      {
+        "label": "관심 도구 다시 보기",
+        "duration": 2
       }
     ],
-    "duration": 3.566667
+    "duration": 10
   },
   "home-academica": {
     "kind": "real-browser-recording",
@@ -80,14 +140,26 @@
     "scenes": [
       {
         "label": "강의 카드 내용 미리보기",
-        "duration": 1.8
+        "duration": 2
       },
       {
         "label": "실습 가이드 미리보기",
-        "duration": 1.8
+        "duration": 2
+      },
+      {
+        "label": "Notion 가이드 미리보기",
+        "duration": 2
+      },
+      {
+        "label": "강의 목록 탐색",
+        "duration": 2
+      },
+      {
+        "label": "강의 목록 되돌아보기",
+        "duration": 2
       }
     ],
-    "duration": 3.566667
+    "duration": 10
   },
   "home-atlas": {
     "kind": "real-browser-recording",
@@ -95,59 +167,107 @@
     "scenes": [
       {
         "label": "게임 카테고리 필터",
-        "duration": 1.8
+        "duration": 2
       },
       {
         "label": "활동 자료 검색",
-        "duration": 1.8
+        "duration": 2
+      },
+      {
+        "label": "검색 결과 미리보기",
+        "duration": 2
+      },
+      {
+        "label": "수업 준비 카테고리",
+        "duration": 2
+      },
+      {
+        "label": "수업 자료 탐색",
+        "duration": 2
       }
     ],
-    "duration": 3.6
+    "duration": 10
   },
   "home-works": {
     "kind": "real-browser-recording",
-    "url": "/works/",
+    "url": "/",
     "scenes": [
       {
-        "label": "프로젝트 Live 필터",
-        "duration": 1.8
+        "label": "스튜디오 홈 소개",
+        "duration": 2
       },
       {
-        "label": "포트폴리오 내용 미리보기",
-        "duration": 1.8
+        "label": "경력 섹션으로 스크롤 이동",
+        "duration": 2
+      },
+      {
+        "label": "주요 경력 펼쳐보기",
+        "duration": 2
+      },
+      {
+        "label": "자료실로 스크롤 이동",
+        "duration": 2
+      },
+      {
+        "label": "교육 자료 목록 탐색",
+        "duration": 2
       }
     ],
-    "duration": 3.566667
+    "duration": 10
   },
   "kocomate": {
     "kind": "real-browser-recording",
     "url": "https://kocoafab.cc/edu/kocomate",
     "scenes": [
       {
-        "label": "주요 내용 실제 스크롤",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 1",
+        "duration": 2
       },
       {
-        "label": "다음 내용 탐색",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 2",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 3",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 4",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 5",
+        "duration": 2
       }
     ],
-    "duration": 3.533333
+    "duration": 10
   },
   "llm-fundamentals": {
     "kind": "real-browser-recording",
     "url": "/llm-fundamentals/",
     "scenes": [
       {
-        "label": "주요 내용 실제 스크롤",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 1",
+        "duration": 2
       },
       {
-        "label": "다음 내용 탐색",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 2",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 3",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 4",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 5",
+        "duration": 2
       }
     ],
-    "duration": 3.566667
+    "duration": 10
   },
   "math-volume": {
     "kind": "real-browser-recording",
@@ -155,74 +275,135 @@
     "scenes": [
       {
         "label": "교사용 정답 숨기기",
-        "duration": 1.8
+        "duration": 2
       },
       {
         "label": "활동 단계 탐색",
-        "duration": 1.8
+        "duration": 2
+      },
+      {
+        "label": "곱셈으로 부피 확인",
+        "duration": 2
+      },
+      {
+        "label": "역추리 활동 탐색",
+        "duration": 2
+      },
+      {
+        "label": "검수 미션 탐색",
+        "duration": 2
       }
     ],
-    "duration": 3.6
+    "duration": 10
   },
   "notion-onboarding": {
     "kind": "real-browser-recording",
     "url": "https://parcyun.notion.site/Notion-8280d9f2847044e6bf48b25a1f199d76",
     "scenes": [
       {
-        "label": "주요 내용 실제 스크롤",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 1",
+        "duration": 2
       },
       {
-        "label": "다음 내용 탐색",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 2",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 3",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 4",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 5",
+        "duration": 2
       }
     ],
-    "duration": 3.566667
+    "duration": 10
   },
   "snipaste": {
-    "kind": "real-browser-recording",
-    "url": "https://www.snipaste.com/",
+    "kind": "feature-demo",
+    "url": "https://www.appinn.com/snipaste/",
+    "attribution": "Snipaste author feature demonstrations, reproduced by Appinn (2016-07-29); source GIFs linked in CREDITS.md. No landing-page scrolling or simulated UI.",
     "scenes": [
       {
-        "label": "주요 내용 실제 스크롤",
-        "duration": 1.8
+        "label": "영역 감지와 캡처",
+        "duration": 2
       },
       {
-        "label": "다음 내용 탐색",
-        "duration": 1.8
+        "label": "캡처 위 도형 주석",
+        "duration": 2
+      },
+      {
+        "label": "이미지를 화면에 고정",
+        "duration": 2
+      },
+      {
+        "label": "고정 이미지 크기 조절",
+        "duration": 2
+      },
+      {
+        "label": "고정 이미지 투명도 조절",
+        "duration": 2
       }
     ],
-    "duration": 3.566667
+    "duration": 10
   },
   "spell-drill": {
     "kind": "real-browser-recording",
     "url": "/spell-drill/",
     "scenes": [
       {
-        "label": "힌트 확인 및 입력 포커스",
-        "duration": 1.8
+        "label": "정답 입력과 점수 이펙트",
+        "duration": 2
       },
       {
-        "label": "패스와 다음 문항 전환",
-        "duration": 1.8
+        "label": "연속 정답과 콤보",
+        "duration": 2
+      },
+      {
+        "label": "전체 플레이어 랭킹 열기",
+        "duration": 2
+      },
+      {
+        "label": "랭킹 난이도 선택",
+        "duration": 2
+      },
+      {
+        "label": "한국어에서 영어로 언어 전환",
+        "duration": 2
       }
     ],
-    "duration": 3.533333
+    "duration": 10
   },
   "world-city-research": {
     "kind": "real-browser-recording",
     "url": "/worksheets/world-city-research-worksheet-v1.pdf",
     "scenes": [
       {
-        "label": "주요 내용 실제 스크롤",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 1",
+        "duration": 2
       },
       {
-        "label": "다음 내용 탐색",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 2",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 3",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 4",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 5",
+        "duration": 2
       }
     ],
-    "duration": 3.533333
+    "duration": 10
   },
   "world-map": {
     "kind": "real-browser-recording",
@@ -230,43 +411,80 @@
     "scenes": [
       {
         "label": "평면에서 지구본으로 전환",
-        "duration": 1.8
+        "duration": 2
       },
       {
         "label": "기후대 켜기와 지도 표시",
-        "duration": 1.8
+        "duration": 2
+      },
+      {
+        "label": "지구본 회전",
+        "duration": 2
+      },
+      {
+        "label": "확대하며 지형 탐색",
+        "duration": 2
+      },
+      {
+        "label": "게임 모드 진입",
+        "duration": 2
       }
     ],
-    "duration": 3.533333
+    "duration": 10
   },
   "yearly-life-archive": {
     "kind": "real-browser-recording",
     "url": "https://parcyun.notion.site/3133f99a82238159a0b3e9eba02d462c?source=copy_link",
     "scenes": [
       {
-        "label": "주요 내용 실제 스크롤",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 1",
+        "duration": 2
       },
       {
-        "label": "다음 내용 탐색",
-        "duration": 1.8
+        "label": "자료 주요 내용 탐색 2",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 3",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 4",
+        "duration": 2
+      },
+      {
+        "label": "자료 주요 내용 탐색 5",
+        "duration": 2
       }
     ],
-    "duration": 3.566667
+    "duration": 10
   },
   "zoomit": {
-    "kind": "real-browser-recording",
-    "url": "https://learn.microsoft.com/ko-kr/sysinternals/downloads/zoomit",
+    "kind": "official-feature-demo",
+    "url": "https://learn.microsoft.com/en-us/sysinternals/downloads/zoomit",
+    "attribution": "Microsoft Sysinternals / Mark Russinovich — official ZoomIt demonstration embedded on Microsoft Learn.",
     "scenes": [
       {
-        "label": "주요 내용 실제 스크롤",
-        "duration": 1.8
+        "label": "화면 확대",
+        "duration": 2
       },
       {
-        "label": "다음 내용 탐색",
-        "duration": 1.8
+        "label": "도형과 주석",
+        "duration": 2
+      },
+      {
+        "label": "화면 위 텍스트 입력",
+        "duration": 2
+      },
+      {
+        "label": "화면 녹화와 재생",
+        "duration": 2
+      },
+      {
+        "label": "발표용 카운트다운",
+        "duration": 2
       }
     ],
-    "duration": 3.533333
+    "duration": 10
   }
 }

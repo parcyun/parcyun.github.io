@@ -39,8 +39,8 @@
 - 390px 화면에서도 한글/영어 홈 높이와 컨트롤 높이가 같고 가로 넘침이 없음을 확인. 스튜디오 메뉴의 공유·커피는 데스크톱 좌우, 모바일 공유 위·커피 아래로 배치.
 - 인앱 브라우저의 인증 팝업은 별도 창 추적이 제한되어 Chrome에서 인증을 검증했다. 기본 게임 이용은 로그인에 의존하지 않는다.
 - 실제 1문항 정답 → 게임 종료 → 서버 최고 기록 제출 → 전체 랭킹과 내 순위·플레이 시각 재조회 확인. 테스트 별명 `숲속수달`, 초급·연습 130점. 임의로 만든 순위표 데이터는 사용하지 않았다.
-- 홈 미리보기: `scripts/record-gallery-services.mjs`가 로그인 없는 독립 Playwright 브라우저에서 실제 입력·토글·필터·검색·자료 탐색을 녹화한다. 캡처 이미지를 동영상으로 바꾸는 이전 빌더는 제거했다. 각 기능 장면은 1.8초이며 2장면을 연결해 3.6초 루프로 편집한다. 원본 WebM·장면 시각 영수증은 `Downloads/Codex/Artifacts/2026-10-29/service-recordings/`에 보존한다.
-- `node scripts/record-gallery-services.mjs [자료 ID ...]` 후 `node scripts/package-gallery-recordings.mjs`로 실제 녹화 메타데이터를 갱신한다. Notion의 요청 제한·검증 화면은 우회하지 않는다. Desktop 앱 도구는 설치·실행하지 않고 공개 사용 안내 페이지를 탐색한다.
+- 홈 미리보기: `scripts/record-gallery-services.mjs`가 로그인 없는 독립 Playwright 브라우저에서 실제 입력·토글·필터·검색·자료 탐색을 녹화한다. 캡처 이미지를 동영상으로 바꾸는 이전 빌더는 제거했다. 카드마다 2초짜리 기능 장면 5개를 연결한 10초 루프다. 원본 WebM·장면 시각 영수증은 `Downloads/Codex/Artifacts/2026-10-29/service-recordings-five/`에 보존한다. 첫 번째 카드는 Works가 아닌 스튜디오 홈 소개·경력·자료실을 보여준다.
+- `node scripts/record-gallery-services.mjs [자료 ID ...]`와 `node scripts/build-gallery-tool-demos.mjs` 후 `node scripts/package-gallery-recordings.mjs`로 메타데이터를 갱신한다. Notion의 요청 제한·검증 화면은 우회하지 않는다. ZoomIt은 Microsoft 공식 시연, Snipaste는 Appinn이 소개한 저자 기능 시연 애니메이션에서 실제 조작 장면을 발췌한다. 출처·원본 URL은 `public/videos/gallery/CREDITS.md`에 기록한다. 스펠드릴은 실제 두 번의 정답·콤보·서버 랭킹 열기/필터·언어 전환을 녹화하며 서버 점수를 조작하거나 테스트 기록을 제출하지 않는다.
 - 영상은 contain 배치, 근처 카드 사전 로드, 카드 전체 호버/키보드 포커스 즉시 재생과 포스터 페이드아웃, 이탈/탭 비활성화 시 정지를 적용한다. 상단 3개 고정 카드는 제목·설명만 남기고 조회수를 표시하지 않는다.
 
 ## 랭킹 학교명 표시 (2026-10-29)

@@ -1,7 +1,7 @@
 import {useEffect,useState,useRef} from 'react';
 import {resources} from '../data/resources';
 import {loadResourceViewTotals,recordResourceView} from '../lib/resourceViews';
-const pinned=[{id:'home-works',title:'parcyun studio',desc:'만들고 실험한 웹서비스',url:'/works/',visitPath:'/works/'},{id:'home-academica',title:'ACADEMICA',desc:'교육 · AI · 디자인 강의 자료',url:'/academica/',visitPath:'/academica/'},{id:'home-atlas',title:'ATLAS GEARS',desc:'교실에서 바로 쓰는 활동 도구',url:'/atlas-gears/',visitPath:'/atlas-gears/'}];
+const pinned=[{id:'home-works',title:'parcyun studio',desc:'만들고 실험한 웹서비스',url:'/'},{id:'home-academica',title:'ACADEMICA',desc:'교육 · AI · 디자인 강의 자료',url:'/academica/'},{id:'home-atlas',title:'ATLAS GEARS',desc:'교실에서 바로 쓰는 활동 도구',url:'/atlas-gears/'}];
 function Preview({id}:{id:string}){
   const [active,setActive]=useState(false),[loaded,setLoaded]=useState(false),[failed,setFailed]=useState(false);
   const video=useRef<HTMLVideoElement>(null),host=useRef<HTMLDivElement>(null);
@@ -10,7 +10,7 @@ function Preview({id}:{id:string}){
   useEffect(()=>{const player=video.current;if(!player)return;const sync=()=>{if(active&&!document.hidden)void player.play().catch(()=>setFailed(true));else{player.pause();player.currentTime=0}};sync();document.addEventListener('visibilitychange',sync);return()=>{document.removeEventListener('visibilitychange',sync);player.pause()}},[active,loaded]);
   return <div ref={host} className={`experience-image ${active&&!failed?'preview-playing':''}`}>
     <img className="visible" src={`/images/resource-previews/gallery-${id}-0.png`} alt="" loading="lazy"/>
-    {loaded&&<video ref={video} src={`/videos/gallery/${id}.mp4?v=20261029-recorded-1`} muted loop playsInline preload="auto" aria-hidden="true" onError={()=>setFailed(true)}/>}
+    {loaded&&<video ref={video} src={`/videos/gallery/${id}.mp4?v=20261029-five-scenes`} muted loop playsInline preload="auto" aria-hidden="true" onError={()=>setFailed(true)}/>}
   </div>;
 }
 export default function HomeCollections(){

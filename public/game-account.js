@@ -3,6 +3,7 @@ const MASCOT = '/images/dexter-base-character-01.png';
 import {createLeaderboard,rankingAffiliation,isReservedNickname} from './spell-leaderboard.js?v=20261029-6';
 import {createBrowserProfileStore,normalizeSchool} from './browser-profile.js?v=20261029-1';
 import {searchSchools,schoolMark,SCHOOL_REGIONS} from './school-directory.js?v=20261029-1';
+import {optimizeSchoolMark,submitSchoolMarkRequest} from './school-mark-request.js?v=20261029-1';
 let browserStorage;try{browserStorage=window.localStorage;}catch{browserStorage={getItem:()=>null,removeItem:()=>{},setItem:()=>{throw new Error('브라우저 저장 공간을 사용할 수 없어요.');}};}
 const localProfiles=createBrowserProfileStore({storage:browserStorage,eventTarget:window,channel:typeof BroadcastChannel==='function'?new BroadcastChannel('ps-browser-profile-updates'):null});
 let creatingLocal=false;
@@ -62,16 +63,27 @@ function setSchoolIcon(icon,school){icon.src=SCHOOL_ICON;icon.alt='학교 마크
 const schoolDialog=dialog('학교 검색');schoolDialog.classList.add('ps-school-dialog');
 const schoolBody=document.createElement('div');schoolDialog.append(schoolBody);
 schoolBody.innerHTML='<form class="ps-school-search"><label for="ps-school-query">학교 이름</label><div class="ps-school-query-row"><input id="ps-school-query" placeholder="학교 이름을 2글자 이상 입력" autocomplete="off"><button type="submit">검색</button></div><label for="ps-school-region">지역</label><select id="ps-school-region" aria-label="학교 검색 지역"></select></form><p class="ps-school-status" role="status"></p><div class="ps-school-results"></div><small>출처: 나이스 교육정보 개방 포털 · 마크는 학교 공식 홈페이지에서 수집해 서버에 보관해요. 아직 확보하지 못한 학교는 기본 아이콘으로 표시돼요.</small>';
+const requestPanel=document.createElement('details');requestPanel.className='ps-school-mark-request';
+requestPanel.innerHTML='<summary>학교 이미지 등록 요청</summary><form><p class="ps-muted">검색한 학교를 선택하고 교표 이미지를 보내 주세요. 확인 후 반영됩니다. 인물 사진이나 개인정보는 올리지 마세요.</p><label for="ps-mark-school">학교 선택</label><select id="ps-mark-school" required><option value="">학교를 먼저 검색해 주세요</option></select><label for="ps-mark-file">교표 이미지<input id="ps-mark-file" type="file" accept="image/png,image/jpeg,image/webp" required></label><img class="ps-mark-preview" alt="제출할 교표 미리보기" hidden><label class="ps-mark-consent"><input type="checkbox" required>학교 교표 이미지이며 공개 반영을 요청합니다.</label><button type="submit" class="ps-primary" disabled>이미지 등록 요청 보내기</button><p class="ps-mark-message" role="status"></p></form>';
+schoolBody.append(requestPanel);
+const markForm=requestPanel.querySelector('form'),markSchool=requestPanel.querySelector('select'),markFile=requestPanel.querySelector('input[type=file]'),markPreview=requestPanel.querySelector('img'),markMessage=requestPanel.querySelector('.ps-mark-message'),markSubmit=requestPanel.querySelector('button');
+let requestSchoolRows=[],requestImage='',requestImageSerial=0,markSending=false;
+const updateMarkSubmit=()=>{markSubmit.disabled=markSending||!markSchool.value||!requestImage||!markForm.querySelector('input[type=checkbox]').checked;};
+function setRequestSchools(rows){const selected=markSchool.value;requestSchoolRows=rows;markSchool.replaceChildren();const empty=document.createElement('option');empty.value='';empty.textContent=rows.length?'학교를 선택해 주세요':'학교를 먼저 검색해 주세요';markSchool.append(empty);for(const school of rows){const option=document.createElement('option');option.value=school.id;option.textContent=school.name+' · '+school.address;markSchool.append(option);}if(rows.some(s=>s.id===selected))markSchool.value=selected;updateMarkSubmit();}
+markSchool.onchange=()=>{markMessage.textContent='';updateMarkSubmit();};markForm.querySelector('input[type=checkbox]').onchange=updateMarkSubmit;
+markFile.onchange=async()=>{const serial=++requestImageSerial;requestImage='';markPreview.hidden=true;markMessage.textContent='';updateMarkSubmit();const file=markFile.files[0];if(!file)return;try{const image=await optimizeSchoolMark(file);if(serial!==requestImageSerial)return;requestImage=image;markPreview.src=image;markPreview.hidden=false;updateMarkSubmit();}catch(error){if(serial===requestImageSerial)markMessage.textContent=error.message||'이 이미지를 열지 못했어요.';}};
+markForm.onsubmit=async event=>{event.preventDefault();if(markSending||markSubmit.disabled)return;const school=requestSchoolRows.find(s=>s.id===markSchool.value),image=requestImage;markSending=true;schoolBody.querySelectorAll('input,select,form button').forEach(control=>control.disabled=true);updateMarkSubmit();markMessage.textContent='이미지를 보내고 있어요…';try{const s=await loadSdk();await s.auth.authStateReady();if(!s.auth.currentUser){if(!anonymousLogin)anonymousLogin=s.authApi.signInAnonymously(s.auth).finally(()=>{anonymousLogin=null;});await anonymousLogin;}await submitSchoolMarkRequest({s,user:s.auth.currentUser,school,image});markMessage.textContent=school.name+' 이미지 등록 요청을 서버에 저장했어요. 교표 확인 후 반영할게요.';requestImage='';requestImageSerial++;markFile.value='';markPreview.hidden=true;markForm.querySelector('input[type=checkbox]').checked=false;}catch(error){markMessage.textContent=error.message?.includes('이미 보냈어요')?error.message:'등록 요청을 저장하지 못했어요. 연결 상태를 확인한 뒤 다시 보내 주세요.';}finally{markSending=false;schoolBody.querySelectorAll('input,select,form button').forEach(control=>control.disabled=false);updateMarkSubmit();}};
 for(const [code,name]of SCHOOL_REGIONS){const option=document.createElement('option');option.value=code;option.textContent=name;schoolBody.querySelector('select').append(option);}
 let selectSchool,schoolTimer,schoolRequest=0,schoolAbort;
 function openSchoolSearch(onSelect){selectSchool=onSelect;schoolDialog.showModal();const input=schoolBody.querySelector('input');input.focus();input.select();if(input.value.trim().length>=2)findSchools();else schoolBody.querySelector('.ps-school-status').textContent='학교 이름을 입력해 주세요.';}
 async function findSchools(){
   clearTimeout(schoolTimer);schoolAbort?.abort();const request=++schoolRequest;
-  const name=schoolBody.querySelector('input').value.trim(),region=schoolBody.querySelector('select').value,status=schoolBody.querySelector('.ps-school-status'),results=schoolBody.querySelector('.ps-school-results');results.replaceChildren();
+  const name=schoolBody.querySelector('input').value.trim(),region=schoolBody.querySelector('select').value,status=schoolBody.querySelector('.ps-school-status'),results=schoolBody.querySelector('.ps-school-results');results.replaceChildren();setRequestSchools([]);
   if(name.length<2){status.textContent='학교 이름을 2글자 이상 입력해 주세요.';return;}
   schoolAbort=new AbortController();status.textContent='학교를 검색하고 있어요…';
   try{const data=await searchSchools(name,region,schoolAbort.signal);if(request!==schoolRequest||!schoolDialog.open)return;
     status.textContent=data.total?`검색 결과 ${data.total}곳${data.total>data.rows.length?' · 처음 '+data.rows.length+'곳을 표시해요. 지역이나 학교 전체 이름으로 좁혀 주세요.':''}`:'검색 결과가 없어요. 학교 이름과 지역을 확인해 주세요.';
+    setRequestSchools(data.rows);
     for(const school of data.rows){const button=document.createElement('button');button.type='button';const name=document.createElement('b');name.textContent=school.name;const address=document.createElement('span');address.textContent=school.address||'도로명 주소 정보 없음';const icon=document.createElement('img');icon.width=36;icon.height=36;setSchoolIcon(icon,school);const label=document.createElement('div');label.append(name,address);button.append(icon,label);button.onclick=()=>{selectSchool?.(school);schoolDialog.close();};results.append(button);}
   }catch(error){if(error.name!=='AbortError'&&request===schoolRequest)status.textContent=error.message||'학교 검색을 다시 시도해 주세요.';}
 }
@@ -93,13 +105,14 @@ async function loadSdk() {
     sdk = { authApi: auth, dbApi: db, auth: auth.getAuth(firebase), db: db.getFirestore(firebase) };
     await auth.setPersistence(sdk.auth, auth.browserLocalPersistence);
     auth.onAuthStateChanged(sdk.auth, async value => {
-      user = value; profile = {}; photo = '';
+      const keepGuestDraft=(!user||user.isAnonymous)&&(!value||value.isAnonymous)&&account.open&&!!body.querySelector('#ps-save-profile');
+      user = value;if(!keepGuestDraft){profile = {}; photo = '';}
       if (user&&!user.isAnonymous) {
         try { const snap = await db.getDoc(db.doc(sdk.db, 'profiles', user.uid)); profile = snap.exists() ? snap.data() : {}; }
         catch { profile = {}; }
       }
       if(!user||user.isAnonymous)profile=localProfiles.current()||{};
-      renderAccount(); renderTrigger();
+      if(!keepGuestDraft)renderAccount(); renderTrigger();
     });
     return sdk;
   })().catch(error => { sdkPromise = null; throw error; });
@@ -228,3 +241,5 @@ window.addEventListener('ps-browser-profile-updated',()=>{if(!user||user.isAnony
 style.textContent+='@keyframes ps-profile-enter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}.ps-account-dialog[open]{animation:ps-profile-enter .25s ease-out}.ps-selected-school,.ps-school-results button,.ps-local-start{transition:background .2s ease,border-color .2s ease}@media(prefers-reduced-motion:reduce){.ps-account-dialog[open]{animation:none}.ps-selected-school,.ps-school-results button,.ps-local-start{transition:none}}';
 
 style.textContent+='.ps-school-results button{display:flex;align-items:center;gap:12px}.ps-school-results button img{width:36px;height:36px;object-fit:contain;flex:none}.ps-school-results button div{min-width:0}';
+
+style.textContent+='.ps-school-mark-request{border-top:1px solid #ffffff24;margin-top:16px;padding-top:12px}.ps-school-mark-request summary{color:#ffcf78;cursor:pointer;font-weight:600;padding:6px 0}.ps-school-mark-request select{box-sizing:border-box;width:100%;padding:10px;margin-top:5px;border:1px solid #ffffff30;border-radius:10px;background:#080a0f;color:#fff;font:inherit}.ps-mark-preview{display:block;width:96px;height:96px;object-fit:contain;background:#fff;border-radius:12px;margin:12px 0}.ps-mark-preview[hidden]{display:none}.ps-account-dialog .ps-mark-consent{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.7}.ps-mark-consent input{flex:none;margin-top:5px}.ps-mark-message{font-size:12px;line-height:1.7;color:#ffcf78}.ps-school-mark-request .ps-primary{margin-top:12px}';

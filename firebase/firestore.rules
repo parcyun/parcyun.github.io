@@ -52,6 +52,23 @@ service cloud.firestore {
           || (request.resource.data.score == resource.data.score && request.resource.data.elapsedMs < resource.data.elapsedMs));
       allow delete: if ownsRankingEntry(uid);
     }
+    match /schoolMarkRequests/{requestId} {
+      function ownsRequest() { return request.auth != null && requestId.matches(request.auth.uid + '_[A-Z][0-9]{2}:[0-9]{6,10}'); }
+      allow get: if ownsRequest();
+      allow create: if ownsRequest()
+        && request.resource.data.keys().hasOnly(['ownerUid','schoolId','schoolName','schoolAddress','image','status','submittedAt'])
+        && request.resource.data.keys().hasAll(['ownerUid','schoolId','schoolName','schoolAddress','image','status','submittedAt'])
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.schoolId is string && request.resource.data.schoolId.matches('[A-Z][0-9]{2}:[0-9]{6,10}')
+        && requestId == request.auth.uid + '_' + request.resource.data.schoolId
+        && request.resource.data.schoolName is string && request.resource.data.schoolName.size() > 0 && request.resource.data.schoolName.size() <= 60
+        && request.resource.data.schoolAddress is string && request.resource.data.schoolAddress.size() <= 200
+        && request.resource.data.image is string && request.resource.data.image.size() <= 90000
+        && request.resource.data.image.matches('data:image/webp;base64,[A-Za-z0-9+/=]+')
+        && request.resource.data.status == 'pending'
+        && request.resource.data.submittedAt == request.time;
+      allow delete: if ownsRequest() && resource.data.status == 'pending';
+    }
     match /profiles/{uid} {
       allow get, delete: if request.auth != null && request.auth.uid == uid;
       allow create, update: if request.auth != null && request.auth.uid == uid

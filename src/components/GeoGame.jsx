@@ -129,7 +129,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     {!playing&&<button type="button" className="gg-ranking-open" onClick={openRanking}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M8 3h8v5a4 4 0 0 1-8 0V3ZM8 5H4v2a4 4 0 0 0 4 4m8-6h4v2a4 4 0 0 1-4 4M12 12v6m-4 3h8m-6-3h4v3"/></svg>랭킹</button>}
     {rankingOpen&&<GeoRanking initialMode={mode} initialDifficulty={difficulty} record={finishedRecord} onClose={closeRanking}/>}
     {!summary&&<button className="gg-mode-exit" onClick={onExit}>게임모드 종료 ↗</button>}
-    {playing&&<><header className="gg-play-title"><span>GEOWEB PLAY</span><h1>{config.title} · {difficultyLabel(tier)}</h1><button type="button" className="gg-practice-toggle" aria-pressed={practice} onClick={()=>{setPractice(v=>!v);setSummary(false);}}>연습 모드 {practice?'켜짐':'꺼짐'}</button></header>
+    {playing&&<><header className="gg-play-title"><span>GEOWEB PLAY · {hasCountryDifficulty(mode)?'국가 출제 ':''}{difficultyLabel(tier)}</span><h1>{config.title}</h1><button type="button" className="gg-practice-toggle" aria-pressed={practice} onClick={()=>{setPractice(v=>!v);setSummary(false);}}>연습 모드 {practice?'켜짐':'꺼짐'}</button></header>
     {!practice&&!summary&&result?.gain&&<GeoScoreEffect key={result.id} gain={result.gain} combo={result.combo}/>}
     {!practice&&!summary&&result?.skipped&&<div key={result.id} className="gg-skip-answer" role="status">{result.text}</div>}
     <button className="gg-finish" disabled={summary} onClick={finish}>게임 마치기</button>

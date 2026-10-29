@@ -10,15 +10,17 @@ export function rankingAffiliation(player) {
   return `${moods[seed % moods.length]} ${roles[Math.floor(seed / moods.length) % roles.length]}`;
 }
 
-export function createLeaderboard(context) {
+export function createLeaderboard(context, game='spell') {
+  const collectionName=game==='geo'?'geoBoards':'spellBoards';
   const boardId = ({lang,diff,mode}) => {
+    if(game==='geo'){if(!['country','capital-easy','capital-hard','flag','nature','landmark'].includes(mode))throw new Error('Invalid board');return mode;}
     if (!['ko','en'].includes(lang)||!['easy','med','hard','mix'].includes(diff)||!['practice','timer','custom'].includes(mode)) throw new Error('Invalid board');
     return `${lang}_${diff}_${mode}`;
   };
   return {
     async load(filters, cursor) {
       const {s,user}=await context(); const d=s.dbApi;
-      const collection=d.collection(s.db,'spellBoards',boardId(filters),'players');
+      const collection=d.collection(s.db,collectionName,boardId(filters),'players');
       const clauses=[d.orderBy('score','desc'),d.orderBy('elapsedMs','asc'),d.limit(50)];
       if(cursor)clauses.push(d.startAfter(cursor));
       const snapshot=await d.getDocsFromServer(d.query(collection,...clauses));
@@ -39,7 +41,7 @@ export function createLeaderboard(context) {
     async submit(record) {
       const {s,user,profile,nickname}=await context();if(!user)throw new Error('로그인 후 등록할 수 있어요.');
       if(isReservedNickname(profile.nickname||nickname))throw new Error('DEXTER와 parcyun이 포함된 별명은 사용할 수 없어요. 내 프로필에서 별명을 변경해 주세요.');
-      const d=s.dbApi;const ref=d.doc(s.db,'spellBoards',boardId(record),'players',user.uid);
+      const d=s.dbApi;const ref=d.doc(s.db,collectionName,boardId(record),'players',user.uid);
       const next={nickname:profile.nickname||nickname,school:typeof profile.school==='string'?profile.school.trim():'',score:record.score,elapsedMs:Math.round(record.elapsedMs),playedAt:d.Timestamp.fromMillis(record.playedAt),updatedAt:d.serverTimestamp()};
       await d.runTransaction(s.db,async transaction=>{
         const previous=await transaction.get(ref);

@@ -24,6 +24,25 @@ service cloud.firestore {
           || (request.resource.data.score == resource.data.score && request.resource.data.elapsedMs < resource.data.elapsedMs));
       allow delete: if request.auth != null && request.auth.uid == uid;
     }
+    match /geoBoards/{board}/players/{uid} {
+      allow read: if board.matches('(country|capital-easy|capital-hard|flag|nature|landmark)');
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && board.matches('(country|capital-easy|capital-hard|flag|nature|landmark)')
+        && request.resource.data.keys().hasOnly(['school','nickname','score','elapsedMs','playedAt','updatedAt'])
+        && request.resource.data.keys().hasAll(['nickname','score','elapsedMs','playedAt','updatedAt'])
+        && request.resource.data.nickname is string && availableNickname(request.resource.data.nickname)
+        && request.resource.data.nickname.size() >= 2 && request.resource.data.nickname.size() <= 20
+        && (!('school' in request.resource.data) || (request.resource.data.school is string && request.resource.data.school.size() <= 60))
+        && request.resource.data.score is int && request.resource.data.score >= 0 && request.resource.data.score <= 100000000
+        && request.resource.data.elapsedMs is int && request.resource.data.elapsedMs >= 1000 && request.resource.data.elapsedMs <= 86400000
+        && request.resource.data.playedAt is timestamp && request.resource.data.playedAt <= request.time
+        && request.resource.data.playedAt >= request.time - duration.value(1,'d')
+        && request.resource.data.updatedAt == request.time
+        && (!exists(/databases/$(database)/documents/geoBoards/$(board)/players/$(uid))
+          || request.resource.data.score > resource.data.score
+          || (request.resource.data.score == resource.data.score && request.resource.data.elapsedMs < resource.data.elapsedMs));
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
     match /profiles/{uid} {
       allow get, delete: if request.auth != null && request.auth.uid == uid;
       allow create, update: if request.auth != null && request.auth.uid == uid

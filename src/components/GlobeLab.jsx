@@ -3,8 +3,9 @@ import GeoGame from './GeoGame.jsx';
 import { buildGamePools } from './geoGameData.js';
 import { STARDUST_FRAGMENT } from './globeStarlight.js';
 import * as THREE from 'three';
+import { TessellateModifier } from 'three/addons/modifiers/TessellateModifier.js';
 import { countryInfo } from './globeCountryData.js';
-import { countryByBoundaryName, formatPopulation, searchCountryMatches, SYSTEM_EXPLANATIONS, SYSTEM_LABELS } from './globeCountries.js';
+import { COUNTRIES, countryByBoundaryName, formatPopulation, searchCountryMatches, SYSTEM_EXPLANATIONS, SYSTEM_LABELS } from './globeCountries.js';
 import { STR, MONTHS_I18N } from './globeI18n.js';
 import { markGeoUpdateSeen } from './geoUpdateStory.js';
 import { ALL_CLIMATE_SELECTION, CLIMATE_TEXTURE_URL, CLIMATE_ZONE_ORDER, CLIMATE_ZONES } from './globeClimate.js';
@@ -250,7 +251,7 @@ const ease=(t)=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 // #5 실제 크기 비교(thetruesize.com): 메르카토르는 위도가 높을수록 면적을 과장. 나라를 다른 위도로 끌면
 // 실제(지상) 크기를 유지하도록 렌더 크기를 sec(위도)에 맞춰 재조정 → 위도별 왜곡을 눈으로 비교.
 const tsMercY=(latDeg)=>{const l=THREE.MathUtils.clamp(latDeg,-84,84)*D2R;return Math.log(Math.tan(Math.PI/4+l/2))*MS;};
-function buildTrueSizeShape(features){ // features=선택된 대륙/국가의 GeoJSON feature 배열. 반환: {lat0, x0,y0, fill(merc 상대 삼각형 xy쌍), outlines[각 링 세그먼트 xy쌍]}
+function buildTrueSizeShape(features,spherical=false){ // features=선택된 대륙/국가의 GeoJSON feature 배열. 반환: {lat0, x0,y0, fill(merc 상대 삼각형 xy쌍), outlines[각 링 세그먼트 xy쌍]}
   const polys=[];for(const f of features){const g=f.geometry;const ps=g.type==='Polygon'?[g.coordinates]:g.coordinates;for(const p of ps)polys.push(p);}
   let best=null,bestA=-1; // 가장 큰 외곽링으로 중심 위도 산출
   for(const poly of polys){const o=poly[0];if(!o||o.length<4)continue;let a=0;for(let i=0;i<o.length-1;i++)a+=o[i][0]*o[i+1][1]-o[i+1][0]*o[i][1];a=Math.abs(a);if(a>bestA){bestA=a;best=o;}}
@@ -263,8 +264,8 @@ function buildTrueSizeShape(features){ // features=선택된 대륙/국가의 Ge
     let mn=180,mx=-180;for(const p of o){if(p[0]<mn)mn=p[0];if(p[0]>mx)mx=p[0];}if(mx-mn>180)continue; // 반자오선 횡단 스킵
     const shape=new THREE.Shape(o.map(p=>new THREE.Vector2(MX(p[0])-x0,tsMercY(p[1])-y0)));
     for(let h=1;h<poly.length;h++){const r=poly[h];if(r&&r.length>=4)shape.holes.push(new THREE.Path(r.map(p=>new THREE.Vector2(MX(p[0])-x0,tsMercY(p[1])-y0))));}
-    let sg;try{sg=new THREE.ShapeGeometry(shape);}catch(e){continue;}
-    const ps=sg.attributes.position.array,ix=sg.index?sg.index.array:null;if(ix)for(let i=0;i<ix.length;i++)fill.push(ps[ix[i]*3],ps[ix[i]*3+1]);sg.dispose();
+    let sg;try{sg=new THREE.ShapeGeometry(shape);if(spherical){const original=sg;sg=new TessellateModifier(0.1,8).modify(original);original.dispose();}}catch(e){continue;}
+    const ps=sg.attributes.position.array,ix=sg.index?sg.index.array:null;if(ix)for(let i=0;i<ix.length;i++)fill.push(ps[ix[i]*3],ps[ix[i]*3+1]);else for(let i=0;i<ps.length;i+=3)fill.push(ps[i],ps[i+1]);sg.dispose();
     for(const ring of poly){if(ring.length<2)continue;const seg=[];for(let i=0;i<ring.length-1;i++)seg.push(MX(ring[i][0])-x0,tsMercY(ring[i][1])-y0,MX(ring[i+1][0])-x0,tsMercY(ring[i+1][1])-y0);outlines.push(new Float32Array(seg));}}
   return {lat0,x0,y0,fill:new Float32Array(fill),outlines};
 }
@@ -304,6 +305,13 @@ function DraggablePanel({corner,onDock,otherCorner,className,children,collapsed,
 }
 
 export default function GlobeLab(){
+  useEffect(()=>{
+    let cancelled=false,timer;const images=[];const urls=[...new Set(COUNTRIES.map(country=>country.flag).filter(Boolean))];
+    const loadNext=()=>{if(cancelled||!urls.length)return;const image=new Image();images.push(image);image.decoding='async';image.fetchPriority='low';image.onload=image.onerror=()=>{if(!cancelled)timer=setTimeout(loadNext,0);};image.src=urls.shift();};
+    const start=()=>{for(let i=0;i<4;i++)loadNext();};
+    const idle=window.requestIdleCallback?.(start,{timeout:1500});if(idle===undefined)timer=setTimeout(start,500);
+    return()=>{cancelled=true;clearTimeout(timer);if(idle!==undefined)window.cancelIdleCallback(idle);for(const image of images)image.onload=image.onerror=null;};
+  },[]);
   const mountRef=useRef(null),labelRef=useRef(null),api=useRef({});
   const [gameActive,setGameActive]=useState(false),[gameWipe,setGameWipe]=useState(false),[gamePools,setGamePools]=useState(null);
   const gameSnapshot=useRef(null),gameTimers=useRef([]);
@@ -318,7 +326,7 @@ export default function GlobeLab(){
   const [terrain,setTerrain]=useState(false); // 초등 사회 수업용 주요 지형 레이어
   const [terrainLayers,setTerrainLayers]=useState(()=>({...EMPTY_LANDFORM_SELECTION}));
   const [satBusy,setSatBusy]=useState(null); // {pct,label} 위성 타일 로딩 진행 or null
-  const [trueSize,setTrueSize]=useState(false); // #5 실제 크기 비교(평면 전용)
+  const [trueSize,setTrueSize]=useState(false); // 실제 크기 비교(모든 뷰)
   const [tsInfo,setTsInfo]=useState(false); // 실제 크기 비교 설명 팝업
   const [panels,setPanels]=useState({tools:'tl',legend:'tr'}); // #6 기본: 도구=좌상, 대륙/대양=우상 · #5 드래그로 이동/스냅
   const [toolsCollapsed,setToolsCollapsed]=useState(false); // 도구 상자 접힘
@@ -492,7 +500,7 @@ export default function GlobeLab(){
             const outer=densify(outer0,maxStep);
             const shape=new THREE.Shape(outer.map(p=>new THREE.Vector2(p[0],p[1])));
             for(let h=1;h<poly.length;h++){const r0=poly[h];if(r0&&r0.length>=4){const r=densify(r0,maxStep);shape.holes.push(new THREE.Path(r.map(p=>new THREE.Vector2(p[0],p[1]))));}}
-            let sg;try{sg=new THREE.ShapeGeometry(shape);}catch(e){continue;}
+            let sg;try{sg=new THREE.ShapeGeometry(shape);if(spherical){const original=sg;sg=new TessellateModifier(0.1,8).modify(original);original.dispose();}}catch(e){continue;}
             const ps=sg.attributes.position.array,ix=sg.index?sg.index.array:null;if(!ix){sg.dispose();continue;}
             for(let i=0;i<ix.length;i+=3){const i0=ix[i],i1=ix[i+1],i2=ix[i+2],l0=ps[i0*3]*D2R,l1=ps[i1*3]*D2R,l2=ps[i2*3]*D2R; // aTriLon=삼각형 세 꼭짓점 경도(rad, 세 정점 동일) → straddle 붕괴
               const a0=ps[i0*3+1]*D2R,a1=ps[i1*3+1]*D2R,a2=ps[i2*3+1]*D2R; // aTriLat=세 꼭짓점 위도(rad) → 렌즈 대척점 사전 붕괴(#4)
@@ -631,27 +639,33 @@ export default function GlobeLab(){
         const r=await buildSatelliteTexture(4,(d,t)=>setSatBusy({pct:Math.round(d/t*100),label:'위성 사진 불러오는 중…'}),()=>disposed);
         setSatBusy(null); if(!r||disposed)return; satBaseTex=r.tex;satTexU.value=satBaseTex;satReady=true; };
       // ===== 실제 크기 비교(#5) =====
-      let tsShape=null,tsGhost=null,tsFillGeo=null,tsLineGeos=[],tsDragging=false;
-      const removeGhost=()=>{if(tsGhost){scene.remove(tsGhost);tsGhost.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});}tsGhost=null;tsShape=null;tsLineGeos=[];tsFillGeo=null;tsDragging=false;if(controls&&S.current.view==='flat')controls.enablePan=true;};
+      let tsShape=null,tsGhost=null,tsFillGeo=null,tsLineGeos=[],tsDragging=false,tsCenter=null,tsDragOffset=[0,0];
+      const removeGhost=()=>{if(tsGhost){scene.remove(tsGhost);tsGhost.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});}tsGhost=null;tsShape=null;tsLineGeos=[];tsFillGeo=null;tsDragging=false;if(controls){controls.enablePan=VIEW[S.current.view].pan;controls.enableRotate=VIEW[S.current.view].rotate;}};
       const updateGhost=(wx,wy)=>{ if(!tsShape||!tsGhost)return;
-        const latC=2*Math.atan(Math.exp(wy/MS))-Math.PI/2, s=Math.cos(tsShape.lat0)/Math.max(0.02,Math.cos(latC)); // sec(위도) 비율로 실제크기 유지
+        tsCenter=[wx,wy];
+        const spherical=S.current.view!=='flat';
+        const sourceCenter=lonLatToVec3(tsShape.x0/MS*R2D,tsShape.lat0*R2D,1);
+        const targetLat=2*Math.atan(Math.exp(wy/MS))-Math.PI/2;
+        const rotation=new THREE.Quaternion().setFromUnitVectors(sourceCenter,lonLatToVec3(wx/MS*R2D,targetLat*R2D,1));
+        const position=(x,y)=>{const v=lonLatToVec3((tsShape.x0+x)/MS*R2D,(2*Math.atan(Math.exp((tsShape.y0+y)/MS))-Math.PI/2)*R2D,1).applyQuaternion(rotation);return projectJS(...vec3ToLonLat(v));};
+        const latC=targetLat, s=Math.cos(tsShape.lat0)/Math.max(0.02,Math.cos(latC)); // sec(위도) 비율로 실제크기 유지
         const fp=tsFillGeo.attributes.position.array,src=tsShape.fill;
-        for(let i=0;i<src.length/2;i++){fp[i*3]=wx+s*src[i*2];fp[i*3+1]=wy+s*src[i*2+1];fp[i*3+2]=0.07;}tsFillGeo.attributes.position.needsUpdate=true;
-        for(let li=0;li<tsLineGeos.length;li++){const g=tsLineGeos[li],ss=tsShape.outlines[li],lp=g.attributes.position.array;for(let i=0;i<ss.length/2;i++){lp[i*3]=wx+s*ss[i*2];lp[i*3+1]=wy+s*ss[i*2+1];lp[i*3+2]=0.07;}g.attributes.position.needsUpdate=true;} };
-      const buildGhost=(feats)=>{ removeGhost(); const sh=buildTrueSizeShape(feats); if(!sh)return; tsShape=sh;
+        for(let i=0;i<src.length/2;i++){fp[i*3]=wx+s*src[i*2];fp[i*3+1]=wy+s*src[i*2+1];fp[i*3+2]=0.07;if(spherical){const p=position(src[i*2],src[i*2+1]);fp[i*3]=p.x;fp[i*3+1]=p.y;fp[i*3+2]=p.z;}}tsFillGeo.attributes.position.needsUpdate=true;
+        for(let li=0;li<tsLineGeos.length;li++){const g=tsLineGeos[li],ss=tsShape.outlines[li],lp=g.attributes.position.array;for(let i=0;i<ss.length/2;i++){lp[i*3]=wx+s*ss[i*2];lp[i*3+1]=wy+s*ss[i*2+1];lp[i*3+2]=0.07;if(spherical){const p=position(ss[i*2],ss[i*2+1]);lp[i*3]=p.x;lp[i*3+1]=p.y;lp[i*3+2]=p.z;}}g.attributes.position.needsUpdate=true;g.computeBoundingSphere();}tsFillGeo.computeBoundingSphere(); };
+      const buildGhost=(feats)=>{ removeGhost(); const sh=buildTrueSizeShape(feats,S.current.view!=='flat'); if(!sh)return; tsShape=sh;
         const grp=new THREE.Group();
         tsFillGeo=new THREE.BufferGeometry();tsFillGeo.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(sh.fill.length/2*3),3));
-        const fillMesh=new THREE.Mesh(tsFillGeo,new THREE.MeshBasicMaterial({color:0xFFB11A,transparent:true,opacity:0.34,depthTest:false,side:THREE.DoubleSide}));fillMesh.frustumCulled=false;fillMesh.renderOrder=5;grp.add(fillMesh);
-        tsLineGeos=[];for(const seg of sh.outlines){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(seg.length/2*3),3));tsLineGeos.push(g);const lm=new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0xFFB11A,transparent:true,opacity:0.95,depthTest:false}));lm.frustumCulled=false;lm.renderOrder=6;grp.add(lm);}
-        scene.add(grp);tsGhost=grp; updateGhost(sh.x0,sh.y0); controls.enablePan=false; }; // 처음엔 원위치(원래 나라 위에 겹침); 팬 비활성화(드래그=고스트 이동)
-      const refreshTrueSize=()=>{ if(!S.current.trueSize||S.current.view!=='flat'){removeGhost();return;}
+        const fillMesh=new THREE.Mesh(tsFillGeo,new THREE.MeshBasicMaterial({color:0xFFB11A,transparent:true,opacity:0.34,depthTest:S.current.view==='globe',depthWrite:false,side:THREE.DoubleSide}));fillMesh.frustumCulled=false;fillMesh.renderOrder=5;grp.add(fillMesh);
+        tsLineGeos=[];for(const seg of sh.outlines){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(seg.length/2*3),3));tsLineGeos.push(g);const lm=new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0xFFB11A,transparent:true,opacity:0.95,depthTest:S.current.view==='globe',depthWrite:false}));lm.frustumCulled=false;lm.renderOrder=6;grp.add(lm);}
+        scene.add(grp);tsGhost=grp; updateGhost(sh.x0,sh.y0); }; // 처음엔 원위치(원래 나라 위에 겹침); 팬 비활성화(드래그=고스트 이동)
+      const refreshTrueSize=()=>{ if(!S.current.trueSize){removeGhost();return;}
         const sel=S.current.sel; if(!sel){removeGhost();return;}
         let feats=null;
         if(sel.type==='country')feats=world.features.filter(f=>f.properties.n===sel.name);
         else if(sel.type==='continent')feats=world.features.filter(f=>f.properties.c===sel.key);
         if(feats&&feats.length)buildGhost(feats); else removeGhost(); };
       api.current={applyGrid,applySel,onDN,dolly,goView,applySat,refreshTrueSize,applyNorthUp,
-        tsDrag:{begin:()=>{if(tsGhost&&S.current.trueSize&&S.current.view==='flat'){tsDragging=true;return true;}return false;},
+        tsDrag:{begin:()=>{if(tsGhost&&S.current.trueSize){tsDragging=true;return true;}return false;},
           move:(wx,wy)=>{if(tsDragging)updateGhost(wx,wy);},end:()=>{tsDragging=false;},active:()=>tsDragging},
         pickContinent:(k)=>setSel(sameSel(S.current.sel,{type:'continent',key:k})?null:{type:'continent',key:k}),
         pickOcean:(k)=>setSel(sameSel(S.current.sel,{type:'ocean',key:k})?null:{type:'ocean',key:k}),
@@ -698,16 +712,27 @@ export default function GlobeLab(){
 
       const ray=new THREE.Raycaster(),ptr=new THREE.Vector2(),plane0=new THREE.Plane(new THREE.Vector3(0,0,1),0),unit=new THREE.Sphere(new THREE.Vector3(),1);
       let downXY=null,dragLens=null,ptrDown=false;const dom=renderer.domElement;
-      const ghostHit=(e)=>{const rect=dom.getBoundingClientRect();ptr.x=((e.clientX-rect.left)/rect.width)*2-1;ptr.y=-((e.clientY-rect.top)/rect.height)*2+1;ray.setFromCamera(ptr,camera);return ray.ray.intersectPlane(plane0,new THREE.Vector3());};
+      const ghostHit=(e)=>{const rect=dom.getBoundingClientRect();ptr.x=((e.clientX-rect.left)/rect.width)*2-1;ptr.y=-((e.clientY-rect.top)/rect.height)*2+1;ray.setFromCamera(ptr,camera);if(S.current.view==='globe'){const hit=ray.ray.intersectSphere(unit,new THREE.Vector3());if(!hit)return null;const [lon,lat]=vec3ToLonLat(rotY(rotX(hit,-U.uRotX.value),-U.uRotY.value));return {x:lon*D2R*MS,y:tsMercY(lat)};}
+        const hit=ray.ray.intersectPlane(plane0,new THREE.Vector3());if(!hit||S.current.view==='flat')return hit;
+        const rho=Math.hypot(hit.x,hit.y),c=2*Math.atan2(rho,2*STE),sc=Math.sin(c),cc=Math.cos(c),la0=U.uLat0.value,lo0=U.uLon0.value;
+        const lat=rho<1e-6?la0:Math.asin(THREE.MathUtils.clamp(cc*Math.sin(la0)+hit.y*sc*Math.cos(la0)/rho,-1,1));
+        const lon=rho<1e-6?lo0:lo0+Math.atan2(hit.x*sc,rho*Math.cos(la0)*cc-hit.y*Math.sin(la0)*sc);
+        return {x:lon*MS,y:tsMercY(lat*R2D)};};
       dom.addEventListener('pointerdown',e=>{downXY=[e.clientX,e.clientY];ptrDown=true;
-        if(S.current.view==='lens')dragLens=[e.clientX,e.clientY];
-        else if(tsGhost&&S.current.trueSize&&S.current.view==='flat'&&(e.buttons&1))tsDragging=true;}); // #5: 실제크기 고스트 드래그(팬은 refreshTrueSize에서 비활성화됨)
+        if(tsGhost&&S.current.trueSize&&(e.buttons&1)){
+          ghostHit(e);ray.params.Line.threshold=0.008;
+          const hit=ray.intersectObjects(tsGhost.children,false)[0];
+          const front=S.current.view!=='globe'||(hit&&hit.point.dot(camera.position.clone().sub(hit.point))>0);
+          if(hit&&front){const anchor=ghostHit(e);tsDragOffset=anchor?[tsCenter[0]-anchor.x,tsCenter[1]-anchor.y]:[0,0];tsDragging=true;const damping=controls.enableDamping;controls.enableDamping=false;controls.update();controls.enableDamping=damping;controls.enabled=false;dom.setPointerCapture(e.pointerId);e.stopImmediatePropagation();return;}
+        }
+        if(S.current.view==='lens')dragLens=[e.clientX,e.clientY];},{capture:true}); // #5: 실제크기 고스트 드래그(팬은 refreshTrueSize에서 비활성화됨)
       dom.addEventListener('pointermove',e=>{
-        if(tsDragging&&(e.buttons&1)){const hit=ghostHit(e);if(hit)updateGhost(hit.x,hit.y);return;} // #5 고스트 이동
+        if(tsDragging&&(e.buttons&1)){const hit=ghostHit(e);if(hit)updateGhost(hit.x+tsDragOffset[0],hit.y+tsDragOffset[1]);return;} // #5 고스트 이동
         if(dragLens&&(e.buttons&1)){ // 렌즈: 시선(중심) 회전 = 구 안에서 둘러보기(원본 0.28°/px)
         const k=0.30*D2R,dx=e.clientX-dragLens[0],dy=e.clientY-dragLens[1];
         U.uLon0.value-=dx*k;U.uLat0.value=THREE.MathUtils.clamp(U.uLat0.value+dy*k,-1.45,1.45);dragLens=[e.clientX,e.clientY];}});
-      window.addEventListener('pointerup',()=>{dragLens=null;ptrDown=false;tsDragging=false;});
+      const endGhostDrag=()=>{if(tsDragging&&!tr)controls.enabled=true;dragLens=null;ptrDown=false;tsDragging=false;};
+      window.addEventListener('pointerup',endGhostDrag);dom.addEventListener('pointercancel',endGhostDrag);
       // 트랙패드 제스처(원본 v15): 핀치(ctrlKey wheel)=줌, 두 손가락 스크롤=이동/회전, 마우스 휠(가로0+큰 세로델타)=줌.
       // mount 캡처 단계에서 가로채 OrbitControls(canvas 리스너)보다 먼저 분기.
       mount.addEventListener('wheel',e=>{const st=S.current;
@@ -766,6 +791,7 @@ export default function GlobeLab(){
           U.uRotX.value=nuAnim.fromRotX*(1-k);
           camera.position.lerpVectors(nuAnim.fromPos,nuAnim.toPos,k);camera.up.set(0,1,0);camera.lookAt(nuAnim.tgt);
           if(nuAnim.t>=1){nuAnim=null;if(S.current.view==='globe')controls.enabled=true;} }
+        if(tsGhost){tsGhost.visible=!tr;if(!tr&&st.view!=='flat'&&tsCenter)updateGhost(...tsCenter);}
         if(!tr){applyGrid();applyDetail();} // 줌 적응형 격자(#2)·국경/해안선 디테일(#4) 갱신, 둘 다 레벨 바뀔 때만 재빌드
         // 클론 알파: 평면 정상상태에 "막 진입"했을 때만 짧게 페이드인(팝인 완화), 그 외(전환 도중 포함 다른 뷰로 나갈 때)엔 즉시 0 —
         // 예전엔 전환 중 morph≥0.8 구간에서 서서히 페이드했는데, 그 사이 카메라도 같이 움직여서 클론(월드 오프셋 사본)이
@@ -784,7 +810,7 @@ export default function GlobeLab(){
         const morphOn=U.morph.value>0.001;
         bgMesh.visible=meshPatch.visible=morphOn; tileLp.visible=tileL.visible; tileRp.visible=tileR.visible;
         glow.material.opacity=0.9*Math.max(0,1-U.morph.value-U.lens.value);glow.visible=glow.material.opacity>0.02;
-        if(tsGhost)tsGhost.visible=(st.view==='flat'&&!tr); // #5 실제크기 고스트는 평면 정상상태에서만
+        if(tsGhost)tsGhost.visible=!tr;
         controls.update();
         if(isFlat){ // 좌우 무한 순환 + 세로 레터박스 방지
           if(controls.target.x>WORLD_W/2){controls.target.x-=WORLD_W;camera.position.x-=WORLD_W;}else if(controls.target.x<-WORLD_W/2){controls.target.x+=WORLD_W;camera.position.x+=WORLD_W;}
@@ -814,7 +840,7 @@ export default function GlobeLab(){
           gl.el.style.display='block';gl.el.style.left=((p.x*0.5+0.5)*mount.clientWidth)+'px';gl.el.style.top=((-p.y*0.5+0.5)*mount.clientHeight)+'px';}
       };
       loop();setStatus('');
-      cleanupFn=()=>{window.removeEventListener('resize',onResize);cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
+      cleanupFn=()=>{window.removeEventListener('pointerup',endGhostDrag);window.removeEventListener('resize',onResize);cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
       if(disposed)cleanupFn();
     })().catch(e=>{console.error('GLOBE_MOUNT_ERROR',e);});
     return ()=>{disposed=true;cancelAnimationFrame(raf);if(cleanupFn)cleanupFn();};
@@ -862,7 +888,7 @@ export default function GlobeLab(){
         <label className="tg"><input type="checkbox" checked={dateline} onChange={e=>setDateline(e.target.checked)} /><span>{T.dateline}</span></label>
         <div className="step"><span>{T.interval}</span><input type="number" min="5" max="90" step="5" value={step} onChange={e=>setStep(e.target.value)} /><span>°</span></div>
         <label className="tg tg-sep"><input type="checkbox" checked={country} onChange={e=>{setCountry(e.target.checked);setSel(null);}} /><span>{T.pickCountry}</span></label>
-        <label className="tg"><input type="checkbox" checked={trueSize} disabled={view!=='flat'} onChange={e=>setTrueSize(e.target.checked)} /><span>{T.trueSize}{view!=='flat'&&<small style={{color:'var(--text-2)',marginLeft:4,fontSize:9}}>{T.flatOnly}</small>}<button className="ts-info-btn" onClick={e=>{e.preventDefault();setTsInfo(v=>!v);}} title={T.tsTitle}>!</button></span></label>
+        <label className="tg"><input type="checkbox" checked={trueSize} onChange={e=>setTrueSize(e.target.checked)} /><span>{T.trueSize}<button className="ts-info-btn" onClick={e=>{e.preventDefault();setTsInfo(v=>!v);}} title={T.tsTitle}>!</button></span></label>
         <div className="layer-toggle-row tg-sep">
           <label className="tg"><input type="checkbox" checked={climate} onChange={e=>setClimate(e.target.checked)} /><span>{T.climate}</span></label>
           <label className="tg"><input type="checkbox" checked={terrain} onChange={e=>setTerrain(e.target.checked)} /><span>{T.terrain}</span></label>

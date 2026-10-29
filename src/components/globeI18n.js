@@ -26,7 +26,7 @@ export const STR = {
     // 실제 크기 비교 팝업
     tsTitle:'실제 크기 비교',
     tsP1:'메르카토르 도법은 위도가 높을수록 나라를 실제보다 크게 부풀립니다(그린란드가 아프리카만큼 커 보이는 이유예요).',
-    tsP2pre:'사용법', tsP2:' — 국가(또는 대륙)를 클릭한 뒤 드래그해 다른 위도로 옮겨보세요. 실제(지상) 크기를 유지하도록 자동으로 크기가 재조정됩니다.',
+    tsP2pre:'사용법', tsP2:' — 국가(또는 대륙)를 선택하고 복사본을 드래그해 비교하세요. 평면·지구본·어안뷰에서 실제 크기를 유지하며 이동합니다. 복사본을 잡으면 복사본만, 바깥 지도를 잡으면 지도만 움직입니다.',
     close:'닫기',
     // 푸터/커피
     coffee:'커피 사주기', dashboard:'업무 대시보드', designedBy:'Designed by',
@@ -62,7 +62,7 @@ export const STR = {
     hintGlobe:'Drag to rotate · wheel to zoom · click a continent',
     tsTitle:'True size comparison',
     tsP1:'The Mercator projection inflates countries the farther they are from the equator (that\'s why Greenland looks as big as Africa).',
-    tsP2pre:'How to', tsP2:' — click a country (or continent) then drag it to another latitude. It automatically rescales to keep its real (ground) size.',
+    tsP2pre:'How to', tsP2:' — select a country (or continent), then drag its copy to compare real sizes in flat, globe, or lens view. Drag the copy to move it; drag outside it to move the map.',
     close:'Close',
     coffee:'Buy a coffee', dashboard:'Work dashboard', designedBy:'Designed by',
     coffeeTitle:'Buy the developer a coffee', coffeeSub:'Scan the QR to support. Thank you!',

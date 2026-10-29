@@ -1,87 +1,241 @@
-/* Mobile game controls share one clear lane above the map and footer. */
-@media (max-width:760px) {
-  .gl-app .topbar{padding:14px 12px;max-width:110px}
-  .gl-app .title{font-size:13px;white-space:nowrap}
-  .gl-app .kicker{font-size:8px;letter-spacing:.08em}
-  .gl-app .projseg{top:14px;left:auto;right:12px;transform:none;gap:0}
-  .gl-app .projseg button{padding:9px 8px;font-size:11px;min-height:40px}
-  .gl-app .controls{top:64px;left:12px;right:12px;justify-content:flex-end;gap:6px}
+/* Compact touch layouts; desktop composition stays in each game's own styles. */
+@media (max-width:760px), (min-width:600px) and (max-height:500px) and (max-width:1000px) {
+  /* Map: two navigation rows and compact, expandable tools. */
+  .gl-app .topbar{padding:12px;max-width:56px}
+  .gl-app .topbar .title-wrap,.gl-app .hint{display:none}
+  .gl-app .projseg{top:12px;left:auto;right:12px;transform:none;gap:0}
+  .gl-app .projseg button{padding:8px;font-size:11px;min-height:40px}
+  .gl-app .controls{top:62px;left:12px;right:12px;justify-content:flex-end;gap:6px}
   .gl-app .controls .ctrl{min-height:40px}
   .gl-app .controls .game-entry{margin-right:auto;padding:0 12px;font-size:12px}
-  .gl-app .tools-fixed{top:114px;left:12px;max-width:calc(100vw - 24px)}
-  .gl-app .tools-fixed .panel-body{max-height:calc(45dvh - 42px);overflow:auto;overscroll-behavior:contain}
-  .gl-app .right-stack{top:auto;bottom:calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + 148px);right:12px;width:200px;max-height:30dvh;overflow:auto;overscroll-behavior:contain}
-  .gl-app .hint{display:none}
-  .geo-game .gg-play-title{right:138px}
-  .geo-game .gg-play-title>span{font-size:9px;letter-spacing:.04em}
-  .geo-game .gg-play-title h1{font-size:16px}
-  .geo-game .gg-right-cards{top:130px}
-  .geo-game:not(.gg-playing) .gg-menu{padding-top:64px;max-height:calc(100dvh - var(--ps-footer-h,0px) - 54px)}
-  .geo-game:not(.gg-playing) .gg-ranking-open{top:26px;left:32px;right:auto}
-  .geo-game .gg-summary{overflow:auto;box-sizing:border-box;padding-bottom:calc(var(--ps-footer-h,0px) + 40px)}
-  body:has(#play.active) .ps-service-actions,
-  body:has(#play.active) .ps-visitor-counter,
-  body:has(#play.active) #visitor-stats{display:none!important}
-  body:has(#play.active) #play{padding-bottom:calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + 24px)}
-  #play .hud{gap:8px;margin-bottom:12px}
-  #play .cell{padding:12px}
-  #play .q-input{font-size:16px}
-  .ps-school-dialog input,.ps-account-dialog input{font-size:16px}
-}
-@media (max-width:600px) {
-  #home .hero-meta{grid-template-columns:minmax(0,1fr) auto;gap:12px 8px}
-  #home .hero-meta>.logo{grid-column:1;grid-row:1}
-  #home .hero-meta>.sound-stack{grid-column:2;grid-row:1;width:auto}
-  #home .hero-meta-right{grid-column:1/-1;grid-row:2;justify-content:space-between}
-  #home .hero-meta .ranking-launch{width:100px;min-height:44px;padding:10px}
-  #home .hero-meta .sound-toggle{width:120px;min-height:40px}
-  #home .ctrl-grid{margin-top:24px}
-  .ranking-sheet .ranking-scroll table{min-width:0;width:100%}
-  .ranking-sheet .rank-table th:last-child,.ranking-sheet .rank-table td:last-child{display:none}
-  .ranking-sheet .rank-table th,.ranking-sheet .rank-table td{padding:6px 4px}
-}
-@media (max-height:500px) and (max-width:1000px) {
-  .geo-game .gg-right-cards{top:100px;left:12px;right:auto;width:160px;max-height:calc(100dvh - 170px);overflow:auto}
-  .geo-game .gg-answer{left:auto;right:12px;transform:none;width:calc(100vw - 200px);bottom:calc(var(--ps-footer-h,0px) + 56px)}
-  .geo-game .gg-finish{bottom:calc(var(--ps-footer-h,0px) + 12px)}
-  .geo-game .gg-right-cards .gg-hud{padding:8px;gap:8px}
-  .geo-game .gg-score strong,.geo-game .gg-combo strong{font-size:22px}
-}
-@media (max-width:760px) {
-  .gl-app .topbar .title-wrap{display:none}
-  .gl-app .tools-fixed .panel-body{max-height:calc(30dvh - 42px)}
-  .gl-app .right-stack{width:min(280px,calc(100vw - 24px));max-height:25dvh}
-  .gl-app .right-stack .legend{box-sizing:border-box;max-width:none;width:100%}
+  .gl-app .tools-fixed{top:112px;left:12px;box-sizing:border-box;width:calc(50vw - 18px);min-width:0;padding:0 10px}
+  .gl-app .tools-fixed:not(.collapsed){width:min(260px,calc(100vw - 24px));padding-bottom:8px;z-index:32}
+  .gl-app .tools-fixed .panel-body{max-height:calc(100dvh - 320px);overflow:auto;overscroll-behavior:contain}
+  .gl-app .floaty-head{min-height:44px;margin:0;padding:0;box-sizing:border-box}
+  .gl-app .tools-fixed .floaty-head::before{content:'지도 도구';font-size:11px;white-space:nowrap}
+  .gl-app .legend-head::before{content:'대륙 · 대양';font-size:11px;white-space:nowrap}
+  .gl-app .right-stack{top:112px;bottom:auto;right:12px;width:calc(50vw - 18px);gap:6px;max-height:calc(100dvh - 280px);overflow:auto;overscroll-behavior:contain}
+  .gl-app .right-stack:has(.legend:not(.collapsed)),.gl-app .right-stack:has(.country-search.open),.gl-app .right-stack:has(.info-card){top:164px;width:calc(100vw - 24px)}
+  .gl-app .right-stack .legend{box-sizing:border-box;max-width:none;width:100%;padding:6px 10px;gap:4px}
+  .gl-app .right-stack .legend.collapsed{padding-top:0;padding-bottom:0}
   .gl-app .legend-cols{gap:8px}
-  .gl-app .legend-col{min-width:0;flex:1}
-  .gl-app .legend .chip{gap:5px;padding:6px 4px;white-space:nowrap}
+  .gl-app .legend-col{min-width:0;flex:1;gap:4px}
+  .gl-app .legend .chip{gap:5px;padding:7px 4px;white-space:nowrap}
   .gl-app .legend .chip small{display:none}
-  body:has(#home.active) .ps-service-actions{position:absolute;top:64px;bottom:auto;left:14px;right:14px;flex-direction:row;justify-content:flex-end;gap:8px}
-  body:has(#home.active) .stage{padding-top:132px}
-  body:has(#play.active) .ps-home-fab{display:none}
-  #home .play-btn{font-size:clamp(18px,5.5vw,24px);padding:22px 12px;white-space:nowrap}
-  #home .hero-meta .ranking-launch{height:44px}
-  .ps-account-dialog input:not([type=checkbox]){font-size:16px}
+  .gl-app .country-search-panel{padding:6px}
+  .gl-app .country-search>label{display:none}
+  .gl-app .country-search-field input{height:40px;font-size:16px;padding-left:8px}
+  .gl-app .info-card{padding:12px}
+  .gl-app .ts-popup-card{box-sizing:border-box;width:calc(100vw - 24px);max-width:400px;max-height:calc(100dvh - 24px);overflow:auto;padding:16px}
+  .gl-app .ts-popup-h{font-size:16px;margin-bottom:8px}
+  .gl-app .ts-popup-card p{font-size:12px;line-height:1.5}
+  .gl-app .ts-popup-close{min-height:44px}
+  .gl-app .daynight-ctl{box-sizing:border-box;bottom:calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + 140px);width:calc(100vw - 24px);max-width:420px;min-height:44px;gap:6px;padding:6px 10px}
+  .gl-app .daynight-ctl input[type=range]{flex:1;min-width:0;width:auto;height:24px}
+  .gl-app .system-popover{box-sizing:border-box;left:0;right:0;width:auto;max-height:160px;overflow:auto}
+
+  /* GeoWeb: short menu, compact status strip, and a single answer dock. */
+  body .geo-game{--gg-mobile-dock:calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + env(safe-area-inset-bottom,0px) + 20px)}
+  body .geo-game:not(.gg-playing) .gg-menu{top:12px;left:12px;right:12px;width:auto;padding:62px 12px 12px;border-radius:16px;max-height:calc(100dvh - var(--ps-footer-h,0px) - var(--ps-brand-h,30px) - 32px)}
+  body .geo-game:not(.gg-playing) .gg-menu h1{display:block;margin:6px 0;font-size:22px}
+  body .geo-game:not(.gg-playing) .gg-menu>p{display:none}
+  body .geo-game .gg-menu>.gg-practice-toggle{margin:8px 0 12px;min-height:40px;padding:8px 12px;font-size:12px}
+  body .geo-game:not(.gg-playing) .gg-menu nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;overflow:visible;margin:0;padding:0}
+  body .geo-game .gg-menu nav button{white-space:normal;min-width:0;min-height:66px;padding:8px 10px;border:1px solid #ffffff12;background:#ffffff05;font-size:12px;line-height:1.4}
+  body .geo-game .gg-menu .gg-record{font-size:10px;line-height:1.4;margin-top:3px}
+  body .geo-game:not(.gg-playing) .gg-menu>small{display:block;margin-top:8px;font-size:10px;line-height:1.5}
+  body .geo-game:not(.gg-playing) .gg-ranking-open{top:24px;left:24px;right:auto;min-height:40px;padding:0 12px;font-size:12px}
+  body .geo-game .gg-mode-exit{top:12px;right:12px;min-height:40px;padding:8px 10px;font-size:10px}
+  body .geo-game .gg-play-title{top:12px;left:12px;right:12px}
+  body .geo-game .gg-play-title>span{display:block;max-width:calc(100% - 130px);font-size:9px;letter-spacing:.03em}
+  body .geo-game .gg-play-title h1{max-width:calc(100% - 130px);font-size:16px;margin:5px 0;line-height:1.35}
+  body .geo-game .gg-play-title .gg-practice-toggle{position:absolute;top:44px;right:0;margin:0;min-height:36px;padding:7px 10px;font-size:10px}
+  body .geo-game .gg-right-cards{top:104px;left:12px;right:12px;width:auto;gap:6px}
+  body .geo-game .gg-right-cards .gg-hud{padding:8px 12px;gap:8px;border-radius:12px;align-items:center}
+  body .geo-game .gg-score{display:grid;grid-template-columns:auto auto;gap:2px 8px;align-items:center;min-height:44px}
+  body .geo-game .gg-score>span{grid-column:1/-1;font-size:8px}
+  body .geo-game .gg-score>span small{font-size:8px;margin-left:4px}
+  body .geo-game .gg-score strong,body .geo-game .gg-combo strong{font-size:24px;margin:0}
+  body .geo-game .gg-score>small{font-size:10px;margin:0}
+  body .geo-game .gg-combo>span{font-size:8px;margin-bottom:3px}
+  body .geo-game .gg-right-cards .gg-country{padding:10px 12px;border-radius:12px}
+  body .geo-game .gg-country h2{font-size:16px;margin:0 0 4px}
+  body .geo-game .gg-country p{font-size:11px;margin:2px 0}
+  body .geo-game .gg-answer{left:12px;right:12px;transform:none;width:auto;bottom:var(--gg-mobile-dock)}
+  body .geo-game .gg-feedback:empty{display:none}
+  body .geo-game .gg-feedback{min-height:0;margin-bottom:6px}
+  body .geo-game .gg-answer label{font-size:14px;margin-bottom:6px}
+  body .geo-game .gg-answer form{padding:6px;gap:6px;border-radius:12px}
+  body .geo-game .gg-answer input{font-size:16px;padding:8px 4px;min-height:44px}
+  body .geo-game .gg-answer form button{min-height:44px;padding:8px 10px;font-size:12px}
+  body .geo-game .gg-answer button small{display:none}
+  body .geo-game .gg-finish{top:56px;left:12px;right:auto;bottom:auto;min-height:40px;padding:8px 12px;font-size:12px}
+  body .geo-game:has(.gg-practice-next) .gg-answer{bottom:var(--gg-mobile-dock);right:12px;width:auto}
+  body .geo-game .gg-practice-next{width:100%;min-height:40px;padding:8px 12px;font-size:13px}
+  body .geo-game .gg-media{top:55%}
+  body .geo-game .gg-media img{max-height:min(24dvh,160px)}
+  body .geo-game.gg-playing:has(.gg-flag) .gg-practice-answer{top:72%}
+  body .geo-game .gg-summary{overflow:auto;box-sizing:border-box;padding-bottom:calc(var(--ps-footer-h,0px) + 24px)}
+  body .geo-game .gg-summary>div{padding:20px 12px}
+  body .geo-game .gg-summary h2{font-size:24px;margin:10px 0}
+  body .geo-game .gg-summary strong{font-size:48px}
+  body .gg-difficulty-dialog{padding:16px;border-radius:18px}
+  body .gg-difficulty-dialog h2{font-size:19px;margin:10px 0 6px}
+  body .gg-difficulty-dialog p{margin:6px 0;font-size:12px}
+  body .gg-difficulty-options{gap:8px;margin-top:12px}
+  body .gg-difficulty-options button{padding:12px}
+
+  /* Spell Drill: utility toolbar, short setup, and a single-row score dashboard. */
+  body:has(#home.active) .ps-service-actions{position:absolute;top:14px;bottom:auto;left:64px;right:12px;flex-direction:row;justify-content:flex-end;gap:6px}
+  body:has(#home.active) .ps-service-row{gap:6px}
+  body:has(#home.active) .ps-service-link{padding:0 10px;font-size:11px}
+  body:has(#home.active) .stage{padding:76px 12px calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + 20px);align-items:flex-start}
+  #home .hero-title{font-size:44px;min-height:0}
+  #home .hero-meta{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:12px 0 0}
+  #home .hero-meta>.logo{grid-column:1;grid-row:1;font-size:9px;letter-spacing:0;min-width:0}
+  #home .hero-meta>.sound-stack{grid-column:2;grid-row:1;width:auto}
+  #home .hero-meta-right{grid-column:1/-1;grid-row:2;justify-content:space-between;width:100%;gap:6px}
+  #home .hero-meta .ranking-launch{width:88px;height:40px;min-height:40px;padding:8px;font-size:12px;gap:6px}
+  #home .hero-meta .ranking-launch svg{width:18px;height:18px}
+  #home .hero-meta .sound-toggle{width:112px;min-height:40px;font-size:10px}
+  #home .hero-meta .topbar-link{font-size:10px;padding:6px}
+  #home .hero-meta .lang-toggle{grid-template-columns:repeat(2,44px)}
+  #home .hero-meta .lang-toggle button{width:44px;padding:6px;font-size:11px}
+  #home .ctrl-grid{margin-top:12px;gap:8px;grid-template-columns:1fr}
+  #home .ctrl{padding:10px}
+  #home .ctrl-grid .ctrl{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;align-items:center}
+  #home .ctrl-grid .ctrl .h{font-size:8px;letter-spacing:0;margin:0}
+  #home .ctrl-grid .ctrl .h::before{display:none}
+  #home .ctrl .h{font-size:9px;margin-bottom:8px;letter-spacing:.1em}
+  #home #diff-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));min-height:44px}
+  #home #mode-row{min-height:48px}
+  #home .toggle button{font-size:11px;padding:8px 4px;line-height:1.35;min-width:0}
+  #home #custom-panel{margin-top:8px!important}
+  #home .play-btn{margin-top:12px;min-height:48px;padding:12px;font-size:20px;white-space:nowrap;scroll-margin-block:80px}
+  #home .stats-row{margin-top:10px;gap:6px}
+  #home .stat-cell{padding:8px}
+  #home .stat-cell .h{font-size:8px;letter-spacing:.04em;min-height:0;line-height:1.5}
+  #home .stat-cell .v{font-size:22px;margin-top:4px}
+  #home .stat-cell .m{font-size:9px}
+  body:has(#play.active) .ps-service-actions,body:has(#play.active) .ps-studio-home,body:has(#play.active) .ps-visitor-counter,body:has(#play.active) #visitor-stats{display:none!important}
+  body:has(#play.active) .stage{padding:12px 12px calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + 16px);align-items:flex-start}
+  #play.active{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0;align-content:start;max-height:calc(100dvh - var(--ps-footer-h,0px) - var(--ps-brand-h,30px) - 44px);overflow-y:auto;overscroll-behavior:contain;scroll-padding-block:8px}
+  #play.active:has(#timer-cell:not([style*="none"])){grid-template-columns:repeat(4,minmax(0,1fr))}
+  #play .hud{display:contents}
+  #play .cell{padding:8px;min-width:0}
+  #play .cell .h{font-size:7px;letter-spacing:0}
+  #play .cell.qidx .v{font-size:20px!important;white-space:nowrap}
+  #play .cell.qidx .v small{font-size:10px}
+  #play .cell .v,#play .cell.combo .v{font-size:24px!important;line-height:1.1}
+  #play .cell.timer{grid-column:auto;order:0}
+  #play .score-formula-trigger{gap:3px;min-height:40px}
+  #play .score-difficulty{font-size:8px;margin-top:4px}
+  #play #combo-cell{margin:0!important;justify-content:center;gap:4px;order:0}
+  #play .combo-mult{font-size:9px;padding:3px 5px;margin:0}
+  #play .qstage,#play .actions,#play .progress{grid-column:1/-1}
+  #play .qstage{order:1}
+  #play .actions{order:2;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0}
+  #play .progress{order:3;margin:0;height:4px}
+  #play .q-row{padding:14px}
+  #play .q-label{font-size:10px;letter-spacing:0;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+  #play .q-label .badge{font-size:8px;padding:2px 5px;white-space:nowrap}
+  #play .q-mark{top:10px;right:10px;font-size:8px;letter-spacing:0}
+  #play .q-row:first-of-type .q-label{padding-right:36px}
+  #play .q-prompt{font-size:18px;line-height:1.5;padding-left:10px}
+  #play .q-input{font-size:18px;line-height:1.5;padding-left:10px;min-height:64px}
+  #play .q-note{font-size:12px;padding:8px;margin-top:8px;line-height:1.5}
+  #play .act{min-height:44px;padding:8px 4px;font-size:11px;letter-spacing:0}
+  #play .primary .key{display:none}
+  #play .hint{font-size:12px;line-height:1.5}
+  #play .score-formula{position:fixed;top:112px;left:12px;right:12px;width:auto;max-height:50dvh;overflow:auto;padding:12px}
+
+  body .geo-game .gg-formula{position:fixed;top:172px;left:12px;right:12px;width:auto;max-width:none;max-height:calc(100dvh - 250px);overflow:auto;padding:12px;box-sizing:border-box}
+
+  body:has(#result.active) .ps-service-actions{display:none!important}
+  body:has(#result.active) .stage{padding:64px 12px calc(var(--ps-footer-h,0px) + 32px);align-items:flex-start}
+  #result.active{max-height:calc(100dvh - var(--ps-footer-h,0px) - var(--ps-brand-h,30px) - 88px);overflow-y:auto;overscroll-behavior:contain}
+  #result .result{padding:0}
+  #result .result .grade{font-size:80px;margin:8px 0}
+  #result .result .final{font-size:40px;margin:8px 0 14px}
+  #result .result .stats-line{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:14px}
+  #result .stat-mini{padding:8px 4px;min-width:0}
+  #result .stat-mini .h{font-size:8px;letter-spacing:0}
+  #result .stat-mini .v{font-size:20px}
+  #result .result .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:12px}
+  #result .result .act{min-height:44px;padding:8px;font-size:11px}
+  #result .ranking-note{font-size:10px;line-height:1.5;margin:10px 0}
+  #result .ranking-result-submit{margin:12px auto 0}
+
+  /* Shared sheets retain one scroll area and compact chrome. */
+  .ranking-sheet{padding:12px!important;gap:8px}
+  .ranking-sheet .ranking-scroll table{min-width:0;width:100%}
+  .ranking-sheet .rank-table th:nth-child(5),.ranking-sheet .rank-table td:nth-child(5){display:none}
+  .ranking-sheet .rank-table th,.ranking-sheet .rank-table td{padding:6px 4px}
+  body .gg-ranking-dialog{padding:12px;gap:8px}
+  body .gg-ranking-dialog .gg-ranking-header{gap:6px}
+  .gg-ranking-help{font-size:9px;line-height:1.4}
+  body .gg-ranking-dialog .gg-ranking-mine{padding:6px 8px}
+  body .ps-account-dialog{padding:16px}
+  body .ps-account-dialog header{margin-bottom:12px;gap:8px}
+  body .ps-account-dialog label{margin-top:10px}
+  body .ps-school-dialog[open]{display:flex;flex-direction:column;overflow:hidden;max-height:calc(100dvh - 24px)}
+  body .ps-school-dialog>header{flex:none}
+  body .ps-school-dialog>div{min-height:0;overflow:auto;overscroll-behavior:contain}
+  body .ps-school-dialog .ps-school-results{max-height:28dvh;gap:6px;margin-bottom:10px}
+  body .ps-school-dialog:has(.ps-school-mark-request[open]) .ps-school-results{max-height:18dvh}
+  body .ps-school-dialog .ps-school-results button{padding:8px;min-height:52px;gap:8px}
+  body .ps-school-dialog .ps-school-results b{font-size:13px}
+  body .ps-school-dialog .ps-school-results span{font-size:11px;line-height:1.4}
+  body .ps-school-dialog .ps-school-status{margin:8px 0}
+  body .ps-account-dialog.ps-school-dialog input:not([type=checkbox]),body .ps-account-dialog #ps-nickname{font-size:16px}
 }
-@media (max-width:760px) {
-  body:has(#play.active) .ps-studio-home{display:none!important}
+@media (min-width:600px) and (max-height:500px) and (max-width:1000px) {
+  /* Landscape keeps map controls beside, rather than over, the answer. */
+  .gl-app .tools-fixed{width:140px}
+  .gl-app .right-stack{width:180px;max-height:calc(100dvh - 190px)}
+  .gl-app .right-stack:has(.legend:not(.collapsed)),.gl-app .right-stack:has(.country-search.open),.gl-app .right-stack:has(.info-card){top:164px;left:12px;right:auto;width:280px;max-height:calc(100dvh - var(--ps-footer-h,0px) - var(--ps-brand-h,30px) - 190px)}
+  .gl-app .daynight-ctl{top:104px;bottom:auto;left:auto;right:12px;transform:none;width:min(380px,calc(100vw - 330px))}
+  body .geo-game:not(.gg-playing) .gg-menu{right:auto;width:min(460px,calc(100vw - 24px));max-height:calc(100dvh - var(--ps-footer-h,0px) - 32px)}
+  body .geo-game .gg-right-cards{top:104px;left:12px;right:auto;width:180px;max-height:calc(100dvh - 160px);overflow:auto}
+  body .geo-game .gg-right-cards .gg-hud{padding:8px;gap:6px}
+  body .geo-game .gg-score{grid-template-columns:1fr}
+  body .geo-game .gg-score>span{grid-column:auto}
+  body .geo-game .gg-score strong,body .geo-game .gg-combo strong{font-size:22px}
+  body .geo-game .gg-answer{left:208px;bottom:var(--gg-mobile-dock);right:12px}
+  body .geo-game .gg-finish{width:112px}
+  body .geo-game:has(.gg-practice-next) .gg-answer{left:208px;right:auto;width:160px}
+  body .geo-game:has(.gg-practice-next) .gg-finish{width:112px}
+  body .geo-game .gg-media img{max-height:32dvh}
+  #home .ctrl-grid{grid-template-columns:1fr 1fr}
+  #home .stats-row{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  #result .result{display:grid;grid-template-columns:180px minmax(0,1fr);gap:8px 16px;align-items:center}
+  #result .result .head{grid-column:1;grid-row:1}
+  #result .result .grade{grid-column:1;grid-row:2/4;font-size:72px}
+  #result .result .final{grid-column:1;grid-row:4;font-size:32px;margin:0}
+  #result .result .stats-line{grid-column:2;grid-row:1;margin:0}
+  #result .result .actions{grid-column:2;grid-row:2;grid-template-columns:repeat(4,minmax(0,1fr));margin:0}
+  #result .ranking-note{grid-column:2;grid-row:3;margin:0}
+  #result .ranking-result-submit{grid-column:2;grid-row:4;margin:0;justify-self:center}
+  #play .qstage{display:grid;grid-template-columns:1fr 1fr}
+  #play .q-row:first-of-type{border-right:1px solid var(--line);border-bottom:0}
+  #play .q-row{padding:12px}
 }
-@media (max-height:500px) and (max-width:1000px) {
-  .geo-game .gg-right-cards{top:146px;max-height:calc(100dvh - 220px)}
-  .geo-game .gg-finish{left:12px;right:auto}
-  body:has(#home.active) .ps-service-actions{position:absolute;top:64px;bottom:auto;left:14px;right:14px;flex-direction:row;justify-content:flex-end;gap:8px}
-  body:has(#home.active) .stage{padding-top:132px}
-  body:has(#play.active) .ps-service-actions,
-  body:has(#play.active) .ps-studio-home,
-  body:has(#play.active) .ps-visitor-counter{display:none!important}
+
+@media (max-width:599px) and (max-height:500px) {
+  body .geo-game .gg-media img{max-height:12dvh}
+  body .geo-game .gg-media figcaption{max-height:40px;overflow:auto}
+  body .geo-game.gg-playing:has(.gg-flag) .gg-practice-answer{top:67%}
+  body .geo-game .gg-country p{font-size:10px}
 }
-@media (max-width:760px) {
-  .ps-account-dialog.ps-school-dialog input:not([type=checkbox]),
-  .ps-account-dialog #ps-nickname{font-size:16px}
-  #home .play-btn{scroll-margin-block:100px}
-}
-@media (max-width:760px) {
-  .gl-app .floaty-head{min-height:36px;margin:0;padding:0;box-sizing:border-box}
-  .gl-app .tools-fixed .floaty-head::before{content:'지도 도구';font-size:12px}
-  .gl-app .legend-head::before{content:'대륙 · 대양';font-size:12px}
+
+@media (max-width:600px) {
+  body .gg-ranking-dialog .gg-ranking-layout{grid-template-columns:78px minmax(0,1fr);gap:8px}
+  body .gg-ranking-dialog .gg-ranking-games button{padding:7px 4px;font-size:10px;min-height:40px}
+  body .gg-ranking-dialog .gg-ranking-scroll table{min-width:0;width:100%;table-layout:fixed}
+  body .gg-ranking-dialog th,body .gg-ranking-dialog td{padding:6px 3px;font-size:11px}
+  body .gg-ranking-dialog th:first-child{width:22px}
+  body .gg-ranking-dialog th:nth-child(3){width:46px}
+  body .gg-ranking-dialog th:nth-child(4){width:44px}
+  body .gg-ranking-dialog th:nth-child(5),body .gg-ranking-dialog td:nth-child(5){display:none}
+  body .gg-ranking-dialog td small{font-size:9px;line-height:1.4}
 }

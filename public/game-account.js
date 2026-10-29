@@ -27,6 +27,29 @@ const support = document.createElement('div'); support.className = 'ps-studio-su
 style.textContent += '.ps-account-dialog .ps-studio-share{box-sizing:border-box;border-radius:24px!important;height:44px;min-height:44px;flex-shrink:0;line-height:1.2;appearance:none;-webkit-appearance:none}.ps-account-dialog .ps-studio-share svg{display:block;width:18px;height:18px;flex:0 0 18px}.ps-account-dialog .ps-studio-wordmark:focus{outline:none}.ps-account-dialog .ps-studio-wordmark:focus-visible{text-decoration:underline;text-underline-offset:6px}.ps-account-dialog header h2{min-width:0}.ps-account-dialog header .ps-close,.ps-account-dialog header img{flex-shrink:0}@media(max-width:360px){.ps-account-dialog .ps-studio-wordmark{font-size:26px}.ps-account-dialog{padding:20px}}';
 const account = dialog('내 프로필');
 const body = document.createElement('div'); account.append(body);
+const legalDialog = dialog('이용약관');
+legalDialog.classList.add('ps-legal-dialog');
+const legalBody = document.createElement('div'); legalBody.className = 'ps-legal-body'; legalBody.setAttribute('aria-live', 'polite'); legalDialog.append(legalBody);
+style.textContent += '.ps-legal-dialog{width:min(720px,calc(100vw - 24px));max-height:85dvh;overflow:hidden}.ps-legal-body{overflow:auto;max-height:calc(85dvh - 132px);overscroll-behavior:contain;line-height:1.9;word-break:keep-all}.ps-legal-body h1{font-size:28px;color:#ffb11a}.ps-legal-body h2{font-size:18px;margin-top:24px}.ps-legal-body p{color:#b8bcc4}.ps-legal-body a{color:#ffb11a}';
+let legalRequest = 0;
+async function openLegal(path) {
+  const request = ++legalRequest;
+  const title = path === '/terms/' ? '이용약관' : '개인정보처리방침';
+  legalDialog.setAttribute('aria-label', title); legalDialog.querySelector('h2').textContent = title;
+  legalBody.textContent = '불러오는 중…';
+  if (!legalDialog.open) legalDialog.showModal();
+  try {
+    const response = await fetch(path); if (!response.ok) throw new Error('policy unavailable');
+    const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+    const content = page.querySelector('main.policy'); if (!content) throw new Error('policy missing');
+    if (request !== legalRequest) return;
+    legalBody.replaceChildren(document.importNode(content, true)); legalBody.scrollTop = 0;
+  } catch { if (request === legalRequest) legalBody.textContent = '문서를 불러오지 못했습니다. 닫은 뒤 다시 열어 주세요.'; }
+}
+for (const host of [account, legalDialog]) host.addEventListener('click', event => {
+  const link = event.target.closest('a');
+  if (link && ['/terms/', '/privacy/'].includes(link.getAttribute('href'))) { event.preventDefault(); openLegal(link.getAttribute('href')); }
+});
 let sdk, sdkPromise, user = null, profile = {}, photo = '', trigger;
 function message(text) { const node = body.querySelector('.ps-message'); if (node) node.textContent = text; }
 async function loadSdk() {
@@ -66,9 +89,8 @@ function randomNickname() {
 }
 function renderAccount() {
   if (!user) {
-    body.innerHTML = '<p>Google 계정으로 로그인하면 별명과 프로필을 다른 기기에서도 사용할 수 있어요.</p><p class="ps-muted">게임 기록은 현재 브라우저에 저장돼요. 게임은 로그인 없이도 이용할 수 있어요.</p><label><input type="checkbox" id="ps-account-consent"> 이용약관과 개인정보처리방침을 확인했습니다.</label><button type="button" class="ps-primary" id="ps-google-login">Google 계정으로 로그인</button><p class="ps-message" role="status"></p>' + legalLinks();
+    body.innerHTML = '<p>Google 계정으로 로그인하면 별명과 프로필을 다른 기기에서도 사용할 수 있어요.</p><p class="ps-muted">게임 기록은 현재 브라우저에 저장돼요. 게임은 로그인 없이도 이용할 수 있어요.</p><button type="button" class="ps-primary" id="ps-google-login">Google 계정으로 로그인</button><p class="ps-message" role="status"></p>' + legalLinks();
     body.querySelector('#ps-google-login').onclick = async e => {
-      if (!body.querySelector('#ps-account-consent').checked) { message('이용약관과 개인정보처리방침을 확인해 주세요.'); return; }
       e.currentTarget.disabled = true; message('Google 로그인 창을 여는 중입니다.');
       try { const s = await loadSdk(); const provider = new s.authApi.GoogleAuthProvider(); provider.setCustomParameters({ prompt: 'select_account' }); await s.authApi.signInWithPopup(s.auth, provider); }
       catch (error) { message(error.code === 'auth/popup-closed-by-user' ? '로그인 창을 닫았습니다.' : error.code === 'auth/popup-blocked' ? '브라우저에서 로그인 팝업을 허용해 주세요.' : '로그인에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.'); }

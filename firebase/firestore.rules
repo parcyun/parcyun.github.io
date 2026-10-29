@@ -2,8 +2,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function availableNickname(name) {
-      return !name.matches('.*[dD][eE][xX][tT][eE][rR].*')
-        && !name.matches('.*[pP][aA][rR][cC][yY][uU][nN].*');
+      return !name.matches('(?s).*[dD][eE][xX][tT][eE][rR].*')
+        && !name.matches('(?s).*[pP][aA][rR][cC][yY][uU][nN].*');
     }
     match /spellBoards/{board}/players/{uid} {
       allow read: if board.matches('(ko|en)_(easy|med|hard|mix)_(practice|timer|custom)');

@@ -58,7 +58,7 @@ for (const host of [account, legalDialog]) host.addEventListener('click', event 
   if (link && ['/terms/', '/privacy/'].includes(link.getAttribute('href'))) { event.preventDefault(); openLegal(link.getAttribute('href')); }
 });
 const SCHOOL_ICON='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#ffb11a18"/><g fill="none" stroke="#ffb11a" stroke-width="1.8" stroke-linejoin="round"><path d="M6 34h28M10 34V15l10-7 10 7v19M16 34V23h8v11M7 17l13-9 13 9M15 18h2m6 0h2M18 6h9v4h-7"/></g></svg>');
-function setSchoolIcon(icon,school){icon.src=SCHOOL_ICON;icon.alt='학교 마크';icon.loading='lazy';schoolMark(school).then(src=>{if(src)icon.src=src;});icon.onerror=()=>{icon.onerror=null;icon.src=SCHOOL_ICON;};}
+function setSchoolIcon(icon,school){icon.src=SCHOOL_ICON;icon.alt='학교 마크';icon.loading='lazy';schoolMark(school).then(src=>{if(src){icon.src=src;icon.style.background='#fff';icon.style.padding='3px';icon.style.boxSizing='border-box';icon.style.borderRadius='7px';}});icon.onerror=()=>{icon.onerror=null;icon.src=SCHOOL_ICON;};}
 const schoolDialog=dialog('학교 검색');schoolDialog.classList.add('ps-school-dialog');
 const schoolBody=document.createElement('div');schoolDialog.append(schoolBody);
 schoolBody.innerHTML='<form class="ps-school-search"><label for="ps-school-query">학교 이름</label><div class="ps-school-query-row"><input id="ps-school-query" placeholder="학교 이름을 2글자 이상 입력" autocomplete="off"><button type="submit">검색</button></div><label for="ps-school-region">지역</label><select id="ps-school-region" aria-label="학교 검색 지역"></select></form><p class="ps-school-status" role="status"></p><div class="ps-school-results"></div><small>출처: 나이스 교육정보 개방 포털 · 마크는 학교 공식 홈페이지에서 수집해 서버에 보관해요. 아직 확보하지 못한 학교는 기본 아이콘으로 표시돼요.</small>';
@@ -176,8 +176,8 @@ function renderAccount() {
     e.currentTarget.disabled = true;
     try {
       const next={nickname,school,photo:photo||profile.photo||'',...(selectedSchool?{schoolInfo:selectedSchool}:{})};
-      if(browserOnly){profile=localProfiles.save(next);creatingLocal=false;photo='';renderTrigger();message('이 브라우저에 프로필을 저장했어요. 랭킹 기록은 제출할 때만 공개됩니다.');ensureBrowserIdentity().catch(()=>message('프로필은 이 브라우저에 저장됐어요. 랭킹 연결은 네트워크가 복구되면 다시 시도해 주세요.'));}
-      else{const s=await loadSdk();next.updatedAt=s.dbApi.serverTimestamp();await s.dbApi.setDoc(s.dbApi.doc(s.db,'profiles',user.uid),next);profile=next;photo='';renderTrigger();message('프로필을 저장했습니다.');}
+      if(browserOnly){profile=localProfiles.save(next);creatingLocal=false;photo='';renderTrigger();account.close();ensureBrowserIdentity().catch(()=>message('프로필은 이 브라우저에 저장됐어요. 랭킹 연결은 네트워크가 복구되면 다시 시도해 주세요.'));}
+      else{const s=await loadSdk();next.updatedAt=s.dbApi.serverTimestamp();await s.dbApi.setDoc(s.dbApi.doc(s.db,'profiles',user.uid),next);profile=next;photo='';renderTrigger();account.close();}
     } catch { message('저장하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.'); }
     finally { const button = body.querySelector('#ps-save-profile'); if (button) button.disabled = false; }
   };

@@ -329,8 +329,8 @@ export default function GlobeLab(){
   const [trueSize,setTrueSize]=useState(false); // 실제 크기 비교(모든 뷰)
   const [tsInfo,setTsInfo]=useState(false); // 실제 크기 비교 설명 팝업
   const [panels,setPanels]=useState({tools:'tl',legend:'tr'}); // #6 기본: 도구=좌상, 대륙/대양=우상 · #5 드래그로 이동/스냅
-  const [toolsCollapsed,setToolsCollapsed]=useState(false); // 도구 상자 접힘
-  const [legendCollapsed,setLegendCollapsed]=useState(false); // 대륙/대양 상자 접힘
+  const [toolsCollapsed,setToolsCollapsed]=useState(()=>typeof window!=='undefined'&&window.matchMedia('(max-width:760px)').matches); // 도구 상자 접힘
+  const [legendCollapsed,setLegendCollapsed]=useState(()=>typeof window!=='undefined'&&window.matchMedia('(max-width:760px)').matches); // 대륙/대양 상자 접힘
   const [lang,setLang]=useState('ko'); // #10 언어 토글(한국어/영어)
   const [northUp,setNorthUp]=useState(false); // #2 정북 고정(지구본에서 북극이 항상 위)
   const [hint,setHint]=useState(true); // 힌트=일시 온보딩(원본과 동일): 7초 또는 첫 조작 시 사라짐, 뷰 전환 시 잠깐 재표시

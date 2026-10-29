@@ -1,0 +1,87 @@
+/* Mobile game controls share one clear lane above the map and footer. */
+@media (max-width:760px) {
+  .gl-app .topbar{padding:14px 12px;max-width:110px}
+  .gl-app .title{font-size:13px;white-space:nowrap}
+  .gl-app .kicker{font-size:8px;letter-spacing:.08em}
+  .gl-app .projseg{top:14px;left:auto;right:12px;transform:none;gap:0}
+  .gl-app .projseg button{padding:9px 8px;font-size:11px;min-height:40px}
+  .gl-app .controls{top:64px;left:12px;right:12px;justify-content:flex-end;gap:6px}
+  .gl-app .controls .ctrl{min-height:40px}
+  .gl-app .controls .game-entry{margin-right:auto;padding:0 12px;font-size:12px}
+  .gl-app .tools-fixed{top:114px;left:12px;max-width:calc(100vw - 24px)}
+  .gl-app .tools-fixed .panel-body{max-height:calc(45dvh - 42px);overflow:auto;overscroll-behavior:contain}
+  .gl-app .right-stack{top:auto;bottom:calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + 148px);right:12px;width:200px;max-height:30dvh;overflow:auto;overscroll-behavior:contain}
+  .gl-app .hint{display:none}
+  .geo-game .gg-play-title{right:138px}
+  .geo-game .gg-play-title>span{font-size:9px;letter-spacing:.04em}
+  .geo-game .gg-play-title h1{font-size:16px}
+  .geo-game .gg-right-cards{top:130px}
+  .geo-game:not(.gg-playing) .gg-menu{padding-top:64px;max-height:calc(100dvh - var(--ps-footer-h,0px) - 54px)}
+  .geo-game:not(.gg-playing) .gg-ranking-open{top:26px;left:32px;right:auto}
+  .geo-game .gg-summary{overflow:auto;box-sizing:border-box;padding-bottom:calc(var(--ps-footer-h,0px) + 40px)}
+  body:has(#play.active) .ps-service-actions,
+  body:has(#play.active) .ps-visitor-counter,
+  body:has(#play.active) #visitor-stats{display:none!important}
+  body:has(#play.active) #play{padding-bottom:calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + 24px)}
+  #play .hud{gap:8px;margin-bottom:12px}
+  #play .cell{padding:12px}
+  #play .q-input{font-size:16px}
+  .ps-school-dialog input,.ps-account-dialog input{font-size:16px}
+}
+@media (max-width:600px) {
+  #home .hero-meta{grid-template-columns:minmax(0,1fr) auto;gap:12px 8px}
+  #home .hero-meta>.logo{grid-column:1;grid-row:1}
+  #home .hero-meta>.sound-stack{grid-column:2;grid-row:1;width:auto}
+  #home .hero-meta-right{grid-column:1/-1;grid-row:2;justify-content:space-between}
+  #home .hero-meta .ranking-launch{width:100px;min-height:44px;padding:10px}
+  #home .hero-meta .sound-toggle{width:120px;min-height:40px}
+  #home .ctrl-grid{margin-top:24px}
+  .ranking-sheet .ranking-scroll table{min-width:0;width:100%}
+  .ranking-sheet .rank-table th:last-child,.ranking-sheet .rank-table td:last-child{display:none}
+  .ranking-sheet .rank-table th,.ranking-sheet .rank-table td{padding:6px 4px}
+}
+@media (max-height:500px) and (max-width:1000px) {
+  .geo-game .gg-right-cards{top:100px;left:12px;right:auto;width:160px;max-height:calc(100dvh - 170px);overflow:auto}
+  .geo-game .gg-answer{left:auto;right:12px;transform:none;width:calc(100vw - 200px);bottom:calc(var(--ps-footer-h,0px) + 56px)}
+  .geo-game .gg-finish{bottom:calc(var(--ps-footer-h,0px) + 12px)}
+  .geo-game .gg-right-cards .gg-hud{padding:8px;gap:8px}
+  .geo-game .gg-score strong,.geo-game .gg-combo strong{font-size:22px}
+}
+@media (max-width:760px) {
+  .gl-app .topbar .title-wrap{display:none}
+  .gl-app .tools-fixed .panel-body{max-height:calc(30dvh - 42px)}
+  .gl-app .right-stack{width:min(280px,calc(100vw - 24px));max-height:25dvh}
+  .gl-app .right-stack .legend{box-sizing:border-box;max-width:none;width:100%}
+  .gl-app .legend-cols{gap:8px}
+  .gl-app .legend-col{min-width:0;flex:1}
+  .gl-app .legend .chip{gap:5px;padding:6px 4px;white-space:nowrap}
+  .gl-app .legend .chip small{display:none}
+  body:has(#home.active) .ps-service-actions{position:absolute;top:64px;bottom:auto;left:14px;right:14px;flex-direction:row;justify-content:flex-end;gap:8px}
+  body:has(#home.active) .stage{padding-top:132px}
+  body:has(#play.active) .ps-home-fab{display:none}
+  #home .play-btn{font-size:clamp(18px,5.5vw,24px);padding:22px 12px;white-space:nowrap}
+  #home .hero-meta .ranking-launch{height:44px}
+  .ps-account-dialog input:not([type=checkbox]){font-size:16px}
+}
+@media (max-width:760px) {
+  body:has(#play.active) .ps-studio-home{display:none!important}
+}
+@media (max-height:500px) and (max-width:1000px) {
+  .geo-game .gg-right-cards{top:146px;max-height:calc(100dvh - 220px)}
+  .geo-game .gg-finish{left:12px;right:auto}
+  body:has(#home.active) .ps-service-actions{position:absolute;top:64px;bottom:auto;left:14px;right:14px;flex-direction:row;justify-content:flex-end;gap:8px}
+  body:has(#home.active) .stage{padding-top:132px}
+  body:has(#play.active) .ps-service-actions,
+  body:has(#play.active) .ps-studio-home,
+  body:has(#play.active) .ps-visitor-counter{display:none!important}
+}
+@media (max-width:760px) {
+  .ps-account-dialog.ps-school-dialog input:not([type=checkbox]),
+  .ps-account-dialog #ps-nickname{font-size:16px}
+  #home .play-btn{scroll-margin-block:100px}
+}
+@media (max-width:760px) {
+  .gl-app .floaty-head{min-height:36px;margin:0;padding:0;box-sizing:border-box}
+  .gl-app .tools-fixed .floaty-head::before{content:'지도 도구';font-size:12px}
+  .gl-app .legend-head::before{content:'대륙 · 대양';font-size:12px}
+}

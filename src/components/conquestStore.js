@@ -4,6 +4,7 @@ const listeners=new Set();
 export const currentRoom=()=>room;
 export const activeCount=()=>activeParticipants;
 export const listRooms=()=>request('rooms');
+export const describeCell=cell=>request(`tile?cell=${encodeURIComponent(cell)}`);
 export const playerId=()=>player;
 export const snapshot=()=>current;
 export const selected=()=>selection;

@@ -80,11 +80,13 @@ export function nearestNationDistance(w,cell){return Object.keys(w.owners).reduc
 export function battleTarget(w,nation){return (w.rules||RULES).target*(w.room?.kind==='class'?Math.max(1,Math.ceil((w.nations[nation]?.members.length||1)/2)):1);}
 export function foundingTarget(w,cell){const distance=nearestNationDistance(w,cell);return Math.round(200+1800/(1+distance/3));}
 export function rebellionTarget(w,nation){return 500+Object.values(w.owners).filter(n=>n===nation).length*100;}
+export const operationTarget=(operation,defending=false)=>defending?(operation.defenseTarget??operation.target):operation.target;
+export const environmentTargets=(base,environment)=>environment?{target:Math.ceil(base*(1+environment.attack/100)),defenseTarget:Math.ceil(base*(1-environment.defense/100)),baseTarget:base,environment}:{target:base};
 export function settle(w,now=Date.now()) {
   w.campaigns??=[];
   for(const c of w.campaigns){
     if(c.status!=='active')continue;
-    if(c.defense>=c.target||now>=c.endsAt)c.status='defended';
+    if(c.defense>=operationTarget(c,true)||now>=c.endsAt)c.status='defended';
     else if(c.score>=c.target){
       if(w.players[c.player]||ownerOf(w,c.cell)!==c.defender){c.status='cancelled';continue;}
       const id=`nation-${c.id}`;w.nations[id]={id,name:c.name,flag:'⚑',color:c.color,members:[c.player]};w.owners[c.cell]=id;w.players[c.player]={nation:id};c.status='founded';
@@ -93,7 +95,7 @@ export function settle(w,now=Date.now()) {
   for(const v of w.voyages||[])if(v.status==='sailing'&&now>=v.arrivesAt)v.status='arrived';
   for(const b of w.battles){
     if(b.status!=='active')continue;
-    if(b.defense>=b.target)b.status='defended';
+    if(b.defense>=operationTarget(b,true))b.status='defended';
     else if(b.attack>=b.target){b.status='captured';if(b.sea){w.seaOwners??={};w.seaOwners[b.cell]=b.attacker;}else w.owners[b.cell]=b.attacker;}
     else if(now>=b.endsAt)b.status='defended';
   }
@@ -106,7 +108,7 @@ export function settle(w,now=Date.now()) {
   return w;
 }
 function requireNation(w,player){const p=w.players[player];if(!p||!w.nations[p.nation])throw Error('먼저 국가를 선택하세요.');return p.nation;}
-export function applyAction(w,player,action,now=Date.now(),isLand=()=>true) {
+export function applyAction(w,player,action,now=Date.now(),isLand=()=>true,getEnvironment=()=>null) {
   settle(w,now);rebuildWaters(w,isLand);
   if(action.type==='join'){
     if(w.players[player])throw Error('이미 국가에 참여하고 있어요.');
@@ -123,7 +125,7 @@ export function applyAction(w,player,action,now=Date.now(),isLand=()=>true) {
     if(w.battles.some(b=>b.status==='active'&&b.cell===action.cell)||w.campaigns.some(c=>c.status==='active'&&(c.player===player||c.cell===action.cell)))throw Error('이미 진행 중인 건국·반란이 있어요.');
     const name=String(action.name||'').trim();if(!name||name.length>24)throw Error('국가 이름은 1~24자로 입력하세요.');
     const target=action.type==='rebel'?rebellionTarget(w,defender):foundingTarget(w,action.cell);
-    w.campaigns.push({id:action.id||crypto.randomUUID(),player,cell:action.cell,defender,name,color:['#5F8DC2','#B8B56F','#D99962','#C286A8','#8CB9C9','#92916B','#C9735A','#77A6A2','#A58AB8','#CFAC6A','#7B9D69','#AC8790'].find(color=>!Object.values(w.nations).some(n=>n.color===color))||'#5F8DC2',kind:action.type,score:0,defense:0,target,endsAt:now+(w.rules||RULES).battleMs,status:'active',participants:[player],contributions:{}});return w;
+    w.campaigns.push({id:action.id||crypto.randomUUID(),player,cell:action.cell,defender,name,color:['#5F8DC2','#B8B56F','#D99962','#C286A8','#8CB9C9','#92916B','#C9735A','#77A6A2','#A58AB8','#CFAC6A','#7B9D69','#AC8790'].find(color=>!Object.values(w.nations).some(n=>n.color===color))||'#5F8DC2',kind:action.type,score:0,defense:0,...environmentTargets(target,getEnvironment(action.cell)),endsAt:now+(w.rules||RULES).battleMs,status:'active',participants:[player],contributions:{}});return w;
   }
   const campaign=w.campaigns.find(c=>c.id===action.id&&c.status==='active');
   if(campaign&&action.type==='participate'){
@@ -145,7 +147,7 @@ export function applyAction(w,player,action,now=Date.now(),isLand=()=>true) {
     if(sea&&(!claims.includes(nation)||claims.length<2))throw Error('겹친 영해에서만 해상 공격 계획을 세울 수 있어요. 먼바다는 항해하세요.');
     if(!from||ownerOf(w,action.cell)===nation)throw Error('우리 영토와 맞닿은 다른 블록만 공격할 수 있어요.');
     if(w.battles.some(b=>b.cell===action.cell&&b.status==='active')||w.campaigns.some(c=>c.cell===action.cell&&c.status==='active'))throw Error('이미 진행 중인 전투예요.');
-    w.battles.push({id:action.id,cell:action.cell,from,sea,attacker:nation,defender:ownerOf(w,action.cell)||claims.find(n=>n!==nation),attack:0,defense:0,target:battleTarget(w,nation),endsAt:now+(w.rules||RULES).battleMs,status:'active',participants:[player],contributions:{}});
+    w.battles.push({id:action.id,cell:action.cell,from,sea,attacker:nation,defender:ownerOf(w,action.cell)||claims.find(n=>n!==nation),attack:0,defense:0,...environmentTargets(battleTarget(w,nation),getEnvironment(action.cell)),endsAt:now+(w.rules||RULES).battleMs,status:'active',participants:[player],contributions:{}});
   }else if(action.type==='voyage'){
     if((w.voyages||[]).some(v=>v.nation===nation&&v.status==='sailing'))throw Error('진행 중인 항해가 도착한 후 출항하세요.');
     const route=seaRoute(w,nation,action.cell,isLand);

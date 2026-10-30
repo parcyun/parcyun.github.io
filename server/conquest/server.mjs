@@ -7,18 +7,24 @@ import { fileURLToPath } from 'node:url';
 import { geoContains,geoPath,geoEquirectangular } from 'd3-geo';
 import sharp from 'sharp';
 import {createStorage} from './storage.mjs';
+import {createEnvironment} from '../../src/components/conquestEnvironment.js';
 import {initialWorld,applyAction,rebuildWaters,settle,center,COLS,ROWS,GLOBAL_ROOMS,rulesForRoom} from '../../src/components/conquestEngine.js';
 import {buildGamePools,matchesAnswer,scoreAnswer,GAME_MODES} from '../../src/components/geoGameData.js';
 const ROOT=resolve(fileURLToPath(new URL('../..',import.meta.url)));
 const world=JSON.parse(await readFile(resolve(ROOT,'public/lab-data/world.json'),'utf8'));
 const vatican=JSON.parse(await readFile(resolve(ROOT,'public/lab-data/conquest-vatican.json'),'utf8'));world.features.push(vatican);
-const pools=buildGamePools(world,JSON.parse(await readFile(resolve(ROOT,'public/lab-data/geoweb-landforms.json'),'utf8')));
+const landforms=JSON.parse(await readFile(resolve(ROOT,'public/lab-data/geoweb-landforms.json'),'utf8'));
+const pools=buildGamePools(world,landforms);
+const biomeRaster=await sharp(resolve(ROOT,'public/lab-data/conquest-biomes.png')).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+const climateRaster=await sharp(resolve(ROOT,'public/lab-data/geoweb-climate-1991-2020.png')).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+function sample(raster,lon,lat){const {data,info}=raster,x=Math.max(0,Math.min(info.width-1,Math.floor((lon+180)/360*info.width))),y=Math.max(0,Math.min(info.height-1,Math.floor((90-lat)/180*info.height)));return data[(y*info.width+x)*info.channels];}
 const path=geoPath(geoEquirectangular().scale(2048/(2*Math.PI)).translate([1024,512]));
 const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1024"><path fill="white" d="${path(world)}"/></svg>`;
 const {data:mask,info}=await sharp(Buffer.from(svg)).ensureAlpha().raw().toBuffer({resolveWithObject:true});
 const cache=new Map();
 function isLand(id){if(cache.has(id))return cache.get(id);const [lon,lat]=center(id),x=Math.max(0,Math.min(2047,Math.floor((lon+180)/360*2048))),y=Math.max(0,Math.min(1023,Math.floor((90-lat)/180*1024)));const land=mask[(y*2048+x)*info.channels+info.channels-1]>127;cache.set(id,land);return land;}
 function preciseLand(id){return world.features.some(f=>geoContains(f,center(id)));}
+const environment=createEnvironment({isLand,biomeAt:(lon,lat)=>sample(biomeRaster,lon,lat),climateAt:(lon,lat)=>({105:'highland',229:'polar'})[sample(climateRaster,lon,lat)],landforms});
 const storage=await createStorage();
 const refresh=w=>{w.rules=rulesForRoom(w.room);return rebuildWaters(settle(w),isLand);};
 const presenceWindow=120_000;
@@ -76,6 +82,7 @@ const server=createServer(async(req,res)=>{
       if(!room)return send(400,{error:'글로벌 서버 또는 우리반 서버를 먼저 선택하세요.'});
       // Simplification: one transactional world document per room. Shard territory and operations before a room approaches 850 KB or sustained classroom-wide contention.
       const worldKey=`world-${room.key}`;
+      if(req.method==='GET'&&url.pathname==='/api/conquest/tile'){const cell=url.searchParams.get('cell');if(!validCell(cell))throw Error('블록을 확인해 주세요.');return send(200,{cell,land:isLand(cell),environment:environment(cell)});}
       if(req.method==='GET'&&url.pathname==='/api/conquest/world'){
         const w=refresh((await storage.get(worldKey))||initialWorld(room));return send(200,{world:w,activeParticipants:await presence(room.key,profile.id),player:profile.id,nickname:profile.nickname,serverTime:Date.now()});
       }
@@ -98,13 +105,13 @@ const server=createServer(async(req,res)=>{
           if(elapsed>600||q.expert&&elapsed>7||!matchesAnswer(String(input.answer||''),question)){p.combo=0;values[worldKey]=w;return {error:'정답과 제한 시간을 확인하세요.',invalid:true};}
           p.combo++;points=scoreAnswer(String(input.answer),Math.max(.5,elapsed),q.tier,p.combo).total;
           const operation=[...w.battles,...w.campaigns].find(b=>b.id===input.battle);if(!operation||!operation.participants.includes(p.id))throw Error('참여한 작전을 선택하세요.');
-          const completed=operation.status!=='active';if(completed)points=0;else applyAction(w,p.id,{type:'contribute',id:input.battle,points},receivedAt,isLand);
+          const completed=operation.status!=='active';if(completed)points=0;else applyAction(w,p.id,{type:'contribute',id:input.battle,points},receivedAt,isLand,environment);
           p.receipts=[...(p.receipts||[]),{nonce:input.nonce,roomKey:room.key,operation:input.battle,points,completed}].slice(-20);
         }else{
           if(!['found','rebel','join','leave','plan','participate','propose','proposeCapital','vote','voyage'].includes(input.type))throw Error('허용되지 않은 행동입니다.');
           if(['found','rebel','plan','voyage','proposeCapital'].includes(input.type)&&!validCell(input.cell))throw Error('블록을 확인해 주세요.');
           if(['found','rebel'].includes(input.type)&&!preciseLand(input.cell))throw Error('육지 블록에서 시작하세요.');
-          applyAction(w,p.id,{...input,id:['found','rebel','plan','propose','proposeCapital','voyage'].includes(input.type)?randomUUID():input.id},Date.now(),isLand);
+          applyAction(w,p.id,{...input,id:['found','rebel','plan','propose','proposeCapital','voyage'].includes(input.type)?randomUUID():input.id},Date.now(),isLand,environment);
         }
         w.revision=(w.revision||0)+1;values[worldKey]=w;return {world:w,player:p.id,nickname:p.nickname,points,completed:url.pathname.endsWith('/answer')&&!!p.receipts?.at(-1)?.completed,serverTime:Date.now()};
       });return send(result.invalid?400:200,result);

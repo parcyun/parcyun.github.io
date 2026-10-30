@@ -308,7 +308,7 @@ function DraggablePanel({corner,onDock,otherCorner,className,children,collapsed,
   return <div ref={ref} className={'floaty'+(dragging?' dragging':'')+(collapsed?' collapsed':'')+(className?' '+className:'')} onPointerDown={onDown}>{children}</div>;
 }
 
-export default function ConquestGlobe(){
+export default function ConquestGlobe({quizView=false,question:quizQuestion=null,questionMode=null}){
   useEffect(()=>{
     let cancelled=false,timer;const images=[];const urls=[...new Set(COUNTRIES.map(country=>country.flag).filter(Boolean))];
     const loadNext=()=>{if(cancelled||!urls.length)return;const image=new Image();images.push(image);image.decoding='async';image.fetchPriority='low';image.onload=image.onerror=()=>{if(!cancelled)timer=setTimeout(loadNext,0);};image.src=urls.shift();};
@@ -348,7 +348,9 @@ export default function ConquestGlobe(){
   const [selectedCountry,setSelectedCountry]=useState(null);
   const [systemPopover,setSystemPopover]=useState(null);
   useEffect(()=>()=>gameTimers.current.forEach(clearTimeout),[]);
-  const gameTarget=useCallback((question,mode,difficulty)=>{api.current.gameTarget?.(question,mode);},[]);
+  const [cue,setCue]=useState(null);
+  const gameTarget=useCallback((question,mode)=>{setCue({question,mode});},[]);
+  useEffect(()=>{if(quizView&&gamePools&&quizQuestion){api.current.enterGameLobby?.();api.current.gameTarget?.(quizQuestion,questionMode);}},[quizView,gamePools,quizQuestion,questionMode]);
   const enterGame=(cell)=>{
     if(!gamePools||gameWipe)return;
     gameSnapshot.current={...S.current};setGuide(false);setUpdateStory(false);setGameWipe(true);
@@ -624,13 +626,13 @@ export default function ConquestGlobe(){
         const srcScale=(m>0.5)?MS/cosLat:(l>0.5?STE:1.0); // 소스 중심 월드스케일: 평면=MS/cos, 렌즈=STE, 지구본=1
         let toZoomv=to.zoom;
         if(focus&&!home){
-          toZoomv=S.current.game?({flat:2.15,lens:0.78,globe:S.current.gameMode==='flag'?.82:1.75}[v]||to.zoom):24;
+          toZoomv=S.current.focusZoom||(S.current.game?({flat:2.15,lens:0.78,globe:S.current.gameMode==='flag'?.82:1.75}[v]||to.zoom):24);S.current.focusZoom=null;
           toZoomv=THREE.MathUtils.clamp(toZoomv,v==='flat'?flatSafeZmin():to.zmin,to.zmax);
         } else if(!home){ // 홈(⟳)은 기본 zoom 리셋. 그 외에는 소스 중심 크기에 맞춰 목표 zoom 계산
           if(v==='lens') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom/STE,VIEW.lens.zmin,VIEW.lens.zmax);
           else if(v==='globe') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom,VIEW.globe.zmin,VIEW.globe.zmax); // 지구본 월드스케일=1
           else toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom*cosLat/MS,flatSafeZmin(),VIEW.flat.zmax); }        // 평면 월드스케일=MS/cos
-        if(S.current.game&&!S.current.operationCoordinates&&['landmark','nature'].includes(S.current.gameMode)&&v==='globe'){
+        if(S.current.game&&!quizView&&!S.current.operationCoordinates&&['landmark','nature'].includes(S.current.gameMode)&&v==='globe'){
           const shift=(S.current.gameMode==='nature' ? -.48 : .48)*(mount.clientWidth/mount.clientHeight)/toZoomv;
           toTgt.x=shift;toPos.x=shift;
         }
@@ -698,10 +700,10 @@ export default function ConquestGlobe(){
           move:(wx,wy)=>{if(tsDragging)updateGhost(wx,wy);},end:()=>{tsDragging=false;},active:()=>tsDragging},
         pickContinent:(k)=>setSel(sameSel(S.current.sel,{type:'continent',key:k})?null:{type:'continent',key:k}),
         pickOcean:(k)=>setSel(sameSel(S.current.sel,{type:'ocean',key:k})?null:{type:'ocean',key:k}),
-        focusCountry:(nextCountry)=>{S.current.focusReq={lon:nextCountry.coordinates[0],lat:nextCountry.coordinates[1]};goView(S.current.view);}};
+        focusCountry:(nextCountry)=>{S.current.focusZoom=32;S.current.focusReq={lon:nextCountry.coordinates[0],lat:nextCountry.coordinates[1]};goView(S.current.view);}};
       api.current.enterGameLobby=(cell)=>{
-        S.current.operationCoordinates=cell?hexCenter(cell):null;
-        Object.assign(S.current,{game:true,gameMode:null,gameQuestion:null,view:'globe',homeReq:true,focusReq:{lon:S.current.operationCoordinates?.[0]??135,lat:S.current.operationCoordinates?.[1]??0},grat:false,eq:false,prime:false,dateline:false,climate:false,terrain:false,trueSize:false,sat:false,northUp:false,dayNight:false});
+        S.current.operationCoordinates=cell?hexCenter(cell):null;S.current.focusZoom=cell?32:null;
+        Object.assign(S.current,{game:true,gameMode:null,gameQuestion:null,view:'globe',homeReq:false,focusReq:{lon:S.current.operationCoordinates?.[0]??135,lat:S.current.operationCoordinates?.[1]??0},grat:false,eq:false,prime:false,dateline:false,climate:false,terrain:false,trueSize:false,sat:false,northUp:false,dayNight:false});
         applyGrid();removeGhost();applySat(false);onDN(false);applySel(null);goView('globe');
       };
       api.current.gameTarget=(question,mode)=>{
@@ -713,7 +715,7 @@ export default function ConquestGlobe(){
       };
       api.current.finishGame=(mode)=>{
         if(mode==='flag'){S.current.dayNight=false;S.current.dnPlay=false;onDN(false);}
-        Object.assign(S.current,{gameMode:null,gameQuestion:null,homeReq:true,focusReq:{lon:S.current.operationCoordinates?.[0]??135,lat:S.current.operationCoordinates?.[1]??0}});applySel(null);goView('globe');
+        S.current.focusZoom=S.current.operationCoordinates?32:null;Object.assign(S.current,{gameMode:null,gameQuestion:null,homeReq:!S.current.operationCoordinates,focusReq:{lon:S.current.operationCoordinates?.[0]??135,lat:S.current.operationCoordinates?.[1]??0}});applySel(null);goView('globe');
       };
       api.current.restoreGame=()=>{applyGrid();applySat(S.current.sat);onDN(S.current.dayNight);applySel(S.current.sel);goView(S.current.view);refreshTrueSize();};
       setGamePools(gameData);
@@ -741,7 +743,7 @@ export default function ConquestGlobe(){
         return sph.multiplyScalar(1-morph-lens).add(pl.multiplyScalar(morph)).add(st.multiplyScalar(lens));};
 
       const ray=new THREE.Raycaster(),ptr=new THREE.Vector2(),plane0=new THREE.Plane(new THREE.Vector3(0,0,1),0),unit=new THREE.Sphere(new THREE.Vector3(),1);
-      const conquest=attachConquest({scene,world,mount,camera,project:projectJS,S,U,landTexture:vDay,overlayUniform:u.overlayTex});
+      const conquest=quizView?null:attachConquest({scene,world,mount,camera,project:projectJS,S,U,landTexture:vDay,overlayUniform:u.overlayTex});
       let downXY=null,dragLens=null,ptrDown=false;const dom=renderer.domElement;
       const ghostHit=(e)=>{const rect=dom.getBoundingClientRect();ptr.x=((e.clientX-rect.left)/rect.width)*2-1;ptr.y=-((e.clientY-rect.top)/rect.height)*2+1;ray.setFromCamera(ptr,camera);if(S.current.view==='globe'){const hit=ray.ray.intersectSphere(unit,new THREE.Vector3());if(!hit)return null;const [lon,lat]=vec3ToLonLat(rotY(rotX(hit,-U.uRotX.value),-U.uRotY.value));return {x:lon*D2R*MS,y:tsMercY(lat)};}
         const hit=ray.ray.intersectPlane(plane0,new THREE.Vector3());if(!hit||S.current.view==='flat')return hit;
@@ -788,7 +790,7 @@ export default function ConquestGlobe(){
             lat=R2D*Math.asin(THREE.MathUtils.clamp(cc*Math.sin(la0)+Y*sc*Math.cos(la0)/rho,-1,1));
             lon=R2D*(lo0+Math.atan2(X*sc, rho*Math.cos(la0)*cc-Y*Math.sin(la0)*sc));}
           lon=((lon+180)%360+360)%360-180;}
-        const id=cellAt(lon,lat);conquestStore.selectCell(id);return;
+        if(quizView)return;const id=cellAt(lon,lat);conquestStore.selectCell(id);return;
         const cur=S.current.sel;
         const c=world.features.find(f=>geoContains(f,[lon,lat]));
         if(c){const ns=S.current.country?{type:'country',name:c.properties.n,key:c.properties.c}:{type:'continent',key:c.properties.c};setSel(sameSel(cur,ns)?null:ns);return;} // 재선택=해제
@@ -860,7 +862,7 @@ export default function ConquestGlobe(){
           U.uLonC.value=controls.target.x/MS; // 정상상태 평면: seam을 항상 카메라(팬 중심) 반대편에 파킹 → 화면 시야각(<180°)보다 seam이 항상 더 멀리 있어 안 보임
         }
         uLonCPatch.value=U.uLonC.value+Math.PI; // patch를 매 프레임 "center uLonC + π"로 동기화 — 전환 중·정상상태 모두, seam이 어디로 움직이든 두 사본이 항상 서로의 빈틈을 덮음
-        conquest.tick(performance.now(),motionPreference.matches);
+        conquest?.tick(performance.now(),motionPreference.matches);
         renderer.render(scene,camera);
         const globeish=U.morph.value<0.5&&U.lens.value<0.5;
         for(const key in labels){const {el,anchor}=labels[key];const w3=projectJS(anchor[0],anchor[1]);let faceOk=true;
@@ -882,7 +884,7 @@ export default function ConquestGlobe(){
           gl.el.style.display='block';gl.el.style.left=((p.x*0.5+0.5)*mount.clientWidth)+'px';gl.el.style.top=((-p.y*0.5+0.5)*mount.clientHeight)+'px';}
       };
       loop();setStatus('');
-      cleanupFn=()=>{stageResize.disconnect();conquest.dispose();window.removeEventListener('pointerup',endGhostDrag);window.removeEventListener('resize',onResize);cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
+      cleanupFn=()=>{stageResize.disconnect();conquest?.dispose();window.removeEventListener('pointerup',endGhostDrag);window.removeEventListener('resize',onResize);cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
       if(disposed)cleanupFn();
     })().catch(e=>{console.error('GLOBE_MOUNT_ERROR',e);setStatus('지도 데이터를 불러오지 못했어요. 새로고침해 주세요.');});
     return ()=>{disposed=true;cancelAnimationFrame(raf);if(cleanupFn)cleanupFn();};
@@ -909,11 +911,12 @@ export default function ConquestGlobe(){
     }
   }
 
+  if(quizView)return <div className="gl-app cq-quiz-map" aria-label="문제용 지구본"><div className="cq-quiz-stage"><div ref={mountRef} className="gl-canvas"/><div ref={labelRef} className="gl-labels"/></div></div>;
   return (
     <div id="app" className={'gl-app conquest-dev'+(gameActive?' game-active':'')}>
       <ConquestPanel gameActive={gameActive} onPlay={enterGame} onReturn={exitGame} ready={!!gamePools} onFocus={ll=>api.current.focusCountry?.({coordinates:ll})}/>
       {gameWipe&&<div className="gg-wipe" aria-hidden="true"/>}
-      {gameActive&&gamePools&&<GeoGame pools={gamePools} onTarget={gameTarget} onExit={exitGame} onFinish={mode=>api.current.finishGame?.(mode)} onQuestionReady={conquestStore.beginQuestion} onMiss={conquestStore.resetCombo} onContribution={answer=>new Promise(resolve=>window.dispatchEvent(new CustomEvent('conquest-score',{detail:{answer,resolve}})))}/>}
+      {gameActive&&gamePools&&<GeoGame mapView={<div className="cq-question-viewport"><ConquestGlobe quizView question={cue?.question} questionMode={cue?.mode}/></div>} pools={gamePools} onTarget={gameTarget} onExit={exitGame} onFinish={mode=>api.current.finishGame?.(mode)} onQuestionReady={conquestStore.beginQuestion} onMiss={conquestStore.resetCombo} onContribution={answer=>new Promise(resolve=>window.dispatchEvent(new CustomEvent('conquest-score',{detail:{answer,resolve}})))}/>}
       <div className="topbar">
         <a className="home-fab" href="/atlas-gears/" title="아틀라스 기어즈로 이동" aria-label="아틀라스 기어즈로 이동"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
         <div className="title-wrap"><div className="kicker">{T.kicker}</div><div className="title">{T.title}<span className="en">{T.subtitle}</span></div></div>

@@ -81,3 +81,34 @@
 }
 .conquest-dev.game-active .gg-finish{top:auto;left:auto;width:auto;height:auto;min-height:40px}
 @media(max-width:760px){.conquest-dev.game-active .gg-finish{top:auto;left:auto;right:12px;bottom:48px;width:auto;height:auto;padding:8px 16px}}
+/* Independent GeoWeb question globe; the operation map stays on the left. */
+.conquest-dev .cq-tile-info{margin-bottom:4px}.cq-terrain-reason{display:block;color:#e9ce99;font-size:11px;line-height:1.6;margin:0 0 16px}.cq-section-label{gap:8px;flex-wrap:wrap}.cq-section-label button{font-size:10px}
+.conquest-dev.game-active .gg-play-title{top:20px;left:24px;right:24px}
+.conquest-dev.game-active .gg-right-cards{top:76px;left:24px;right:24px}
+.conquest-dev.game-active .gg-right-cards .gg-country{display:none}
+.cq-question-viewport{position:absolute;top:182px;bottom:220px;left:16px;right:16px;overflow:hidden;border-radius:16px;pointer-events:auto;background:#04060b}
+.conquest-dev .cq-quiz-map{position:absolute;inset:0;width:100%;height:100%}.cq-quiz-stage{position:absolute;inset:0}
+.conquest-dev .cq-quiz-map .gl-labels{display:none!important}
+.conquest-dev.game-active .geo-game:has(.gg-landmark) .cq-question-viewport,.conquest-dev.game-active .geo-game:has(.gg-nature) .cq-question-viewport{right:50%}
+.conquest-dev.game-active .gg-landmark,.conquest-dev.game-active .gg-nature{left:76%;top:47%;max-width:44%}
+.conquest-dev.game-active .gg-landmark img,.conquest-dev.game-active .gg-nature img{height:180px;max-width:100%}
+.conquest-dev.game-active .geo-game:has(.gg-flag) .cq-question-viewport{display:none}
+.conquest-dev.game-active .gg-finish{top:auto;left:50%;right:auto;bottom:56px;transform:translateX(-50%);min-height:44px}
+.conquest-dev.game-active .gg-answer{bottom:116px}
+@media(max-width:760px){
+ .conquest-dev.game-active .gg-play-title{top:12px;left:12px;right:12px}
+ .conquest-dev.game-active .gg-play-title h1{font-size:16px}
+ .conquest-dev.game-active .gg-right-cards{top:66px;left:12px;right:12px}
+ .conquest-dev.game-active .cq-question-viewport{top:146px;bottom:174px;left:12px;right:12px}
+ .conquest-dev.game-active .gg-answer{bottom:112px}
+ .conquest-dev.game-active .gg-finish{top:auto;left:50%;right:auto;bottom:56px;transform:translateX(-50%)}
+ .conquest-dev.game-active .gg-landmark,.conquest-dev.game-active .gg-nature{left:76%;top:46%;max-width:42%}
+ .conquest-dev.game-active .gg-landmark img,.conquest-dev.game-active .gg-nature img{height:110px}
+ .conquest-dev.game-active .gg-media figcaption{max-width:100%;font-size:8px}
+}
+@media(min-width:761px){
+ .conquest-dev:not(.game-active):has(.cq-panel)>#stage{right:376px;width:calc(100% - 376px)}
+ .conquest-dev:not(.game-active):has(.cq-independent)>#stage{right:352px;width:calc(100% - 352px)}
+ .conquest-dev:not(.game-active):has(.cq-panel)>.projseg{left:calc((100% - 376px)/2)}
+ .conquest-dev:not(.game-active):has(.cq-independent)>.projseg{left:calc((100% - 352px)/2)}
+}

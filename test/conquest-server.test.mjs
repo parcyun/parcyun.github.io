@@ -19,7 +19,8 @@ test('server profiles, shared world, authoritative answers, idempotent replay an
  let wa=await req('action',{type:'join',nation:'amber'},a.token);assert.equal(wa.world.players[a.player].nation,'amber');await req('action',{type:'join',nation:'amber'},b.token);
  const shared=await req('world',null,a.token);assert.ok(shared.world.nations.amber.members.includes(b.player));assert.ok(!JSON.stringify(shared.world).includes(a.token));
  const owned=Object.keys(shared.world.owners).filter(id=>shared.world.owners[id]==='amber');const target=owned.flatMap(neighbors).find(id=>!shared.world.owners[id]&&worldData.features.some(f=>geoContains(f,center(id))));assert.ok(target);
- const attack=await req('action',{type:'plan',cell:target},a.token);assert.equal(attack.status,200);const battle=attack.world.battles.at(-1);assert.ok(battle.endsAt-Date.now()>2.9*86400000);
+ const tile=await req(`tile?cell=${encodeURIComponent(target)}`,null,a.token);assert.equal(tile.status,200);assert.ok(tile.environment.name);
+ const attack=await req('action',{type:'plan',cell:target},a.token);assert.equal(attack.status,200);const battle=attack.world.battles.at(-1);assert.equal(battle.target,Math.ceil(battle.baseTarget*(1+tile.environment.attack/100)));assert.equal(battle.defenseTarget,Math.ceil(battle.baseTarget*(1-tile.environment.defense/100)));assert.ok(battle.endsAt-Date.now()>2.9*86400000);
  assert.equal((await req('action',{type:'contribute',id:battle.id,points:1000},a.token)).status,400);
  const question=await req('question',{mode:'flag',questionId:'KR',difficulty:'easy'},a.token);assert.equal(question.status,200);
  const answer=await req('answer',{nonce:question.nonce,answer:'대한민국',battle:battle.id},a.token);assert.equal(answer.status,200);assert.ok(answer.points>0);assert.ok(answer.world.battles.at(-1).attack>0);
@@ -38,7 +39,7 @@ test('server profiles, shared world, authoritative answers, idempotent replay an
  const members=[a,b];for(let i=0;i<8;i++)members.push(await req('profile',{nickname:`동시 검사 ${i+3}`}));
  await Promise.all(members.slice(2).map(member=>req('room',{type:'join',code:classRoom.room.code},member.token)));
  await Promise.all(members.map(member=>req('action',{type:'join',nation:'amber'},member.token,roomKey)));
- const operation=await req('action',{type:'plan',cell:target},a.token,roomKey);assert.equal(operation.status,200);assert.equal(operation.world.battles.at(-1).target,5000);const sharedBattle=operation.world.battles.at(-1).id;
+ const operation=await req('action',{type:'plan',cell:target},a.token,roomKey);assert.equal(operation.status,200);assert.equal(operation.world.battles.at(-1).baseTarget,5000);assert.ok(operation.world.battles.at(-1).target>=5000);assert.ok(operation.world.battles.at(-1).defenseTarget<=5000);const sharedBattle=operation.world.battles.at(-1).id;
  await Promise.all(members.slice(1).map(member=>req('action',{type:'participate',id:sharedBattle},member.token,roomKey)));
  const prompts=await Promise.all(members.map(member=>req('question',{mode:'flag',questionId:'KR',difficulty:'easy',round:'ten-player-round'},member.token,roomKey)));
  const credited=await Promise.all(members.map((member,i)=>req('answer',{nonce:prompts[i].nonce,answer:'대한민국',battle:sharedBattle},member.token,roomKey)));

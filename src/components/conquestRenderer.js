@@ -1,3 +1,4 @@
+import {missileRoute,trailColor} from './conquestMissiles.js';
 import * as THREE from 'three';
 import { geoContains } from 'd3-geo';
 import { COLS, ROWS, SIDE, MAP_Y, center, cellAt } from './conquestEngine.js';
@@ -59,7 +60,9 @@ export function attachConquest({scene,world,mount,camera,project,S,U,landTexture
     return [(v.x*.5+.5)*mount.clientWidth,(-v.y*.5+.5)*mount.clientHeight];
   };
   const colors=['255,185,75','116,204,234','239,128,132','175,209,133','218,182,242','255,222,166'];
-  const missiles=Array.from({length:72},(_,i)=>({offset:i/72,duration:8+Math.random()*8,a:[Math.random()*360-180,Math.random()*120-60],b:[Math.random()*360-180,Math.random()*120-60],color:colors[i%colors.length],tail:colors[(i+2)%colors.length]}));
+  const isLandAt=ll=>world.features.some(f=>geoContains(f,ll));
+  const resetMissile=m=>Object.assign(m,missileRoute(isLandAt)||{a:[0,0],b:[0,0]}, {duration:8+Math.random()*8,color:colors[Math.floor(Math.random()*colors.length)],tail:colors[Math.floor(Math.random()*colors.length)]});
+  const missiles=Array.from({length:72},(_,i)=>resetMissile({offset:i/72,startedAt:null}));
   function flight(m,t){
     const vec=([lon,lat])=>new THREE.Vector3(Math.cos(lat*Math.PI/180)*Math.cos(lon*Math.PI/180),Math.sin(lat*Math.PI/180),Math.cos(lat*Math.PI/180)*Math.sin(lon*Math.PI/180));
     const a=vec(m.a),b=vec(m.b),angle=Math.acos(THREE.MathUtils.clamp(a.dot(b),-.9999,.9999));
@@ -83,9 +86,9 @@ export function attachConquest({scene,world,mount,camera,project,S,U,landTexture
         }
       }
       if(!S.current.game||S.current.view!=='globe'||reduced||document.hidden)return;
-      for(const m of missiles){const t=(time/1000/m.duration+m.offset)%1;if(t>.92){const p=flight(m,1);if(p){ctx.fillStyle=`rgba(${m.color},${(1-t)/.08})`;ctx.beginPath();ctx.arc(...p,2+(t-.92)*50,0,Math.PI*2);ctx.fill();}continue;}
+      for(const m of missiles){if(m.startedAt===null)m.startedAt=time-m.offset*m.duration*1000;if(time-m.startedAt>=m.duration*1000){resetMissile(m);m.startedAt=time;}const t=(time-m.startedAt)/(m.duration*1000);if(t>.92){const p=flight(m,1);if(p){ctx.fillStyle=`rgba(${m.color},${(1-t)/.08})`;ctx.beginPath();ctx.arc(...p,2+(t-.92)*50,0,Math.PI*2);ctx.fill();}continue;}
         const progress=t/.92;
-        for(let i=16;i>0;i--){const p=flight(m,Math.max(0,progress-i*.004)),q=flight(m,Math.max(0,progress-(i-1)*.004));if(!p||!q)continue;ctx.strokeStyle=`rgba(${m.tail},${(1-i/17)*.8})`;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(...p);ctx.lineTo(...q);ctx.stroke();}
+        for(let i=36;i>0;i--){const p=flight(m,Math.max(0,progress-i*.006)),q=flight(m,Math.max(0,progress-(i-1)*.006));if(!p||!q)continue;ctx.strokeStyle=`rgba(${trailColor(m.color,m.tail,(i-1)/35)},${(1-i/37)*.9})`;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(...p);ctx.lineTo(...q);ctx.stroke();}
         const p=flight(m,progress),q=flight(m,Math.max(0,progress-.004));if(p&&q){const angle=Math.atan2(p[1]-q[1],p[0]-q[0]);ctx.strokeStyle=`rgb(${m.color})`;ctx.lineWidth=2.5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(p[0]-Math.cos(angle)*7,p[1]-Math.sin(angle)*7);ctx.lineTo(...p);ctx.stroke();ctx.lineCap='butt';}
       }
     },

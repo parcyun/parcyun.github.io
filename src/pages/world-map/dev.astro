@@ -1,0 +1,51 @@
+---
+// Isolated GeoWeb conquest development route; original /world-map is preserved.
+import GlobeLab from '../../components/ConquestGlobe.jsx';
+import PsFooter from '../../components/PsFooter.astro';
+---
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>GeoWeb DEV · 영토 정복 | parcyun studio</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="description" content="육각 블록으로 국가를 만들고 지리 게임 점수를 모아 영토를 넓히는 GeoWeb 정복 게임 개발 버전." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://parcyun.github.io/world-map/dev/" />
+  <link rel="canonical" href="https://parcyun.github.io/world-map/dev/" />
+  <meta property="og:title" content="세계 지도 · 6대륙 5대양 · 세계의 기후" />
+  <meta property="og:description" content="열대·온대·냉대·한대·건조·고산 기후를 색으로 살펴보는 초등 학습용 인터랙티브 세계지도 · parcyun studio" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="세계 지도 · 6대륙 5대양 · 세계의 기후" />
+  <meta name="twitter:description" content="6개 기후대를 색으로 살펴보는 초등 학습용 인터랙티브 세계지도 · parcyun studio" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Covered+By+Your+Grace&display=swap" />
+  <style>
+    html,body{overscroll-behavior:none;background:#000;height:100%;margin:0;padding:0}
+    /* 공용 PsFooter가 참조하는 parcyun studio 디자인 토큰(메인 CinematicLayout과 동일 값) */
+    :root{
+      --ps-primary:#FFB11A;--ps-primary-dark:#E89500;
+      --ps-surface-cinematic-1:#141414;--ps-surface-cinematic-2:#222;--ps-surface-cinematic-3:#333;
+      --ps-text-cinematic-secondary:#8C8C8C;
+      --ps-font-en:'Montserrat','Pretendard Variable','Pretendard',sans-serif;
+      --ps-font-signature:'Covered By Your Grace',cursive;
+      --ps-ease-out:cubic-bezier(0.16,1,0.3,1);
+    }
+  </style>
+<link rel="stylesheet" href="/mobile-games.css?v=20261030-5" />
+<script is:inline src="/modal-motion.js?v=20261030-2"></script>
+</head>
+<body>
+  <GlobeLab client:only="react" />
+  <!-- 메인 사이트 공용 푸터/공유/방문자 컴포넌트 그대로 사용 -->
+  <PsFooter showLinks={false} />
+
+  <script is:inline type="module" src="/game-account.js?v=20261030-combo-1"></script>
+  <script is:inline src="/visitor-counter.js" defer></script>
+</body>
+</html>

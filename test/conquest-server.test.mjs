@@ -1,0 +1,46 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {spawn} from 'node:child_process';
+import {mkdtemp,readFile,mkdir} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {setTimeout as delay} from 'node:timers/promises';
+import {neighbors,cellAt} from '../src/components/conquestEngine.js';
+import {geoContains} from 'd3-geo';
+const artifacts=resolve('../geoweb-conquest-verification');await mkdir(artifacts,{recursive:true});const dir=await mkdtemp(resolve(artifacts,'server-'));
+const port=47586,base=`http://127.0.0.1:${port}/api/conquest`,worldData=JSON.parse(await readFile('public/lab-data/world.json','utf8'));
+const center=(await import('../src/components/conquestEngine.js')).center;
+let child;
+async function start(){child=spawn(process.execPath,['server/conquest/server.mjs'],{env:{...process.env,PORT:String(port),CONQUEST_DB:resolve(dir,'server.sqlite')},stdio:'ignore'});for(let i=0;i<100;i++){try{if((await fetch(`${base}/health`)).ok)return;}catch{}await delay(100);}throw Error('Server startup failed');}
+async function stop(){const c=child;if(!c)return;await new Promise(resolve=>{c.once('exit',resolve);c.kill('SIGTERM');});child=null;}
+async function req(path,data,token,room='new-world'){const r=await fetch(`${base}/${path}`,{method:data?'POST':'GET',headers:{...(data?{'Content-Type':'application/json'}:{}),...(token?{Authorization:`Bearer ${token}`} : {}),'X-Conquest-Room':room},...(data?{body:JSON.stringify(data)}:{})});return {status:r.status,...await r.json()};}
+test('server profiles, shared world, authoritative answers, idempotent replay and durable restart',async()=>{await start();try{
+ const globals=await req('profile',{});assert.equal((await req('rooms',null,globals.token)).global.length,2);
+ const a=await req('profile',{nickname:'첫 탐험가'}),b=await req('profile',{nickname:'두 번째 탐험가'});assert.equal(a.status,201);assert.notEqual(a.player,b.player);assert.equal((await req('world')).status,401);
+ let wa=await req('action',{type:'join',nation:'amber'},a.token);assert.equal(wa.world.players[a.player].nation,'amber');await req('action',{type:'join',nation:'amber'},b.token);
+ const shared=await req('world',null,a.token);assert.ok(shared.world.nations.amber.members.includes(b.player));assert.ok(!JSON.stringify(shared.world).includes(a.token));
+ const owned=Object.keys(shared.world.owners).filter(id=>shared.world.owners[id]==='amber');const target=owned.flatMap(neighbors).find(id=>!shared.world.owners[id]&&worldData.features.some(f=>geoContains(f,center(id))));assert.ok(target);
+ const attack=await req('action',{type:'plan',cell:target},a.token);assert.equal(attack.status,200);const battle=attack.world.battles.at(-1);assert.ok(battle.endsAt-Date.now()>2.9*86400000);
+ assert.equal((await req('action',{type:'contribute',id:battle.id,points:1000},a.token)).status,400);
+ const question=await req('question',{mode:'flag',questionId:'KR',difficulty:'easy'},a.token);assert.equal(question.status,200);
+ const answer=await req('answer',{nonce:question.nonce,answer:'대한민국',battle:battle.id},a.token);assert.equal(answer.status,200);assert.ok(answer.points>0);assert.ok(answer.world.battles.at(-1).attack>0);
+ const replay=await req('answer',{nonce:question.nonce,answer:'대한민국',battle:battle.id},a.token);assert.equal(replay.status,200);assert.equal(replay.replayed,true);assert.equal(replay.world.revision,answer.world.revision);assert.equal(replay.world.battles.at(-1).attack,answer.world.battles.at(-1).attack);
+ assert.equal((await req('action',{type:'plan',cell:cellAt(0,0)},b.token)).status,400);
+ const proposal=await req('action',{type:'propose',change:{name:'공유된 국가',flag:'★',color:'#91AB61'}},a.token);assert.equal(proposal.status,200);const p=proposal.world.proposals.at(-1);
+ const vote=await req('action',{type:'vote',id:p.id,yes:true},b.token);assert.equal(Object.keys(vote.world.proposals.at(-1).votes).length,2);
+ const classRoom=await req('room',{type:'create',name:'우리반 세계'},a.token);assert.equal(classRoom.status,201);assert.match(classRoom.room.code,/^\d{6}$/);const roomKey=classRoom.room.key;
+ assert.equal((await req('world',null,b.token,roomKey)).status,400);
+ const joinRoom=await req('room',{type:'join',code:classRoom.room.code},b.token);assert.equal(joinRoom.room.key,roomKey);
+ const classWorld=await req('world',null,b.token,roomKey);assert.equal(classWorld.world.rules.battleMs,300000);assert.equal(classWorld.world.players[b.player],undefined);
+ assert.equal((await req('world',null,a.token,'continental')).world.battles.length,0);
+ const members=[a,b];for(let i=0;i<8;i++)members.push(await req('profile',{nickname:`동시 검사 ${i+3}`}));
+ await Promise.all(members.slice(2).map(member=>req('room',{type:'join',code:classRoom.room.code},member.token)));
+ await Promise.all(members.map(member=>req('action',{type:'join',nation:'amber'},member.token,roomKey)));
+ const operation=await req('action',{type:'plan',cell:target},a.token,roomKey);assert.equal(operation.status,200);assert.equal(operation.world.battles.at(-1).target,5000);const sharedBattle=operation.world.battles.at(-1).id;
+ await Promise.all(members.slice(1).map(member=>req('action',{type:'participate',id:sharedBattle},member.token,roomKey)));
+ const prompts=await Promise.all(members.map(member=>req('question',{mode:'flag',questionId:'KR',difficulty:'easy',round:'ten-player-round'},member.token,roomKey)));
+ const credited=await Promise.all(members.map((member,i)=>req('answer',{nonce:prompts[i].nonce,answer:'대한민국',battle:sharedBattle},member.token,roomKey)));
+ assert.ok(credited.every(response=>response.status===200),JSON.stringify(credited.map(r=>r.error)));
+ const total=credited.reduce((sum,r)=>sum+r.points,0),tenWorld=await req('world',null,a.token,roomKey);assert.equal(tenWorld.world.battles.at(-1).attack,total);assert.equal(Object.keys(tenWorld.world.battles.at(-1).contributions).length,10);
+ const retried=await req('answer',{nonce:prompts[0].nonce,answer:'대한민국',battle:sharedBattle},a.token,roomKey);assert.equal(retried.replayed,true);assert.equal(retried.world.battles.at(-1).attack,total);
+ const score=answer.world.battles.at(-1).attack;await stop();await start();const restored=await req('world',null,a.token);assert.equal(restored.world.battles.at(-1).attack,score);assert.equal(restored.world.proposals.at(-1).id,p.id);assert.equal(restored.player,a.player);
+ }finally{await stop();}});

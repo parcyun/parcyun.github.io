@@ -85,3 +85,11 @@ Artifacts: `~/Downloads/Codex/Artifacts/geoweb-cloud-20261030/` contains clean r
 The release copies exactly the named conquest files plus the single Pages build environment variable onto the existing remote main commit. The dev renderer uses its own `conquest-vatican.json` asset rather than publishing unrelated in-progress map data. Final verification must confirm ready Cloud Run revision/traffic, the Pages workflow and public route assets, CORS from Pages, profile creation, classroom entry, mobile HUD bounds and original map behavior.
 
 Deferred: teacher-selected question scopes and a teacher-controlled round restart need a separate product decision. Capital powers remain deliberately unspecified. Before public classroom-scale growth, replace polling with authenticated streaming and shard world records as described above.
+
+## Battleground UI and server pacing — 2026-10-30
+
+- Intent: retain the conquest world and its three views; name the product GeoWeb Battleground, with amber Covered By Your Grace lettering for Battleground.
+- New World retains 3-day operations, 2-day proposals and 12-hour sea steps. Continental uses 7-day operations, 4-day proposals and 24-hour sea steps. Classroom remains unchanged. Existing operation/proposal deadlines are preserved; new actions use the room-specific rules refreshed by the server.
+- Active participants means unique browser profiles polling that room in the last 120 seconds. Separate durable room presence documents refresh each profile at most every 30 seconds; expired entries are pruned. Global chooser refreshes counts every 15 seconds. This is recent activity, not total membership or exact connected sockets.
+- Operation entry selects the contributing block and centers it in the left map viewport. Desktop game selection and play occupy the right half. Mobile uses a top map and lower quiz workspace. ResizeObserver updates WebGL dimensions when the workspace changes. Camera question transitions retain the operation center.
+- Validation: server tests cover per-room timing, unique presence and classroom isolation; browser checks cover desktop/mobile split, quiz entry and input bounds. Classroom data and existing deadlines are not reset.

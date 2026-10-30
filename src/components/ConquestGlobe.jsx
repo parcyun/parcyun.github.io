@@ -3,7 +3,7 @@ import GeoGame from './ConquestGeoGame.jsx';
 import ConquestPanel from './ConquestPanel.jsx';
 import { attachConquest } from './conquestRenderer.js';
 import * as conquestStore from './conquestStore.js';
-import { cellAt } from './conquestEngine.js';
+import { cellAt, center as hexCenter } from './conquestEngine.js';
 import { buildGamePools } from './geoGameData.js';
 import { STARDUST_FRAGMENT } from './globeStarlight.js';
 import * as THREE from 'three';
@@ -349,11 +349,11 @@ export default function ConquestGlobe(){
   const [systemPopover,setSystemPopover]=useState(null);
   useEffect(()=>()=>gameTimers.current.forEach(clearTimeout),[]);
   const gameTarget=useCallback((question,mode,difficulty)=>{api.current.gameTarget?.(question,mode);},[]);
-  const enterGame=()=>{
+  const enterGame=(cell)=>{
     if(!gamePools||gameWipe)return;
     gameSnapshot.current={...S.current};setGuide(false);setUpdateStory(false);setGameWipe(true);
     const delay=window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:320;
-    gameTimers.current.push(setTimeout(()=>{api.current.enterGameLobby?.();setGameActive(true);},delay));
+    gameTimers.current.push(setTimeout(()=>{api.current.enterGameLobby?.(typeof cell==='string'?cell:conquestStore.selected());setGameActive(true);},delay));
     gameTimers.current.push(setTimeout(()=>setGameWipe(false),delay?680:0));
   };
   const exitGame=()=>{
@@ -630,7 +630,7 @@ export default function ConquestGlobe(){
           if(v==='lens') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom/STE,VIEW.lens.zmin,VIEW.lens.zmax);
           else if(v==='globe') toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom,VIEW.globe.zmin,VIEW.globe.zmax); // 지구본 월드스케일=1
           else toZoomv=THREE.MathUtils.clamp(srcScale*camera.zoom*cosLat/MS,flatSafeZmin(),VIEW.flat.zmax); }        // 평면 월드스케일=MS/cos
-        if(S.current.game&&['landmark','nature'].includes(S.current.gameMode)&&v==='globe'){
+        if(S.current.game&&!S.current.operationCoordinates&&['landmark','nature'].includes(S.current.gameMode)&&v==='globe'){
           const shift=(S.current.gameMode==='nature' ? -.48 : .48)*(mount.clientWidth/mount.clientHeight)/toZoomv;
           toTgt.x=shift;toPos.x=shift;
         }
@@ -699,8 +699,9 @@ export default function ConquestGlobe(){
         pickContinent:(k)=>setSel(sameSel(S.current.sel,{type:'continent',key:k})?null:{type:'continent',key:k}),
         pickOcean:(k)=>setSel(sameSel(S.current.sel,{type:'ocean',key:k})?null:{type:'ocean',key:k}),
         focusCountry:(nextCountry)=>{S.current.focusReq={lon:nextCountry.coordinates[0],lat:nextCountry.coordinates[1]};goView(S.current.view);}};
-      api.current.enterGameLobby=()=>{
-        Object.assign(S.current,{game:true,gameMode:null,gameQuestion:null,view:'globe',homeReq:true,focusReq:{lon:135,lat:0},grat:false,eq:false,prime:false,dateline:false,climate:false,terrain:false,trueSize:false,sat:false,northUp:false,dayNight:false});
+      api.current.enterGameLobby=(cell)=>{
+        S.current.operationCoordinates=cell?hexCenter(cell):null;
+        Object.assign(S.current,{game:true,gameMode:null,gameQuestion:null,view:'globe',homeReq:true,focusReq:{lon:S.current.operationCoordinates?.[0]??135,lat:S.current.operationCoordinates?.[1]??0},grat:false,eq:false,prime:false,dateline:false,climate:false,terrain:false,trueSize:false,sat:false,northUp:false,dayNight:false});
         applyGrid();removeGhost();applySat(false);onDN(false);applySel(null);goView('globe');
       };
       api.current.gameTarget=(question,mode)=>{
@@ -708,11 +709,11 @@ export default function ConquestGlobe(){
         const feature=question.country&&world.features.find(f=>f.properties.n===question.country.boundaryName);
         const gameSel=mode==='flag'||question.features?null:feature?{type:'country',name:feature.properties.n,key:feature.properties.c}:null;
         applyGrid();removeGhost();applySat(false);onDN(mode==='flag');applySel(gameSel);
-        const coordinates=question.coordinates||[0,20];S.current.focusReq={lon:coordinates[0],lat:coordinates[1]};goView('globe');
+        const coordinates=S.current.operationCoordinates||question.coordinates||[0,20];S.current.focusReq={lon:coordinates[0],lat:coordinates[1]};goView('globe');
       };
       api.current.finishGame=(mode)=>{
         if(mode==='flag'){S.current.dayNight=false;S.current.dnPlay=false;onDN(false);}
-        Object.assign(S.current,{gameMode:null,gameQuestion:null,homeReq:true,focusReq:{lon:135,lat:0}});applySel(null);goView('globe');
+        Object.assign(S.current,{gameMode:null,gameQuestion:null,homeReq:true,focusReq:{lon:S.current.operationCoordinates?.[0]??135,lat:S.current.operationCoordinates?.[1]??0}});applySel(null);goView('globe');
       };
       api.current.restoreGame=()=>{applyGrid();applySat(S.current.sat);onDN(S.current.dayNight);applySel(S.current.sel);goView(S.current.view);refreshTrueSize();};
       setGamePools(gameData);
@@ -798,14 +799,14 @@ export default function ConquestGlobe(){
       const onResize=()=>{const W=mount.clientWidth,H=mount.clientHeight,a=W/H;camera.left=-a;camera.right=a;camera.top=1;camera.bottom=-1;
         if(S.current.view==='flat'&&!tr){const zs=flatSafeZmin();controls.minZoom=zs;if(camera.zoom<zs)camera.zoom=zs;} // 리사이즈로 aspect가 넓어지면 seam 안전 zmin도 즉시 재계산(#2)
         camera.updateProjectionMatrix();renderer.setSize(W,H);uRes.value.set(W,H);uScreen.value.set(renderer.domElement.width,renderer.domElement.height);};
-      window.addEventListener('resize',onResize);
+      window.addEventListener('resize',onResize);const stageResize=new ResizeObserver(onResize);stageResize.observe(mount);
       const clock=new THREE.Clock(),v3=new THREE.Vector3();
       const reducedStars=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const loop=()=>{if(disposed)return;raf=requestAnimationFrame(loop);const dt=clock.getDelta();const st=S.current;
         starBg.visible=U.morph.value<0.5&&U.lens.value<0.5;
         if(starBg.visible&&!reducedStars)starTime.value+=dt;
         u.sunLat.value=solarDeclDeg(st.month);
-        if(st.game&&!st.gameMode&&st.view==='globe'&&!tr&&!ptrDown&&!motionPreference.matches&&!document.hidden)U.uRotY.value-=Math.min(dt,.1)*2*D2R;
+        if(st.game&&!st.operationCoordinates&&!st.gameMode&&st.view==='globe'&&!tr&&!ptrDown&&!motionPreference.matches&&!document.hidden)U.uRotY.value-=Math.min(dt,.1)*2*D2R;
         if(st.dayNight&&st.dnPlay&&!ptrDown&&(!tr||st.gameMode==='flag')){ // 국기 문제 전환 중에도 낮과 밤 재생을 이어간다.
           // 지구본도 이제 지구를 자전시키지 않고 sunLon만 이동 → 그림자가 표면에 붙어 함께 도는 게 아니라 표면 위를 따로 지나감(요청 #3).
           if(st.view==='lens')U.uLon0.value=((U.uLon0.value+dt*8*D2R+Math.PI*3)%(Math.PI*2))-Math.PI; // 렌즈=시선 자전(원본 유지)
@@ -881,7 +882,7 @@ export default function ConquestGlobe(){
           gl.el.style.display='block';gl.el.style.left=((p.x*0.5+0.5)*mount.clientWidth)+'px';gl.el.style.top=((-p.y*0.5+0.5)*mount.clientHeight)+'px';}
       };
       loop();setStatus('');
-      cleanupFn=()=>{conquest.dispose();window.removeEventListener('pointerup',endGhostDrag);window.removeEventListener('resize',onResize);cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
+      cleanupFn=()=>{stageResize.disconnect();conquest.dispose();window.removeEventListener('pointerup',endGhostDrag);window.removeEventListener('resize',onResize);cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
       if(disposed)cleanupFn();
     })().catch(e=>{console.error('GLOBE_MOUNT_ERROR',e);setStatus('지도 데이터를 불러오지 못했어요. 새로고침해 주세요.');});
     return ()=>{disposed=true;cancelAnimationFrame(raf);if(cleanupFn)cleanupFn();};

@@ -31,7 +31,10 @@ test('server profiles, shared world, authoritative answers, idempotent replay an
  assert.equal((await req('world',null,b.token,roomKey)).status,400);
  const joinRoom=await req('room',{type:'join',code:classRoom.room.code},b.token);assert.equal(joinRoom.room.key,roomKey);
  const classWorld=await req('world',null,b.token,roomKey);assert.equal(classWorld.world.rules.battleMs,300000);assert.equal(classWorld.world.players[b.player],undefined);
- assert.equal((await req('world',null,a.token,'continental')).world.battles.length,0);
+ const slow=await req('world',null,a.token,'continental');assert.equal(slow.world.battles.length,0);assert.equal(slow.world.rules.battleMs,7*86400000);assert.equal(slow.world.rules.voteMs,4*86400000);assert.equal(slow.world.rules.voyageStepMs,86400000);
+ const counts=await req('rooms',null,a.token);assert.equal(counts.global.find(r=>r.key==='continental').activeParticipants,1);assert.equal(counts.global.find(r=>r.key==='new-world').activeParticipants,1);
+ await req('world',null,b.token);assert.equal((await req('rooms',null,a.token)).global.find(r=>r.key==='new-world').activeParticipants,2);
+ assert.equal((await req('world',null,b.token,roomKey)).activeParticipants,1);
  const members=[a,b];for(let i=0;i<8;i++)members.push(await req('profile',{nickname:`동시 검사 ${i+3}`}));
  await Promise.all(members.slice(2).map(member=>req('room',{type:'join',code:classRoom.room.code},member.token)));
  await Promise.all(members.map(member=>req('action',{type:'join',nation:'amber'},member.token,roomKey)));

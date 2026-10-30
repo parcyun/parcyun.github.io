@@ -155,8 +155,8 @@
   }
 
   function close() {
-    modal.hidden = true;
-    if (opener && typeof opener.focus === 'function') opener.focus();
+    var done=function(){modal.hidden=true;if(opener&&typeof opener.focus==='function')opener.focus();};
+    if(window.psModalMotion)window.psModalMotion.exit(modal,done);else done();
   }
 
   document.addEventListener('click', function (event) {

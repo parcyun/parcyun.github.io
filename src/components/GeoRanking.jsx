@@ -36,8 +36,9 @@ export default function GeoRanking({ initialMode, initialDifficulty='easy', reco
     } catch(e) {setNotice(e.message||'기록을 제출하지 못했어요. 다시 시도해 주세요.');}
     finally {submitting.current=false;setSending(false);}
   }
+  const dismiss=after=>window.psModalMotion.exit(dialog.current,()=>{onClose();if(typeof after==='function')requestAnimationFrame(after);});
   let rank=1;
-  return <dialog ref={dialog} className="gg-ranking-dialog" aria-labelledby="gg-ranking-title" onCancel={event=>{event.preventDefault();onClose();}} onClose={onClose}>
+  return <dialog ref={dialog} className="gg-ranking-dialog" aria-labelledby="gg-ranking-title" onCancel={event=>{event.preventDefault();dismiss();}}>
     <header className="gg-ranking-header">
       <div className="gg-ranking-heading">
         <div className="gg-ranking-kicker"><span className="gg-eyebrow">GEOWEB / RANKING</span><span className="gg-ranking-note">플레이어별 최고 점수 · 동점이면 소요 시간 순</span></div>
@@ -49,7 +50,7 @@ export default function GeoRanking({ initialMode, initialDifficulty='easy', reco
         {record?<div className="gg-ranking-top-submit"><span>{GAME_MODES.find(item=>item.id===record.mode)?.title}{record.diff?` · ${difficultyLabel(record.diff)}`:''} · {record.score.toLocaleString()}점 · {time(record.elapsedMs)}</span><button type="button" className="gg-ranking-submit" disabled={sending||submitted} onClick={submit}>{sending?'제출 중…':submitted?'제출 완료':'기록 제출'}</button></div>:<p>게임을 마치면 기록을 제출할 수 있어요. 연습 모드는 제외됩니다.</p>}
         {notice&&<p role="status">{notice}</p>}
       </div>
-      <button type="button" className="gg-ranking-close" onClick={onClose} aria-label="랭킹 닫기">×</button>
+      <button type="button" className="gg-ranking-close" onClick={()=>dismiss()} aria-label="랭킹 닫기">×</button>
     </header>
     <div className="gg-ranking-layout">
     <nav className="gg-ranking-games" aria-label="랭킹 게임 종류">{GAME_MODES.map(item=><button key={item.id} type="button" aria-pressed={mode===item.id} onClick={()=>setMode(item.id)}>{item.title}</button>)}</nav>
@@ -64,7 +65,7 @@ export default function GeoRanking({ initialMode, initialDifficulty='easy', reco
     <section className="gg-ranking-mine" aria-label="내 최고 기록" role="status">
       <div className="gg-ranking-mine-label"><span className="gg-eyebrow">MY BEST RECORD</span><h3>내 최고 기록{boardDifficulty?` · ${difficultyLabel(boardDifficulty)}`:''}</h3>{mine&&<p>{mine.nickname} · {rankingAffiliation(mine)} · {played(mine.playedAt)}</p>}</div>
       {loading?<p>내 순위를 확인하고 있어요…</p>:error?<p>내 기록을 확인하지 못했어요. 다시 시도해 주세요.</p>:mine?<p className="gg-ranking-mine-score"><strong>{mine.rank}위</strong><b>{mine.score.toLocaleString()}점</b><span>소요 {time(mine.elapsedMs)}</span></p>:<p>{signedIn?'이 게임·난이도에 제출한 기록이 없어요.':'프로필을 만들면 내 기록과 순위를 볼 수 있어요.'}</p>}
-      {!loading&&!signedIn&&<button type="button" onClick={()=>{onClose();requestAnimationFrame(()=>document.querySelector('.ps-account-trigger')?.click());}}>내 프로필 만들기</button>}
+      {!loading&&!signedIn&&<button type="button" onClick={()=>{dismiss(()=>document.querySelector('.ps-account-trigger')?.click());}}>내 프로필 만들기</button>}
     </section>
   </dialog>;
 }

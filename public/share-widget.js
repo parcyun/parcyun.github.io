@@ -230,14 +230,18 @@
       }
       pinButton.addEventListener('click', function () { setPinned(!pinned); });
       function closeQr(restoreFocus) {
+        var finish=function(){
         if (popover.hasAttribute('popover')) { popover.hidePopover(); popover.removeAttribute('popover'); }
         popover.classList.remove('is-open');
         popover.hidden = true;
         qrButton.setAttribute('aria-expanded', 'false');
         saveWindow();
         if (restoreFocus) qrButton.focus();
+        };
+        if(window.psModalMotion)window.psModalMotion.exit(popover,finish);else finish();
       }
       function openQr(keyboard) {
+        if(window.psModalMotion)window.psModalMotion.cancel(popover);
         popover.hidden = false;
         if (geometry) place(geometry.left, geometry.top, geometry.width, geometry.height);
         setPinned(pinned);

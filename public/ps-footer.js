@@ -21,7 +21,7 @@
   var showLinks = contextConfig ? contextConfig.showLinks : host.getAttribute('data-show-links') !== 'false';
   var reviewLabel = host.getAttribute('data-review-label') || '리뷰 남기기';
   var reviewService = host.getAttribute('data-review-service') || '';
-  var ASSET_VERSION = '20260828.1';
+  var ASSET_VERSION = '20261030-motion-1';
   var submissionServiceKey = window.PSServiceContext
     ? window.PSServiceContext.resolveSubmissionServiceKey(location.pathname, location.search, previewContext)
     : 'other';
@@ -76,7 +76,7 @@
   if (showLinks) document.body.classList.add('ps-has-footer-links');
 
   var modal = document.getElementById('coffee-modal');
-  var close = function () { modal.hidden = true; };
+  var close = function () { var done=function(){modal.hidden=true;}; if(window.psModalMotion)window.psModalMotion.exit(modal,done);else done(); };
   document.getElementById('ps-coffee').addEventListener('click', function () { modal.hidden = false; });
   document.getElementById('coffee-close').addEventListener('click', close);
   modal.addEventListener('click', function (event) { if (event.target.hasAttribute('data-coffee-close')) close(); });

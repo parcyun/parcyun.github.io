@@ -1,3 +1,4 @@
+import './modal-motion.js?v=20261030-1';
 const CONFIG = { apiKey: 'AIzaSyBjkzvcIjyfnOU0TBF5VasoaQz3Xgw1C9I', authDomain: 'parcyun.firebaseapp.com', projectId: 'parcyun', appId: '1:1093702239224:web:021018208e667b21e7cc0d' };
 const MASCOT = '/images/dexter-base-character-01.png';
 import {createLeaderboard,rankingAffiliation,isReservedNickname} from './spell-leaderboard.js?v=20261029-6';
@@ -22,7 +23,7 @@ function dialog(title) {
   const close = document.createElement('button'); close.type = 'button'; close.className = 'ps-close'; close.textContent = '×'; close.setAttribute('aria-label', '닫기'); close.onclick = () => el.close();
   header.append(img, h, close); el.append(header); document.body.append(el);
   el.addEventListener('click', e => { if (e.target === el) { const r = el.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) el.close(); } });
-  return el;
+  return window.psModalMotion.bindDialog(el);
 }
 const studio = dialog('parcyun studio');
 const studioWordmark = document.createElement('a'); studioWordmark.href = '/'; studioWordmark.className = 'ps-studio-wordmark'; studioWordmark.textContent = 'parcyun studio'; studioWordmark.setAttribute('aria-label', 'parcyun studio 홈으로 이동');

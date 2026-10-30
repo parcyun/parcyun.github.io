@@ -381,8 +381,18 @@ export default function GlobeLab(){
   useEffect(()=>{setUpdateStory(true);},[]);
 
   const closeUpdateStory=()=>{
-    markGeoUpdateSeen(window.localStorage);setUpdateStory(false);setGuide(false);
+    window.psModalMotion.exit(document.querySelector('.update-story'),()=>{markGeoUpdateSeen(window.localStorage);setUpdateStory(false);setGuide(false);});
   };
+
+  useEffect(()=>{
+    const closeOnEscape=event=>{
+      if(event.key!=='Escape'||document.querySelector('dialog[open]'))return;
+      if(tsInfo){event.preventDefault();window.psModalMotion.exit(document.querySelector('.ts-popup'),()=>setTsInfo(false));}
+      else if(updateStory){event.preventDefault();closeUpdateStory();}
+      else if(guide){event.preventDefault();window.psModalMotion.exit(document.querySelector('.guide-shade'),()=>setGuide(false));}
+    };
+    window.addEventListener('keydown',closeOnEscape);return()=>window.removeEventListener('keydown',closeOnEscape);
+  },[tsInfo,updateStory,guide]);
 
   function chooseCountry(nextCountry){
     setSelectedCountry(nextCountry);setSearchQuery(nextCountry.name[lang]);setSearchResults([]);setCountry(true);setSystemPopover(null);
@@ -1011,11 +1021,11 @@ export default function GlobeLab(){
       </div>
       <div className={'hint'+(hint?'':' off')}>{view==='flat'?T.hintFlat:view==='lens'?T.hintLens:T.hintGlobe}</div>
       {dayNight && <div className="daynight-ctl"><button className={'dn-btn'+(dnPlay?' on':'')} onClick={()=>setDnPlay(p=>!p)}>{dnPlay?'❚❚':'▶'}</button><span className="dn-end">{T.janEnd}</span><input type="range" min="1" max="12" step="1" value={month} onChange={e=>setMonth(+e.target.value)} /><span className="dn-end">{T.decEnd}</span><span className="dn-lbl">{(MONTHS_I18N[lang]||MONTHS_I18N.ko)[month-1]}</span></div>}
-      {tsInfo && <div className="ts-popup" onClick={()=>setTsInfo(false)}><div className="ts-popup-card" onClick={e=>e.stopPropagation()}>
+      {tsInfo && <div className="ts-popup" onClick={()=>window.psModalMotion.exit(document.querySelector('.ts-popup'),()=>setTsInfo(false))}><div className="ts-popup-card" onClick={e=>e.stopPropagation()}>
         <div className="ts-popup-h">{T.tsTitle}</div>
         <p>{T.tsP1}</p>
         <p><b>{T.tsP2pre}</b>{T.tsP2}</p>
-        <button className="ts-popup-close" onClick={()=>setTsInfo(false)}>{T.close}</button>
+        <button className="ts-popup-close" onClick={()=>window.psModalMotion.exit(document.querySelector('.ts-popup'),()=>setTsInfo(false))}>{T.close}</button>
       </div></div>}
       <div className="watermark">{(lang==='en'?{flat:T.wmFlat,lens:T.wmLens,globe:T.wmGlobe}:MODE_WM)[view]}</div>
       {updateStory && <div className="update-story" role="dialog" aria-modal="true" aria-labelledby="update-story-title">
@@ -1045,7 +1055,7 @@ export default function GlobeLab(){
       </div>}
       {/* 푸터/공유/방문자/커피는 공용 컴포넌트(PsFooter.astro + share-widget.js + visitor-counter.js)를 world-map.astro에서 렌더 */}
       {/* 가이드 설명은 지도 도구와 공용 플로팅 UI보다 위에 표시한다. */}
-      {guide && <div className="guide-shade" onClick={()=>setGuide(false)}>
+      {guide && <div className="guide-shade" onClick={()=>window.psModalMotion.exit(document.querySelector('.guide-shade'),()=>setGuide(false))}>
         <div className="gtip gtip-tools">{T.gTools}</div>
         <div className="gtip gtip-proj">{T.gProj}</div>
         <div className="gtip gtip-legend">{T.gLegend}</div>

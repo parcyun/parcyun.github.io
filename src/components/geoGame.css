@@ -2,6 +2,8 @@
 .gl-app .ctrl.game-entry::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,transparent 20%,#ff713bca 50%,transparent 80%);transform:translateX(-130%) skewX(-20deg);opacity:0;pointer-events:none}
 .gl-app .ctrl.game-entry:hover::before{animation:gg-entry-sweep .45s ease-out both}
 @keyframes gg-entry-sweep{0%{transform:translateX(-130%) skewX(-20deg);opacity:0}25%{opacity:.75}100%{transform:translateX(130%) skewX(-20deg);opacity:0}}
+.gg-menu,.gg-menu nav{scrollbar-width:none}
+.gg-menu::-webkit-scrollbar,.gg-menu nav::-webkit-scrollbar{display:none}
 .gg-menu{max-height:calc(100dvh - 120px);overflow:auto}.gg-menu .gg-record{display:block;font-size:10px;line-height:1.5;margin-top:5px;font-weight:400;opacity:.8}.gg-score>small{display:block;margin:7px 0 0;color:#bec4ce}
 .gl-app.game-active>.topbar,.gl-app.game-active>.tools-fixed,.gl-app.game-active>.right-stack,.gl-app.game-active>.projseg,.gl-app.game-active>.controls,.gl-app.game-active>.hint,.gl-app.game-active>.daynight-ctl,.gl-app.game-active>.watermark,.gl-app.game-active .gl-labels{display:none}
 body:has(.game-active) .ps-share-fab,body:has(.game-active) #ps-share-widget,body:has(.game-active) .ps-visitor-counter{display:none!important}

@@ -612,7 +612,7 @@ export default function GlobeLab(){
         const cosLat=Math.cos(THREE.MathUtils.clamp(claR,-1.45,1.45));
         const srcScale=(m>0.5)?MS/cosLat:(l>0.5?STE:1.0); // 소스 중심 월드스케일: 평면=MS/cos, 렌즈=STE, 지구본=1
         let toZoomv=to.zoom;
-        if(focus){
+        if(focus&&!home){
           toZoomv={flat:2.15,lens:0.78,globe:1.75}[v]||to.zoom;
           toZoomv=THREE.MathUtils.clamp(toZoomv,v==='flat'?flatSafeZmin():to.zmin,to.zmax);
         } else if(!home){ // 홈(⟳)은 기본 zoom 리셋. 그 외에는 소스 중심 크기에 맞춰 목표 zoom 계산
@@ -689,7 +689,7 @@ export default function GlobeLab(){
         pickOcean:(k)=>setSel(sameSel(S.current.sel,{type:'ocean',key:k})?null:{type:'ocean',key:k}),
         focusCountry:(nextCountry)=>{S.current.focusReq={lon:nextCountry.coordinates[0],lat:nextCountry.coordinates[1]};goView(S.current.view);}};
       api.current.enterGameLobby=()=>{
-        Object.assign(S.current,{game:true,gameMode:null,gameQuestion:null,view:'globe',homeReq:true,focusReq:null,grat:false,eq:false,prime:false,dateline:false,climate:false,terrain:false,trueSize:false,sat:false,northUp:false,dayNight:false});
+        Object.assign(S.current,{game:true,gameMode:null,gameQuestion:null,view:'globe',homeReq:true,focusReq:{lon:135,lat:0},grat:false,eq:false,prime:false,dateline:false,climate:false,terrain:false,trueSize:false,sat:false,northUp:false,dayNight:false});
         applyGrid();removeGhost();applySat(false);onDN(false);applySel(null);goView('globe');
       };
       api.current.gameTarget=(question,mode)=>{
@@ -701,7 +701,7 @@ export default function GlobeLab(){
       };
       api.current.finishGame=(mode)=>{
         if(mode==='flag'){S.current.dayNight=false;S.current.dnPlay=false;onDN(false);}
-        Object.assign(S.current,{gameMode:null,gameQuestion:null,homeReq:true,focusReq:null});applySel(null);goView('globe');
+        Object.assign(S.current,{gameMode:null,gameQuestion:null,homeReq:true,focusReq:{lon:135,lat:0}});applySel(null);goView('globe');
       };
       api.current.restoreGame=()=>{applyGrid();applySat(S.current.sat);onDN(S.current.dayNight);applySel(S.current.sel);goView(S.current.view);refreshTrueSize();};
       setGamePools(gameData);
@@ -792,6 +792,7 @@ export default function GlobeLab(){
         starBg.visible=U.morph.value<0.5&&U.lens.value<0.5;
         if(starBg.visible&&!reducedStars)starTime.value+=dt;
         u.sunLat.value=solarDeclDeg(st.month);
+        if(st.game&&!st.gameMode&&st.view==='globe'&&!tr&&!ptrDown&&!motionPreference.matches&&!document.hidden)U.uRotY.value-=Math.min(dt,.1)*2*D2R;
         if(st.dayNight&&st.dnPlay&&!ptrDown&&(!tr||st.gameMode==='flag')){ // 국기 문제 전환 중에도 낮과 밤 재생을 이어간다.
           // 지구본도 이제 지구를 자전시키지 않고 sunLon만 이동 → 그림자가 표면에 붙어 함께 도는 게 아니라 표면 위를 따로 지나감(요청 #3).
           if(st.view==='lens')U.uLon0.value=((U.uLon0.value+dt*8*D2R+Math.PI*3)%(Math.PI*2))-Math.PI; // 렌즈=시선 자전(원본 유지)

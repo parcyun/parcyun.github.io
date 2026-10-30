@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { geoContains,geoPath,geoEquirectangular } from 'd3-geo';
 import sharp from 'sharp';
 import {createStorage} from './storage.mjs';
-import {initialWorld,applyAction,rebuildWaters,settle,center,COLS,ROWS,GLOBAL_ROOMS} from '../../src/components/conquestEngine.js';
+import {initialWorld,applyAction,rebuildWaters,settle,center,COLS,ROWS,GLOBAL_ROOMS,rulesForRoom} from '../../src/components/conquestEngine.js';
 import {buildGamePools,matchesAnswer,scoreAnswer,GAME_MODES} from '../../src/components/geoGameData.js';
 const ROOT=resolve(fileURLToPath(new URL('../..',import.meta.url)));
 const world=JSON.parse(await readFile(resolve(ROOT,'public/lab-data/world.json'),'utf8'));
@@ -20,7 +20,14 @@ const cache=new Map();
 function isLand(id){if(cache.has(id))return cache.get(id);const [lon,lat]=center(id),x=Math.max(0,Math.min(2047,Math.floor((lon+180)/360*2048))),y=Math.max(0,Math.min(1023,Math.floor((90-lat)/180*1024)));const land=mask[(y*2048+x)*info.channels+info.channels-1]>127;cache.set(id,land);return land;}
 function preciseLand(id){return world.features.some(f=>geoContains(f,center(id)));}
 const storage=await createStorage();
-const refresh=w=>rebuildWaters(settle(w),isLand);
+const refresh=w=>{w.rules=rulesForRoom(w.room);return rebuildWaters(settle(w),isLand);};
+const presenceWindow=120_000;
+async function presence(roomKey,player){
+ const key=`presence-${roomKey}`,now=Date.now();
+ const previous=await storage.get(key)||{};
+ if(player&&now-(previous[player]||0)>30_000)return storage.transaction([key],values=>{const active=Object.fromEntries(Object.entries(values[key]||{}).filter(([,at])=>now-at<presenceWindow));active[player]=now;values[key]=active;return Object.keys(active).length;});
+ return Object.values(previous).filter(at=>now-at<presenceWindow).length;
+}
 const hash=token=>createHash('sha256').update(token).digest('hex');
 const allowed=new Set((process.env.CONQUEST_ORIGINS||'http://127.0.0.1:47585,http://localhost:47585,https://parcyun.github.io').split(','));
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.woff2':'font/woff2','.mp4':'video/mp4'};
@@ -48,7 +55,7 @@ const server=createServer(async(req,res)=>{
       const token=req.headers.authorization?.replace(/^Bearer /,'');if(!/^[a-f0-9]{64}$/.test(token||''))return send(401,{error:'브라우저 프로필을 연결해 주세요.'});
       const key=`profile-${hash(token)}`,profile=await storage.get(key);if(!profile)return send(401,{error:'프로필 연결을 찾지 못했어요.'});
       rate(key,300,60000);
-      if(req.method==='GET'&&url.pathname==='/api/conquest/rooms')return send(200,{global:GLOBAL_ROOMS});
+      if(req.method==='GET'&&url.pathname==='/api/conquest/rooms')return send(200,{global:await Promise.all(GLOBAL_ROOMS.map(async room=>({...room,activeParticipants:await presence(room.key)})))});
       if(req.method==='POST'&&url.pathname==='/api/conquest/room'){
         const input=await body(req);
         if(input.type==='global'){const room=GLOBAL_ROOMS.find(r=>r.key===input.key);if(!room)throw Error('서버를 선택하세요.');return send(200,{room});}
@@ -70,7 +77,7 @@ const server=createServer(async(req,res)=>{
       // Simplification: one transactional world document per room. Shard territory and operations before a room approaches 850 KB or sustained classroom-wide contention.
       const worldKey=`world-${room.key}`;
       if(req.method==='GET'&&url.pathname==='/api/conquest/world'){
-        const w=refresh((await storage.get(worldKey))||initialWorld(room));return send(200,{world:w,player:profile.id,nickname:profile.nickname,serverTime:Date.now()});
+        const w=refresh((await storage.get(worldKey))||initialWorld(room));return send(200,{world:w,activeParticipants:await presence(room.key,profile.id),player:profile.id,nickname:profile.nickname,serverTime:Date.now()});
       }
       if(req.method!=='POST')return send(404,{error:'요청을 찾지 못했어요.'});
       const input=await body(req);

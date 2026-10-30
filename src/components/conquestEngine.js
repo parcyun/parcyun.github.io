@@ -1,6 +1,8 @@
 // Equal-area cylindrical hex grid. A cell is ~100,000 / 128 km².
 export const RULES = { target: 1000, battleMs: 3 * 86400_000, voteMs: 2 * 86400_000, voyageStepMs: 12 * 3600_000, approval: .7 };
 export const CLASS_RULES={...RULES,battleMs:5*60_000,voteMs:60_000,voyageStepMs:10_000};
+export const CONTINENTAL_RULES={...RULES,battleMs:7*86400_000,voteMs:4*86400_000,voyageStepMs:24*3600_000};
+export const rulesForRoom=room=>room.kind==='class'?CLASS_RULES:room.key==='continental'?CONTINENTAL_RULES:RULES;
 export const GLOBAL_ROOMS=[{key:'new-world',name:'뉴 월드',kind:'global'},{key:'continental',name:'컨티넨탈',kind:'global'}];
 export const EARTH_RADIUS = 6371.0088;
 const nominalSide = Math.sqrt((100_000 / 128) / (EARTH_RADIUS ** 2 * 3 * Math.sqrt(3) / 2)) / Math.cos(37*Math.PI/180);
@@ -35,7 +37,7 @@ export function initialWorld(room=GLOBAL_ROOMS[0]) {
   for(const [id,ll] of [['amber',[127.8,36]],['forest',[12,48]],['rose',[-100,39]]]){
     const root=cellAt(...ll);owners[root]=id;for(const n of neighbors(root))owners[n]=id;
   }
-  return {version:2,room,rules:room.kind==='class'?CLASS_RULES:RULES,nations,owners,players:{},battles:[],proposals:[],campaigns:[],voyages:[],waters:{},seaOwners:{}};
+  return {version:2,room,rules:rulesForRoom(room),nations,owners,players:{},battles:[],proposals:[],campaigns:[],voyages:[],waters:{},seaOwners:{}};
 }
 export const ownerOf=(w,id)=>w.owners[id]||w.seaOwners?.[id]||(w.waters?.[id]?.length===1?w.waters[id][0]:null)||null;
 export function rebuildWaters(w,isLand){

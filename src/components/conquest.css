@@ -25,3 +25,57 @@
 .cq-capital-info button{background:transparent;color:#ffcf77;padding:0}.cq-capital-info{color:#e2d6ad!important}
 .cq-result-action{pointer-events:auto;display:block;width:100%;min-height:36px;border:1px solid #8b7851;border-radius:10px;background:#ffb11a;color:#201a0e;font:600 12px Pretendard,sans-serif;margin-top:8px;cursor:pointer}.cq-resume-room{display:block;width:100%;border:1px solid #7b683f!important;color:#ffce78!important;margin-top:20px}.cq-review-summary{padding:12px 0}.cq-review-summary p{font-size:13px!important;color:#d9d2bc!important}.cq-review-summary button{min-height:44px;border-radius:12px;border:1px solid #8b7851;background:#3b3424;color:#ffe0a3;font:600 14px Pretendard,sans-serif;padding:10px 20px;cursor:pointer}
 @media(max-width:760px){.cq-contribution{top:176px;left:12px;right:12px;transform:none;width:auto;max-width:none;box-sizing:border-box;display:grid;grid-template-columns:1fr auto;gap:4px 8px;padding:8px 12px;border-radius:12px;text-align:left;font-size:10px}.cq-contribution>div{grid-column:1;grid-row:1}.cq-contribution>span{grid-column:2;grid-row:1;font-size:9px}.cq-contribution progress{grid-column:1/-1;grid-row:2;margin:2px 0;height:3px}.cq-contribution small{grid-column:1/-1;font-size:9px;margin:0}.cq-contribution .cq-result-action{grid-column:1/-1;margin-top:4px}}
+/* Battleground keeps the operation map visible beside the quiz workspace. */
+.cq-brand .cq-battleground{font:400 32px/1 'Covered By Your Grace',cursive;letter-spacing:0;color:#ffb11a}
+.conquest-dev.game-active #stage{right:50%;width:50%}
+.conquest-dev.game-active .geo-game{left:50%;background:#171916f2;border-left:1px solid #373b33;box-sizing:border-box;overflow:hidden}
+.conquest-dev.game-active .gg-menu{left:24px;right:24px;top:80px;width:auto;max-height:calc(100dvh - 180px);background:transparent;border:0;box-shadow:none}
+.conquest-dev.game-active .gg-menu nav{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.conquest-dev.game-active .gg-menu nav button{border:1px solid #373b33;min-width:0}
+.conquest-dev.game-active .gg-play-title{top:76px;left:24px;right:24px}
+.conquest-dev.game-active .gg-play-title h1{font-size:20px}
+.conquest-dev.game-active .gg-right-cards{top:174px;left:24px;right:24px;width:auto}
+.conquest-dev.game-active .gg-right-cards .gg-hud{padding:12px 16px}
+.conquest-dev.game-active .gg-score strong,.conquest-dev.game-active .gg-combo strong{font-size:24px}
+.conquest-dev.game-active .gg-country{padding:12px}
+.conquest-dev.game-active .gg-country p{display:inline;margin-right:12px}
+.conquest-dev.game-active .gg-media{left:50%;top:48%;max-width:calc(100% - 48px)}
+.conquest-dev.game-active .gg-media img{width:100%;max-width:320px;height:150px}
+.conquest-dev.game-active .gg-answer{left:24px;right:24px;bottom:100px;width:auto;transform:none}
+.conquest-dev.game-active .gg-answer label{font-size:16px}
+.conquest-dev.game-active .gg-answer input{font-size:16px;padding:12px 4px}
+.conquest-dev.game-active .gg-answer button{padding:10px}
+.conquest-dev.game-active .gg-practice-answer{left:50%;top:60%;font-size:28px;max-width:90%}
+.conquest-dev.game-active .gg-mode-exit{top:20px;right:24px}
+.conquest-dev.game-active .gg-finish{bottom:56px;right:24px}
+.conquest-dev.game-active .cq-contribution{left:24px;right:calc(50% + 24px);top:24px;transform:none;max-width:none;box-sizing:border-box}
+.conquest-dev.game-active .gg-ranking-open{bottom:56px;left:24px}
+@media(max-width:760px){
+ .cq-brand .cq-battleground{font-size:27px}
+ .conquest-dev.game-active #stage{width:100%;height:34%;right:0;bottom:auto}
+ .conquest-dev.game-active .geo-game{left:0;top:34%;border-left:0;border-top:1px solid #373b33}
+ .conquest-dev.game-active .cq-contribution{left:12px;right:12px;top:12px;font-size:10px}
+ .conquest-dev.game-active .geo-game:not(.gg-playing) .gg-menu{left:12px;right:12px;top:52px;padding:12px;max-height:calc(66dvh - 120px)}
+ .conquest-dev.game-active .gg-menu nav{grid-template-columns:1fr 1fr;overflow:visible}
+ .conquest-dev.game-active .gg-menu nav button{white-space:normal;padding:8px;font-size:11px}
+ .conquest-dev.game-active .gg-menu h1{font-size:22px;margin:8px 0}
+ .conquest-dev.game-active .gg-menu>p,.conquest-dev.game-active .gg-menu>small,.conquest-dev.game-active .gg-record{display:none}
+ .conquest-dev.game-active .gg-play-title{top:12px;left:12px;right:140px}
+ .conquest-dev.game-active .gg-play-title>span{font-size:8px}
+ .conquest-dev.game-active .gg-play-title h1{font-size:16px;margin:4px 0}
+ .conquest-dev.game-active .gg-play-title .gg-practice-toggle{margin:4px 0;font-size:9px;padding:4px}
+ .conquest-dev.game-active .gg-right-cards{top:96px;left:12px;right:12px}
+ .conquest-dev.game-active .gg-score strong,.conquest-dev.game-active .gg-combo strong{font-size:18px;margin-top:4px}
+ .conquest-dev.game-active .gg-score>small{display:none}
+ .conquest-dev.game-active .gg-country{font-size:10px}
+ .conquest-dev.game-active .gg-country p,.conquest-dev.game-active .gg-country small{display:none}
+ .conquest-dev.game-active .gg-media{top:48%;max-width:50%;max-height:100px}
+ .conquest-dev.game-active .gg-media img{height:90px}
+ .conquest-dev.game-active .gg-answer{left:12px;right:12px;bottom:92px}
+ .conquest-dev.game-active .gg-answer label{font-size:12px;margin-bottom:4px}
+ .conquest-dev.game-active .gg-feedback{min-height:16px;margin-bottom:4px}
+ .conquest-dev.game-active .gg-answer input{padding:8px 4px}
+ .conquest-dev.game-active .gg-answer>small{display:none}
+ .conquest-dev.game-active .gg-mode-exit{top:12px;right:12px;font-size:10px;padding:8px}
+ .conquest-dev.game-active .gg-finish,.conquest-dev.game-active .gg-ranking-open{bottom:48px}
+}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import GeoGame from './GeoGame.jsx';
+import GeoMobileNavigation from './GeoMobileNavigation.jsx';
 import { buildGamePools } from './geoGameData.js';
 import { STARDUST_FRAGMENT } from './globeStarlight.js';
 import * as THREE from 'three';
@@ -898,6 +899,7 @@ export default function GlobeLab(){
     <div id="app" className={'gl-app'+(gameActive?' game-active':'')}>
       {gameWipe&&<div className="gg-wipe" aria-hidden="true"/>}
       {gameActive&&gamePools&&<GeoGame pools={gamePools} onTarget={gameTarget} onExit={exitGame} onFinish={mode=>api.current.finishGame?.(mode)}/>}
+      <GeoMobileNavigation english={EN} view={view} onView={setView} onZoom={factor=>api.current.dolly?.(factor)} onHome={()=>{setSel(null);S.current.homeReq=true;if(view==='flat')api.current.goView?.('flat');else setView('flat');}} northUp={northUp} onNorthUp={()=>setNorthUp(value=>!value)} gameActive={gameActive} gameDisabled={!gamePools||gameWipe} onGame={enterGame} onExit={exitGame} regions={[...CONT_ORDER.map(key=>({type:'continent',key,label:EN?CONT[key].en.split(' ')[0]:CONT[key].ko,color:CONT[key].color,selected:sel?.type==='continent'&&sel.key===key})),...OCEAN_ORDER.map(key=>({type:'ocean',key,label:EN?OCEAN[key].en.split(' ')[0]:OCEAN[key].ko,color:OCEAN[key].color,selected:sel?.type==='ocean'&&sel.key===key}))]} onRegion={(type,key)=>type==='continent'?api.current.pickContinent?.(key):api.current.pickOcean?.(key)} />
       <div className="topbar">
         <a className="home-fab" href="/atlas-gears/" title="아틀라스 기어즈로 이동" aria-label="아틀라스 기어즈로 이동"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
         <div className="title-wrap"><div className="kicker">{T.kicker}</div><div className="title">{T.title}<span className="en">{T.subtitle}</span></div></div>
@@ -979,6 +981,7 @@ export default function GlobeLab(){
           </div>
         </div>
         {info && <div key={sel?.name||sel?.key} className={'info-card '+info.kind} style={{borderColor:info.color}}>
+          <button type="button" className="geo-mobile-info-close" aria-label="정보 닫기" onClick={()=>setSel(null)}>×</button>
           <div className="ic-head">
             {info.kind==='country'
               ? (info.flag?<img className="ic-flag" src={info.flag} alt="" />:<span className="ic-flag">🏳️</span>)
@@ -1035,7 +1038,7 @@ export default function GlobeLab(){
           <h2 id="update-story-title">안녕하세요, 이 지도를 만드는 개발자예요.</h2>
           <p>수업에서 지도를 펼쳤을 때 “이 나라는 어디지?”라는 질문이 바로 다음 탐험으로 이어지면 좋겠다고 생각했어요.</p>
           <ul>
-            <li>상단 버튼으로 <b>평면 · Focus Lens · 지구본</b> 뷰를 바꿔 보세요.</li>
+            <li>지도 보기에서 <b>평면 · Focus Lens · 지구본</b> 뷰를 바꿔 보세요.</li>
             <li><b>대륙과 대양</b>을 선택하면 그 영역을 집중해서 살펴볼 수 있어요.</li>
             <li><b>낮과 밤</b>을 켜면 태양빛에 따라 지구의 밝기가 어떻게 달라지는지 보여요.</li>
             <li><b>위도와 경도</b> 격자를 따라 지구상의 위치를 읽어 보세요.</li>

@@ -79,3 +79,5 @@
  .conquest-dev.game-active .gg-mode-exit{top:12px;right:12px;font-size:10px;padding:8px}
  .conquest-dev.game-active .gg-finish,.conquest-dev.game-active .gg-ranking-open{bottom:48px}
 }
+.conquest-dev.game-active .gg-finish{top:auto;left:auto;width:auto;height:auto;min-height:40px}
+@media(max-width:760px){.conquest-dev.game-active .gg-finish{top:auto;left:auto;right:12px;bottom:48px;width:auto;height:auto;padding:8px 16px}}

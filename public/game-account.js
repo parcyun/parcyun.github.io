@@ -1,7 +1,7 @@
-import './modal-motion.js?v=20261030-1';
+import './modal-motion.js?v=20261030-2';
 const CONFIG = { apiKey: 'AIzaSyBjkzvcIjyfnOU0TBF5VasoaQz3Xgw1C9I', authDomain: 'parcyun.firebaseapp.com', projectId: 'parcyun', appId: '1:1093702239224:web:021018208e667b21e7cc0d' };
 const MASCOT = '/images/dexter-base-character-01.png';
-import {createLeaderboard,rankingAffiliation,isReservedNickname} from './spell-leaderboard.js?v=20261029-6';
+import {createLeaderboard,rankingAffiliation,isReservedNickname,compareRankingEfficiency} from './spell-leaderboard.js?v=20261030-2';
 import {createBrowserProfileStore,normalizeSchool} from './browser-profile.js?v=20261029-1';
 import {searchSchools,schoolMark,SCHOOL_REGIONS} from './school-directory.js?v=20261029-1';
 import {optimizeSchoolMark,submitSchoolMarkRequest} from './school-mark-request.js?v=20261029-1';
@@ -22,7 +22,6 @@ function dialog(title) {
   const h = document.createElement('h2'); h.textContent = title;
   const close = document.createElement('button'); close.type = 'button'; close.className = 'ps-close'; close.textContent = '×'; close.setAttribute('aria-label', '닫기'); close.onclick = () => el.close();
   header.append(img, h, close); el.append(header); document.body.append(el);
-  el.addEventListener('click', e => { if (e.target === el) { const r = el.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) el.close(); } });
   return window.psModalMotion.bindDialog(el);
 }
 const studio = dialog('parcyun studio');
@@ -236,6 +235,7 @@ window.psGameRanking=createLeaderboard(rankingContext);
 window.psGeoRanking=createLeaderboard(rankingContext,'geo');
 
 window.psRankingAffiliation=rankingAffiliation;
+window.psCompareRanking=compareRankingEfficiency;
 
 window.addEventListener('ps-browser-profile-updated',()=>{if(!user||user.isAnonymous){profile=localProfiles.current()||{};renderTrigger();if(account.open)renderAccount();}});
 

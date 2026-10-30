@@ -10,6 +10,16 @@ export function rankingAffiliation(player) {
   return `${moods[seed % moods.length]} ${roles[Math.floor(seed / moods.length) % roles.length]}`;
 }
 
+export function compareRankingEfficiency(a,b) {
+  const duration=r=>{
+    if(Number.isFinite(r.elapsedMs)&&r.elapsedMs>0)return r.elapsedMs;
+    const legacy=String(r.time||'').split(':').reduce((seconds,n)=>seconds*60+Number(n),0)*1000;
+    return legacy>0?legacy:86400000;
+  };
+  const left=duration(a),right=duration(b);
+  return b.score*left-a.score*right || b.score-a.score || left-right;
+}
+
 export function createLeaderboard(context, game='spell') {
   const collectionName=game==='geo'?'geoBoards':'spellBoards';
   const boardId = ({lang,diff,mode}) => {
@@ -29,22 +39,16 @@ export function createLeaderboard(context, game='spell') {
     async load(filters, cursor) {
       const {s,user,entryId}=await context(); const d=s.dbApi;
       const collection=d.collection(s.db,collectionName,boardId(filters),'players');
-      const clauses=[d.orderBy('score','desc'),d.orderBy('elapsedMs','asc'),d.limit(50)];
-      if(cursor)clauses.push(d.startAfter(cursor));
-      const snapshot=await d.getDocsFromServer(d.query(collection,...clauses));
-      let mine=null;
-      if(user){
-        const own=await d.getDocFromServer(d.doc(collection,entryId||user.uid));
-        if(own.exists()){
-          const value=own.data();
-          const [higher,faster]=await Promise.all([
-            d.getCountFromServer(d.query(collection,d.where('score','>',value.score))),
-            d.getCountFromServer(d.query(collection,d.where('score','==',value.score),d.where('elapsedMs','<',value.elapsedMs)))
-          ]);
-          mine={id:entryId||user.uid,...value,rank:1+higher.data().count+faster.data().count};
-        }
-      }
-      return {rows:snapshot.docs.map(doc=>({id:doc.id,...doc.data()})),cursor:snapshot.docs.at(-1),more:snapshot.size===50,mine,signedIn:!!user};
+      // Simplification: derive ordering from existing records without rewriting scores.
+      // Add an indexed efficiency field when a board exceeds 1000 players.
+      const snapshot=await d.getDocsFromServer(d.query(collection));
+      const order=(a,b)=>compareRankingEfficiency(a,b)||a.id.localeCompare(b.id);
+      const rows=snapshot.docs.map(doc=>({id:doc.id,...doc.data()})).sort(order);
+      const first=cursor?rows.findIndex(row=>order(row,cursor)>0):0;
+      const start=first<0?rows.length:first,page=rows.slice(start,start+50);
+      const own=user?rows.find(row=>row.id===(entryId||user.uid)):null;
+      const mine=own?{...own,rank:1+rows.findIndex(row=>compareRankingEfficiency(row,own)===0)}:null;
+      return {rows:page,cursor:page.at(-1),more:start+page.length<rows.length,mine,signedIn:!!user};
     },
     async submit(record) {
       const {s,user,profile,nickname,entryId}=await context();if(!user)throw new Error('프로필을 먼저 만들어 주세요. Google 로그인 없이 브라우저 프로필로도 제출할 수 있어요.');

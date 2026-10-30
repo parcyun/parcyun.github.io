@@ -1028,7 +1028,7 @@ export default function GlobeLab(){
         <button className="ts-popup-close" onClick={()=>window.psModalMotion.exit(document.querySelector('.ts-popup'),()=>setTsInfo(false))}>{T.close}</button>
       </div></div>}
       <div className="watermark">{(lang==='en'?{flat:T.wmFlat,lens:T.wmLens,globe:T.wmGlobe}:MODE_WM)[view]}</div>
-      {updateStory && <div className="update-story" role="dialog" aria-modal="true" aria-labelledby="update-story-title">
+      {updateStory && <div className="update-story" onClick={event=>{if(event.target===event.currentTarget)closeUpdateStory();}} role="dialog" aria-modal="true" aria-labelledby="update-story-title">
         <div className="update-story-card">
           <div className="update-story-kicker">A NOTE FROM THE DEVELOPER</div>
           <h2 id="update-story-title">안녕하세요, 이 지도를 만드는 개발자예요.</h2>

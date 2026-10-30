@@ -239,3 +239,16 @@
   body .gg-ranking-dialog th:nth-child(5),body .gg-ranking-dialog td:nth-child(5){display:none}
   body .gg-ranking-dialog td small{font-size:9px;line-height:1.4}
 }
+
+/* No focus rectangles; field borders and keyboard activation remain intact. */
+body :focus-visible{outline:none!important;outline-offset:0!important}
+body .gg-answer form:focus-within{border-color:#515864;box-shadow:0 8px 32px #0007}
+body .gl-app .country-search-field input:focus{border-color:var(--border);box-shadow:none}
+body .ranking-sheet header{align-items:flex-start}
+body .ranking-header-actions{display:flex;gap:6px;flex:none}
+body .ranking-sheet .ranking-header-actions button{display:grid;place-items:center;width:34px;min-width:34px;height:34px;min-height:34px;padding:0}
+body .ranking-header-actions svg,body .gg-ranking-actions svg{display:block;pointer-events:none}
+body .gg-ranking-dialog .gg-ranking-header{padding-right:80px}
+body .gg-ranking-actions{position:absolute;top:0;right:0;display:flex;gap:6px}
+body .gg-ranking-dialog .gg-ranking-actions button{position:static;display:grid;place-items:center;width:34px;min-width:34px;height:34px;min-height:34px;padding:0;font-size:24px}
+body .ranking-refresh:disabled,body .gg-ranking-refresh:disabled{opacity:.4;cursor:wait}

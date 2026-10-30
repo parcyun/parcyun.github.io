@@ -33,7 +33,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   const input=useRef(null), nextButton=useRef(null), deck=useRef([]), current=useRef(null), started=useRef(0), locked=useRef(true), timers=useRef([]), serial=useRef(0), composing=useRef(false);
   const config=GAME_MODES.find(m=>m.id===mode);
   const tier=hasCountryDifficulty(mode)?difficulty:config.tier;
-  useEffect(()=>{if(pendingMode){const node=difficultyDialog.current;node.showModal();return()=>node.close();}},[pendingMode]);
+  useEffect(()=>{if(pendingMode){const node=difficultyDialog.current;node.showModal();const unbind=window.psModalMotion.bindBackdrop(node,()=>closeDifficulty());return()=>{unbind();node.close();};}},[pendingMode]);
   function chooseMode(nextMode){if(hasCountryDifficulty(nextMode)){setPendingMode(nextMode);return;}setBusy(true);locked.current=true;setMode(nextMode);setPlaying(true);}
   function closeDifficulty(after){
     const node=difficultyDialog.current;if(!node||node.dataset.leaving)return;
@@ -162,7 +162,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
       </form>}
       {practice&&<button ref={nextButton} type="button" className="gg-practice-next" disabled={(busy&&!mediaError)||summary} onClick={skip} onKeyDown={e=>{if(e.key==='Enter'&&e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();if(!e.repeat)skip();}}}><span>넘기기</span><small>SHIFT+ENTER</small></button>}
     </div>
-    {summary&&<div className="gg-summary" role="dialog" aria-modal="true" aria-labelledby="gg-summary-title" onKeyDown={e=>{if(e.key==='Escape')returnToMenu();if(e.key==='Tab'){const buttons=[...e.currentTarget.querySelectorAll('button')];const index=buttons.indexOf(document.activeElement);e.preventDefault();buttons[(index+(e.shiftKey?-1:1)+buttons.length)%buttons.length].focus();}}}><div><div className="gg-eyebrow">ROUND COMPLETE</div><h2 id="gg-summary-title">오늘의 지구 탐험</h2><strong>{stats.score.toLocaleString()}<small>점</small></strong><p>정답 {stats.correct}개 · 최고 콤보 {stats.bestCombo} · {formatTime(elapsed)}</p><div className="gg-summary-actions"><button autoFocus onClick={returnToMenu}>게임 선택으로</button><button className="gg-mode-exit" onClick={()=>window.psModalMotion.exit(document.querySelector('.gg-summary'),onExit)}>게임모드 종료 ↗</button></div><div className="gg-summary-submit"><button type="button" onClick={openRanking}>랭킹 · 기록 제출</button></div></div></div>}
+    {summary&&<div className="gg-summary" onClick={event=>{if(event.target===event.currentTarget)returnToMenu();}} role="dialog" aria-modal="true" aria-labelledby="gg-summary-title" onKeyDown={e=>{if(e.key==='Escape')returnToMenu();if(e.key==='Tab'){const buttons=[...e.currentTarget.querySelectorAll('button')];const index=buttons.indexOf(document.activeElement);e.preventDefault();buttons[(index+(e.shiftKey?-1:1)+buttons.length)%buttons.length].focus();}}}><div><div className="gg-eyebrow">ROUND COMPLETE</div><h2 id="gg-summary-title">오늘의 지구 탐험</h2><strong>{stats.score.toLocaleString()}<small>점</small></strong><p>정답 {stats.correct}개 · 최고 콤보 {stats.bestCombo} · {formatTime(elapsed)}</p><div className="gg-summary-actions"><button autoFocus onClick={returnToMenu}>게임 선택으로</button><button className="gg-mode-exit" onClick={()=>window.psModalMotion.exit(document.querySelector('.gg-summary'),onExit)}>게임모드 종료 ↗</button></div><div className="gg-summary-submit"><button type="button" onClick={openRanking}>랭킹 · 기록 제출</button></div></div></div>}
     </>}
   </section>;
 }

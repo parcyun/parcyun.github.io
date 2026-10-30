@@ -367,8 +367,8 @@
   @keyframes spellOnboardingIn{from{opacity:0;transform:translateY(15px) scale(.97)}to{opacity:1;transform:none}}.spell-onboarding-kicker{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.22em}.spell-onboarding h2{margin:8px 0 13px;font-size:23px;line-height:1.35}.spell-onboarding p,.spell-onboarding li{color:rgba(255,255,255,.68);font-size:13px;font-weight:300;line-height:1.7}.spell-onboarding ul{display:grid;gap:6px;margin:16px 0;padding:0;list-style:none}.spell-onboarding li{position:relative;padding-left:17px}.spell-onboarding li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;background:var(--amber)}.spell-onboarding li b{color:#fff;font-weight:600}.spell-onboarding-sign{color:rgba(255,255,255,.43)!important}.spell-onboarding-start{width:100%;margin-top:18px;padding:12px;border:0;border-radius:12px;background:var(--amber);color:#050505;font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;cursor:pointer}.spell-update-toggle{display:flex;width:100%;align-items:center;justify-content:center;gap:7px;margin-top:8px;padding:5px;border:0;background:transparent;color:rgba(255,255,255,.38);font-family:Pretendard,sans-serif;font-size:10.5px;cursor:pointer}.spell-update-history{max-height:0;overflow:hidden;opacity:0;transition:max-height .42s cubic-bezier(.16,1,.3,1),opacity .24s ease,margin .42s cubic-bezier(.16,1,.3,1)}.spell-update-history.open{max-height:250px;margin-top:8px;opacity:1}.spell-update-history>div{padding:9px 0;border-top:1px solid rgba(255,255,255,.08)}.spell-update-history b{color:rgba(255,255,255,.58);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em}.spell-update-history p{margin:3px 0 0;color:rgba(255,255,255,.4);font-size:10.5px;line-height:1.55}
 </style>
 <style>#spell-update-history.open{max-height:340px}</style>
-<link rel="stylesheet" href="/mobile-games.css?v=20261029-2" />
-<script src="/modal-motion.js?v=20261030-1"></script>
+<link rel="stylesheet" href="/mobile-games.css?v=20261030-3" />
+<script src="/modal-motion.js?v=20261030-2"></script>
 </head>
 <body>
 <div class="bg"></div>
@@ -10914,6 +10914,7 @@ const normalize = s => (s||'').replace(/\s+/g,' ').trim();
 const SPELL_UPDATE_KEY='parcyun:spell-drill:update',SPELL_UPDATE_VERSION='2026-07-scoring-onboarding';
 const spellOnboarding=$('#spell-onboarding'),spellOnboardingStart=$('#spell-onboarding-start'),spellUpdateToggle=$('#spell-update-toggle'),spellUpdateHistory=$('#spell-update-history');
 spellOnboarding.hidden=false;
+spellOnboarding.addEventListener('click',event=>{if(event.target===spellOnboarding)spellOnboardingStart.click();});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!spellOnboarding.hidden&&!document.querySelector('dialog[open]'))spellOnboardingStart.click();});
 spellOnboardingStart.addEventListener('click',()=>{localStorage.setItem(SPELL_UPDATE_KEY,SPELL_UPDATE_VERSION);window.psModalMotion.exit(spellOnboarding,()=>{spellOnboarding.hidden=true;});});
 spellUpdateToggle.addEventListener('click',()=>{
@@ -11292,8 +11293,9 @@ function compareRankRecords(a,b){
 }
 const rankingDialog=window.psModalMotion.bindDialog(document.createElement('dialog'));
 rankingDialog.className='ranking-sheet';rankingDialog.setAttribute('aria-label','전체 플레이어 랭킹');
-rankingDialog.innerHTML='<header><div class="ranking-heading"><h2>전체 플레이어 랭킹</h2><p class="ranking-note">플레이어별 최고 기록 · 동점이면 소요 시간 순<br>제출 시 별명·학교 이름(입력한 경우)·점수·소요 시간·플레이 시각이 공개됩니다.</p></div><button type="button" class="act ghost" aria-label="랭킹 닫기">×</button></header><div class="ranking-filters"></div><div class="ranking-scroll" tabindex="0"><table class="rank-table"><thead><tr><th>순위</th><th>플레이어</th><th>점수</th><th>소요 시간</th><th>플레이 시간</th></tr></thead><tbody></tbody></table><button type="button" class="act" id="ranking-more" hidden>더 보기</button></div><div class="ranking-mine" role="status"></div>';
+rankingDialog.innerHTML='<header><div class="ranking-heading"><h2>전체 플레이어 랭킹</h2><p class="ranking-note">플레이어별 최고 기록<br>제출 시 별명·학교 이름(입력한 경우)·점수·소요 시간·플레이 시각이 공개됩니다.</p></div><div class="ranking-header-actions"><button type="button" class="act ghost ranking-refresh" aria-label="기록 새로고침" title="기록 새로고침"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></svg></button><button type="button" class="act ghost ranking-close" aria-label="랭킹 닫기">×</button></div></header><div class="ranking-filters"></div><div class="ranking-scroll" tabindex="0"><table class="rank-table"><thead><tr><th>순위</th><th>플레이어</th><th>점수</th><th>소요 시간</th><th>플레이 시간</th></tr></thead><tbody></tbody></table><button type="button" class="act" id="ranking-more" hidden>더 보기</button></div><div class="ranking-mine" role="status"></div>';
 document.body.append(rankingDialog);
+window.psModalMotion.bindSheet(rankingDialog,()=>rankingDialog.close(),false);
 let rankingDiff='easy',rankingMode='timer';
 const mineBox=rankingDialog.querySelector('.ranking-mine');const mineInfo=document.createElement('span');mineInfo.className='ranking-mine-info';mineBox.append(mineInfo);
 const mineSubmit=document.createElement('button');mineSubmit.type='button';mineSubmit.className='act primary';mineSubmit.textContent='기록 제출';mineBox.append(mineSubmit);mineSubmit.onclick=()=>submitLatestRanking(mineSubmit);
@@ -11306,6 +11308,7 @@ for(const [source,key] of [['#diff-row','diff'],['#mode-row','mode']]){
 let rankingRequest=0,rankingCursor=null,rankingRows=[];
 async function renderRankingSheet(append=false){
   const request=++rankingRequest;
+  rankingDialog.querySelector('.ranking-refresh').disabled=true;
   rankingDialog.querySelectorAll('[data-diff]').forEach(b=>b.classList.toggle('on',b.dataset.diff===rankingDiff));
   rankingDialog.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===rankingMode));
   const tbody=rankingDialog.querySelector('tbody'),mine=mineInfo,more=rankingDialog.querySelector('#ranking-more');
@@ -11318,17 +11321,16 @@ async function renderRankingSheet(append=false){
     if(request!==rankingRequest)return;
     rankingRows=rankingRows.concat(data.rows);rankingCursor=data.cursor;tbody.replaceChildren();
     const playedAt=r=>r.playedAt?.toDate?new Intl.DateTimeFormat('ko-KR',{dateStyle:'short',timeStyle:'short'}).format(r.playedAt.toDate()):'—';
-    let rank=1;rankingRows.forEach((r,i)=>{if(i===0||compareRankRecords(r,rankingRows[i-1])!==0)rank=i+1;const row=tbody.insertRow();[rank,r.nickname,r.score,fmtTime(r.elapsedMs),playedAt(r)].forEach((value,column)=>{const cell=row.insertCell();cell.textContent=String(value);if(column===1){const affiliation=document.createElement('small');affiliation.style.cssText='display:block;font-size:12px;color:var(--muted,#9ca4b0);white-space:normal;overflow-wrap:anywhere';affiliation.textContent=window.psRankingAffiliation(r);cell.append(affiliation)}})});
+    let rank=1;rankingRows.forEach((r,i)=>{if(i===0||window.psCompareRanking(r,rankingRows[i-1])!==0)rank=i+1;const row=tbody.insertRow();[rank,r.nickname,r.score,fmtTime(r.elapsedMs),playedAt(r)].forEach((value,column)=>{const cell=row.insertCell();cell.textContent=String(value);if(column===1){const affiliation=document.createElement('small');affiliation.style.cssText='display:block;font-size:12px;color:var(--muted,#9ca4b0);white-space:normal;overflow-wrap:anywhere';affiliation.textContent=window.psRankingAffiliation(r);cell.append(affiliation)}})});
     if(!rankingRows.length){const cell=tbody.insertRow().insertCell();cell.colSpan=5;cell.textContent='등록된 기록이 없습니다. 첫 번째 기록을 남겨 보세요.'}
     mine.textContent=data.mine?`내 순위 ${data.mine.rank}위 · ${data.mine.nickname} · ${window.psRankingAffiliation(data.mine)} · ${data.mine.score.toLocaleString()}점 · 소요 ${fmtTime(data.mine.elapsedMs)} · 플레이 ${playedAt(data.mine)}`:data.signedIn?'내 기록 없음 · 게임을 마치고 전체 랭킹에 등록해 주세요.':'프로필을 만들면 내 기록과 순위를 볼 수 있어요.';
     more.hidden=!data.more;if(!append)rankingDialog.querySelector('.ranking-scroll').scrollTop=0;
-  }catch(error){if(request!==rankingRequest)return;if(!append)tbody.replaceChildren();const cell=tbody.insertRow().insertCell();cell.colSpan=5;cell.textContent='기록을 불러오지 못했습니다. 잠시 후 다시 열어 주세요.';mine.textContent='서버 기록 확인 불가';console.warn('Ranking load:',error.code||error.message)}
-  finally{if(request===rankingRequest)more.disabled=false}
+  }catch(error){if(request!==rankingRequest)return;if(!append)tbody.replaceChildren();const cell=tbody.insertRow().insertCell();cell.colSpan=5;cell.textContent='기록을 불러오지 못했습니다. 잠시 후 다시 열어 주세요.';mine.textContent='서버 기록 확인 불가';console.warn('Ranking load:',error.code||error.message)}finally{if(request===rankingRequest){rankingDialog.querySelector('.ranking-refresh').disabled=false;more.disabled=false;}}
 }
 rankingDialog.querySelector('#ranking-more').onclick=()=>renderRankingSheet(true);
 function openRanking(){rankingDiff=state.diff;rankingMode=state.mode;renderRankingSheet();rankingDialog.showModal()}
-rankingDialog.querySelector('header button').onclick=()=>rankingDialog.close();
-rankingDialog.addEventListener('click',e=>{if(e.target===rankingDialog){const r=rankingDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)rankingDialog.close()}});
+rankingDialog.querySelector('.ranking-close').onclick=()=>rankingDialog.close();
+rankingDialog.querySelector('.ranking-refresh').onclick=()=>renderRankingSheet(false);
 const soundStack=document.createElement('div');soundStack.className='sound-stack';const settingsRow=stToggle.parentElement;settingsRow.before(soundStack);
 const rankingButton=document.createElement('button');rankingButton.type='button';rankingButton.className='ranking-launch';rankingButton.setAttribute('aria-haspopup','dialog');
 rankingButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.2L5.8 21 7 14.2 2 9.3l6.9-1z"/></svg><span>랭킹</span>';
@@ -11336,7 +11338,7 @@ rankingButton.onclick=openRanking;soundStack.append(rankingButton);
 
 $$('#rank .rank-tab').forEach(c=>c.addEventListener('click',()=>{$$('#rank .rank-tab').forEach(x=>x.classList.remove('on'));c.classList.add('on');renderRank(c.dataset.rl)}));
 function renderRank(diff){
-  const rec = loadRecords(); const arr = rec[state.lang][diff] || [];
+  const rec = loadRecords(); const arr = [...(rec[state.lang][diff] || [])].sort(window.psCompareRanking||compareRankRecords);
   const t = $('#rank-table');
   if(arr.length===0){ t.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px">NO RECORDS YET</td></tr>'; return }
   t.innerHTML = `<thead><tr><th>RANK</th><th>SCORE</th><th>ACC</th><th>COMBO</th><th>MODE</th></tr></thead>` +
@@ -11587,7 +11589,7 @@ function setLanguage(lang){
 </script>
 <script src="../share-widget.js?v=20261030-motion-1" defer></script>
 <script src="/service-guide.js?v=20261029" defer></script>
-<script type="module" src="/game-account.js?v=20261030-motion-1"></script>
+<script type="module" src="/game-account.js?v=20261030-ranking-2"></script>
 <script src="../visitor-counter.js" defer></script>
 <a data-ps-edit-id="ps-spell-072" data-ps-design-id="ps-spell-072" id="ps-back-btn" href="/atlas-gears/" aria-label="아틀라스 기어즈로 이동" title="아틀라스 기어즈로 이동" style="position:fixed;top:14px;left:14px;z-index:99999;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#8C8C8C;cursor:pointer;padding:0" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.28)'" onmouseout="this.style.color='#8C8C8C';this.style.borderColor='rgba(255,255,255,.12)'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
 <style>

@@ -15,8 +15,8 @@ test('each difficulty repeatedly favors its own familiarity band without duplica
    previous=deck.at(-1).id;
   }
   assert.ok(counts[difficulty]/6000>.65,`${difficulty}: ${JSON.stringify(counts)}`);
-  if(difficulty==='med'){assert.ok(counts.easy/6000<.08);assert.ok(counts.hard/6000>.22);}
-  if(difficulty==='hard')assert.ok(counts.hard/6000>.92);
+  if(difficulty==='med'){assert.ok(counts.easy/6000<.04);assert.ok(counts.hard/6000>.25);}
+  if(difficulty==='hard'){assert.ok(counts.hard/6000>.94);assert.ok(counts.easy/6000<.003);}
   for(const count of Object.values(counts))assert.ok(count>0);
  }
  assert.deepEqual(pool.map(q=>q.id),COUNTRIES.map(c=>c.iso2));
@@ -38,4 +38,9 @@ test('new local best records remain separate by level and retain legacy records'
  assert.equal(gameRecordKey('nature','easy'),'nature');
  assert.deepEqual(readRecords({getItem:()=>JSON.stringify(records)}),records);
  assert.equal(hasCountryDifficulty('flag'),true);assert.equal(hasCountryDifficulty('landmark'),false);
+});
+
+test('expert uses exactly the hard country distribution with independent records',()=>{
+ assert.deepEqual(difficultyDeck(pool,'expert',undefined,seeded()),difficultyDeck(pool,'hard',undefined,seeded()));
+ assert.equal(gameRecordKey('country','expert'),'country_expert');
 });

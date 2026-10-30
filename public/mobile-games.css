@@ -169,7 +169,7 @@
   /* Shared sheets retain one scroll area and compact chrome. */
   .ranking-sheet{padding:12px!important;gap:8px}
   .ranking-sheet .ranking-scroll table{min-width:0;width:100%}
-  .ranking-sheet .rank-table th:nth-child(5),.ranking-sheet .rank-table td:nth-child(5){display:none}
+  .ranking-sheet .rank-table th:nth-child(6),.ranking-sheet .rank-table td:nth-child(6){display:none}
   .ranking-sheet .rank-table th,.ranking-sheet .rank-table td{padding:6px 4px}
   body .gg-ranking-dialog{padding:12px;gap:8px}
   body .gg-ranking-dialog .gg-ranking-header{gap:6px}
@@ -234,9 +234,10 @@
   body .gg-ranking-dialog .gg-ranking-scroll table{min-width:0;width:100%;table-layout:fixed}
   body .gg-ranking-dialog th,body .gg-ranking-dialog td{padding:6px 3px;font-size:11px}
   body .gg-ranking-dialog th:first-child{width:22px}
-  body .gg-ranking-dialog th:nth-child(3){width:46px}
-  body .gg-ranking-dialog th:nth-child(4){width:44px}
-  body .gg-ranking-dialog th:nth-child(5),body .gg-ranking-dialog td:nth-child(5){display:none}
+  body .gg-ranking-dialog th:nth-child(3){width:34px}
+  body .gg-ranking-dialog th:nth-child(4){width:46px}
+  body .gg-ranking-dialog th:nth-child(5){width:44px}
+  body .gg-ranking-dialog th:nth-child(6),body .gg-ranking-dialog td:nth-child(6){display:none}
   body .gg-ranking-dialog td small{font-size:9px;line-height:1.4}
 }
 
@@ -258,3 +259,40 @@ body .ranking-refresh:disabled,body .gg-ranking-refresh:disabled{opacity:.4;curs
 /* Keep wheel, touch and keyboard scrolling without visible scrollbar chrome. */
 .ranking-sheet,.ranking-sheet *,.gg-ranking-dialog,.gg-ranking-dialog *{scrollbar-width:none}
 .ranking-sheet::-webkit-scrollbar,.ranking-sheet *::-webkit-scrollbar,.gg-ranking-dialog::-webkit-scrollbar,.gg-ranking-dialog *::-webkit-scrollbar{display:none}
+
+/* Spell screens use the current visible viewport, including browser resize. */
+.app .stage>#play.active,.app .stage>#result.active{max-height:100%}
+@media(min-width:761px) and (min-height:501px){
+  #home .hero-title{font-size:clamp(48px,10dvh,100px);line-height:.95}
+  #home .hero-meta{margin-top:14px;gap:8px 14px}
+  #home .ranking-launch{height:44px}
+  #home .ctrl-grid{margin-top:20px;gap:12px}
+  #home .ctrl{padding:14px}#home .ctrl .h{margin-bottom:10px}
+  #home .toggle button{padding:12px 10px}
+  #home .play-btn{margin-top:16px;padding:16px;font-size:20px}
+  #home .stats-row{margin-top:14px}#home .stat-cell{padding:10px}#home .stat-cell .v{font-size:24px}
+}
+@media(max-width:760px),(min-width:600px) and (max-height:500px) and (max-width:1000px){
+  .ranking-sheet .rank-table{table-layout:fixed}
+  .ranking-sheet .rank-table th:first-child{width:30px}
+  .ranking-sheet .rank-table th:nth-child(3){width:42px}
+  .ranking-sheet .rank-table th:nth-child(4){width:56px}
+  .ranking-sheet .rank-table th:nth-child(5){width:52px}
+  .ranking-sheet .rank-table th,.gg-ranking-dialog th{letter-spacing:0;white-space:normal;overflow-wrap:anywhere}
+  .gg-ranking-dialog td:nth-child(2){white-space:normal;overflow-wrap:anywhere}
+}
+body .gg-ranking-dialog{max-width:calc(100vw - 24px)}
+@media(max-width:360px){
+  body .gg-ranking-dialog .gg-ranking-layout{grid-template-columns:58px minmax(0,1fr);gap:6px}
+  body .gg-ranking-dialog th,body .gg-ranking-dialog td{font-size:10px}
+  body .gg-ranking-dialog th:first-child{width:20px}
+  body .gg-ranking-dialog th:nth-child(3){width:28px}
+  body .gg-ranking-dialog th:nth-child(4){width:42px}
+  body .gg-ranking-dialog th:nth-child(5){width:40px}
+}
+@media(min-width:761px) and (min-height:501px) and (max-height:700px){
+  #home .hero-meta{margin-top:10px;gap:6px 14px}
+  #home .ctrl-grid{margin-top:14px}#home .ctrl{padding:10px}
+  #home .play-btn{margin-top:12px;padding:12px}
+  #home .stats-row{margin-top:10px}#home .stat-cell{padding:8px}#home .stat-cell .v{font-size:20px}
+}

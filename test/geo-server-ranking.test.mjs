@@ -26,7 +26,7 @@ test('GeoWeb difficulty boards isolate new records and keep legacy boards readab
  const api=createLeaderboard(async()=>({s:{db:{},dbApi},user:{uid:'player'},profile:{nickname:'별빛 탐험가'}}),'geo');
  const record={score:200,elapsedMs:1000,playedAt:1};
  for(const mode of ['country','capital-easy','capital-hard','flag']){
-  for(const diff of ['easy','med','hard']){await api.submit({...record,mode,diff});assert.equal(paths.at(-1)[1],`${mode}_${diff}`);}
+  for(const diff of ['easy','med','hard','expert']){await api.submit({...record,mode,diff});assert.equal(paths.at(-1)[1],`${mode}_${diff}`);}
   await api.submit({...record,mode});assert.equal(paths.at(-1)[1],mode);
   await assert.rejects(()=>api.submit({...record,mode,diff:'unknown'}),/Invalid difficulty/);
  }

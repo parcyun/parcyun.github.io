@@ -46,7 +46,7 @@ export default function GeoRanking({ initialMode, initialDifficulty='easy', reco
         {hasCountryDifficulty(mode)?<nav className="gg-ranking-levels" aria-label="랭킹 난이도">{[...DIFFICULTIES,{id:'legacy',label:'이전 기록'}].map(item=><button key={item.id} type="button" aria-pressed={difficulty===item.id} onClick={()=>setDifficulty(item.id)}>{item.label}</button>)}</nav>:<span className="gg-ranking-note">고정 난이도 · {difficultyLabel(GAME_MODES.find(item=>item.id===mode)?.tier)}</span>}
         </div>
       </div>
-      <div className="gg-ranking-help"><p>기록 제출 시 별명·학교 이름(입력한 경우)·점수·소요 시간·플레이 시각이 공개됩니다.</p>
+      <div className="gg-ranking-help"><p>기록 제출 시 별명·학교 이름(입력한 경우)·최대 콤보·점수·소요 시간·플레이 시각이 공개됩니다.</p>
         {record?<div className="gg-ranking-top-submit"><span>{GAME_MODES.find(item=>item.id===record.mode)?.title}{record.diff?` · ${difficultyLabel(record.diff)}`:''} · {record.score.toLocaleString()}점 · {time(record.elapsedMs)}</span><button type="button" className="gg-ranking-submit" disabled={sending||submitted} onClick={submit}>{sending?'제출 중…':submitted?'제출 완료':'기록 제출'}</button></div>:<p>게임을 마치면 기록을 제출할 수 있어요. 연습 모드는 제외됩니다.</p>}
         {notice&&<p role="status">{notice}</p>}
       </div>
@@ -55,16 +55,16 @@ export default function GeoRanking({ initialMode, initialDifficulty='easy', reco
     <div className="gg-ranking-layout">
     <nav className="gg-ranking-games" aria-label="랭킹 게임 종류">{GAME_MODES.map(item=><button key={item.id} type="button" aria-pressed={mode===item.id} onClick={()=>setMode(item.id)}>{item.title}</button>)}</nav>
     <div className="gg-ranking-content">
-    <div className="gg-ranking-scroll" tabIndex="0" aria-label="랭킹 목록"><table><thead><tr><th>순위</th><th>플레이어</th><th>점수</th><th>소요 시간</th><th>플레이 시각</th></tr></thead><tbody>
-      {rows.map((row,i)=>{if(i===0||compareRankingEfficiency(row,rows[i-1])!==0)rank=i+1;return <tr key={row.id}><td>{rank}</td><td>{row.nickname}<small>{rankingAffiliation(row)}</small></td><td>{row.score.toLocaleString()}</td><td>{time(row.elapsedMs)}</td><td>{played(row.playedAt)}</td></tr>;})}
-      {!rows.length&&<tr><td colSpan="5">{loading?'서버 기록을 불러오는 중…':error?'서버 기록 확인 불가':'첫 번째 지구 탐험 기록을 남겨 보세요.'}</td></tr>}
+    <div className="gg-ranking-scroll" tabIndex="0" aria-label="랭킹 목록"><table><thead><tr><th>순위</th><th>플레이어</th><th>최대 콤보</th><th>점수</th><th>소요 시간</th><th>플레이 시각</th></tr></thead><tbody>
+      {rows.map((row,i)=>{if(i===0||compareRankingEfficiency(row,rows[i-1])!==0)rank=i+1;return <tr key={row.id}><td>{rank}</td><td>{row.nickname}<small>{rankingAffiliation(row)}</small></td><td>{row.maxCombo??'—'}</td><td>{row.score.toLocaleString()}</td><td>{time(row.elapsedMs)}</td><td>{played(row.playedAt)}</td></tr>;})}
+      {!rows.length&&<tr><td colSpan="6">{loading?'서버 기록을 불러오는 중…':error?'서버 기록 확인 불가':'첫 번째 지구 탐험 기록을 남겨 보세요.'}</td></tr>}
     </tbody></table></div>
     {error&&<p role="alert" className="gg-ranking-note">{error} <button type="button" onClick={()=>load(false)}>다시 시도</button></p>}
     {more&&<button type="button" disabled={loading} onClick={()=>load(true)}>{loading?'불러오는 중…':'더 보기'}</button>}
     </div></div>
     <section className="gg-ranking-mine" aria-label="내 최고 기록" role="status">
       <div className="gg-ranking-mine-label"><span className="gg-eyebrow">MY BEST RECORD</span><h3>내 최고 기록{boardDifficulty?` · ${difficultyLabel(boardDifficulty)}`:''}</h3>{mine&&<p>{mine.nickname} · {rankingAffiliation(mine)} · {played(mine.playedAt)}</p>}</div>
-      {loading?<p>내 순위를 확인하고 있어요…</p>:error?<p>내 기록을 확인하지 못했어요. 다시 시도해 주세요.</p>:mine?<p className="gg-ranking-mine-score"><strong>{mine.rank}위</strong><b>{mine.score.toLocaleString()}점</b><span>소요 {time(mine.elapsedMs)}</span></p>:<p>{signedIn?'이 게임·난이도에 제출한 기록이 없어요.':'프로필을 만들면 내 기록과 순위를 볼 수 있어요.'}</p>}
+      {loading?<p>내 순위를 확인하고 있어요…</p>:error?<p>내 기록을 확인하지 못했어요. 다시 시도해 주세요.</p>:mine?<p className="gg-ranking-mine-score"><strong>{mine.rank}위</strong><span>최대 콤보 {mine.maxCombo==null?'—':`${mine.maxCombo}회`}</span><b>{mine.score.toLocaleString()}점</b><span>소요 {time(mine.elapsedMs)}</span></p>:<p>{signedIn?'이 게임·난이도에 제출한 기록이 없어요.':'프로필을 만들면 내 기록과 순위를 볼 수 있어요.'}</p>}
       {!loading&&!signedIn&&<button type="button" onClick={()=>{dismiss(()=>document.querySelector('.ps-account-trigger')?.click());}}>내 프로필 만들기</button>}
     </section>
   </dialog>;

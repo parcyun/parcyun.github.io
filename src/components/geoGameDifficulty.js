@@ -6,17 +6,19 @@ export const DIFFICULTIES = [
   {id:'easy',label:'초급',description:'익숙한 국가가 더 자주 나와요.'},
   {id:'med',label:'중급',description:'조금 덜 알려진 국가가 더 자주 나와요.'},
   {id:'hard',label:'고급',description:'생소한 국가가 더 자주 나와요.'},
+  {id:'expert',label:'전문가',description:'고급 국가 출제 · 문항마다 5초 안에 답해요.'},
 ];
+export const EXPERT_ANSWER_MS = 5000;
 export const hasCountryDifficulty = mode => COUNTRY_GAME_MODES.includes(mode);
 export const difficultyLabel = diff => DIFFICULTIES.find(item=>item.id===diff)?.label || '이전 기록';
 export const countryFamiliarity = iso2 => familiar.has(iso2)?'easy':lessFamiliar.has(iso2)?'med':'hard';
 export const gameRecordKey = (mode,diff) => hasCountryDifficulty(mode)?`${mode}_${diff}`:mode;
-const weights = {easy:[.8,.17,.03],med:[.05,.7,.25],hard:[.01,.04,.95]};
+const weights = {easy:[.8,.17,.03],med:[.025,.7,.275],hard:[.001,.04,.959]};
 
 export function difficultyDeck(pool,difficulty,previousId,random=Math.random) {
-  const distribution=weights[difficulty];
+  const distribution=weights[difficulty==='expert'?'hard':difficulty];
   if(!distribution)throw new Error('Invalid difficulty');
-  const groups=DIFFICULTIES.map(({id})=>pool.filter(question=>countryFamiliarity(question.country.iso2)===id));
+  const groups=['easy','med','hard'].map(id=>pool.filter(question=>countryFamiliarity(question.country.iso2)===id));
   const deck=[];
   while(deck.length<Math.min(12,pool.length)) {
     const available=groups.map(group=>group.filter(q=>deck.length>0||pool.length===1||q.id!==previousId));

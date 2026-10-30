@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { GAME_MODES, matchesAnswer, scoreAnswer, scoring, shuffledDeck } from './geoGameData.js';
 import './geoGame.css';
-import { DIFFICULTIES, difficultyDeck, difficultyLabel, hasCountryDifficulty, gameRecordKey } from './geoGameDifficulty.js';
+import { EXPERT_ANSWER_MS, DIFFICULTIES, difficultyDeck, difficultyLabel, hasCountryDifficulty, gameRecordKey } from './geoGameDifficulty.js';
 import GeoRanking from './GeoRanking.jsx';
 import GeoScoreEffect from './GeoScoreEffect.jsx';
 import { RECORD_KEY, readRecords, updateRecord, formatTime } from './geoGameRecords.js';
@@ -23,6 +23,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   const [records,setRecords]=useState(()=>{try{return readRecords(window.localStorage);}catch{return {};}});
   const [storageError,setStorageError]=useState(false);
   const [elapsed,setElapsed]=useState(0);
+  const [countdown,setCountdown]=useState(null),deadline=useRef(0);
   const roundStarted=useRef(0);
   const [stats,setStats]=useState({score:0,combo:0,bestCombo:0,correct:0,attempts:0});
   const [summary,setSummary]=useState(false);
@@ -32,7 +33,8 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   const closeRanking=()=>{setRankingOpen(false);requestAnimationFrame(()=>rankingOpener.current?.focus());};
   const input=useRef(null), nextButton=useRef(null), deck=useRef([]), current=useRef(null), started=useRef(0), locked=useRef(true), timers=useRef([]), serial=useRef(0), composing=useRef(false);
   const config=GAME_MODES.find(m=>m.id===mode);
-  const tier=hasCountryDifficulty(mode)?difficulty:config.tier;
+  const expert=hasCountryDifficulty(mode)&&difficulty==='expert';
+  const tier=expert?'hard':hasCountryDifficulty(mode)?difficulty:config.tier;
   useEffect(()=>{if(pendingMode){const node=difficultyDialog.current;node.showModal();const unbind=window.psModalMotion.bindBackdrop(node,()=>closeDifficulty());return()=>{unbind();node.close();};}},[pendingMode]);
   function chooseMode(nextMode){if(hasCountryDifficulty(nextMode)){setPendingMode(nextMode);return;}setBusy(true);locked.current=true;setMode(nextMode);setPlaying(true);}
   function closeDifficulty(after){
@@ -51,9 +53,10 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   useEffect(()=>{if(practice&&playing&&!busy&&!summary)nextButton.current?.focus();},[practice,playing,busy,summary,question]);
   const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const later=(fn,delay)=>{const id=setTimeout(fn,delay);timers.current.push(id);};
-  function cancelPending(){timers.current.forEach(clearTimeout);timers.current=[];serial.current++;}
-  function ready(){locked.current=false;setBusy(false);started.current=performance.now();(practice?nextButton:input).current?.focus();}
+  function cancelPending(){timers.current.forEach(clearTimeout);timers.current=[];serial.current++;deadline.current=0;}
+  function ready(){if(!locked.current)return;locked.current=false;setBusy(false);started.current=performance.now();deadline.current=expert&&!practice?started.current+EXPERT_ANSWER_MS:0;setCountdown(deadline.current?5:null);(practice?nextButton:input).current?.focus();}
   function nextQuestion(activeMode=mode){
+    serial.current++;deadline.current=0;setCountdown(null);composing.current=false;
     const pool=pools[activeMode];
     if(!deck.current.length)deck.current=hasCountryDifficulty(activeMode)?difficultyDeck(pool,difficulty,current.current?.id):shuffledDeck(pool,current.current?.id);
     const next=deck.current.shift();current.current=next;
@@ -74,9 +77,9 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     const timer=setInterval(()=>setElapsed(Math.floor((performance.now()-roundStarted.current)/1000)),1000);
     return()=>clearInterval(timer);
   },[mode,summary,playing]);
-  function recordScore(score){
+  function recordScore(score,maxCombo){
     const seconds=(performance.now()-roundStarted.current)/1000;
-    roundRecord.current={mode,diff:hasCountryDifficulty(mode)?difficulty:undefined,score,elapsedMs:Math.max(1000,Math.round(seconds*1000)),playedAt:Date.now()};
+    roundRecord.current={maxCombo,mode,diff:hasCountryDifficulty(mode)?difficulty:undefined,score,elapsedMs:Math.max(1000,Math.round(seconds*1000)),playedAt:Date.now()};
     setRecords(previous=>{
       const next=updateRecord(previous,gameRecordKey(mode,difficulty),score,seconds);
       try{window.localStorage.setItem(RECORD_KEY,JSON.stringify(next));}catch{setStorageError(true);}
@@ -92,16 +95,28 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   function mediaFailed(){setMediaError(true);if(mode==='nature'){const token=serial.current;later(()=>{if(token===serial.current)ready();},reduced()?60:850);}else setBusy(false);}
   function mediaLoaded(){if(summary||!playing||leaving||mediaError)return;const token=serial.current;setMediaReady(true);later(()=>{if(token===serial.current)ready();},reduced()?0:450);}
   function advance(message){
-    locked.current=true;setBusy(true);setLeaving(true);setResult(message);setAnswer('');
+    cancelPending();setCountdown(null);locked.current=true;setBusy(true);setLeaving(true);setResult(message);setAnswer('');
     later(()=>{if(message.skipped)setResult(null);nextQuestion();},practice?reduced()?80:420:message.skipped?1400:reduced()?80:420);
   }
+  function expireQuestion(){
+    if(!expert||practice||summary||locked.current||!deadline.current||performance.now()<deadline.current)return;
+    setStats(s=>({...s,combo:0,attempts:s.attempts+1}));
+    cancelPending();setResult(null);nextQuestion();
+  }
+  useEffect(()=>{
+    if(!playing||summary||busy||practice||!expert||!deadline.current)return;
+    const tick=()=>{const remaining=Math.max(0,Math.ceil((deadline.current-performance.now())/1000));if(!remaining){expireQuestion();return;}setCountdown(remaining);};
+    const timer=setInterval(tick,40);
+    return()=>clearInterval(timer);
+  },[playing,summary,busy,practice,expert,question]);
   function submit(event){
     event.preventDefault();
     if(practice||locked.current||composing.current||!answer.trim()||summary)return;
+    if(expert&&deadline.current&&performance.now()>=deadline.current){expireQuestion();return;}
     if(matchesAnswer(answer,question)){
       const combo=stats.combo+1;
       const gain=scoreAnswer(answer,(performance.now()-started.current)/1000,tier,combo);
-      recordScore(stats.score+gain.total);
+      recordScore(stats.score+gain.total,Math.max(stats.bestCombo,combo));
       setStats(s=>({score:s.score+gain.total,combo,bestCombo:Math.max(combo,s.bestCombo),correct:s.correct+1,attempts:s.attempts+1}));
       advance({good:true,text:`${question.name} · 정답!`,gain,combo,id:performance.now()});
     }else{
@@ -116,7 +131,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   }
   function finish(){cancelPending();locked.current=true;onFinish?.(mode);if(practice){returnToMenu();return;}setFinishedRecord(roundRecord.current);setSummary(true);}
   function returnToMenu(){const complete=()=>{setSummary(false);setPlaying(false);setQuestion(null);setResult(null);setFormula(false);later(()=>document.querySelector('.gg-menu nav button')?.focus(),0);};if(summary)window.psModalMotion.exit(document.querySelector('.gg-summary'),complete);else complete();}
-  return <section className={`geo-game ${playing?'gg-playing':''} ${playing&&mode==='flag'?'geo-game-flags':''}`} aria-label="지오웹 게임 모드">
+  return <section className={`geo-game ${playing?'gg-playing':''} ${playing&&mode==='flag'?'geo-game-flags':''} ${expert?'gg-expert':''}`} aria-label="지오웹 게임 모드">
     {playing&&mode==='flag'&&<div className="geo-game-blur"/>}
     <aside className="gg-menu" inert={playing||undefined} aria-hidden={playing}>
       <div className="gg-eyebrow">GEOWEB / PLAY</div><h1>지구 한 바퀴</h1>
@@ -135,7 +150,8 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     {!playing&&<button type="button" className="gg-ranking-open" onClick={openRanking}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M8 3h8v5a4 4 0 0 1-8 0V3ZM8 5H4v2a4 4 0 0 0 4 4m8-6h4v2a4 4 0 0 1-4 4M12 12v6m-4 3h8m-6-3h4v3"/></svg>랭킹</button>}
     {rankingOpen&&<GeoRanking initialMode={mode} initialDifficulty={difficulty} record={finishedRecord} onClose={closeRanking}/>}
     {!summary&&<button className="gg-mode-exit" onClick={onExit}>게임모드 종료 ↗</button>}
-    {playing&&<><header className="gg-play-title"><span>GEOWEB PLAY · {hasCountryDifficulty(mode)?'국가 출제 ':''}{difficultyLabel(tier)}</span><h1>{config.title}</h1><button type="button" className="gg-practice-toggle" aria-pressed={practice} onClick={()=>{setPractice(v=>!v);setSummary(false);}}>연습 모드 {practice?'켜짐':'꺼짐'}</button></header>
+    {playing&&<><header className="gg-play-title"><span>{expert?'GEOWEB · 전문가':`GEOWEB PLAY · ${hasCountryDifficulty(mode)?'국가 출제 ':''}${difficultyLabel(tier)}`}</span><h1>{config.title}</h1><button type="button" className="gg-practice-toggle" aria-pressed={practice} onClick={()=>{setPractice(v=>!v);setSummary(false);}}>연습 모드 {practice?'켜짐':'꺼짐'}</button></header>
+    {expert&&!practice&&!summary&&!busy&&countdown>0&&<div className="gg-expert-countdown" role="timer" aria-label={`${countdown}초 남음`}><span key={`${question.id}-${countdown}`} style={{'--gg-clock-color':['','#ff263b','#ff514d','#ff7844','#ff9638','#ffb11a'][countdown]}}>{countdown}</span></div>}
     {!practice&&!summary&&result?.gain&&<GeoScoreEffect key={result.id} gain={result.gain} combo={result.combo}/>}
     {!practice&&!summary&&result?.skipped&&<div key={result.id} className="gg-skip-answer" role="status">{result.text}</div>}
     <button className="gg-finish" disabled={summary} onClick={finish}>게임 마치기</button>

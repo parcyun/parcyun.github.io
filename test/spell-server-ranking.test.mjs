@@ -17,7 +17,7 @@ test('players without any profile cannot submit records',async()=>{
 });
 test('public ranking writes are owner-bound and do not expose private profile fields',()=>{
  const rules=readFileSync(new URL('../firebase/firestore.rules',import.meta.url),'utf8').split('match /profiles')[0];
- assert.match(rules,/ownsRankingEntry\(uid\)/);assert.match(rules,/hasOnly\(\['school','nickname','score','elapsedMs','playedAt','updatedAt'\]\)/);
+ assert.match(rules,/ownsRankingEntry\(uid\)/);assert.match(rules,/hasOnly\(\['school','nickname','score','elapsedMs','playedAt','updatedAt','maxCombo'\]\)/);
  assert.match(rules,/playedAt <= request.time/);
 });
 test('gallery previews contain five real feature scenes of two seconds each',()=>{

@@ -1,7 +1,7 @@
 import './modal-motion.js?v=20261030-2';
 const CONFIG = { apiKey: 'AIzaSyBjkzvcIjyfnOU0TBF5VasoaQz3Xgw1C9I', authDomain: 'parcyun.firebaseapp.com', projectId: 'parcyun', appId: '1:1093702239224:web:021018208e667b21e7cc0d' };
 const MASCOT = '/images/dexter-base-character-01.png';
-import {createLeaderboard,rankingAffiliation,isReservedNickname,compareRankingEfficiency} from './spell-leaderboard.js?v=20261030-2';
+import {createLeaderboard,rankingAffiliation,isReservedNickname,compareRankingEfficiency} from './spell-leaderboard.js?v=20261030-4';
 import {createBrowserProfileStore,normalizeSchool} from './browser-profile.js?v=20261029-1';
 import {searchSchools,schoolMark,SCHOOL_REGIONS} from './school-directory.js?v=20261029-1';
 import {optimizeSchoolMark,submitSchoolMarkRequest} from './school-mark-request.js?v=20261029-1';

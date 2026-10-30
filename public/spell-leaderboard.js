@@ -27,7 +27,7 @@ export function createLeaderboard(context, game='spell') {
       const countryMode=['country','capital-easy','capital-hard','flag'].includes(mode);
       if(!countryMode&&!['nature','landmark'].includes(mode))throw new Error('Invalid board');
       if(countryMode&&diff!==undefined&&diff!=='legacy'){
-        if(!['easy','med','hard'].includes(diff))throw new Error('Invalid difficulty');
+        if(!['easy','med','hard','expert'].includes(diff))throw new Error('Invalid difficulty');
         return `${mode}_${diff}`;
       }
       return mode;
@@ -55,6 +55,7 @@ export function createLeaderboard(context, game='spell') {
       if(isReservedNickname(profile.nickname||nickname))throw new Error('DEXTER와 parcyun이 포함된 별명은 사용할 수 없어요. 내 프로필에서 별명을 변경해 주세요.');
       const d=s.dbApi;const ref=d.doc(s.db,collectionName,boardId(record),'players',entryId||user.uid);
       const next={nickname:profile.nickname||nickname,school:typeof profile.school==='string'?profile.school.trim():'',score:record.score,elapsedMs:Math.round(record.elapsedMs),playedAt:d.Timestamp.fromMillis(record.playedAt),updatedAt:d.serverTimestamp()};
+      if(Number.isInteger(record.maxCombo)&&record.maxCombo>=0)next.maxCombo=record.maxCombo;
       await d.runTransaction(s.db,async transaction=>{
         const previous=await transaction.get(ref);
         if(previous.exists()){const p=previous.data();if(p.score>next.score||(p.score===next.score&&p.elapsedMs<=next.elapsedMs))return}

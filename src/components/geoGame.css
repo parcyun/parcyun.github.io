@@ -94,3 +94,10 @@ body:has(.game-active) .ps-service-actions{display:none!important}
 @media(max-width:600px){.gg-ranking-dialog .gg-ranking-title-row h2{font-size:17px}.gg-ranking-dialog .gg-ranking-levels button{padding:4px 5px;font-size:10px}.gg-ranking-title-row .gg-ranking-levels{gap:3px}}
 .gg-ranking-dialog th,.gg-ranking-dialog td{padding:7px 10px;font-size:13px;line-height:1.4}.gg-ranking-dialog td small{font-size:11px;line-height:1.35;margin-top:2px}
 @media(max-width:600px){.gg-ranking-dialog th,.gg-ranking-dialog td{padding:6px 8px;font-size:12px}.gg-ranking-dialog td small{font-size:10px}}
+
+/* Expert clock stays in the top lane; the flash is local to the numeral. */
+.gg-expert-countdown{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:10;pointer-events:none;text-align:center;width:110px;font:900 100px/1 Montserrat,Pretendard,sans-serif;font-variant-numeric:tabular-nums}
+.gg-expert-countdown span{display:block;color:var(--gg-clock-color);text-shadow:0 0 12px var(--gg-clock-color);animation:gg-clock-tick .24s ease-out}
+@keyframes gg-clock-tick{0%{transform:translateX(-4px);text-shadow:0 0 16px #fff,0 0 36px var(--gg-clock-color),0 0 64px var(--gg-clock-color)}25%{transform:translateX(4px)}50%{transform:translateX(-3px)}75%{transform:translateX(2px)}100%{transform:none;text-shadow:0 0 12px var(--gg-clock-color)}}
+@media(max-width:760px),(min-width:600px) and (max-height:500px) and (max-width:1000px){.gg-expert-countdown{top:14px;width:64px;font-size:64px}body .geo-game.gg-expert .gg-play-title>span,body .geo-game.gg-expert .gg-play-title h1{max-width:calc(50% - 54px)}}
+@media(prefers-reduced-motion:reduce){.gg-expert-countdown span{animation:none;text-shadow:none}}

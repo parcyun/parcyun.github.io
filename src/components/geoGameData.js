@@ -2,6 +2,7 @@ import { COUNTRIES, COUNTRY_ALIASES } from './globeCountries.js';
 import { geoCentroid } from 'd3-geo';
 import additionalLandmarks from './geoGameLandmarks.json' with { type: 'json' };
 import naturePhotos from './geoGameNaturePhotos.json' with { type: 'json' };
+import countryAliases from './geoCountryAliases.json' with { type: 'json' };
 import '../../public/spell-drill/scoring.js';
 
 export const scoring = globalThis.SpellScoring;
@@ -39,17 +40,17 @@ export function matchesAnswer(input, question) {
   const normalized=normalizeAnswer(input);
   return !!normalized && question.answers.some(answer=>normalizeAnswer(answer)===normalized);
 }
-const CAPITAL_ALIASES = { US:['워싱턴','워싱턴 디시','Washington DC','Washington'], KR:['서울','Seoul'], JP:['도쿄','동경','Tokyo'], CN:['베이징','북경','Beijing'], IN:['뉴델리','New Delhi'], KZ:['아스타나','Astana'], TR:['앙카라','Ankara'] };
+const CAPITAL_ALIASES = { BO:['La Paz'], LK:['Colombo'], PS:['East Jerusalem'], SZ:['Lobamba'], YE:['Aden'], US:['워싱턴','워싱턴 디시','Washington DC','Washington'], KR:['서울','Seoul'], JP:['도쿄','동경','Tokyo'], CN:['베이징','북경','Beijing'], IN:['뉴델리','New Delhi'], KZ:['아스타나','Astana'], TR:['앙카라','Ankara'] };
 
 export function buildGamePools(world, landforms) {
   const boundaries=new Map(world.features.map(f=>[f.properties.n,f]));
   const countries=COUNTRIES.filter(c=>boundaries.has(c.boundaryName)).map(country=>({
     id:country.iso2, country, name:country.name.ko,
     coordinates:geoCentroid(boundaries.get(country.boundaryName)),
-    answers:[country.name.ko,country.name.en,country.officialName.ko,country.officialName.en,country.iso2,country.iso3,...(COUNTRY_ALIASES[country.iso2]||[])],
+    answers:[country.name.ko,country.name.en,country.officialName.ko,country.officialName.en,country.iso2,country.iso3,...(COUNTRY_ALIASES[country.iso2]||[]),...(countryAliases[country.iso2]||[])],
   }));
   const capitals=countries.filter(q=>q.country.capital.ko && q.country.capital.en).map(q=>({...q,
-    name:q.country.capital.ko,answers:[q.country.capital.ko,q.country.capital.en,...(CAPITAL_ALIASES[q.id]||[])],
+    name:q.country.capital.ko,answers:[...new Set([q.country.capital.ko,q.country.capital.en,...q.country.capital.ko.split(' · '),...q.country.capital.en.split(' · '),...(CAPITAL_ALIASES[q.id]||[])])],
   }));
   const groups=new Map();
   for(const feature of landforms.features){
@@ -61,7 +62,7 @@ export function buildGamePools(world, landforms) {
   }
   const nature=[...groups.values()].map(q=>({...q,...naturePhotos[q.id],coordinates:geoCentroid({type:'FeatureCollection',features:q.features})}));
   return {country:countries,'capital-easy':capitals,'capital-hard':capitals,
-    flag:COUNTRIES.map(country=>({id:country.iso2,country,name:country.name.ko,answers:[country.name.ko,country.name.en,country.officialName.ko,country.officialName.en,country.iso2,country.iso3,...(COUNTRY_ALIASES[country.iso2]||[])]})),
+    flag:COUNTRIES.map(country=>({id:country.iso2,country,name:country.name.ko,answers:[country.name.ko,country.name.en,country.officialName.ko,country.officialName.en,country.iso2,country.iso3,...(COUNTRY_ALIASES[country.iso2]||[]),...(countryAliases[country.iso2]||[])]})),
     nature,landmark:LANDMARKS.map(q=>({...q,coordinates:boundaries.has(q.country.boundaryName)?geoCentroid(boundaries.get(q.country.boundaryName)):q.country.coordinates})),
   };
 }

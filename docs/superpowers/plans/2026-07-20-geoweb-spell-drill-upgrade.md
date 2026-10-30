@@ -171,3 +171,8 @@
 - Spell Drill body/app now match dynamic viewport height. The stage can shrink; active screens scroll internally when content is taller than the available area. Reserve shared footer/brand clearance on desktop as well as mobile.
 - The previous-looking guide was an unenhanced version painted before deferred service-guide.js prepared the current presentation. Gate both game guides in render-blocking CSS until enhancement finishes; set guide-ready only after the first render. No unprepared guide is visible even with delayed script loading. Updated public asset versions.
 - Isolated build and 188 tests passed. Chrome checks: guide script deliberately held back for both games, hidden scrollbar with working ranking scroll, and Spell home/play/result viewport bounds at 1440x900, 1440x700, 390x844, 320x568, 844x390 and 320x400. Evidence: `~/Downloads/Codex/verification/viewport-guide/`. Physical mobile browser toolbar/keyboard behavior remains unverified. Live verification follows the authorized push.
+
+### 2026-10-30 stronger medium and hard Geo difficulty
+
+- Country familiarity draw weights (familiar / less familiar / rare): medium 15/70/15 to 5/70/25; hard 5/15/80 to 1/4/95. Easy remains 80/17/3. Applied to existing country, capital-easy, capital-hard and flag decks; capital game labels, hints, scoring and saved boards remain unchanged.
+- Seeded 6000-question samples per level retain duplicate-free 12-question decks and no immediate repeats, favoring each level's band. Regression assertions additionally require rare medium draws above 22%, familiar medium below 8%, and rare hard above 92%. All 188 Node tests and isolated build checked before push. Evidence: `~/Downloads/Codex/verification/geo-harder/`.

@@ -15,6 +15,8 @@ test('each difficulty repeatedly favors its own familiarity band without duplica
    previous=deck.at(-1).id;
   }
   assert.ok(counts[difficulty]/6000>.65,`${difficulty}: ${JSON.stringify(counts)}`);
+  if(difficulty==='med'){assert.ok(counts.easy/6000<.08);assert.ok(counts.hard/6000>.22);}
+  if(difficulty==='hard')assert.ok(counts.hard/6000>.92);
   for(const count of Object.values(counts))assert.ok(count>0);
  }
  assert.deepEqual(pool.map(q=>q.id),COUNTRIES.map(c=>c.iso2));

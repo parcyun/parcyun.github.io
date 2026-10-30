@@ -11,7 +11,7 @@ export const hasCountryDifficulty = mode => COUNTRY_GAME_MODES.includes(mode);
 export const difficultyLabel = diff => DIFFICULTIES.find(item=>item.id===diff)?.label || '이전 기록';
 export const countryFamiliarity = iso2 => familiar.has(iso2)?'easy':lessFamiliar.has(iso2)?'med':'hard';
 export const gameRecordKey = (mode,diff) => hasCountryDifficulty(mode)?`${mode}_${diff}`:mode;
-const weights = {easy:[.8,.17,.03],med:[.15,.7,.15],hard:[.05,.15,.8]};
+const weights = {easy:[.8,.17,.03],med:[.05,.7,.25],hard:[.01,.04,.95]};
 
 export function difficultyDeck(pool,difficulty,previousId,random=Math.random) {
   const distribution=weights[difficulty];

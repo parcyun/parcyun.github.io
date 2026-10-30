@@ -21,7 +21,6 @@
     var title = card.querySelector('h2');
     var start = service === 'spell' ? card.querySelector('#spell-onboarding-start') : card.querySelector('button');
     if (!title || !start) return;
-    modal.dataset.guideReady = 'true';
     var originalTitle = title.textContent;
     var heading = document.createElement('div'); heading.className = 'ps-guide-heading';
     var avatar = document.createElement('img'); avatar.src = '/images/dexter-base-character-01.png'; avatar.alt = 'Dexter'; avatar.width = 48; avatar.height = 48;
@@ -53,6 +52,7 @@
     prev.addEventListener('click', function () { if (page > 0) { page--; render(); } });
     next.addEventListener('click', function () { if (page < slides.length) { page++; render(); } });
     render();
+    modal.dataset.guideReady = 'true';
   }
   new MutationObserver(enhance).observe(document.body, { childList: true, subtree: true });
   enhance();

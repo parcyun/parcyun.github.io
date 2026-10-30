@@ -252,3 +252,9 @@ body .gg-ranking-dialog .gg-ranking-header{padding-right:80px}
 body .gg-ranking-actions{position:absolute;top:0;right:0;display:flex;gap:6px}
 body .gg-ranking-dialog .gg-ranking-actions button{position:static;display:grid;place-items:center;width:34px;min-width:34px;height:34px;min-height:34px;padding:0;font-size:24px}
 body .ranking-refresh:disabled,body .gg-ranking-refresh:disabled{opacity:.4;cursor:wait}
+
+/* Only the prepared guide is presented; never paint its unenhanced predecessor. */
+.spell-onboarding:not([data-guide-ready]),.update-story:not([data-guide-ready]){visibility:hidden}
+/* Keep wheel, touch and keyboard scrolling without visible scrollbar chrome. */
+.ranking-sheet,.ranking-sheet *,.gg-ranking-dialog,.gg-ranking-dialog *{scrollbar-width:none}
+.ranking-sheet::-webkit-scrollbar,.ranking-sheet *::-webkit-scrollbar,.gg-ranking-dialog::-webkit-scrollbar,.gg-ranking-dialog *::-webkit-scrollbar{display:none}

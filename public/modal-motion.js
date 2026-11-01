@@ -19,13 +19,14 @@
     }
     if (pending.has(node)) return pending.get(node).promise;
     const sheet = node.matches('.ranking-sheet,.gg-ranking-dialog');
+    const compact = node.matches('.geo-mobile-surface,.gl-app>.tools-fixed,.gl-app .country-search-panel');
     const card = node.querySelector('.coffee-card,.ps-feedback-card,.spell-onboarding-card,.update-story-card,.ts-popup-card');
     const moving = card || node;
     const current = getComputedStyle(moving);
     const animations = [moving.animate([
       { opacity: current.opacity, transform: current.transform },
       { opacity: 0, transform: sheet ? 'translateY(100%)' : 'translateY(12px) scale(.98)' }
-    ], { duration: sheet ? 200 : 180, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' })];
+    ], { duration: compact ? 100 : sheet ? 200 : 180, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' })];
     if (card) animations.push(node.animate([{ opacity: getComputedStyle(node).opacity }, { opacity: 0 }], { duration: 180, fill: 'forwards' }));
     node.setAttribute('data-ps-modal-closing', '');
     const entry = { animations, cancelled: false };

@@ -9,16 +9,28 @@ import PsFooter from '../components/PsFooter.astro';
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <title>세계 지도 · 6대륙 5대양 · 세계의 기후 | parcyun studio</title>
-  <meta name="description" content="메르카토르·렌즈·지구본 3가지 도법을 오가며 6대륙과 5대양, 열대·온대·냉대·한대·건조·고산 기후를 탐색하는 초등 학습용 인터랙티브 세계지도." />
+  <title>지오웹 GeoWeb — 세계지도·기후·지형 탐색과 지리 퀴즈 게임 | parcyun studio</title>
+  <meta name="description" content="지오웹(GeoWeb)은 6대륙·5대양, 세계의 기후·지형을 탐색하는 무료 인터랙티브 세계지도입니다. 나라·수도·국기·자연환경·랜드마크 퀴즈와 연습 모드로 초등 세계지리를 배워 보세요." />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="preload" as="image" href="/images/game-intro-dexter.webp" />
+  <link rel="stylesheet" href="/game-intro.css?v=20261101-1" />
+  <script is:inline src="/game-intro.js?v=20261101-1" defer></script>
+  <noscript><style is:inline>#ps-game-intro{display:none!important}</style></noscript>
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://parcyun.github.io/world-map/" />
   <link rel="canonical" href="https://parcyun.github.io/world-map/" />
-  <meta property="og:title" content="세계 지도 · 6대륙 5대양 · 세계의 기후" />
-  <meta property="og:description" content="열대·온대·냉대·한대·건조·고산 기후를 색으로 살펴보는 초등 학습용 인터랙티브 세계지도 · parcyun studio" />
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="세계 지도 · 6대륙 5대양 · 세계의 기후" />
-  <meta name="twitter:description" content="6개 기후대를 색으로 살펴보는 초등 학습용 인터랙티브 세계지도 · parcyun studio" />
+  <meta property="og:title" content="지오웹 GeoWeb · 세계지도와 지리 퀴즈 게임" />
+  <meta property="og:description" content="나라·기후·지형을 탐색하는 무료 세계지도. 나라·수도·국기·자연환경·랜드마크 퀴즈로 세계지리를 배워 보세요." />
+  <meta property="og:image" content="https://parcyun.github.io/images/og/geoweb-20261101.png" />
+  <meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" /><meta property="og:image:alt" content="덱스터 캐릭터와 지오웹 GeoWeb 로고 — 세계지도와 지리 퀴즈" />
+  <meta property="og:site_name" content="parcyun studio" /><meta property="og:locale" content="ko_KR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://parcyun.github.io/images/og/geoweb-20261101.png" />
+  <meta name="twitter:image:alt" content="지오웹 GeoWeb — 세계지도·기후·지형과 지리 퀴즈" />
+  <meta name="twitter:title" content="지오웹 GeoWeb · 세계지도와 지리 퀴즈 게임" />
+  <meta name="twitter:description" content="무료 세계지도·지구본 탐색과 나라·수도·국기·자연환경·랜드마크 퀴즈 · parcyun studio" />
+  <script is:inline type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","@id":"https://parcyun.github.io/world-map/#app","name":"지오웹","alternateName":"GeoWeb","url":"https://parcyun.github.io/world-map/","description":"세계지도·지구본에서 6대륙·5대양, 기후와 지형을 탐색하고 나라·수도·국기·자연환경·랜드마크 퀴즈와 연습 모드를 이용하는 무료 세계지리 학습 서비스입니다.","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","browserRequirements":"JavaScript와 WebGL을 지원하는 최신 웹 브라우저","inLanguage":["ko","en"],"isAccessibleForFree":true,"image":"https://parcyun.github.io/images/og/geoweb-20261101.png","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"author":{"@type":"Organization","name":"parcyun studio","url":"https://parcyun.github.io/"},"subjectOf":{"@type":"WebPage","url":"https://parcyun.github.io/world-map/about/"}}</script>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -36,16 +48,18 @@ import PsFooter from '../components/PsFooter.astro';
       --ps-ease-out:cubic-bezier(0.16,1,0.3,1);
     }
   </style>
-<link rel="stylesheet" href="/mobile-games.css?v=20261030-5" />
-<script is:inline src="/modal-motion.js?v=20261030-2"></script>
+<link rel="stylesheet" href="/mobile-games.css?v=20261101-1" />
+<script is:inline src="/modal-motion.js?v=20261101-1"></script>
 </head>
 <body>
+  <div id="ps-game-intro" role="status" aria-label="지오웹을 준비하고 있어요"><div class="ps-intro-lockup"><img class="ps-intro-avatar" src="/images/game-intro-dexter.webp" alt="덱스터 캐릭터" width="112" height="112" /><p class="ps-intro-name">Geo<span>Web</span></p><p class="ps-intro-studio">parcyun studio</p></div></div>
+  <noscript><p>지오웹은 JavaScript와 WebGL이 필요한 무료 세계지도·지리 퀴즈 서비스입니다. <a href="/world-map/about/">지오웹 소개와 사용 방법 보기</a></p></noscript>
   <GlobeLab client:only="react" />
   <!-- 메인 사이트 공용 푸터/공유/방문자 컴포넌트 그대로 사용 -->
   <PsFooter showLinks={false} />
   <script is:inline src="/share-widget.js?v=20261030-motion-1" defer></script>
-  <script is:inline src="/service-guide.js?v=20261030-mobile-1" defer></script>
-  <script is:inline type="module" src="/game-account.js?v=20261030-combo-1"></script>
+  <script is:inline src="/service-guide.js?v=20261101-1" defer></script>
+  <script is:inline type="module" src="/game-account.js?v=20261101-1"></script>
   <script is:inline src="/visitor-counter.js" defer></script>
 </body>
 </html>

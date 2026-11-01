@@ -1,0 +1,11 @@
+/* Shared two-second brand intro; game and guide boot independently underneath. */
+#ps-game-intro{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;background:#000;color:#ffb11a;animation:psIntroVeil 2s linear both;pointer-events:auto}
+#ps-game-intro[hidden]{display:none}
+.ps-intro-lockup{display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center;padding:24px;animation:psIntroLockup 2s cubic-bezier(.16,1,.3,1) both}
+.ps-intro-avatar{width:112px;height:112px;border-radius:50%;border:2px solid #ffb11a;padding:5px;background:#fff;object-fit:cover;box-sizing:border-box}
+.ps-intro-name{margin:0;font:900 clamp(36px,8vw,64px)/1.15 Montserrat,Pretendard,sans-serif;letter-spacing:-.05em;white-space:nowrap}
+.ps-intro-name span{color:transparent;-webkit-text-stroke:1px #ffb11a}
+.ps-intro-studio{font:400 32px/1.3 'Covered By Your Grace',cursive;margin:0}
+@keyframes psIntroLockup{0%{opacity:0;transform:translateY(6px)}22%,70%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-4px)}}
+@keyframes psIntroVeil{0%,78%{opacity:1}99%{opacity:0;visibility:visible}100%{opacity:0;visibility:hidden;pointer-events:none}}
+@media(prefers-reduced-motion:reduce){#ps-game-intro{animation:psIntroVeil .1s linear both}.ps-intro-lockup{animation:none}}

@@ -1,0 +1,28 @@
+---
+import CinematicLayout from '../../layouts/CinematicLayout.astro';
+export function getStaticPaths(){return [
+ {params:{game:'spell-drill'},props:{name:'스펠 드릴',english:'Spell Drill',image:'spell-drill',description:'틀린 문장을 바르게 고쳐 입력하며 한글 맞춤법과 영어 문법을 연습하는 무료 웹 게임입니다.',features:['한국어·영어 모드와 초급·중급·고급·믹스 난이도','시간 제한 없는 연습, 타이머, 시간·문항 수를 정하는 커스텀 모드','문장 맥락을 읽고 정답 전체를 타이핑하는 학습','표현을 구별하는 힌트, 패스, 연속 정답 콤보와 속도 점수','게임 기록과 랭킹 확인'],steps:['언어와 난이도, 플레이 모드를 고르고 START DRILL을 누르세요.','문장의 맥락을 확인하고 올바른 문장 전체를 입력한 뒤 Enter를 누르세요.','어려운 문제는 힌트나 패스를 활용하세요. 정답을 연속으로 맞히면 콤보 점수가 쌓여요.'],lesson:'국어 시간의 헷갈리는 맞춤법 복습, 영어 문장 고치기, 교실 자투리 시간의 개별 연습에 활용할 수 있어요.'}},
+ {params:{game:'world-map'},props:{name:'지오웹',english:'GeoWeb',image:'geoweb',description:'세계지도와 지구본을 움직이며 나라·기후·지형을 탐색하고, 지리 퀴즈와 연습으로 배운 내용을 기억하는 무료 학습 서비스입니다.',features:['평면·어안뷰(Focus Lens)·지구본 전환과 국가 검색','6대륙·5대양, 적도·본초자오선·날짜변경선 탐색','열대·온대·냉대·한대·건조·고산 기후대별 표시','강·산맥·고원·평원·사막 지형을 겹쳐 비교하기','나라 이름, 수도(쉬움·어려움), 국기, 자연환경, 랜드마크의 6가지 퀴즈','정답을 보면서 익히는 연습 모드와 게임 기록·랭킹'],steps:['드래그와 확대·축소로 지도를 탐색하거나 국가 이름을 검색하세요.','모바일 하단 지도 메뉴에서 지도 보기를 바꾸고 설정에서 기후·지형을 켜세요.','게임 모드에서 종류와 난이도를 선택하고 답을 입력하세요. Enter로 확인하고 Shift+Enter로 넘겨요.'],lesson:'초등 사회의 세계 여러 나라, 대륙과 대양, 기후·지형 학습에 활용할 수 있어요. 기후·지형 경계는 학습을 위해 단순화한 표현이므로 정밀 측량이나 항법에는 사용하지 마세요.'}}
+];}
+const {name,english,image,description,features,steps,lesson}=Astro.props;
+const game=Astro.params.game;
+const url=`https://parcyun.github.io/${game}/about/`;
+const title=`${name} ${english} 소개·사용 방법 | parcyun studio`;
+---
+<CinematicLayout title={title} description={description} ogTitle={title} ogDescription={description} ogUrl={url} ogImage={`https://parcyun.github.io/images/og/${image}-20261101.png`} showFeedback={false} showReview={false}>
+ <main class="game-about">
+  <a class="studio" href="/">parcyun studio</a>
+  <p class="kicker">무료 교육용 웹서비스 · 사용 가이드</p>
+  <h1>{name} <span>{english}</span></h1><p class="lead">{description}</p>
+  <a class="play" href={`/${game}/`}>{name} 시작하기 ↗</a>
+  <h2>어떤 기능이 있나요?</h2><ul>{features.map(feature=><li>{feature}</li>)}</ul>
+  <h2>처음에는 이렇게 이용하세요</h2><ol>{steps.map(step=><li>{step}</li>)}</ol>
+  <h2>수업에서는 어떻게 활용하나요?</h2><p>{lesson}</p>
+  <h2>자주 묻는 질문</h2>
+  <details><summary>설치하거나 결제해야 하나요?</summary><p>설치·결제 없이 웹 브라우저에서 무료로 이용할 수 있어요. 인터넷 연결과 JavaScript가 필요하며, 지오웹 지도는 WebGL을 지원하는 브라우저가 필요해요.</p></details>
+  <details><summary>로그인 없이도 게임을 할 수 있나요?</summary><p>게임 자체는 Google 로그인 없이 이용할 수 있어요. 계정·프로필·기록 제출 조건은 게임의 프로필 메뉴와 이용약관에서 확인하세요. 공용 기기에서는 사용 후 프로필과 로그인 상태를 확인해 주세요.</p></details>
+  <details><summary>학교 Google 계정에 관리자 승인이 필요하다고 나와요.</summary><p>안내 화면에 액세스 요청이 있으면 요청하고, 학교나 교육청의 Google Workspace 관리자에게 해당 앱의 사용 승인 검토를 문의하세요. 사이트에서 기관의 제한을 해제할 수는 없어요.</p></details>
+  <nav aria-label="관련 서비스"><a href={game==='spell-drill'?'/world-map/about/':'/spell-drill/about/'}>{game==='spell-drill'?'지오웹':'스펠 드릴'} 소개 ↗</a><a href="/atlas-gears/">ATLAS GEARS 자료실 ↗</a><a href="/terms/">이용약관</a><a href="/privacy/">개인정보처리방침</a></nav>
+ </main>
+</CinematicLayout>
+<style>.game-about{max-width:760px;margin:auto;padding:64px 24px 140px;line-height:1.85;color:#c4c4c4}.studio{font:32px 'Covered By Your Grace',cursive;color:#ffb11a}.kicker{font-size:12px;margin-top:48px;color:#999}h1{font-size:clamp(32px,7vw,56px);line-height:1.15;color:#ffb11a;margin:16px 0}h1 span{display:block;font:300 24px Montserrat,sans-serif;color:#aaa;margin-top:12px}.lead{font-size:18px;margin:24px 0}.play{display:inline-block;background:#ffb11a;color:#000;border-radius:12px;padding:12px 20px;font-weight:600}h2{font-size:22px;color:#fff;margin:48px 0 16px}li{margin:10px 0}ul,ol{padding-left:24px}details{border-bottom:1px solid #333;padding:16px 0}summary{color:#fff;cursor:pointer;min-height:32px}nav{display:flex;flex-wrap:wrap;gap:16px;margin-top:48px;font-size:13px}nav a{color:#ffb11a}a:focus-visible,summary:focus-visible{outline:2px solid #ffb11a;outline-offset:4px}</style>

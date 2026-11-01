@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import './geoMobileNavigation.css';
 
 const tabs=[['map','지도'],['search','검색'],['settings','설정'],['game','게임'],['more','더보기']];
@@ -12,7 +13,8 @@ export default function GeoMobileNavigation({english=false,view,onView,onZoom,on
   function changePanel(next,after){
     pending.current={next,after};if(closing.current)return;
     const node=surface();
-    const complete=()=>{closing.current=false;const desired=pending.current;setPanel(desired.next);if(desired.after)requestAnimationFrame(desired.after);else if(!desired.next)requestAnimationFrame(()=>opener.current?.focus({preventScroll:true}));};
+    // Commit the old panel's removal before the exit controller clears its fill.
+    const complete=()=>{closing.current=false;const desired=pending.current;flushSync(()=>setPanel(desired.next));if(desired.after)requestAnimationFrame(desired.after);else if(!desired.next)requestAnimationFrame(()=>opener.current?.focus({preventScroll:true}));};
     if(panel&&node){closing.current=true;window.psModalMotion.exit(node,complete);}else complete();
   }
   function activate(selector){changePanel(null,()=>{const button=document.querySelector(selector);if(button&&!button.disabled)button.click();});}
@@ -50,7 +52,7 @@ export default function GeoMobileNavigation({english=false,view,onView,onZoom,on
         <h3>{english?'Continents & oceans':'대륙과 대양'}</h3><div className="geo-mobile-regions">{regions.map(region=><button type="button" key={region.type+region.key} aria-pressed={region.selected} onClick={()=>{onRegion(region.type,region.key);changePanel(null);}}><i style={{background:region.color}}/>{region.label}</button>)}</div>
       </>:<div className="geo-mobile-more">
         {[['.ps-account-trigger','내 프로필'],['.home-fab','parcyun studio'],['.ps-service-qr','QR 코드'],['.ps-share-fab','쌤 동료에게 공유하기'],['.ps-brand-coffee','커피 사주기'],['.ps-brand-feedback','기능 개선 요청'],['.ps-brand-review','리뷰 남기기']].map(([selector,label])=><button type="button" key={selector} onClick={()=>activate(selector)}>{label}<span aria-hidden="true">↗</span></button>)}
-        <a href="/spell-drill/">스펠 드릴<span aria-hidden="true">↗</span></a><a href="https://earth.google.com/web/" target="_blank" rel="noopener">Google Earth<span aria-hidden="true">↗</span></a>
+        <a href="/spell-drill/">스펠 드릴<span aria-hidden="true">↗</span></a><a href="https://earth.google.com/web/" target="_blank" rel="noopener">Google Earth<span aria-hidden="true">↗</span></a><a href="/world-map/about/">지오웹 소개 · 사용 방법<span aria-hidden="true">↗</span></a>
       </div>}
     </section>}
     <nav className={'geo-mobile-dock'+(gameActive?' geo-mobile-game-dock':'')} aria-label={gameActive?'게임 메뉴':'지오웹 메뉴'} style={{'--geo-tab':Math.max(0,active),'--geo-selected':active>=0?1:0}}>

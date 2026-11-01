@@ -29,6 +29,7 @@
     var node = heading.nextSibling;
     while (node && node !== start) { var next = node.nextSibling; intro.appendChild(node); node = next; }
     start.before(intro);
+    var about=document.createElement('p');var aboutLink=document.createElement('a');aboutLink.href=service==='spell'?'/spell-drill/about/':'/world-map/about/';aboutLink.textContent='서비스 소개 · 사용 방법 ↗';aboutLink.style.color='#ffb11a';about.append(aboutLink);intro.append(about);
     var slide = document.createElement('section'); slide.className = 'ps-guide-slide'; slide.hidden = true;
     var shot = document.createElement('img'); shot.width = 1280; shot.height = 720;
     var description = document.createElement('p');

@@ -4,20 +4,32 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<title>스펠 드릴 · parcyun studio</title>
-<meta name="description" content="틀린 문장을 바르게 고쳐 타이핑하는 콤보형 맞춤법·문법 드릴 게임. 한국어·영어(북미) 모드. Designed by parcyun studio.">
+<title>스펠 드릴 Spell Drill — 무료 한글 맞춤법·영어 문법 게임 | parcyun studio</title>
+<meta name="description" content="스펠 드릴(Spell Drill)은 틀린 문장을 바르게 고쳐 입력하는 무료 한글 맞춤법·영어 문법 게임입니다. 초급·중급·고급·믹스, 연습·타이머·커스텀 모드와 힌트·콤보·랭킹으로 교실과 가정에서 연습하세요.">
+<link rel="canonical" href="https://parcyun.github.io/spell-drill/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="preload" as="image" href="/images/game-intro-dexter.webp">
+<link rel="stylesheet" href="/game-intro.css?v=20261101-1">
+<script src="/game-intro.js?v=20261101-1" defer></script>
+<noscript><style>#ps-game-intro{display:none!important}</style></noscript>
 <!-- 공유 미리보기 (게임 첫 화면 커버) -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://parcyun.github.io/spell-drill/">
-<meta property="og:title" content="스펠 드릴 · Spell Dirll">
+<meta property="og:title" content="스펠 드릴 Spell Drill · 한글 맞춤법·영어 문법 게임">
 <meta property="og:description" content="틀린 문장을 바르게 고쳐 타이핑하는 콤보형 맞춤법·문법 드릴 게임 · parcyun studio">
-<meta property="og:image" content="https://parcyun.github.io/spell-drill/og-cover.png">
+<meta property="og:image" content="https://parcyun.github.io/images/og/spell-drill-20261101.png">
+<meta property="og:image:alt" content="덱스터 캐릭터와 스펠 드릴 로고 — 한글 맞춤법·영어 문법 게임">
+<meta property="og:image:type" content="image/png">
+<meta property="og:site_name" content="parcyun studio">
+<meta property="og:locale" content="ko_KR">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="스펠 드릴 · Spell Dirll">
+<meta name="twitter:title" content="스펠 드릴 Spell Drill · 한글 맞춤법·영어 문법 게임">
 <meta name="twitter:description" content="틀린 문장을 바르게 고쳐 타이핑하는 콤보형 맞춤법·문법 드릴 게임 · parcyun studio">
-<meta name="twitter:image" content="https://parcyun.github.io/spell-drill/og-cover.png">
+<meta name="twitter:image" content="https://parcyun.github.io/images/og/spell-drill-20261101.png">
+<meta name="twitter:image:alt" content="스펠 드릴 — 무료 한글 맞춤법·영어 문법 게임">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","@id":"https://parcyun.github.io/spell-drill/#app","name":"스펠 드릴","alternateName":["Spell Drill","Spell Dirll"],"url":"https://parcyun.github.io/spell-drill/","description":"틀린 문장을 바르게 고쳐 입력하는 무료 한글 맞춤법·영어 문법 학습 게임. 난이도 선택, 연습·타이머·커스텀 모드, 힌트와 콤보 점수, 랭킹을 제공합니다.","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","browserRequirements":"JavaScript가 활성화된 최신 웹 브라우저","inLanguage":["ko","en"],"isAccessibleForFree":true,"image":"https://parcyun.github.io/images/og/spell-drill-20261101.png","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"author":{"@type":"Organization","name":"parcyun studio","url":"https://parcyun.github.io/"},"subjectOf":{"@type":"WebPage","url":"https://parcyun.github.io/spell-drill/about/"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=JetBrains+Mono:wght@200;400;500;700;800&family=Montserrat:wght@200;300;400;500;600;700;900&display=swap">
@@ -370,10 +382,12 @@
   @keyframes spellOnboardingIn{from{opacity:0;transform:translateY(15px) scale(.97)}to{opacity:1;transform:none}}.spell-onboarding-kicker{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.22em}.spell-onboarding h2{margin:8px 0 13px;font-size:23px;line-height:1.35}.spell-onboarding p,.spell-onboarding li{color:rgba(255,255,255,.68);font-size:13px;font-weight:300;line-height:1.7}.spell-onboarding ul{display:grid;gap:6px;margin:16px 0;padding:0;list-style:none}.spell-onboarding li{position:relative;padding-left:17px}.spell-onboarding li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;background:var(--amber)}.spell-onboarding li b{color:#fff;font-weight:600}.spell-onboarding-sign{color:rgba(255,255,255,.43)!important}.spell-onboarding-start{width:100%;margin-top:18px;padding:12px;border:0;border-radius:12px;background:var(--amber);color:#050505;font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;cursor:pointer}.spell-update-toggle{display:flex;width:100%;align-items:center;justify-content:center;gap:7px;margin-top:8px;padding:5px;border:0;background:transparent;color:rgba(255,255,255,.38);font-family:Pretendard,sans-serif;font-size:10.5px;cursor:pointer}.spell-update-history{max-height:0;overflow:hidden;opacity:0;transition:max-height .42s cubic-bezier(.16,1,.3,1),opacity .24s ease,margin .42s cubic-bezier(.16,1,.3,1)}.spell-update-history.open{max-height:250px;margin-top:8px;opacity:1}.spell-update-history>div{padding:9px 0;border-top:1px solid rgba(255,255,255,.08)}.spell-update-history b{color:rgba(255,255,255,.58);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em}.spell-update-history p{margin:3px 0 0;color:rgba(255,255,255,.4);font-size:10.5px;line-height:1.55}
 </style>
 <style>#spell-update-history.open{max-height:340px}</style>
-<link rel="stylesheet" href="/mobile-games.css?v=20261030-5" />
-<script src="/modal-motion.js?v=20261030-2"></script>
+<link rel="stylesheet" href="/mobile-games.css?v=20261101-1" />
+<script src="/modal-motion.js?v=20261101-1"></script>
 </head>
 <body>
+<div id="ps-game-intro" role="status" aria-label="스펠 드릴을 준비하고 있어요"><div class="ps-intro-lockup"><img class="ps-intro-avatar" src="/images/game-intro-dexter.webp" alt="덱스터 캐릭터" width="112" height="112"><p data-ps-edit-id="ps-spell-103" data-ps-design-id="ps-spell-103" class="ps-intro-name">스펠 <span data-ps-edit-id="ps-spell-104" data-ps-design-id="ps-spell-104">드릴</span></p><p data-ps-edit-id="ps-spell-105" data-ps-design-id="ps-spell-105" class="ps-intro-studio">parcyun studio</p></div></div>
+<noscript><p data-ps-edit-id="ps-spell-106" data-ps-design-id="ps-spell-106">스펠 드릴은 JavaScript가 필요한 맞춤법·영어 문법 게임입니다. <a data-ps-edit-id="ps-spell-107" data-ps-design-id="ps-spell-107" href="/spell-drill/about/">게임 소개와 사용 방법 보기</a></p></noscript>
 <div class="bg"></div>
 <div class="grid"></div>
 <div class="pulse"></div>
@@ -11591,8 +11605,8 @@ function setLanguage(lang){
 })();
 </script>
 <script src="../share-widget.js?v=20261030-motion-1" defer></script>
-<script src="/service-guide.js?v=20261030-mobile-1" defer></script>
-<script type="module" src="/game-account.js?v=20261030-combo-1"></script>
+<script src="/service-guide.js?v=20261101-1" defer></script>
+<script type="module" src="/game-account.js?v=20261101-1"></script>
 <script src="../visitor-counter.js" defer></script>
 <a data-ps-edit-id="ps-spell-072" data-ps-design-id="ps-spell-072" id="ps-back-btn" href="/atlas-gears/" aria-label="아틀라스 기어즈로 이동" title="아틀라스 기어즈로 이동" style="position:fixed;top:14px;left:14px;z-index:99999;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#8C8C8C;cursor:pointer;padding:0" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.28)'" onmouseout="this.style.color='#8C8C8C';this.style.borderColor='rgba(255,255,255,.12)'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
 <style>

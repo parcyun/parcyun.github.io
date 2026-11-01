@@ -48,7 +48,7 @@ try{
   const channels=dock.color.match(/[\d.]+/g).slice(0,3);assert.equal(new Set(channels).size,1,'neutral surface channels');assert.match(await page.locator('.geo-mobile-dock').evaluate(el=>getComputedStyle(el).backdropFilter),/saturate\(0\)/);
   assert.equal(await page.locator('.geo-mobile-more button,.geo-mobile-more a').count(),4);assert.equal(await page.locator('.geo-mobile-more').getByText(/내 프로필|parcyun studio|QR 코드|쌤 동료|스펠 드릴|Google Earth/).count(),0);
   for(const name of ['리뷰 남기기','지오웹 소개 · 사용 방법']){const box=await page.locator('.geo-mobile-more').getByRole(name==='리뷰 남기기'?'button':'link',{name:new RegExp(name)}).boundingBox();assert.ok(box.height<=42,'compact more action: '+name);}
-  assert.equal(Number(dock.color.match(/[\d.]+/g)[3]),.82,'slightly more transparent neutral surface');
+  assert.equal(Number(dock.color.match(/[\d.]+/g)[3]),.7,'70 percent neutral surface opacity');
   await page.evaluate(()=>{window.panelSamples=[];window.trackPanels=true;const tick=()=>{if(!window.trackPanels)return;window.panelSamples.push([...document.querySelectorAll('.geo-mobile-surface,.gl-app>.tools-fixed,.country-search-panel')].filter(el=>getComputedStyle(el).display!=='none'&&el.getBoundingClientRect().height>0).length);requestAnimationFrame(tick)};tick()});
   for(const name of ['지도 메뉴','검색 메뉴','설정 메뉴','지도 메뉴','더보기 메뉴']){const r=await page.getByRole('button',{name,exact:true}).boundingBox();await page.touchscreen.tap(r.x+r.width/2,r.y+r.height/2);await page.waitForTimeout(35)}
   await page.waitForTimeout(300);const samples=await page.evaluate(()=>{window.trackPanels=false;return window.panelSamples});assert.ok(Math.max(...samples)<=1,'no overlapping old panel frames');

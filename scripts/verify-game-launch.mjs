@@ -11,6 +11,7 @@ try{
   await page.goto(`${base}/${game}/`,{waitUntil:'domcontentloaded'});
   const intro=page.locator('#ps-game-intro');await intro.waitFor({state:'attached'});
   const state=await intro.evaluate(el=>({duration:getComputedStyle(el).animationDuration,hidden:el.hidden,avatar:el.querySelector('img').complete}));assert.equal(state.duration,'2s');
+  if(game==='world-map')assert.deepEqual(await intro.locator('.ps-intro-name').evaluate(el=>({text:el.textContent,weight:getComputedStyle(el).fontWeight,color:getComputedStyle(el).color,stroke:getComputedStyle(el).webkitTextStrokeWidth})),{text:'세계 지도',weight:'600',color:'rgb(255, 255, 255)',stroke:'0px'});
   // Capture the same simultaneous lockup halfway through its real CSS timeline.
   if(!state.hidden){await intro.evaluate(el=>{for(const node of [el,el.firstElementChild])for(const a of node.getAnimations()){a.pause();a.currentTime=900}});await page.screenshot({path:`${out}/${game}-intro.png`});await intro.evaluate(el=>{for(const node of [el,el.firstElementChild])for(const a of node.getAnimations())a.play()});}
   await page.waitForFunction(()=>document.documentElement.dataset.gameIntro==='complete',{timeout:6000});
@@ -27,6 +28,7 @@ try{
   await page.locator('.update-story[data-guide-ready]').waitFor();await page.getByRole('button',{name:'시작하기',exact:true}).tap();
   const home=await page.locator('.home-fab').boundingBox(),actions=await page.locator('.ps-service-actions').boundingBox();
   assert.ok(home&&home.x<24&&home.y<30);assert.ok(actions&&actions.y<30&&actions.x>home.x+home.width);
+  const earth=page.locator('.geo-mobile-earth'),earthBox=await earth.boundingBox();assert.ok(earthBox&&earthBox.y>=actions.y+actions.height&&Math.abs(earthBox.x+earthBox.width-(viewport.width-12))<1,'Earth is below utilities and right aligned');assert.equal(await earth.getAttribute('href'),'https://earth.google.com/web/');
   for(const selector of ['.ps-account-trigger','.ps-service-qr','.ps-service-link','.ps-service-actions .ps-share-fab'])assert.ok(await page.locator(selector).isVisible(),selector);
   const materials=[];
   for(const [label,selector] of [['지도 메뉴','.geo-mobile-surface'],['검색 메뉴','.country-search-panel'],['설정 메뉴','.tools-fixed'],['더보기 메뉴','.geo-mobile-surface']]){
@@ -36,11 +38,15 @@ try{
    assert.ok(await panel.evaluate(el=>el.scrollWidth<=el.clientWidth+1),'panel width');
    if(label==='설정 메뉴'){
     assert.equal(await panel.locator('.panel-body').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),2);
+    const rightColumn=await panel.locator('.panel-body>.tg').nth(1).boundingBox(),terrain=await panel.locator('.layer-toggle-row>.tg').nth(1).boundingBox();
+    assert.ok(Math.abs(rightColumn.x-terrain.x)<1,'terrain matches the right settings column');
     await page.screenshot({path:`${out}/geoweb-settings-${viewport.width}.png`});
    }
   }
   assert.ok(materials.every(material=>JSON.stringify(material)===JSON.stringify(materials[0])),'same glass on all four panels');
   const dock=await page.locator('.geo-mobile-dock').evaluate(el=>({background:getComputedStyle(el).backgroundImage,color:getComputedStyle(el).backgroundColor}));assert.deepEqual(dock,materials[0]);
+  const channels=dock.color.match(/[\d.]+/g).slice(0,3);assert.equal(new Set(channels).size,1,'neutral surface channels');assert.match(await page.locator('.geo-mobile-dock').evaluate(el=>getComputedStyle(el).backdropFilter),/saturate\(0\)/);
+  assert.equal(await page.locator('.geo-mobile-more button,.geo-mobile-more a').count(),4);assert.equal(await page.locator('.geo-mobile-more').getByText(/내 프로필|parcyun studio|QR 코드|쌤 동료|스펠 드릴|Google Earth/).count(),0);
   await page.evaluate(()=>{window.panelSamples=[];window.trackPanels=true;const tick=()=>{if(!window.trackPanels)return;window.panelSamples.push([...document.querySelectorAll('.geo-mobile-surface,.gl-app>.tools-fixed,.country-search-panel')].filter(el=>getComputedStyle(el).display!=='none'&&el.getBoundingClientRect().height>0).length);requestAnimationFrame(tick)};tick()});
   for(const name of ['지도 메뉴','검색 메뉴','설정 메뉴','지도 메뉴','더보기 메뉴']){const r=await page.getByRole('button',{name,exact:true}).boundingBox();await page.touchscreen.tap(r.x+r.width/2,r.y+r.height/2);await page.waitForTimeout(35)}
   await page.waitForTimeout(300);const samples=await page.evaluate(()=>{window.trackPanels=false;return window.panelSamples});assert.ok(Math.max(...samples)<=1,'no overlapping old panel frames');

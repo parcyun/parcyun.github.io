@@ -44,6 +44,7 @@ export default function GeoMobileNavigation({english=false,view,onView,onZoom,on
   const labels=english?{map:'Map',search:'Search',settings:'Settings',game:'Play',more:'More'}:Object.fromEntries(tabs);
   const active=tabs.findIndex(([key])=>key===panel);
   return <>
+    <a className="geo-mobile-earth" href="https://earth.google.com/web/" target="_blank" rel="noopener"><Icon name="map"/><span>{english?'Google Earth':'구글 어스'}</span><span aria-hidden="true">↗</span></a>
     {(panel==='map'||panel==='more')&&<section key={panel} className="geo-mobile-surface" aria-label={panel==='map'?(english?'Map menu':'지도 메뉴'):(english?'More menu':'더보기 메뉴')}>
       <header><div><small>GEOWEB</small><h2>{panel==='map'?(english?'Explore the map':'지도 둘러보기'):(english?'Explore together':'함께하는 지구 탐험')}</h2></div><button type="button" className="geo-mobile-close" onClick={()=>changePanel(null)} aria-label="메뉴 닫기">×</button></header>
       {panel==='map'?<>
@@ -51,8 +52,8 @@ export default function GeoMobileNavigation({english=false,view,onView,onZoom,on
         <div className="geo-mobile-zoom"><button type="button" onClick={()=>onZoom(.8)} aria-label="확대">+</button><button type="button" onClick={()=>onZoom(1.25)} aria-label="축소">−</button><button type="button" onClick={onHome}>{english?'Reset':'처음 위치'}</button>{view==='globe'&&<button type="button" aria-pressed={northUp} onClick={onNorthUp}>{english?'North up':'정북'}</button>}</div>
         <h3>{english?'Continents & oceans':'대륙과 대양'}</h3><div className="geo-mobile-regions">{regions.map(region=><button type="button" key={region.type+region.key} aria-pressed={region.selected} onClick={()=>{onRegion(region.type,region.key);changePanel(null);}}><i style={{background:region.color}}/>{region.label}</button>)}</div>
       </>:<div className="geo-mobile-more">
-        {[['.ps-account-trigger','내 프로필'],['.home-fab','parcyun studio'],['.ps-service-qr','QR 코드'],['.ps-share-fab','쌤 동료에게 공유하기'],['.ps-brand-coffee','커피 사주기'],['.ps-brand-feedback','기능 개선 요청'],['.ps-brand-review','리뷰 남기기']].map(([selector,label])=><button type="button" key={selector} onClick={()=>activate(selector)}>{label}<span aria-hidden="true">↗</span></button>)}
-        <a href="/spell-drill/">스펠 드릴<span aria-hidden="true">↗</span></a><a href="https://earth.google.com/web/" target="_blank" rel="noopener">Google Earth<span aria-hidden="true">↗</span></a><a href="/world-map/about/">지오웹 소개 · 사용 방법<span aria-hidden="true">↗</span></a>
+        {[['.ps-brand-coffee','커피 사주기'],['.ps-brand-feedback','기능 개선 요청'],['.ps-brand-review','리뷰 남기기']].map(([selector,label])=><button type="button" key={selector} onClick={()=>activate(selector)}>{label}<span aria-hidden="true">↗</span></button>)}
+        <a href="/world-map/about/">지오웹 소개 · 사용 방법<span aria-hidden="true">↗</span></a>
       </div>}
     </section>}
     <nav className={'geo-mobile-dock'+(gameActive?' geo-mobile-game-dock':'')} aria-label={gameActive?'게임 메뉴':'지오웹 메뉴'} style={{'--geo-tab':Math.max(0,active),'--geo-selected':active>=0?1:0}}>

@@ -50,8 +50,9 @@ import PsFooter from '../components/PsFooter.astro';
   </style>
 <link rel="stylesheet" href="/mobile-games.css?v=20261101-1" />
 <script is:inline src="/modal-motion.js?v=20261101-1"></script>
+<link rel="stylesheet" href="/geoweb-surfaces.css?v=20261102-1" />
 </head>
-<body>
+<body class="geoweb-page">
   <div id="ps-game-intro" role="status" aria-label="지오웹을 준비하고 있어요"><div class="ps-intro-lockup"><img class="ps-intro-avatar" src="/images/game-intro-dexter.webp" alt="덱스터 캐릭터" width="112" height="112" /><p class="ps-intro-name ps-intro-map-name">GeoWeb</p><p class="ps-intro-studio">parcyun studio</p></div></div>
   <noscript><p>지오웹은 JavaScript와 WebGL이 필요한 무료 세계지도·지리 퀴즈 서비스입니다. <a href="/world-map/about/">지오웹 소개와 사용 방법 보기</a></p></noscript>
   <GlobeLab client:only="react" />

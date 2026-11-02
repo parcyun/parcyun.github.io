@@ -1,0 +1,23 @@
+/* GeoWeb floating surfaces use the map toolbox's existing material. */
+body.geoweb-page{--geoweb-surface:rgba(16,19,25,.72);--geoweb-surface-border:#2a2f3a;--geoweb-surface-blur:blur(14px)}
+body.geoweb-page .gl-app{--geo-glass:var(--geoweb-surface);--geo-glass-border:var(--geoweb-surface-border);--gg-surface:var(--geoweb-surface)}
+body.geoweb-page :is(
+ dialog,.floaty,.legend,.info-card,.country-search-panel,.system-popover,
+ .daynight-ctl,.projseg,.info,.sat-busy,.guide-card,.ts-popup-card,.update-story-card,
+ .geo-mobile-dock,.geo-mobile-surface,.gg-menu,.gg-hud,.gg-country,.gg-formula,
+ .gg-media-error,.gg-ranking-scroll th,.gg-summary>div,.gg-answer form,
+ .gg-mode-exit,.gg-finish,.ps-qr-popover,.ps-service-link,.ps-service-qr,
+ .cq-panel,.cq-independent,.cq-contribution
+){
+ background:var(--geoweb-surface)!important;
+ border-color:var(--geoweb-surface-border)!important;
+ backdrop-filter:var(--geoweb-surface-blur)!important;
+ -webkit-backdrop-filter:var(--geoweb-surface-blur)!important;
+}
+/* Preserve user accessibility preferences across all floating surfaces. */
+@media(prefers-contrast:more),(prefers-reduced-transparency:reduce){
+ body.geoweb-page{--geoweb-surface:#101319;--geoweb-surface-border:#b1bccd;--geoweb-surface-blur:none}
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+ body.geoweb-page{--geoweb-surface:#101319}
+}

@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
+    "dev:battle": "node scripts/dev-battle.mjs",
+    "build:battle": "GEOWEB_LOCAL_BATTLE=1 astro build",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",

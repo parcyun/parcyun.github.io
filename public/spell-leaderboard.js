@@ -1,3 +1,4 @@
+import {createRankingCache} from './ranking-cache.js?v=20261102-1';
 export const isReservedNickname = nickname => /dexter|parcyun/i.test(String(nickname || ''));
 // School names are published only with a new voluntary record submission.
 export function rankingAffiliation(player) {
@@ -21,6 +22,7 @@ export function compareRankingEfficiency(a,b) {
 }
 
 export function createLeaderboard(context, game='spell') {
+  const cache=createRankingCache();
   const collectionName=game==='geo'?'geoBoards':'spellBoards';
   const boardId = ({lang,diff,mode}) => {
     if(game==='geo'){
@@ -36,14 +38,17 @@ export function createLeaderboard(context, game='spell') {
     return `${lang}_${diff}_${mode}`;
   };
   return {
-    async load(filters, cursor) {
+    async load(filters, cursor, {refresh=false}={}) {
       const {s,user,entryId}=await context(); const d=s.dbApi;
       const collection=d.collection(s.db,collectionName,boardId(filters),'players');
+      if(refresh)cache.invalidate(`${collectionName}/${boardId(filters)}`);
       // Simplification: derive ordering from existing records without rewriting scores.
       // Add an indexed efficiency field when a board exceeds 1000 players.
-      const snapshot=await d.getDocsFromServer(d.query(collection));
       const order=(a,b)=>compareRankingEfficiency(a,b)||a.id.localeCompare(b.id);
-      const rows=snapshot.docs.map(doc=>({id:doc.id,...doc.data()})).sort(order);
+      const rows=await cache.get(`${collectionName}/${boardId(filters)}`,async()=>{
+        const snapshot=await d.getDocsFromServer(d.query(collection));
+        return snapshot.docs.map(doc=>({id:doc.id,...doc.data()})).sort(order);
+      });
       const first=cursor?rows.findIndex(row=>order(row,cursor)>0):0;
       const start=first<0?rows.length:first,page=rows.slice(start,start+50);
       const own=user?rows.find(row=>row.id===(entryId||user.uid)):null;
@@ -61,6 +66,7 @@ export function createLeaderboard(context, game='spell') {
         if(previous.exists()){const p=previous.data();if(p.score>next.score||(p.score===next.score&&p.elapsedMs<=next.elapsedMs))return}
         transaction.set(ref,next);
       });
+      cache.invalidate(`${collectionName}/${boardId(record)}`);
     }
   };
 }

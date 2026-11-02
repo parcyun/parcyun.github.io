@@ -21,5 +21,5 @@ for(const game of ['spell','geo'])test(`${game}: global efficiency order spans p
  const all=[...first.rows,...second.rows,...third.rows];assert.equal(new Set(all.map(r=>r.id)).size,121);
  assert.ok(all.every((r,i)=>i===0||compare(all[i-1],r)<=0));
  records[0].elapsedMs=1000000;
- const refreshed=await api.load(filters);assert.equal(refreshed.mine.rank,121);assert.equal(reads,4);
+ const refreshed=await api.load(filters,undefined,{refresh:true});assert.equal(refreshed.mine.rank,121);assert.equal(reads,2);
 });

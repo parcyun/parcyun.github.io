@@ -1,4 +1,4 @@
-const API=(import.meta.env.PUBLIC_CONQUEST_API||'/api/conquest').replace(/\/$/,'');
+const API='/api/conquest'; // Local Astro proxy; production no longer publishes Battleground routes.
 let current,player,selection=null,landCheck=()=>false,credential,profileName='',connection='connecting',clockOffset=0,questionRequest=null,room=null,roundQueue=Promise.resolve(),connectionError='',activeParticipants=0,appearance=null,selectionRevision=0,survey=false,surveySites=[],surveyMessage='',surveyToken=0,lastSurvey='';
 const listeners=new Set();
 export const currentRoom=()=>room;

@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
+import staticDelivery from './scripts/static-delivery.mjs';
 
 // GitHub Pages 유저 사이트(parcyun.github.io) — 루트에서 서빙.
 // build.format:'directory' → /arcade/ 같은 디렉토리 URL 유지 (QR·북마크 보존 필수).
@@ -8,6 +9,7 @@ import react from '@astrojs/react';
 export default defineConfig({
   site: 'https://parcyun.github.io',
   base: '/',
-  integrations: [react()],
+  integrations: [react(),staticDelivery()],
   build: { format: 'directory' },
+  vite: process.env.GEOWEB_LOCAL_BATTLE==='1'?{server:{strictPort:true,proxy:{'/api/conquest':{target:process.env.CONQUEST_LOCAL_API||'http://127.0.0.1:47585',changeOrigin:false}}}}:undefined,
 });

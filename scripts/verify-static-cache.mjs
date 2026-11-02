@@ -1,0 +1,21 @@
+import {createServer} from 'node:http';import {readFile,stat} from 'node:fs/promises';import {resolve,extname} from 'node:path';import {createRequire} from 'node:module';import assert from 'node:assert/strict';
+const {chromium}=createRequire(import.meta.url)('/Users/parcyun/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const root=resolve('dist'),hits=new Map();let changed=false;
+const server=createServer(async(req,res)=>{const path=new URL(req.url,'http://localhost').pathname;hits.set(path,(hits.get(path)||0)+1);
+ try{let file=resolve(root,'.'+path);if(!file.startsWith(root+'/'))throw Error();if((await stat(file)).isDirectory())file=resolve(file,'index.html');let data=await readFile(file);
+ if(changed&&path==='/static-cache-sw.js')data=Buffer.from(data.toString().replace(/("\/favicon.svg":")[^"]+/, '$1changed-revision'));
+ if(changed&&path==='/favicon.svg')data=Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><text>updated</text></svg>');
+ res.writeHead(200,{'Content-Type':({'.js':'text/javascript','.html':'text/html','.svg':'image/svg+xml'})[extname(file)]||'application/octet-stream','Cache-Control':path.endsWith('.html')||path.endsWith('-sw.js')?'no-store':'public,max-age=600'});res.end(data);
+ }catch{res.writeHead(404);res.end('Not found');}});
+await new Promise(r=>server.listen(0,'127.0.0.1',r));const base=`http://127.0.0.1:${server.address().port}`;const browser=await chromium.launch({channel:'chrome'});
+try{const page=await browser.newPage();await page.goto(base+'/404.html');const cdp=await page.context().newCDPSession(page);await cdp.send('Network.enable');await cdp.send('Network.setCacheDisabled',{cacheDisabled:true});
+ await page.evaluate(async()=>{await navigator.serviceWorker.register('/static-cache-sw.js',{updateViaCache:'none'});await navigator.serviceWorker.ready;if(!navigator.serviceWorker.controller)await new Promise(r=>navigator.serviceWorker.addEventListener('controllerchange',r,{once:true}));});
+ const get=path=>page.evaluate(path=>fetch(path).then(r=>r.text()),path);
+ const assetBefore=hits.get('/favicon.svg')||0;await get('/favicon.svg');await get('/favicon.svg');assert.equal(hits.get('/favicon.svg'),assetBefore+1,'repeat asset is device-cache only');
+ const before=hits.get('/404.html');await get('/404.html');await get('/404.html');assert.equal(hits.get('/404.html'),before+2,'HTML always reaches network');
+ await get('/not-an-asset');await get('/not-an-asset');assert.equal(hits.get('/not-an-asset'),2,'unknown/API-like requests bypass cache');
+ changed=true;await page.evaluate(async()=>{const previous=navigator.serviceWorker.controller;const r=await navigator.serviceWorker.getRegistration();await r.update();if(navigator.serviceWorker.controller===previous)await new Promise(resolve=>navigator.serviceWorker.addEventListener('controllerchange',resolve,{once:true}));});
+ assert.match(await get('/favicon.svg'),/updated/);assert.equal(hits.get('/favicon.svg'),assetBefore+2,'new content revision replaces old cached asset');
+ for(const path of ['/world-map/dev/','/world-map/battle/'])assert.equal((await page.request.get(base+path)).status(),404);
+ console.log('PASS: repeat asset 0 extra requests; HTML/API bypass; asset revision update; both public Battle routes excluded.');
+}finally{await browser.close();await new Promise(r=>server.close(r));}

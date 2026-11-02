@@ -2,6 +2,14 @@
 
 ## Status
 
+### Local-only development — 2026-11-02 (supersedes cloud publishing below)
+
+- User requested local-only Battle development. Run `npm run dev:battle` from the current checkout; it selects free loopback ports, prints the Battle URL, and runs a local SQLite API plus hot-reloading Astro with a same-origin proxy. Stop both with Ctrl+C. Local data is in ignored `server/conquest/.data/`.
+- Normal `npm run build` excludes both `/world-map/dev/` and `/world-map/battle/` from deployable output. `npm run build:battle` explicitly retains them for a local static build, but is rejected as a production opt-in on CI/Cloud Run. The original learning map remains public. Pages no longer injects a Cloud Run API origin.
+- Browser verification: new classroom creation/entry, local API200, no Cloud Run/Firestore requests, no page errors. Current preview: `http://127.0.0.1:59033/world-map/battle/` (ports change safely on restart).
+- Existing Cloud Run revisions and Firestore data are preserved, not migrated or deleted. Disabling the old cloud endpoint's public access is awaiting user approval; removal from Pages alone does not revoke old direct API access.
+- Production static caching and leaderboard read optimizations are documented in `GAME_ACCOUNTS.md`. Historical cloud deployment details below are retained for recovery, not instructions to redeploy Battle publicly.
+
 - Implemented and deployed to the dedicated cloud development service: isolated `/world-map/dev/` route and Node server. Original `/world-map/`, GlobeLab, GeoGame, shared account/ranking code and existing Firestore rules were not edited for this work. Pre-existing dirty files remain in the checkout.
 - Validated by 32 focused Node tests and 218 tests in the clean release copy, plus a production Astro build. The isolated copy excludes unrelated dirty map/school-mark files.
 - verified in real local UI: classroom creation + six-digit numeric code; a separate browser context entering by code; browser guest identity; game answers contributing server points; founding completed from a 971-point campaign with 1,135 contributed points; country leave; founding/rebellion condition panels; exactly two equal-width existing-country buttons, `국가 참여` and `반란`, in one row; three projection modes; narrow viewport without horizontal overflow; no visible scrollbars.

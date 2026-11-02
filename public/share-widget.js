@@ -83,7 +83,7 @@
     btn.setAttribute('aria-label', '쌤 동료에게 공유하기');
     btn.innerHTML = shareIcon + '<span>쌤 동료에게 공유하기</span>';
     var path = location.pathname.replace(/\/+$/, '') + '/';
-    var destination = path === '/world-map/'
+    var destination = /^\/world-map(?:\/(?:battle|dev))?\/$/.test(path)
       ? { href: '/spell-drill/', label: '맞춤법 게임', page: 'world-map', pageLabel: '지오웹' }
       : path === '/spell-drill/'
         ? { href: '/world-map/', label: '지오웹', page: 'spell-drill', pageLabel: '맞춤법 게임' }

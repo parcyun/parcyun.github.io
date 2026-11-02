@@ -348,6 +348,8 @@ export default function ConquestGlobe({quizView=false,question:quizQuestion=null
   const [selectedCountry,setSelectedCountry]=useState(null);
   const [systemPopover,setSystemPopover]=useState(null);
   useEffect(()=>()=>gameTimers.current.forEach(clearTimeout),[]);
+  useEffect(()=>{if(quizView)return;const drawer=e=>{S.current.drawerTarget=e.detail.width;};const drag=e=>{S.current.drawerDrag=e.detail?.distance??null;};window.addEventListener('conquest-drawer',drawer);window.addEventListener('conquest-drawer-drag',drag);return()=>{window.removeEventListener('conquest-drawer',drawer);window.removeEventListener('conquest-drawer-drag',drag);};},[quizView]);
+  useEffect(()=>{if(quizView)return;let enabled=false;return conquestStore.subscribe(()=>{const next=conquestStore.surveyState().enabled;if(next&&!enabled)api.current.prepareSurvey?.();enabled=next;});},[quizView]);
   const [cue,setCue]=useState(null);
   const gameTarget=useCallback((question,mode)=>{setCue({question,mode});},[]);
   useEffect(()=>{if(quizView&&gamePools&&quizQuestion){api.current.enterGameLobby?.();api.current.gameTarget?.(quizQuestion,questionMode);}},[quizView,gamePools,quizQuestion,questionMode]);
@@ -359,7 +361,7 @@ export default function ConquestGlobe({quizView=false,question:quizQuestion=null
     gameTimers.current.push(setTimeout(()=>setGameWipe(false),delay?680:0));
   };
   const exitGame=()=>{
-    if(gameSnapshot.current){Object.assign(S.current,gameSnapshot.current,{game:false,gameQuestion:null});api.current.restoreGame?.();}
+    if(gameSnapshot.current){Object.assign(S.current,gameSnapshot.current,{game:false,gameQuestion:null,drawerTarget:0,drawerDrag:null});api.current.restoreGame?.();}
     setGameActive(false);setTimeout(()=>document.querySelector('.game-entry')?.focus(),0);
   };
 
@@ -701,6 +703,7 @@ export default function ConquestGlobe({quizView=false,question:quizQuestion=null
         pickContinent:(k)=>setSel(sameSel(S.current.sel,{type:'continent',key:k})?null:{type:'continent',key:k}),
         pickOcean:(k)=>setSel(sameSel(S.current.sel,{type:'ocean',key:k})?null:{type:'ocean',key:k}),
         focusCountry:(nextCountry)=>{S.current.focusZoom=32;S.current.focusReq={lon:nextCountry.coordinates[0],lat:nextCountry.coordinates[1]};goView(S.current.view);}};
+      api.current.prepareSurvey=()=>{if(camera.zoom<16){S.current.focusZoom=28;const ll=hexCenter(conquestStore.selected());S.current.focusReq={lon:ll[0],lat:ll[1]};goView(S.current.view);}};
       api.current.enterGameLobby=(cell)=>{
         S.current.operationCoordinates=cell?hexCenter(cell):null;S.current.focusZoom=cell?32:null;
         Object.assign(S.current,{game:true,gameMode:null,gameQuestion:null,view:'globe',homeReq:false,focusReq:{lon:S.current.operationCoordinates?.[0]??135,lat:S.current.operationCoordinates?.[1]??0},grat:false,eq:false,prime:false,dateline:false,climate:false,terrain:false,trueSize:false,sat:false,northUp:false,dayNight:false});
@@ -743,7 +746,7 @@ export default function ConquestGlobe({quizView=false,question:quizQuestion=null
         return sph.multiplyScalar(1-morph-lens).add(pl.multiplyScalar(morph)).add(st.multiplyScalar(lens));};
 
       const ray=new THREE.Raycaster(),ptr=new THREE.Vector2(),plane0=new THREE.Plane(new THREE.Vector3(0,0,1),0),unit=new THREE.Sphere(new THREE.Vector3(),1);
-      const conquest=quizView?null:attachConquest({scene,world,mount,camera,project:projectJS,S,U,landTexture:vDay,overlayUniform:u.overlayTex});
+      const conquest=quizView?null:attachConquest({scene,world,mount,camera,project:projectJS,S,U,landTexture:vDay,overlayUniform:u.overlayTex,landforms});
       let downXY=null,dragLens=null,ptrDown=false;const dom=renderer.domElement;
       const ghostHit=(e)=>{const rect=dom.getBoundingClientRect();ptr.x=((e.clientX-rect.left)/rect.width)*2-1;ptr.y=-((e.clientY-rect.top)/rect.height)*2+1;ray.setFromCamera(ptr,camera);if(S.current.view==='globe'){const hit=ray.ray.intersectSphere(unit,new THREE.Vector3());if(!hit)return null;const [lon,lat]=vec3ToLonLat(rotY(rotX(hit,-U.uRotX.value),-U.uRotY.value));return {x:lon*D2R*MS,y:tsMercY(lat)};}
         const hit=ray.ray.intersectPlane(plane0,new THREE.Vector3());if(!hit||S.current.view==='flat')return hit;
@@ -803,8 +806,22 @@ export default function ConquestGlobe({quizView=false,question:quizQuestion=null
         camera.updateProjectionMatrix();renderer.setSize(W,H);uRes.value.set(W,H);uScreen.value.set(renderer.domElement.width,renderer.domElement.height);};
       window.addEventListener('resize',onResize);const stageResize=new ResizeObserver(onResize);stageResize.observe(mount);
       const clock=new THREE.Clock(),v3=new THREE.Vector3();
+      const surveyCenter=()=>{
+        ptr.set(0,0);ray.setFromCamera(ptr,camera);const view=S.current.view;let ll;
+        if(view==='globe'){const hit=ray.ray.intersectSphere(unit,new THREE.Vector3());if(hit)ll=vec3ToLonLat(rotY(rotX(hit,-U.uRotX.value),-U.uRotY.value));}
+        else{const hit=ray.ray.intersectPlane(plane0,new THREE.Vector3());if(hit){if(view==='flat')ll=[R2D*hit.x/MS,R2D*(2*Math.atan(Math.exp(hit.y/MS))-Math.PI/2)];else{const rho=Math.hypot(hit.x,hit.y),c=2*Math.atan2(rho,2*STE),sl=Math.sin(c),cl=Math.cos(c),la0=U.uLat0.value;ll=rho<1e-6?[U.uLon0.value*R2D,la0*R2D]:[(U.uLon0.value+Math.atan2(hit.x*sl,rho*Math.cos(la0)*cl-hit.y*Math.sin(la0)*sl))*R2D,Math.asin(THREE.MathUtils.clamp(cl*Math.sin(la0)+hit.y*sl*Math.cos(la0)/rho,-1,1))*R2D];}}}
+        return ll?cellAt(...ll):conquestStore.selected();
+      };
+      let lastSurveyAt=0;
       const reducedStars=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const loop=()=>{if(disposed)return;raf=requestAnimationFrame(loop);const dt=clock.getDelta();const st=S.current;
+        if(!quizView){
+          const goal=st.game?mount.clientWidth*.25:(st.drawerTarget||0),previous=st.drawerOffset||0,drag=st.drawerDrag,h=Math.min(dt,.035);
+          if(motionPreference.matches){st.drawerOffset=goal;st.drawerVelocity=0;}else if(drag!==null&&drag!==undefined){st.drawerOffset=Math.max(0,goal-drag);st.drawerVelocity=0;}else{st.drawerVelocity=((st.drawerVelocity||0)+(goal-previous)*180*h)*Math.exp(-19*h);st.drawerOffset=previous+st.drawerVelocity*h;if(Math.abs(goal-st.drawerOffset)<.05&&Math.abs(st.drawerVelocity)<.1){st.drawerOffset=goal;st.drawerVelocity=0;}}
+          const offset=st.drawerOffset||0;mount.closest('.conquest-dev')?.style.setProperty('--cq-drawer-shift',`${offset}px`);
+          const cameraShift=st.game?offset:Math.min(offset,mount.clientWidth*.35),mobileGame=st.game&&mount.clientWidth<=760;if(cameraShift>.01)camera.setViewOffset(mount.clientWidth,mount.clientHeight,mobileGame?0:cameraShift,mobileGame?offset/(mount.clientWidth*.25)*mount.clientHeight*.33:0,mount.clientWidth,mount.clientHeight);else if(camera.view?.enabled)camera.clearViewOffset();
+          if(!st.game&&conquestStore.surveyState().enabled&&performance.now()-lastSurveyAt>650&&!tr){lastSurveyAt=performance.now();const id=surveyCenter();if(id)conquestStore.surveyViewport(id,camera.zoom>=16);}
+        }
         starBg.visible=U.morph.value<0.5&&U.lens.value<0.5;
         if(starBg.visible&&!reducedStars)starTime.value+=dt;
         u.sunLat.value=solarDeclDeg(st.month);

@@ -1,10 +1,12 @@
 import {missileRoute,trailColor} from './conquestMissiles.js';
 import * as THREE from 'three';
+import {buildRiverEdges} from './conquestExploration.js';
 import { geoContains } from 'd3-geo';
-import { COLS, ROWS, SIDE, MAP_Y, center, cellAt } from './conquestEngine.js';
+import { COLS, ROWS, SIDE, MAP_Y, center, cellAt, neighbors } from './conquestEngine.js';
 import * as store from './conquestStore.js';
 const HEX_GLSL=`
-uniform sampler2D conquestCells,conquestLandMask,conquestCue;
+uniform sampler2D conquestCells,conquestLandMask,conquestCue,conquestRiver,conquestSurvey;
+uniform vec3 conquestPlayerFill,conquestPlayerBorder;
 uniform float conquestGame;
 uniform vec2 conquestSelected;
 vec3 conquestColor(vec3 base,vec2 uv,float land){
@@ -19,32 +21,43 @@ vec3 conquestColor(vec3 base,vec2 uv,float land){
   vec2 p=abs(local);float edge=max(p.x,dot(p,vec2(.5,.86602540378)))-.86602540378*side;
   float aa=max(fwidth(edge),.000001);float line=1.0-smoothstep(side*.045,side*.045+aa*1.25,-edge);
   float detail=1.0-smoothstep(side*.2,side*.8,aa);
-  vec3 col=mix(vec3(.09,.15,.19),vec3(.49,.53,.43),land);
+  vec3 col=mix(vec3(.115,.18,.225),vec3(.49,.53,.43),land);
   col=mix(col,owner.rgb,owner.a*mix(.60,.92,land));
   col=mix(col,vec3(.035,.06,.065),line*detail*.95);
-  if(distance(cell,conquestSelected)<.1)col=mix(col,vec3(1.0,.78,.36),mix(.25,.95,line));
+  vec4 site=texture2D(conquestSurvey,(cell+.5)/vec2(${COLS.toFixed(1)},${ROWS.toFixed(1)}));
+  if(site.a>.5&&land>.5)col=mix(col,site.rgb,.88);
+  float riverBits=floor(texture2D(conquestRiver,(cell+.5)/vec2(${COLS.toFixed(1)},${ROWS.toFixed(1)})).r*255.0+.5);
+  for(int i=0;i<6;i++){vec2 n=vec2(-1.,0.);if(i==1)n=vec2(1.,0.);if(i==2)n=vec2(-.5,-.8660254);if(i==3)n=vec2(.5,-.8660254);if(i==4)n=vec2(-.5,.8660254);if(i==5)n=vec2(.5,.8660254);float riverOn=mod(floor(riverBits/pow(2.,float(i))),2.);if(riverOn>.5&&dot(local,n)>.8660254*side-side*.11)col=vec3(.115,.18,.225);}
+  if(distance(cell,conquestSelected)<.1)col=mix(col,mix(conquestPlayerFill,conquestPlayerBorder,line),mix(.3,.95,line));
   vec4 cue=texture2D(conquestCue,cellUV);if(conquestGame>.5)col=mix(col,cue.rgb,cue.a*.85);
   return col;
 }`;
-export function attachConquest({scene,world,mount,camera,project,S,U,landTexture,overlayUniform}) {
+export function attachConquest({scene,world,mount,camera,project,S,U,landTexture,overlayUniform,landforms}) {
   const pixels=new Uint8Array(COLS*ROWS*4);
   const texture=new THREE.DataTexture(pixels,COLS,ROWS,THREE.RGBAFormat);texture.magFilter=texture.minFilter=THREE.NearestFilter;texture.colorSpace=THREE.NoColorSpace;texture.needsUpdate=true;
+  const riverPixels=new Uint8Array(COLS*ROWS*4),surveyPixels=new Uint8Array(COLS*ROWS*4);
+  for(const [a,b] of buildRiverEdges(landforms).edges)for(const [id,other] of [[a,b],[b,a]]){const bit=neighbors(id).indexOf(other);if(bit<0)continue;const [c,r]=id.split(':').map(Number);riverPixels[(r*COLS+c)*4]|=1<<bit;}
+  const riverTexture=new THREE.DataTexture(riverPixels,COLS,ROWS,THREE.RGBAFormat),surveyTexture=new THREE.DataTexture(surveyPixels,COLS,ROWS,THREE.RGBAFormat);
+  for(const t of [riverTexture,surveyTexture]){t.minFilter=t.magFilter=THREE.NearestFilter;t.colorSpace=THREE.NoColorSpace;t.needsUpdate=true;}
+  const playerFill={value:new THREE.Color('#FFB11A')},playerBorder={value:new THREE.Color('#FFD27A')};let lastSites=null,lastEnabled=null;
   const gameUniform={value:0};
   const chosen={value:new THREE.Vector2(-9,-9)};
   scene.traverse(o=>{const m=o.material;if(o.isLine||o.isLineSegments){o.visible=false;return;}
     if(m?.fragmentShader?.includes('varying vec3 vCol;')){o.visible=false;return;}
     if(!m?.isShaderMaterial||!m.fragmentShader.includes('varying vec2 vUv;'))return;
     if(!m.fragmentShader.includes('overlayTex'))return;
-    m.uniforms.conquestGame=gameUniform;m.uniforms.conquestCue=overlayUniform;m.uniforms.conquestLandMask={value:landTexture};m.uniforms.conquestCells={value:texture};m.uniforms.conquestSelected=chosen;
+    m.uniforms.conquestRiver={value:riverTexture};m.uniforms.conquestSurvey={value:surveyTexture};m.uniforms.conquestPlayerFill=playerFill;m.uniforms.conquestPlayerBorder=playerBorder;m.uniforms.conquestGame=gameUniform;m.uniforms.conquestCue=overlayUniform;m.uniforms.conquestLandMask={value:landTexture};m.uniforms.conquestCells={value:texture};m.uniforms.conquestSelected=chosen;
     const land=m.fragmentShader.includes('vec4 dc=')?'dc.a':'1.0';
     m.fragmentShader=HEX_GLSL+m.fragmentShader.replace(/}\s*$/,`gl_FragColor.rgb=conquestColor(gl_FragColor.rgb,vUv,${land});}`);m.needsUpdate=true;
   });
   const isLand=id=>{const ll=center(id);return world.features.some(f=>geoContains(f,ll));};store.setLandCheck(isLand);
-  const start=cellAt(127,37);store.selectCell(start);
+  const start=cellAt(127,37);store.selectCell(start,false);
   const canvas=document.createElement('canvas');canvas.className='conquest-effects';canvas.setAttribute('aria-hidden','true');mount.appendChild(canvas);const ctx=canvas.getContext('2d');
   let signature='';
   const update=()=>{
     const w=store.snapshot();if(!w)return;
+    const appearance=store.playerAppearance();if(appearance){playerFill.value.set(appearance.fill);playerBorder.value.set(appearance.border);}
+    const survey=store.surveyState();if(survey.sites!==lastSites||survey.enabled!==lastEnabled){lastSites=survey.sites;lastEnabled=survey.enabled;surveyPixels.fill(0);if(survey.enabled)for(const site of survey.sites){const [c,r]=site.cell.split(':').map(Number),offset=(r*COLS+c)*4,t=site.score/100;surveyPixels[offset]=Math.round(104*(1-t)+12*t);surveyPixels[offset+1]=Math.round(28*(1-t)+105*t);surveyPixels[offset+2]=Math.round(34*(1-t)+52*t);surveyPixels[offset+3]=255;}surveyTexture.needsUpdate=true;}
     const id=store.selected();chosen.value.set(...(id?id.split(':').map(Number):[-9,-9]));
     const next=JSON.stringify([w.owners,w.waters,w.seaOwners,Object.values(w.nations).map(n=>[n.id,n.color])]);if(next===signature)return;signature=next;pixels.fill(0);
     const waterOwners=Object.fromEntries(Object.entries(w.waters||{}).map(([id,claims])=>[id,w.seaOwners?.[id]||claims[0]]));
@@ -92,6 +105,6 @@ export function attachConquest({scene,world,mount,camera,project,S,U,landTexture
         const p=flight(m,progress),q=flight(m,Math.max(0,progress-.004));if(p&&q){const angle=Math.atan2(p[1]-q[1],p[0]-q[0]);ctx.strokeStyle=`rgb(${m.color})`;ctx.lineWidth=2.5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(p[0]-Math.cos(angle)*7,p[1]-Math.sin(angle)*7);ctx.lineTo(...p);ctx.stroke();ctx.lineCap='butt';}
       }
     },
-    dispose(){unsubscribe();texture.dispose();canvas.remove();store.setLandCheck(()=>false);}
+    dispose(){unsubscribe();texture.dispose();riverTexture.dispose();surveyTexture.dispose();canvas.remove();store.setLandCheck(()=>false);}
   };
 }

@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { geoContains,geoPath,geoEquirectangular } from 'd3-geo';
 import sharp from 'sharp';
 import {createStorage} from './storage.mjs';
+import {randomAppearance,validAppearance} from '../../src/components/conquestColors.js';
+import {buildRiverEdges,foundingSuitability,siteCells} from '../../src/components/conquestExploration.js';
 import {createEnvironment} from '../../src/components/conquestEnvironment.js';
 import {initialWorld,applyAction,rebuildWaters,settle,center,COLS,ROWS,GLOBAL_ROOMS,rulesForRoom} from '../../src/components/conquestEngine.js';
 import {buildGamePools,matchesAnswer,scoreAnswer,GAME_MODES} from '../../src/components/geoGameData.js';
@@ -24,7 +26,9 @@ const {data:mask,info}=await sharp(Buffer.from(svg)).ensureAlpha().raw().toBuffe
 const cache=new Map();
 function isLand(id){if(cache.has(id))return cache.get(id);const [lon,lat]=center(id),x=Math.max(0,Math.min(2047,Math.floor((lon+180)/360*2048))),y=Math.max(0,Math.min(1023,Math.floor((90-lat)/180*1024)));const land=mask[(y*2048+x)*info.channels+info.channels-1]>127;cache.set(id,land);return land;}
 function preciseLand(id){return world.features.some(f=>geoContains(f,center(id)));}
-const environment=createEnvironment({isLand,biomeAt:(lon,lat)=>sample(biomeRaster,lon,lat),climateAt:(lon,lat)=>({105:'highland',229:'polar'})[sample(climateRaster,lon,lat)],landforms});
+const environment=createEnvironment({isLand,biomeAt:(lon,lat)=>sample(biomeRaster,lon,lat),climateAt:(lon,lat)=>({105:'highland',229:'polar',142:'temperate',245:'tropical',156:'cold',242:'dry'})[sample(climateRaster,lon,lat)],landforms});
+const rivers=buildRiverEdges(landforms);
+const suitability=(w,id)=>foundingSuitability(w,id,{isLand,environment,nearRiver:cell=>rivers.near.has(cell)});
 const storage=await createStorage();
 const refresh=w=>{w.rules=rulesForRoom(w.room);return rebuildWaters(settle(w),isLand);};
 const presenceWindow=120_000;
@@ -54,9 +58,9 @@ const server=createServer(async(req,res)=>{
       if(url.pathname==='/api/conquest/profile'&&req.method==='POST'){
         rate(`new:${req.socket.remoteAddress}`,2000,3600000);const input=await body(req),token=randomBytes(32).toString('hex'),id=randomUUID();
         const nickname=String(input.nickname||`탐험가 ${randomBytes(2).toString('hex')}`).trim().slice(0,20);
-        const profile={id,nickname,createdAt:Date.now(),challenge:null,combo:0,rooms:{}};
+        const profile={id,nickname,appearance:randomAppearance(()=>randomInt(0,1_000_000)/1_000_000),createdAt:Date.now(),challenge:null,combo:0,rooms:{}};
         await storage.transaction([`profile-${hash(token)}`],values=>{values[`profile-${hash(token)}`]=profile;});
-        return send(201,{token,player:id,nickname});
+        return send(201,{token,player:id,nickname,appearance:profile.appearance});
       }
       const token=req.headers.authorization?.replace(/^Bearer /,'');if(!/^[a-f0-9]{64}$/.test(token||''))return send(401,{error:'브라우저 프로필을 연결해 주세요.'});
       const key=`profile-${hash(token)}`,profile=await storage.get(key);if(!profile)return send(401,{error:'프로필 연결을 찾지 못했어요.'});
@@ -77,14 +81,22 @@ const server=createServer(async(req,res)=>{
           const room=await storage.transaction([`room-${input.code}`,key],values=>{const room=values[`room-${input.code}`];if(!room)throw Error('해당 코드를 찾을 수 없어요.');values[key].rooms??={};values[key].rooms[room.key]=room;return room;});return send(200,{room});
         }throw Error('서버 입장 방법을 선택하세요.');
       }
+      if(req.method==='POST'&&url.pathname==='/api/conquest/appearance'){
+        const input=await body(req);if(!validAppearance(input))throw Error('색상은 #RRGGBB 형식으로 선택하세요.');
+        const appearance={fill:input.fill.toUpperCase(),border:input.border.toUpperCase()};await storage.transaction([key],values=>{values[key].appearance=appearance;});return send(200,{appearance});
+      }
       const roomKey=String(req.headers['x-conquest-room']||'');
       const room=GLOBAL_ROOMS.find(r=>r.key===roomKey)||profile.rooms?.[roomKey];
       if(!room)return send(400,{error:'글로벌 서버 또는 우리반 서버를 먼저 선택하세요.'});
       // Simplification: one transactional world document per room. Shard territory and operations before a room approaches 850 KB or sustained classroom-wide contention.
       const worldKey=`world-${room.key}`;
-      if(req.method==='GET'&&url.pathname==='/api/conquest/tile'){const cell=url.searchParams.get('cell');if(!validCell(cell))throw Error('블록을 확인해 주세요.');return send(200,{cell,land:isLand(cell),environment:environment(cell)});}
+      if(req.method==='GET'&&url.pathname==='/api/conquest/tile'){const cell=url.searchParams.get('cell');if(!validCell(cell))throw Error('블록을 확인해 주세요.');const w=refresh((await storage.get(worldKey))||initialWorld(room));return send(200,{cell,land:isLand(cell),environment:environment(cell),nearRiver:rivers.near.has(cell),suitability:suitability(w,cell)});}
+      if(req.method==='GET'&&url.pathname==='/api/conquest/sites'){
+        const cell=url.searchParams.get('cell');if(!validCell(cell))throw Error('블록을 확인해 주세요.');const radius=Number(url.searchParams.get('radius')||16);if(!Number.isInteger(radius)||radius<1||radius>18)throw Error('탐색 범위를 확인하세요.');
+        const w=refresh((await storage.get(worldKey))||initialWorld(room));return send(200,{cell,revision:w.revision||0,sites:siteCells(cell,radius).filter(isLand).map(id=>suitability(w,id))});
+      }
       if(req.method==='GET'&&url.pathname==='/api/conquest/world'){
-        const w=refresh((await storage.get(worldKey))||initialWorld(room));return send(200,{world:w,activeParticipants:await presence(room.key,profile.id),player:profile.id,nickname:profile.nickname,serverTime:Date.now()});
+        let appearance=profile.appearance;if(!validAppearance(appearance))appearance=await storage.transaction([key],values=>{if(!validAppearance(values[key].appearance))values[key].appearance=randomAppearance(()=>randomInt(0,1_000_000)/1_000_000);return values[key].appearance;});const w=refresh((await storage.get(worldKey))||initialWorld(room));return send(200,{world:w,appearance,activeParticipants:await presence(room.key,profile.id),player:profile.id,nickname:profile.nickname,serverTime:Date.now()});
       }
       if(req.method!=='POST')return send(404,{error:'요청을 찾지 못했어요.'});
       const input=await body(req);

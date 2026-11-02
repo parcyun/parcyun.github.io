@@ -1,0 +1,3 @@
+export const PLAYER_COLORS=['#FFB11A','#EF6C57','#D94A67','#B8528C','#955EBC','#736CD0','#507CC6','#388FB8','#249BA6','#269D81','#51A66B','#88AA58','#B8AB50','#D49B52','#C7805B','#B36F70','#916F91','#6A7B9A','#6D9395','#88A58E','#B0B59C','#D5C2AA','#E4DDD0','#434A57'];
+export const validAppearance=value=>!!value&&/^#[\da-f]{6}$/i.test(value.fill)&&/^#[\da-f]{6}$/i.test(value.border);
+export function randomAppearance(random=Math.random){const i=Math.floor(random()*PLAYER_COLORS.length),j=(i+5+Math.floor(random()*(PLAYER_COLORS.length-6)))%PLAYER_COLORS.length;return {fill:PLAYER_COLORS[i],border:PLAYER_COLORS[j]};}

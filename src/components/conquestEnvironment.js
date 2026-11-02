@@ -23,13 +23,13 @@ export function createEnvironment({isLand,biomeAt,climateAt,landforms}){
  const cache=new Map();
  return id=>{
   if(cache.has(id))return cache.get(id);
-  let kind;
+  let kind,climate=null;
   if(!isLand(id)){
    let frontier=[id],seen=new Set(frontier),distance=4;
    for(let step=1;step<=3;step++){const next=[...new Set(frontier.flatMap(neighbors))].filter(n=>!seen.has(n));if(next.some(isLand)){distance=step;break;}next.forEach(n=>seen.add(n));frontier=next;}
    kind=distance===1?'coast':distance<=3?'nearSea':'openSea';
   }else{
-   const ll=center(id),biome=biomeAt(...ll),climate=climateAt(...ll);
+   const ll=center(id),biome=biomeAt(...ll);climate=climateAt(...ll);
    const physical=landforms.features.find(f=>['mountains','plateaus','plains','deserts'].includes(f.properties.category)&&geoContains(f,ll))?.properties.category;
    if(physical==='mountains'||climate==='highland'||biome===10)kind='mountain';
    else if(biome===15)kind='frozen';
@@ -45,6 +45,6 @@ export function createEnvironment({isLand,biomeAt,climateAt,landforms}){
    else if(climate==='polar')kind='frozen';
    else kind='unknown';
   }
-  const value={kind,...ENVIRONMENTS[kind]};cache.set(id,value);return value;
+  const value={kind,climate,...ENVIRONMENTS[kind]};cache.set(id,value);return value;
  };
 }

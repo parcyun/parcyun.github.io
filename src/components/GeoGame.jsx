@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { GAME_MODES, matchesAnswer, scoreAnswer, scoring, shuffledDeck } from './geoGameData.js';
+import { GAME_MODES, matchesAnswer, scoreAnswer, scoring, shuffledDeck, contentDeck } from './geoGameData.js';
 import './geoGame.css';
-import { EXPERT_ANSWER_MS, DIFFICULTIES, difficultyDeck, difficultyLabel, hasCountryDifficulty, gameRecordKey } from './geoGameDifficulty.js';
+import { EXPERT_ANSWER_MS, DIFFICULTIES, difficultyDeck, difficultyLabel, hasCountryDifficulty, gameRecordKey,hasGameDifficulty,hasContentDifficulty,difficultyOptions } from './geoGameDifficulty.js';
 import GeoRanking from './GeoRanking.jsx';
+import GeoPhotoCarousel from './GeoPhotoCarousel.jsx';
 import GeoScoreEffect from './GeoScoreEffect.jsx';
 import { RECORD_KEY, readRecords, updateRecord, formatTime } from './geoGameRecords.js';
 
@@ -34,9 +35,9 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   const input=useRef(null), nextButton=useRef(null), deck=useRef([]), current=useRef(null), started=useRef(0), locked=useRef(true), timers=useRef([]), serial=useRef(0), composing=useRef(false);
   const config=GAME_MODES.find(m=>m.id===mode);
   const expert=hasCountryDifficulty(mode)&&difficulty==='expert';
-  const tier=expert?'hard':hasCountryDifficulty(mode)?difficulty:config.tier;
+  const tier=expert?'hard':hasGameDifficulty(mode)?difficulty:config.tier;
   useEffect(()=>{if(pendingMode){const node=difficultyDialog.current;node.showModal();const unbind=window.psModalMotion.bindBackdrop(node,()=>closeDifficulty());return()=>{unbind();node.close();};}},[pendingMode]);
-  function chooseMode(nextMode){if(hasCountryDifficulty(nextMode)){setPendingMode(nextMode);return;}setBusy(true);locked.current=true;setMode(nextMode);setPlaying(true);}
+  function chooseMode(nextMode){if(hasGameDifficulty(nextMode)){setPendingMode(nextMode);return;}setBusy(true);locked.current=true;setMode(nextMode);setPlaying(true);}
   function closeDifficulty(after){
     const node=difficultyDialog.current;if(!node||node.dataset.leaving)return;
     const complete=()=>{if(difficultyDialog.current===node){setPendingMode(null);after?.();}};
@@ -45,8 +46,8 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   }
   function startDifficulty(diff){const nextMode=pendingMode;closeDifficulty(()=>{setBusy(true);locked.current=true;setDifficulty(diff);setMode(nextMode);setPlaying(true);});}
   function recordSummary(item){
-    if(!hasCountryDifficulty(item.id))return records[item.id]?`최고 ${records[item.id].score.toLocaleString()}점 · ${formatTime(records[item.id].seconds)}`:'최고 기록 없음';
-    const levels=DIFFICULTIES.filter(d=>records[gameRecordKey(item.id,d.id)]).map(d=>`${d.label} ${records[gameRecordKey(item.id,d.id)].score.toLocaleString()}점`);
+    if(!hasGameDifficulty(item.id))return records[item.id]?`최고 ${records[item.id].score.toLocaleString()}점 · ${formatTime(records[item.id].seconds)}`:'최고 기록 없음';
+    const levels=difficultyOptions(item.id).filter(d=>records[gameRecordKey(item.id,d.id)]).map(d=>`${d.label} ${records[gameRecordKey(item.id,d.id)].score.toLocaleString()}점`);
     return levels.join(' · ')||(records[item.id]?`이전 최고 ${records[item.id].score.toLocaleString()}점`:'난이도를 선택해 시작해요');
   }
   useEffect(()=>{if(!result)return;const timer=setTimeout(()=>setResult(null),2200);return()=>clearTimeout(timer);},[result]);
@@ -58,7 +59,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   function nextQuestion(activeMode=mode){
     serial.current++;deadline.current=0;setCountdown(null);composing.current=false;
     const pool=pools[activeMode];
-    if(!deck.current.length)deck.current=hasCountryDifficulty(activeMode)?difficultyDeck(pool,difficulty,current.current?.id):shuffledDeck(pool,current.current?.id);
+    if(!deck.current.length)deck.current=hasCountryDifficulty(activeMode)?difficultyDeck(pool,difficulty,current.current?.id):hasContentDifficulty(activeMode)?contentDeck(pool,difficulty,current.current):shuffledDeck(pool,current.current?.id);
     const next=deck.current.shift();current.current=next;
     locked.current=true;setBusy(true);setLeaving(false);setAnswer('');setMediaError(false);setMediaReady(false);setQuestion(next);
     onTarget(next,activeMode);
@@ -79,7 +80,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   },[mode,summary,playing]);
   function recordScore(score,maxCombo){
     const seconds=(performance.now()-roundStarted.current)/1000;
-    roundRecord.current={maxCombo,mode,diff:hasCountryDifficulty(mode)?difficulty:undefined,score,elapsedMs:Math.max(1000,Math.round(seconds*1000)),playedAt:Date.now()};
+    roundRecord.current={maxCombo,mode,diff:hasGameDifficulty(mode)?difficulty:undefined,score,elapsedMs:Math.max(1000,Math.round(seconds*1000)),playedAt:Date.now()};
     setRecords(previous=>{
       const next=updateRecord(previous,gameRecordKey(mode,difficulty),score,seconds);
       try{window.localStorage.setItem(RECORD_KEY,JSON.stringify(next));}catch{setStorageError(true);}
@@ -144,12 +145,12 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     </aside>
     {pendingMode&&<dialog ref={difficultyDialog} className="gg-difficulty-dialog" aria-labelledby="gg-difficulty-title" onCancel={event=>{event.preventDefault();closeDifficulty();}}>
       <header><span className="gg-eyebrow">GEOWEB / LEVEL</span><button type="button" onClick={()=>closeDifficulty()} aria-label="난이도 선택 닫기">×</button></header>
-      <h2 id="gg-difficulty-title">{GAME_MODES.find(item=>item.id===pendingMode)?.title}</h2><p>어떤 국가들이 더 자주 나올까요?</p>
-      <div className="gg-difficulty-options">{DIFFICULTIES.map((item,i)=><button key={item.id} type="button" autoFocus={i===0} onClick={()=>startDifficulty(item.id)}><b>{item.label}</b><span>{item.description}</span></button>)}</div>
+      <h2 id="gg-difficulty-title">{GAME_MODES.find(item=>item.id===pendingMode)?.title}</h2><p>{hasContentDifficulty(pendingMode)?'어떤 난이도로 도전할까요?':'어떤 국가들이 더 자주 나올까요?'}</p>
+      <div className="gg-difficulty-options">{difficultyOptions(pendingMode).map((item,i)=><button key={item.id} type="button" autoFocus={i===0} onClick={()=>startDifficulty(item.id)}><b>{item.label}</b><span>{item.description}</span></button>)}</div>
     </dialog>}
     {!playing&&<button type="button" className="gg-ranking-open" onClick={openRanking}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M8 3h8v5a4 4 0 0 1-8 0V3ZM8 5H4v2a4 4 0 0 0 4 4m8-6h4v2a4 4 0 0 1-4 4M12 12v6m-4 3h8m-6-3h4v3"/></svg>랭킹</button>}
     {rankingOpen&&<GeoRanking initialMode={mode} initialDifficulty={difficulty} record={finishedRecord} onClose={closeRanking}/>}
-    {!summary&&<button className="gg-mode-exit" onClick={onExit}>게임모드 종료 ↗</button>}
+    {!playing&&!summary&&<button className="gg-mode-exit" onClick={onExit}>게임모드 종료 ↗</button>}
     {playing&&<><header className="gg-play-title"><span>{expert?'GEOWEB · 전문가':`GEOWEB PLAY · ${hasCountryDifficulty(mode)?'국가 출제 ':''}${difficultyLabel(tier)}`}</span><h1>{config.title}</h1><button type="button" className="gg-practice-toggle" aria-pressed={practice} onClick={()=>{setPractice(v=>!v);setSummary(false);}}>연습 모드 {practice?'켜짐':'꺼짐'}</button></header>
     {expert&&!practice&&!summary&&!busy&&countdown>0&&<div className="gg-expert-countdown" role="timer" aria-label={`${countdown}초 남음`}><span key={`${question.id}-${countdown}`} style={{'--gg-clock-color':['','#ff263b','#ff514d','#ff7844','#ff9638','#ffb11a'][countdown]}}>{countdown}</span></div>}
     {!practice&&!summary&&result?.gain&&<GeoScoreEffect key={result.id} gain={result.gain} combo={result.combo}/>}
@@ -163,10 +164,9 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     {mode==='capital-easy'&&question&&<aside className="gg-country" aria-label="국가 정보"><img src={question.country.flag} alt=""/><h2>{question.country.name.ko}</h2><p>{question.country.officialName.ko}</p><p>{question.country.continent} · 인구 {question.country.population.toLocaleString()}명</p>{!practice&&<small>수도는 직접 떠올려 보세요.</small>}</aside>}
     </div>}
     {question&&['flag','landmark','nature'].includes(mode)&&(mode!=='nature'||question.image)&&<figure key={`${mode}-${question.id}`} className={`gg-media ${mode==='flag'?'gg-flag':mode==='landmark'?'gg-landmark':'gg-nature'} ${leaving?'gg-leaving':''} ${!mediaReady&&!mediaError?'gg-loading':''}`}>
-      <img src={mode==='flag'?question.country.flag:question.image} alt={mode==='flag'?'맞혀야 할 국기':mode==='nature'?'이름을 맞혀야 할 자연환경의 대표 사진':'이름을 맞혀야 할 랜드마크 사진'} onLoad={mediaLoaded} onError={mediaFailed}/>
-      {mediaError&&<div className="gg-media-error">사진을 불러오지 못했어요.{mode==='nature'?' 지도만 보고 풀어 보세요.':<button onClick={skip}>다음 문제로</button>}</div>}
-      {mode!=='flag'&&<figcaption>{mode==='nature'?'대표 사진':'사진'}: {question.author} · <a href={question.licenseUrl} target="_blank" rel="noreferrer">{question.license}</a> · <a href={question.source} target="_blank" rel="noreferrer">원본</a></figcaption>}
+      {mode==='flag'?<><img src={question.country.flag} alt="맞혀야 할 국기" onLoad={mediaLoaded} onError={mediaFailed}/>{mediaError&&<div className="gg-media-error">사진을 불러오지 못했어요.<button onClick={skip}>다음 문제로</button></div>}</>:<GeoPhotoCarousel photos={question.photos?.length?question.photos:[question]} paused={summary||leaving} onLoad={mediaLoaded} onError={mediaFailed} kind={mode}/>}
     </figure>}
+
     {practice&&question&&<div className="gg-practice-answer" role="status">{question.name}</div>}
     <div className="gg-answer">
       {!practice&&<div className="gg-feedback" role="status" aria-live="polite">{result&&!result.skipped&&!result.gain&&<span>{result.text}</span>}</div>}

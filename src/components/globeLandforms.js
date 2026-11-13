@@ -1,6 +1,6 @@
 // Natural Earth physical vectors에서 초등 사회 수업용 대표 지형만 골라낸 표시 규칙이다.
 // 색은 범주 구분용이며, 지도에서는 모두 70% 불투명도로 겹쳐 그린다.
-export const LANDFORM_DATA_URL = '/lab-data/geoweb-landforms.json';
+export const LANDFORM_DATA_URL = '/lab-data/geoweb-landforms.json?v=20261113-content-1';
 
 export const LANDFORM_CATEGORY_ORDER = ['rivers', 'mountains', 'plateaus', 'plains', 'deserts'];
 

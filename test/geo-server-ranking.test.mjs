@@ -25,9 +25,15 @@ test('GeoWeb difficulty boards isolate new records and keep legacy boards readab
  runTransaction:async(_,fn)=>fn({get:async()=>({exists:()=>false}),set:()=>{}})};
  const api=createLeaderboard(async()=>({s:{db:{},dbApi},user:{uid:'player'},profile:{nickname:'별빛 탐험가'}}),'geo');
  const record={score:200,elapsedMs:1000,playedAt:1};
- for(const mode of ['country','capital-easy','capital-hard','flag']){
-  for(const diff of ['easy','med','hard','expert']){await api.submit({...record,mode,diff});assert.equal(paths.at(-1)[1],`${mode}_${diff}`);}
+ for(const mode of ['country','capital-easy','capital-hard','flag','nature','landmark']){
+  for(const diff of (['nature','landmark'].includes(mode)?['easy','hard']:['easy','med','hard','expert'])){await api.submit({...record,mode,diff});assert.equal(paths.at(-1)[1],`${mode}_${diff}`);}
   await api.submit({...record,mode});assert.equal(paths.at(-1)[1],mode);
   await assert.rejects(()=>api.submit({...record,mode,diff:'unknown'}),/Invalid difficulty/);
  }
+});
+
+test('developer account affiliation is stored with a new voluntary record without exposing email',async()=>{
+ let stored;const dbApi={doc:()=>({}),Timestamp:{fromMillis:x=>x},serverTimestamp:()=>1,runTransaction:async(_,fn)=>fn({get:async()=>({exists:()=>false}),set:(_,data)=>{stored=data;}})};
+ const api=createLeaderboard(async()=>({s:{db:{},dbApi},user:{uid:'dev',email:'pen.layered@example.com'},profile:{nickname:'탐험가',school:'학교'}}),'geo');
+ await api.submit({mode:'landmark',diff:'hard',score:100,elapsedMs:1000,playedAt:1});assert.equal(stored.school,'DEXTER 개발자');assert.equal(stored.email,undefined);
 });

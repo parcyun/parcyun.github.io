@@ -5,7 +5,7 @@ import {buildGamePools,LANDMARKS,matchesAnswer,normalizeAnswer,scoreAnswer,scori
 import {readRecords,updateRecord,formatTime} from '../src/components/geoGameRecords.js';
 const pools=buildGamePools(JSON.parse(readFileSync(new URL('../public/lab-data/world.json',import.meta.url))),JSON.parse(readFileSync(new URL('../public/lab-data/geoweb-landforms.json',import.meta.url))));
 test('question pools contain unique, answerable and located entries',()=>{
- assert.equal(LANDMARKS.length,100);assert.ok(pools.nature.length>=50);
+ assert.ok(LANDMARKS.length>=300);assert.equal(pools.nature.length,156);
  for(const [mode,pool] of Object.entries(pools)){
   assert.equal(new Set(pool.map(q=>q.id)).size,pool.length);
   for(const q of pool){assert.ok(matchesAnswer(q.name,q));if(mode!=='flag')assert.ok(q.coordinates.every(Number.isFinite),q.name);}
@@ -61,4 +61,23 @@ test('records persist best score and prefer faster equal-score result',()=>{
  assert.deepEqual(readRecords({getItem:()=>'{bad'}),{});
  assert.deepEqual(readRecords({getItem:()=>{throw Error();}}),{});
  assert.equal(formatTime(65),'1분 05초');
+});
+
+test('capital city suffix aliases are explicit and unrelated short guesses remain rejected',()=>{
+ for(const q of pools['capital-easy'].filter(q=>q.id!=='GE'&&q.name.endsWith('시')))assert.ok(matchesAnswer(q.name.replace(/(?:특별시|광역시|시)$/,''),q),q.name);
+ assert.ok(!matchesAnswer('트빌리',pools['capital-easy'].find(q=>q.id==='GE')));
+ const tokyo=pools['capital-easy'].find(q=>q.id==='JP');assert.ok(!matchesAnswer('도',tokyo));
+});
+test('researched landmark and nature spellings include Korean Chinese readings',()=>{
+ for(const [mode,name,answers] of [['nature','황허강',['황하','Yellow River']],['nature','양쯔강',['장강','양자강']],['landmark','천단',['톈탄','천단공원']],['landmark','자금성',['구궁','고궁박물원']],['landmark','러산 대불',['낙산대불']]])for(const answer of answers)assert.ok(matchesAnswer(answer,pools[mode].find(q=>q.name===name||q.id.endsWith(':'+name))),`${name}: ${answer}`);
+ assert.ok(!matchesAnswer('탑',pools.landmark.find(q=>q.name==='에펠탑')));
+});
+test('every illustrated feature has at most three distinct attributed photos and two difficulty bands',()=>{
+ for(const mode of ['landmark','nature']){assert.deepEqual([...new Set(pools[mode].map(q=>q.difficulty))].sort(),['easy','hard']);for(const q of pools[mode]){assert.ok(q.photos.length>=1&&q.photos.length<=3,q.name);assert.equal(new Set(q.photos.map(p=>p.image)).size,q.photos.length,q.name);assert.equal(new Set(q.photos.map(p=>decodeURIComponent(p.source).replaceAll('_',' '))).size,q.photos.length,q.name);for(const p of q.photos)assert.ok(p.author&&p.license&&p.licenseUrl&&p.source,q.name);}}
+});
+test('landmark countries never repeat consecutively, including across complete deck boundaries',()=>{
+ let last;for(let n=0;n<20;n++){const deck=shuffledDeck(pools.landmark,last?.id,Math.random,last?.country.iso2);assert.equal(deck.length,pools.landmark.length);for(const q of deck){assert.notEqual(q.country.iso2,last?.country.iso2);last=q;}}
+});
+test('each displayed river is a single connected coordinate chain without invented long joins',()=>{
+ for(const q of pools.nature.filter(q=>q.category==='rivers')){assert.equal(q.features.length,1,q.name);const g=q.features[0].geometry;assert.equal(g.type,'LineString',q.name);assert.ok(g.coordinates.length>2);for(const p of g.coordinates)assert.ok(p.every(Number.isFinite));}
 });

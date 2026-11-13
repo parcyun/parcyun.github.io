@@ -2,6 +2,7 @@ import {createRankingCache} from './ranking-cache.js?v=20261102-1';
 export const isReservedNickname = nickname => /dexter|parcyun/i.test(String(nickname || ''));
 // School names are published only with a new voluntary record submission.
 export function rankingAffiliation(player) {
+  if (String(player.nickname || '').trim().toLowerCase() === 'pen.layered') return 'DEXTER 개발자';
   if (String(player.nickname || '').trim().toLowerCase() === 'dexter') return '개발자';
   if (typeof player.school === 'string' && player.school.trim()) return player.school.trim();
   const moods = ['별빛', '구름 위', '용감한', '호기심 많은', '무지개', '달빛', '반짝이는', '숲속'];
@@ -28,8 +29,8 @@ export function createLeaderboard(context, game='spell') {
     if(game==='geo'){
       const countryMode=['country','capital-easy','capital-hard','flag'].includes(mode);
       if(!countryMode&&!['nature','landmark'].includes(mode))throw new Error('Invalid board');
-      if(countryMode&&diff!==undefined&&diff!=='legacy'){
-        if(!['easy','med','hard','expert'].includes(diff))throw new Error('Invalid difficulty');
+      if(diff!==undefined&&diff!=='legacy'){
+        if(!(countryMode?['easy','med','hard','expert']:['easy','hard']).includes(diff))throw new Error('Invalid difficulty');
         return `${mode}_${diff}`;
       }
       return mode;
@@ -59,7 +60,7 @@ export function createLeaderboard(context, game='spell') {
       const {s,user,profile,nickname,entryId}=await context();if(!user)throw new Error('프로필을 먼저 만들어 주세요. Google 로그인 없이 브라우저 프로필로도 제출할 수 있어요.');
       if(isReservedNickname(profile.nickname||nickname))throw new Error('DEXTER와 parcyun이 포함된 별명은 사용할 수 없어요. 내 프로필에서 별명을 변경해 주세요.');
       const d=s.dbApi;const ref=d.doc(s.db,collectionName,boardId(record),'players',entryId||user.uid);
-      const next={nickname:profile.nickname||nickname,school:typeof profile.school==='string'?profile.school.trim():'',score:record.score,elapsedMs:Math.round(record.elapsedMs),playedAt:d.Timestamp.fromMillis(record.playedAt),updatedAt:d.serverTimestamp()};
+      const next={nickname:profile.nickname||nickname,school:String(user.email||'').split('@')[0].toLowerCase()==='pen.layered'||String(profile.nickname||nickname).trim().toLowerCase()==='pen.layered'?'DEXTER 개발자':typeof profile.school==='string'?profile.school.trim():'',score:record.score,elapsedMs:Math.round(record.elapsedMs),playedAt:d.Timestamp.fromMillis(record.playedAt),updatedAt:d.serverTimestamp()};
       if(Number.isInteger(record.maxCombo)&&record.maxCombo>=0)next.maxCombo=record.maxCombo;
       await d.runTransaction(s.db,async transaction=>{
         const previous=await transaction.get(ref);

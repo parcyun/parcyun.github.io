@@ -31,7 +31,7 @@ test('gallery previews contain five real feature scenes of two seconds each',()=
 });
 
 test('ranking affiliation shows school, playful stable fallback, and Dexter developer label',()=>{
- assert.equal(rankingAffiliation({nickname:'Dexter',school:'학교'}),'개발자');
+ assert.equal(rankingAffiliation({nickname:'Dexter',school:'학교'}),'개발자');assert.equal(rankingAffiliation({nickname:'pen.layered',school:'학교'}),'DEXTER 개발자');
  assert.equal(rankingAffiliation({nickname:'가나다',school:' 별빛초등학교 '}),'별빛초등학교');
  const player={id:'user-123',nickname:'가나다',school:'  '};
  assert.equal(rankingAffiliation(player),rankingAffiliation(player));

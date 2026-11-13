@@ -1,9 +1,12 @@
 import { COUNTRIES, COUNTRY_ALIASES } from './globeCountries.js';
 import { geoCentroid } from 'd3-geo';
-import additionalLandmarks from './geoGameLandmarks.json' with { type: 'json' };
-import naturePhotos from './geoGameNaturePhotos.json' with { type: 'json' };
+import additionalLandmarks from './geoGameLandmarksExpanded.json' with { type: 'json' };
+import naturePhotos from './geoGameNaturePhotosExpanded.json' with { type: 'json' };
+import answerAliases from './geoGameAliases.json' with { type: 'json' };
 import countryAliases from './geoCountryAliases.json' with { type: 'json' };
 import '../../public/spell-drill/scoring.js';
+
+const aliasesFor=name=>Object.entries(answerAliases).filter(([key])=>normalizeAnswer(key)===normalizeAnswer(name)).flatMap(([,values])=>values);
 
 export const scoring = globalThis.SpellScoring;
 export const GAME_MODES = [
@@ -15,23 +18,8 @@ export const GAME_MODES = [
   { id:'landmark', title:'인문환경 이름 맞추기', tier:'hard', prompt:'사진 속 랜드마크의 이름은?', label:'랜드마크 이름' },
 ];
 
-// Wikimedia Commons imageinfo metadata checked 2026-10-16. Credits remain visible during play.
-export const LANDMARKS = [
-  ['FR','에펠탑',['Eiffel Tower'],'f/ff/Eiffel_Tower_from_Champ-de-Mars_in_2014.jpg','Emily Vanderstraaten','3.0'],
-  ['IN','타지마할',['Taj Mahal'],'1/1f/Taj_Mahal_N-UP-A28-a.jpg','Asitjain','3.0'],
-  ['IT','콜로세움',['Colosseum','Coliseum'],'b/b8/2016_Rome_-_Colosseum_01.jpg','Jordiferrer','4.0'],
-  ['CN','만리장성',['Great Wall of China','Great Wall'],'f/fa/Great_Wall_of_China_July_2006.JPG','Velatrix','CC0'],
-  ['PE','마추픽추',['Machu Picchu'],'e/eb/Machu_Picchu%2C_Peru.jpg','Pedro Szekely','2.0'],
-  ['EG','기자 피라미드',['피라미드','기자의 피라미드','Giza Pyramids','Pyramids'],'a/af/All_Gizah_Pyramids.jpg','Ricardo Liberato','2.0'],
-  ['AU','시드니 오페라 하우스',['오페라 하우스','Sydney Opera House'],'4/40/Sydney_Opera_House_Sails.jpg','Roybb95~commonswiki','3.0'],
-  ['US','자유의 여신상',['Statue of Liberty'],'a/a1/Statue_of_Liberty_7.jpg','Elcobbola','Public domain'],
-].map(([iso2,name,aliases,path,author,license])=>({
-  id:`landmark-${iso2}`, country:COUNTRIES.find(c=>c.iso2===iso2), name, answers:[name,...aliases],
-  image:`https://upload.wikimedia.org/wikipedia/commons/thumb/${path}/960px-${path.split('/').at(-1)}`,
-  source:`https://commons.wikimedia.org/wiki/File:${path.split('/').at(-1)}`, author,
-  license:license.includes('.')?`CC BY-SA ${license}`:license,
-  licenseUrl:license.includes('.')?`https://creativecommons.org/licenses/by-sa/${license}/`:license==='CC0'?'https://creativecommons.org/publicdomain/zero/1.0/':'https://creativecommons.org/publicdomain/mark/1.0/',
-})).concat(additionalLandmarks.map(q=>({...q,id:`landmark-${q.iso2}-${q.name}`,country:COUNTRIES.find(c=>c.iso2===q.iso2),answers:[q.name,...q.aliases]})));
+// Public Wikipedia/Wikidata names and Commons photo licenses researched 2026-11-13; credits follow the active photograph.
+export const LANDMARKS=additionalLandmarks.filter(q=>COUNTRIES.some(c=>c.iso2===q.iso2)).map(q=>({...q,id:`landmark-${q.iso2}-${q.name}`,country:COUNTRIES.find(c=>c.iso2===q.iso2),answers:[q.name,...q.aliases,...aliasesFor(q.name)]}));
 
 export function normalizeAnswer(value) {
   return String(value).normalize('NFKC').toLocaleLowerCase().replace(/[\s\p{P}\p{S}]/gu,'');
@@ -50,29 +38,37 @@ export function buildGamePools(world, landforms) {
     answers:[country.name.ko,country.name.en,country.officialName.ko,country.officialName.en,country.iso2,country.iso3,...(COUNTRY_ALIASES[country.iso2]||[]),...(countryAliases[country.iso2]||[])],
   }));
   const capitals=countries.filter(q=>q.country.capital.ko && q.country.capital.en).map(q=>({...q,
-    name:q.country.capital.ko,answers:[...new Set([q.country.capital.ko,q.country.capital.en,...q.country.capital.ko.split(' · '),...q.country.capital.en.split(' · '),...(CAPITAL_ALIASES[q.id]||[])])],
+    name:q.country.capital.ko,answers:[...new Set([q.country.capital.ko,q.country.capital.en,...q.country.capital.ko.split(' · '),...q.country.capital.en.split(' · '),...(CAPITAL_ALIASES[q.id]||[])] .flatMap(name=>['CN','KP','KR','KW'].includes(q.id)&&/시$/.test(name)?[name,name.replace(/(?:특별시|광역시|시)$/,'')]:[name]))],
   }));
   const groups=new Map();
   for(const feature of landforms.features){
     const {nameKo,nameEn,category}=feature.properties;
     if(!nameKo)continue;
     const id=`${category}:${nameKo}`;
-    if(!groups.has(id))groups.set(id,{id,name:nameKo,category,answers:[nameKo,nameEn],features:[]});
+    if(!groups.has(id))groups.set(id,{id,name:nameKo,category,difficulty:feature.properties.difficulty||'easy',answers:[nameKo,nameEn,...aliasesFor(nameKo)],features:[]});
     groups.get(id).features.push(feature);
   }
-  const nature=[...groups.values()].map(q=>({...q,...naturePhotos[q.id],coordinates:geoCentroid({type:'FeatureCollection',features:q.features})}));
+  const nature=[...groups.values()].map(q=>({...q,...naturePhotos[q.id],name:naturePhotos[q.id]?.displayName||q.name,answers:[...new Set([...q.answers,...(naturePhotos[q.id]?.aliases||[]),...(naturePhotos[q.id]?.aliases||[]).flatMap(aliasesFor)])],coordinates:geoCentroid({type:'FeatureCollection',features:q.features})}));
   return {country:countries,'capital-easy':capitals,'capital-hard':capitals,
     flag:COUNTRIES.map(country=>({id:country.iso2,country,name:country.name.ko,answers:[country.name.ko,country.name.en,country.officialName.ko,country.officialName.en,country.iso2,country.iso3,...(COUNTRY_ALIASES[country.iso2]||[]),...(countryAliases[country.iso2]||[])]})),
     nature,landmark:LANDMARKS.map(q=>({...q,coordinates:boundaries.has(q.country.boundaryName)?geoCentroid(boundaries.get(q.country.boundaryName)):q.country.coordinates})),
   };
 }
 
-export function shuffledDeck(pool, previousId, random=Math.random) {
-  const deck=[...pool];
-  for(let i=deck.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
-  if(deck.length>1 && deck[0].id===previousId)[deck[0],deck[1]]=[deck[1],deck[0]];
+export function shuffledDeck(pool, previousId, random=Math.random,previousCountry) {
+  const remaining=[...pool];
+  for(let i=remaining.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[remaining[i],remaining[j]]=[remaining[j],remaining[i]];}
+  const deck=[];let lastCountry=previousCountry;
+  while(remaining.length){
+    const counts=new Map();for(const q of remaining)counts.set(q.country?.iso2,(counts.get(q.country?.iso2)||0)+1);
+    const eligible=remaining.map((q,i)=>({q,i})).filter(({q})=>(!q.country||q.country.iso2!==lastCountry)&&(deck.length||q.id!==previousId));
+    const choices=eligible.length?eligible:remaining.map((q,i)=>({q,i})).filter(({q})=>deck.length||q.id!==previousId);
+    const selected=(choices.length?choices:remaining.map((q,i)=>({q,i}))).sort((a,b)=>(counts.get(b.q.country?.iso2)||0)-(counts.get(a.q.country?.iso2)||0))[0];
+    deck.push(selected.q);remaining.splice(selected.i,1);lastCountry=selected.q.country?.iso2;
+  }
   return deck;
 }
+export function contentDeck(pool,difficulty,previous,random=Math.random){return shuffledDeck(pool.filter(q=>q.difficulty===difficulty),previous?.id,random,previous?.country?.iso2);}
 
 export function scoreAnswer(answer, elapsedSeconds, tier, comboCount) {
   let strokes=0;for(const ch of answer)strokes+=/[가-힣]/.test(ch)?2.5:1;

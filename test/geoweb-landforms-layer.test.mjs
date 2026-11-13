@@ -15,7 +15,7 @@ test('GeoWeb offers five independently selectable classroom landform categories'
 test('landform data includes representative school geography and rivers stay as flow lines', async () => {
   const data = await landforms();
   const category = (key) => data.features.filter((feature) => feature.properties.category === key);
-  assert.equal(data.source, 'Natural Earth 50m Physical Vectors with selected 10m fallback (v5.0.0/5.1.1)');
+  assert.match(data.source,/Natural Earth/);assert.equal(data.license,'Public Domain');
   for (const key of LANDFORM_CATEGORY_ORDER) assert.ok(category(key).length > 0, `${key} needs features`);
   for (const name of ['나일강', '인더스강', '갠지스강', '메콩강', '황허강', '양쯔강', '미시시피강', '아마존강']) {
     assert.ok(category('rivers').some((feature) => feature.properties.nameKo === name), `${name} is required`);

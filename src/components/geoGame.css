@@ -103,3 +103,7 @@ body:has(.game-active) .ps-service-actions{display:none!important}
 @keyframes gg-clock-tick{0%{transform:translateX(-4px);text-shadow:0 0 16px #fff,0 0 36px var(--gg-clock-color),0 0 64px var(--gg-clock-color)}25%{transform:translateX(4px)}50%{transform:translateX(-3px)}75%{transform:translateX(2px)}100%{transform:none;text-shadow:0 0 12px var(--gg-clock-color)}}
 @media(max-width:760px),(min-width:600px) and (max-height:500px) and (max-width:1000px){.gg-expert-countdown{top:14px;width:64px;font-size:64px}body .geo-game.gg-expert .gg-play-title>span,body .geo-game.gg-expert .gg-play-title h1{max-width:calc(50% - 54px)}}
 @media(prefers-reduced-motion:reduce){.gg-expert-countdown span{animation:none;text-shadow:none}}
+.geo-game .gg-summary .gg-summary-actions .gg-mode-exit{position:static;display:inline-flex;align-items:center;justify-content:center;background:#57262d!important;color:#fff2f2!important;border:1px solid #f0929d!important;min-height:48px;opacity:1}
+.gg-photo-count{display:inline-block;margin-right:6px;padding:2px 6px;border:1px solid #ffffff35;border-radius:6px;white-space:nowrap;color:#fff}.gg-carousel-photo{animation:gg-photo-in .25s ease}@keyframes gg-photo-in{from{opacity:.45}to{opacity:1}}@media(prefers-reduced-motion:reduce){.gg-carousel-photo{animation:none}}
+.geo-game.gg-playing .gg-finish{top:28px;right:24px;bottom:auto}
+@media(max-width:600px){.geo-game.gg-playing .gg-finish{top:16px;right:12px;bottom:auto}}

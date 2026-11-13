@@ -35,7 +35,7 @@ test('new local best records remain separate by level and retain legacy records'
  records=updateRecord(records,gameRecordKey('country','easy'),200,9);
  records=updateRecord(records,gameRecordKey('country','hard'),300,12);
  assert.equal(records.country.score,100);assert.equal(records.country_easy.score,200);assert.equal(records.country_hard.score,300);
- assert.equal(gameRecordKey('nature','easy'),'nature');
+ assert.equal(gameRecordKey('nature','easy'),'nature_easy');
  assert.deepEqual(readRecords({getItem:()=>JSON.stringify(records)}),records);
  assert.equal(hasCountryDifficulty('flag'),true);assert.equal(hasCountryDifficulty('landmark'),false);
 });

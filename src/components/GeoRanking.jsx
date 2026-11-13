@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { DIFFICULTIES, difficultyLabel, hasCountryDifficulty } from './geoGameDifficulty.js';
+import { DIFFICULTIES, difficultyLabel, hasCountryDifficulty,hasGameDifficulty,difficultyOptions } from './geoGameDifficulty.js';
 import { GAME_MODES } from './geoGameData.js';
 import { rankingAffiliation, compareRankingEfficiency } from '../../public/spell-leaderboard.js';
 
@@ -13,7 +13,7 @@ export default function GeoRanking({ initialMode, initialDifficulty='easy', reco
   const [cursor,setCursor]=useState(null),[more,setMore]=useState(false),[loading,setLoading]=useState(true),[error,setError]=useState('');
   const [sending,setSending]=useState(false),[submitted,setSubmitted]=useState(false),[notice,setNotice]=useState('');
   useEffect(()=>{const node=dialog.current;node.showModal();const unbind=window.psModalMotion.bindSheet(node,()=>dismiss());return()=>{unbind();request.current++;node.close();};},[]);
-  const boardDifficulty=hasCountryDifficulty(mode)?difficulty:undefined;
+  const boardDifficulty=hasGameDifficulty(mode)?difficulty:undefined;
   useEffect(()=>{load(false);return()=>{request.current++;};},[mode,boardDifficulty]);
   async function load(append=false) {
     const token=++request.current;setLoading(true);setError('');
@@ -43,7 +43,7 @@ export default function GeoRanking({ initialMode, initialDifficulty='easy', reco
       <div className="gg-ranking-heading">
         <div className="gg-ranking-kicker"><span className="gg-eyebrow">GEOWEB / RANKING</span><span className="gg-ranking-note">플레이어별 최고 점수</span></div>
         <div className="gg-ranking-title-row"><h2 id="gg-ranking-title">전체 플레이어 랭킹</h2>
-        {hasCountryDifficulty(mode)?<nav className="gg-ranking-levels" aria-label="랭킹 난이도">{[...DIFFICULTIES,{id:'legacy',label:'이전 기록'}].map(item=><button key={item.id} type="button" aria-pressed={difficulty===item.id} onClick={()=>setDifficulty(item.id)}>{item.label}</button>)}</nav>:<span className="gg-ranking-note">고정 난이도 · {difficultyLabel(GAME_MODES.find(item=>item.id===mode)?.tier)}</span>}
+        {hasGameDifficulty(mode)?<nav className="gg-ranking-levels" aria-label="랭킹 난이도">{[...difficultyOptions(mode),{id:'legacy',label:'이전 기록'}].map(item=><button key={item.id} type="button" aria-pressed={difficulty===item.id} onClick={()=>setDifficulty(item.id)}>{item.label}</button>)}</nav>:<span className="gg-ranking-note">고정 난이도 · {difficultyLabel(GAME_MODES.find(item=>item.id===mode)?.tier)}</span>}
         </div>
       </div>
       <div className="gg-ranking-help"><p>기록 제출 시 별명·학교 이름(입력한 경우)·최대 콤보·점수·소요 시간·플레이 시각이 공개됩니다.</p>

@@ -12,7 +12,10 @@ export const EXPERT_ANSWER_MS = 5000;
 export const hasCountryDifficulty = mode => COUNTRY_GAME_MODES.includes(mode);
 export const difficultyLabel = diff => DIFFICULTIES.find(item=>item.id===diff)?.label || '이전 기록';
 export const countryFamiliarity = iso2 => familiar.has(iso2)?'easy':lessFamiliar.has(iso2)?'med':'hard';
-export const gameRecordKey = (mode,diff) => hasCountryDifficulty(mode)?`${mode}_${diff}`:mode;
+export const hasContentDifficulty=mode=>['landmark','nature'].includes(mode);
+export const hasGameDifficulty=mode=>hasCountryDifficulty(mode)||hasContentDifficulty(mode);
+export const difficultyOptions=mode=>hasContentDifficulty(mode)?DIFFICULTIES.filter(d=>['easy','hard'].includes(d.id)).map(d=>({...d,description:d.id==='easy'?'익숙한 대표 명소와 지형':'더 다양한 명소와 지형에 도전'})):DIFFICULTIES;
+export const gameRecordKey = (mode,diff) => hasGameDifficulty(mode)?`${mode}_${diff}`:mode;
 const weights = {easy:[.8,.17,.03],med:[.025,.7,.275],hard:[.001,.04,.959]};
 
 export function difficultyDeck(pool,difficulty,previousId,random=Math.random) {

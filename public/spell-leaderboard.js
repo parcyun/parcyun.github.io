@@ -63,12 +63,14 @@ export function createLeaderboard(context, game='spell') {
       const d=s.dbApi;const ref=d.doc(s.db,collectionName,boardId(record),'players',entryId||user.uid);
       const next={nickname:profile.nickname||nickname,school:isDeveloperUser(user)?'DEXTER 개발자':typeof profile.school==='string'?profile.school.trim():'',score:record.score,elapsedMs:Math.round(record.elapsedMs),playedAt:d.Timestamp.fromMillis(record.playedAt),updatedAt:d.serverTimestamp()};
       if(Number.isInteger(record.maxCombo)&&record.maxCombo>=0)next.maxCombo=record.maxCombo;
-      await d.runTransaction(s.db,async transaction=>{
+      const result=await d.runTransaction(s.db,async transaction=>{
         const previous=await transaction.get(ref);
-        if(previous.exists()){const p=previous.data();if(p.score>next.score||(p.score===next.score&&p.elapsedMs<=next.elapsedMs))return}
+        if(previous.exists()){const p=previous.data();if(p.score>next.score||(p.score===next.score&&p.elapsedMs<=next.elapsedMs))return {improved:false};}
         transaction.set(ref,next);
+        return {improved:true};
       });
       cache.invalidate(`${collectionName}/${boardId(record)}`);
+      return result;
     }
   };
 }

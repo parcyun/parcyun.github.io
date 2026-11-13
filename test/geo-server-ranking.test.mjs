@@ -42,3 +42,13 @@ test('a copied developer email or nickname cannot bypass reserved names',async()
  const api=createLeaderboard(async()=>({user:{uid:'impostor',email:'pen.layered@example.com'},profile:{nickname:'DEXTER'}}),'geo');
  await assert.rejects(()=>api.submit({mode:'landmark',score:100,elapsedMs:1000,playedAt:1}),/별명/);
 });
+
+test('submission reports an actual transaction improvement, including faster ties',async()=>{
+ let stored={score:200,elapsedMs:2000};const dbApi={doc:()=>({}),Timestamp:{fromMillis:x=>x},serverTimestamp:()=>1,runTransaction:async(_,fn)=>fn({get:async()=>({exists:()=>true,data:()=>stored}),set:(_,value)=>{stored=value;}})};
+ const api=createLeaderboard(async()=>({s:{db:{},dbApi},user:{uid:'player'},profile:{nickname:'탐험가'}}),'geo');
+ const base={mode:'landmark',diff:'easy',playedAt:1};
+ assert.deepEqual(await api.submit({...base,score:100,elapsedMs:1000}),{improved:false});
+ assert.deepEqual(await api.submit({...base,score:200,elapsedMs:2000}),{improved:false});
+ assert.deepEqual(await api.submit({...base,score:200,elapsedMs:1500}),{improved:true});
+ assert.deepEqual(await api.submit({...base,score:300,elapsedMs:5000}),{improved:true});
+});

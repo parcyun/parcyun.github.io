@@ -34,6 +34,11 @@ test('GeoWeb difficulty boards isolate new records and keep legacy boards readab
 
 test('developer account affiliation is stored with a new voluntary record without exposing email',async()=>{
  let stored;const dbApi={doc:()=>({}),Timestamp:{fromMillis:x=>x},serverTimestamp:()=>1,runTransaction:async(_,fn)=>fn({get:async()=>({exists:()=>false}),set:(_,data)=>{stored=data;}})};
- const api=createLeaderboard(async()=>({s:{db:{},dbApi},user:{uid:'dev',email:'pen.layered@example.com'},profile:{nickname:'탐험가',school:'학교'}}),'geo');
+ const api=createLeaderboard(async()=>({s:{db:{},dbApi},user:{uid:'HfR0sV3bsBQ98I71IkNlxJ2R70z2'},profile:{nickname:'parcyun DEXTER',school:'학교'}}),'geo');
  await api.submit({mode:'landmark',diff:'hard',score:100,elapsedMs:1000,playedAt:1});assert.equal(stored.school,'DEXTER 개발자');assert.equal(stored.email,undefined);
+});
+
+test('a copied developer email or nickname cannot bypass reserved names',async()=>{
+ const api=createLeaderboard(async()=>({user:{uid:'impostor',email:'pen.layered@example.com'},profile:{nickname:'DEXTER'}}),'geo');
+ await assert.rejects(()=>api.submit({mode:'landmark',score:100,elapsedMs:1000,playedAt:1}),/별명/);
 });

@@ -1,3 +1,4 @@
+import {finishOnHidden,tabExitMessage} from './geoRoundVisibility.js';
 import { useEffect, useRef, useState } from 'react';
 import { GAME_MODES, matchesAnswer, scoreAnswer, scoring, shuffledDeck, contentDeck } from './geoGameData.js';
 import './geoGame.css';
@@ -27,7 +28,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   const [countdown,setCountdown]=useState(null),deadline=useRef(0);
   const roundStarted=useRef(0);
   const [stats,setStats]=useState({score:0,combo:0,bestCombo:0,correct:0,attempts:0});
-  const [summary,setSummary]=useState(false);
+  const [summary,setSummary]=useState(false),[finishReason,setFinishReason]=useState('');
   const [rankingOpen,setRankingOpen]=useState(false),[finishedRecord,setFinishedRecord]=useState(null);
   const roundRecord=useRef(null),rankingOpener=useRef(null);
   const openRanking=event=>{rankingOpener.current=event.currentTarget;setRankingOpen(true);};
@@ -69,7 +70,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   useEffect(()=>{
     if(!playing)return;
     cancelPending();deck.current=[];setResult(null);setStats({score:0,combo:0,bestCombo:0,correct:0,attempts:0});
-    roundRecord.current=null;roundStarted.current=performance.now();setElapsed(0);
+    setFinishReason('');roundRecord.current=null;roundStarted.current=performance.now();setElapsed(0);
     nextQuestion(mode);
     return cancelPending;
   },[mode,difficulty,playing,practice]);
@@ -130,6 +131,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     if(leaving||(locked.current&&!mediaError)||summary)return;
     if(!practice)setStats(s=>({...s,combo:0}));advance({good:false,skipped:true,text:question.name,id:performance.now()});
   }
+  useEffect(()=>{if(!playing||summary)return;return finishOnHidden(document,()=>{setFinishReason(tabExitMessage());finish();});},[playing,summary,mode,practice]);
   function finish(){cancelPending();locked.current=true;onFinish?.(mode);if(practice){returnToMenu();return;}setFinishedRecord(roundRecord.current);setSummary(true);}
   function returnToMenu(){const complete=()=>{setSummary(false);setPlaying(false);setQuestion(null);setResult(null);setFormula(false);later(()=>document.querySelector('.gg-menu nav button')?.focus(),0);};if(summary)window.psModalMotion.exit(document.querySelector('.gg-summary'),complete);else complete();}
   return <section className={`geo-game ${playing?'gg-playing':''} ${playing&&mode==='flag'?'geo-game-flags':''} ${expert?'gg-expert':''}`} aria-label="지오웹 게임 모드">
@@ -178,7 +180,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
       </form>}
       {practice&&<button ref={nextButton} type="button" className="gg-practice-next" disabled={(busy&&!mediaError)||summary} onClick={skip} onKeyDown={e=>{if(e.key==='Enter'&&e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();if(!e.repeat)skip();}}}><span>넘기기</span><small>SHIFT+ENTER</small></button>}
     </div>
-    {summary&&<div className="gg-summary" onClick={event=>{if(event.target===event.currentTarget)returnToMenu();}} role="dialog" aria-modal="true" aria-labelledby="gg-summary-title" onKeyDown={e=>{if(e.key==='Escape')returnToMenu();if(e.key==='Tab'){const buttons=[...e.currentTarget.querySelectorAll('button')];const index=buttons.indexOf(document.activeElement);e.preventDefault();buttons[(index+(e.shiftKey?-1:1)+buttons.length)%buttons.length].focus();}}}><div><div className="gg-eyebrow">ROUND COMPLETE</div><h2 id="gg-summary-title">오늘의 지구 탐험</h2><strong>{stats.score.toLocaleString()}<small>점</small></strong><p>정답 {stats.correct}개 · 최고 콤보 {stats.bestCombo} · {formatTime(elapsed)}</p><div className="gg-summary-actions"><button autoFocus onClick={returnToMenu}>게임 선택으로</button><button className="gg-mode-exit" onClick={()=>window.psModalMotion.exit(document.querySelector('.gg-summary'),onExit)}>게임모드 종료 ↗</button></div><div className="gg-summary-submit"><button type="button" onClick={openRanking}>랭킹 · 기록 제출</button></div></div></div>}
+    {summary&&<div className="gg-summary" onClick={event=>{if(event.target===event.currentTarget)returnToMenu();}} role="dialog" aria-modal="true" aria-labelledby="gg-summary-title" onKeyDown={e=>{if(e.key==='Escape')returnToMenu();if(e.key==='Tab'){const buttons=[...e.currentTarget.querySelectorAll('button')];const index=buttons.indexOf(document.activeElement);e.preventDefault();buttons[(index+(e.shiftKey?-1:1)+buttons.length)%buttons.length].focus();}}}><div><div className="gg-eyebrow">ROUND COMPLETE</div><h2 id="gg-summary-title">오늘의 지구 탐험</h2>{finishReason&&<p role="status">{finishReason}</p>}<strong>{stats.score.toLocaleString()}<small>점</small></strong><p>정답 {stats.correct}개 · 최고 콤보 {stats.bestCombo} · {formatTime(elapsed)}</p><div className="gg-summary-actions"><button autoFocus onClick={returnToMenu}>게임 선택으로</button><button className="gg-mode-exit" onClick={()=>window.psModalMotion.exit(document.querySelector('.gg-summary'),onExit)}>게임모드 종료 ↗</button></div><div className="gg-summary-submit"><button type="button" onClick={openRanking}>랭킹 · 기록 제출</button></div></div></div>}
     </>}
   </section>;
 }

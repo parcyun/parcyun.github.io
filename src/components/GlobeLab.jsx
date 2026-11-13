@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import GeoGame from './GeoGame.jsx';
+import {preloadPhotoCatalog} from './geoPhotoPreload.js';
 import GeoMobileNavigation from './GeoMobileNavigation.jsx';
 import { buildGamePools } from './geoGameData.js';
 import { STARDUST_FRAGMENT } from './globeStarlight.js';
@@ -315,6 +316,7 @@ export default function GlobeLab(){
   },[]);
   const mountRef=useRef(null),labelRef=useRef(null),api=useRef({});
   const [gameActive,setGameActive]=useState(false),[gameWipe,setGameWipe]=useState(false),[gamePools,setGamePools]=useState(null);
+  useEffect(()=>gamePools?preloadPhotoCatalog(gamePools):undefined,[gamePools]);
   const gameSnapshot=useRef(null),gameTimers=useRef([]);
   const S=useRef({view:'flat',country:false,dayNight:false,dnPlay:true,month:6,grat:true,eq:true,prime:true,dateline:true,step:20,sunLon:-90,climate:false,climateZones:ALL_CLIMATE_SELECTION,terrain:false,terrainLayers:EMPTY_LANDFORM_SELECTION});
   const [view,setView]=useState('flat');

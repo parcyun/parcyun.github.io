@@ -1,7 +1,7 @@
 import './modal-motion.js?v=20261030-2';
 const CONFIG = { apiKey: 'AIzaSyBjkzvcIjyfnOU0TBF5VasoaQz3Xgw1C9I', authDomain: 'parcyun.firebaseapp.com', projectId: 'parcyun', appId: '1:1093702239224:web:021018208e667b21e7cc0d' };
 const MASCOT = '/images/dexter-base-character-01.png';
-import {createLeaderboard,rankingAffiliation,isReservedNickname,compareRankingEfficiency} from './spell-leaderboard.js?v=20261113-geoweb-1';
+import {createLeaderboard,rankingAffiliation,isReservedNickname,isDeveloperUser,compareRankingEfficiency} from './spell-leaderboard.js?v=20261113-geoweb-2';
 import {createBrowserProfileStore,normalizeSchool} from './browser-profile.js?v=20261029-1';
 import {searchSchools,schoolMark,SCHOOL_REGIONS} from './school-directory.js?v=20261029-1';
 import {optimizeSchoolMark,submitSchoolMarkRequest} from './school-mark-request.js?v=20261029-1';
@@ -186,7 +186,7 @@ function renderAccount() {
   body.querySelector('#ps-save-profile').onclick = async e => {
     const nickname = body.querySelector('#ps-nickname').value.trim(); const school = body.querySelector('#ps-school').value.trim();
     if (nickname.length < 2 || nickname.length > 20) { message('2~20자의 별명을 입력해 주세요. 실명은 사용하지 마세요.'); return; }
-    if (isReservedNickname(nickname)) { message('DEXTER와 parcyun이 포함된 별명은 사용할 수 없어요. 다른 별명을 입력해 주세요.'); return; }
+    if (isReservedNickname(nickname) && !isDeveloperUser(user)) { message('DEXTER와 parcyun이 포함된 별명은 사용할 수 없어요. 다른 별명을 입력해 주세요.'); return; }
     e.currentTarget.disabled = true;
     try {
       const next={nickname,school,photo:photo||profile.photo||'',...(selectedSchool?{schoolInfo:selectedSchool}:{})};

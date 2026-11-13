@@ -1,0 +1,5 @@
+// Keep decoded images only while loading; the browser owns the HTTP cache.
+const pending=new Map(),queue=[];let active=0;
+function pump(){while(active<2&&queue.length){const task=queue.shift();active++;const img=new Image();img.onload=()=>finish(true);img.onerror=()=>finish(false);function finish(ok){img.onload=img.onerror=null;active--;if(!ok)pending.delete(task.url);task.resolve(ok);pump();}img.src=task.url;}}
+export function warmPhoto(url){if(!url)return Promise.resolve(false);if(pending.has(url))return pending.get(url);const promise=new Promise(resolve=>queue.push({url,resolve}));pending.set(url,promise);pump();return promise;}
+export function preloadPhotoCatalog(pools){let stopped=false;const groups=[...(pools.landmark||[]),...(pools.nature||[])];const urls=[...new Set([0,1,2].flatMap(i=>groups.map(q=>(q.photos?.length?q.photos:[q])[i]?.image).filter(Boolean)))];let cursor=0;const idle=window.requestIdleCallback||((fn)=>setTimeout(fn,50));function batch(){if(stopped||cursor>=urls.length)return;const jobs=urls.slice(cursor,cursor+=2).map(warmPhoto);Promise.all(jobs).then(()=>idle(batch));}idle(batch);return()=>{stopped=true;};}

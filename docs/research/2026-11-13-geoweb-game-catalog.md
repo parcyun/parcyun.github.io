@@ -43,3 +43,9 @@ Natural Earth 50m 기존 영역과 10m 지형/하천 원본을 사용한다. 기
 4. `scripts/finalize-geogame-catalog.mjs`: 실제 풍경 사진이 있는156항목 확정.
 
 이번 원본·API 캐시·수집 로그·규칙 백업·검증 기록은 `/Users/parcyun/Downloads/Codex/Artifacts/geoweb-content-20261113/`에 보관한다.
+
+## Follow-up: account exception, photo cache and round visibility
+- Reserved developer names are allowed only for the verified developer Firebase UID in both client submission/profile validation and Firestore rules. Email prefixes and copied aliases do not grant an exception. Existing score ownership and best-record comparisons remain unchanged.
+- Photos warm progressively before entering a game, with two concurrent image loads and browser HTTP caching. Selected carousel photos remain visible until their replacement loads; slides cross the half-screen lane and fade at its boundary, including the screen centerline. Reduced motion disables slide movement.
+- Active rounds finish once when the document becomes hidden. Returning cannot resume the round; ten child-friendly messages are chosen randomly. This is a client-side deterrent, not proof of cheating; accidental tab changes and minimizing can also finish the round. Other devices and client tampering are not prevented.
+- Verification: reserved-name developer and impostor regression checks, cache concurrency/deduplication/retry checks, visibility lifecycle and ten-message selection checks; 45 targeted tests and production build. Local real UI confirmed three-photo cycling and the lane begins exactly at half the viewport. Real authenticated developer submission was not performed in the anonymous browser session. IAB background tabs remain visible to the page, so the real visibility transition is covered by event lifecycle tests rather than a simulated browser mutation.

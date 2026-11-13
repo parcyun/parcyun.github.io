@@ -384,6 +384,7 @@
 <style>#spell-update-history.open{max-height:340px}</style>
 <link rel="stylesheet" href="/mobile-games.css?v=20261101-1" />
 <script src="/modal-motion.js?v=20261101-1"></script>
+<link rel="stylesheet" href="/record-feedback.css?v=20261113-1"><script src="/record-feedback.js?v=20261113-1"></script>
 </head>
 <body>
 <div id="ps-game-intro" role="status" aria-label="스펠 드릴을 준비하고 있어요"><div class="ps-intro-lockup"><img class="ps-intro-avatar" src="/images/game-intro-dexter.webp" alt="덱스터 캐릭터" width="112" height="112"><p data-ps-edit-id="ps-spell-103" data-ps-design-id="ps-spell-103" class="ps-intro-name">스펠 <span data-ps-edit-id="ps-spell-104" data-ps-design-id="ps-spell-104">드릴</span></p><p data-ps-edit-id="ps-spell-105" data-ps-design-id="ps-spell-105" class="ps-intro-studio">parcyun studio</p></div></div>
@@ -11291,6 +11292,7 @@ function endGame(){
   $('#grade').textContent = grade;
   show('result');
   lastRankingResult={maxCombo:state.bestCombo,lang:state.lang,diff:state.diff,mode:state.mode,score:state.score,elapsedMs,playedAt:Date.now()};
+  try{window.psRecordFeedback.saveSpellPending(localStorage,lastRankingResult);}catch{}
   rankingSubmitted=false;
   submitRankingButton.disabled=false;submitRankingButton.textContent=state.lang==='en'?'Summit!':'기록 제출';
 }
@@ -11298,8 +11300,26 @@ let lastRankingResult=null,rankingSubmitted=false;
 const submitRankingButton=document.createElement('button');submitRankingButton.type='button';submitRankingButton.className='act primary ranking-result-submit';submitRankingButton.textContent='기록 제출';
 $('#result .actions').after(submitRankingButton);
 const publishNotice=document.createElement('p');publishNotice.className='ranking-note';publishNotice.textContent='등록하면 별명·학교 이름(입력한 경우)·최대 콤보·점수·소요 시간·플레이 시각이 전체 랭킹에 공개됩니다.';$('#result .actions').after(publishNotice);
-async function submitLatestRanking(button){if(!lastRankingResult||rankingSubmitted)return;button.disabled=true;try{if(!window.psGameRanking)throw new Error('서버 연결을 준비 중이에요. 다시 시도해 주세요.');await window.psGameRanking.submit(lastRankingResult);rankingSubmitted=true;submitRankingButton.disabled=true;submitRankingButton.textContent=state.lang==='en'?'Saved!':'제출 완료';button.textContent=state.lang==='en'?'Saved!':'제출 완료';if(rankingDialog.open){rankingDiff=lastRankingResult.diff;rankingMode=lastRankingResult.mode;await renderRankingSheet()}}catch(error){button.disabled=false;button.textContent=error.message||'제출 실패 · 다시 시도'}}
-submitRankingButton.onclick=()=>submitLatestRanking(submitRankingButton);
+let rankingSending=false,rankingMotion=false,cancelRankingAward,rankingMergeTimer;
+async function submitLatestRanking(button){
+  const record=window.psRecordFeedback.readSpellPending(localStorage)[window.psRecordFeedback.spellBoardKey({lang:state.lang,diff:rankingDiff,mode:rankingMode})];
+  if(!record||rankingSending||rankingMotion)return;
+  rankingSending=true;button.disabled=true;setRankingControls(true);
+  try{
+    if(!window.psGameRanking)throw new Error('서버 연결을 준비 중이에요. 다시 시도해 주세요.');
+    const result=await window.psGameRanking.submit(record);
+    try{window.psRecordFeedback.acknowledgeSpellPending(localStorage,record);}catch{}
+    rankingSubmitted=true;submitRankingButton.disabled=true;submitRankingButton.textContent='제출 완료';button.textContent='제출 완료';
+    if(!rankingDialog.open)return;
+    rankingMotion=true;pendingBox.classList.add('is-merging');
+    const focused=pendingBox.contains(document.activeElement);
+    rankingMergeTimer=setTimeout(()=>{pendingBox.hidden=true;pendingBox.classList.remove('is-merging');if(focused)mineBox.focus({preventScroll:true});if(!result?.improved){rankingMotion=false;setRankingControls(false);}},360);
+    await renderRankingSheet(false,true);
+    if(result?.improved&&rankingDialog.open)cancelRankingAward=window.psRecordFeedback.celebrate(rankingDialog,mineBadge,()=>{rankingMotion=false;setRankingControls(false);});
+  }catch(error){button.disabled=false;pendingNotice.textContent=error.message||'제출 실패 · 다시 시도';}
+  finally{rankingSending=false;if(!rankingMotion)setRankingControls(false);}
+}
+submitRankingButton.onclick=()=>openRanking();
 $('#again').addEventListener('click',startGame);
 $('#back-home').addEventListener('click',()=>{renderBest();show('home')});
 $('#see-rank').addEventListener('click',()=>openRanking());
@@ -11310,27 +11330,38 @@ function compareRankRecords(a,b){
 }
 const rankingDialog=window.psModalMotion.bindDialog(document.createElement('dialog'));
 rankingDialog.className='ranking-sheet';rankingDialog.setAttribute('aria-label','전체 플레이어 랭킹');
-rankingDialog.innerHTML='<header><div class="ranking-heading"><h2>전체 플레이어 랭킹</h2><p class="ranking-note">플레이어별 최고 기록<br>제출 시 별명·학교 이름(입력한 경우)·최대 콤보·점수·소요 시간·플레이 시각이 공개됩니다.</p></div><div class="ranking-header-actions"><button type="button" class="act ghost ranking-refresh" aria-label="기록 새로고침" title="기록 새로고침"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></svg></button><button type="button" class="act ghost ranking-close" aria-label="랭킹 닫기">×</button></div></header><div class="ranking-filters"></div><div class="ranking-scroll" tabindex="0"><table class="rank-table"><thead><tr><th>순위</th><th>플레이어</th><th>최대 콤보</th><th>점수</th><th>소요 시간</th><th>플레이 시간</th></tr></thead><tbody></tbody></table><button type="button" class="act" id="ranking-more" hidden>더 보기</button></div><div class="ranking-mine" role="status"></div>';
+rankingDialog.innerHTML='<header><div class="ranking-heading"><h2>전체 플레이어 랭킹</h2><p class="ranking-note">공개 항목: 별명·학교(입력 시)·콤보·점수·시간·플레이 시각</p></div><div class="ranking-header-actions"><button type="button" class="act ghost ranking-refresh" aria-label="기록 새로고침" title="기록 새로고침"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></svg></button><button type="button" class="act ghost ranking-close" aria-label="랭킹 닫기">×</button></div></header><div class="ranking-filters"></div><div class="ranking-scroll" tabindex="0"><table class="rank-table"><thead><tr><th>순위</th><th>플레이어</th><th>최대 콤보</th><th>점수</th><th>소요 시간</th><th>플레이 시간</th></tr></thead><tbody></tbody></table><button type="button" class="act" id="ranking-more" hidden>더 보기</button></div><div class="ranking-mine" role="status"></div>';
 document.body.append(rankingDialog);
 window.psModalMotion.bindSheet(rankingDialog,()=>rankingDialog.close(),false);
 let rankingDiff='easy',rankingMode='timer';
-const mineBox=rankingDialog.querySelector('.ranking-mine');const mineInfo=document.createElement('span');mineInfo.className='ranking-mine-info';mineBox.append(mineInfo);
-const mineSubmit=document.createElement('button');mineSubmit.type='button';mineSubmit.className='act primary';mineSubmit.textContent='기록 제출';mineBox.append(mineSubmit);mineSubmit.onclick=()=>submitLatestRanking(mineSubmit);
+const mineBox=rankingDialog.querySelector('.ranking-mine');mineBox.tabIndex=-1;
+const personalBox=document.createElement('div');personalBox.className='ranking-personal';mineBox.before(personalBox);personalBox.append(mineBox);
+const mineLabel=document.createElement('div');mineLabel.innerHTML='<span class="ranking-mine-kicker">MY BEST RECORD</span><strong class="ranking-mine-title"></strong>';
+const mineBadge=document.createElement('span');mineBadge.className='gg-ranking-renewed';mineBadge.textContent='경신!';mineLabel.append(mineBadge);mineBox.append(mineLabel);
+const mineInfo=document.createElement('span');mineInfo.className='ranking-mine-info';mineBox.append(mineInfo);
+const pendingBox=document.createElement('div');pendingBox.className='ranking-pending';pendingBox.setAttribute('aria-label','미제출 기록');pendingBox.hidden=true;
+const pendingInfo=document.createElement('div');pendingInfo.innerHTML='<small>NEW RECORD · 미제출</small><strong></strong><span></span>';pendingBox.append(pendingInfo);
+const mineSubmit=document.createElement('button');mineSubmit.type='button';mineSubmit.className='act primary';mineSubmit.textContent='기록 제출';pendingBox.append(mineSubmit);mineSubmit.onclick=()=>submitLatestRanking(mineSubmit);
+const pendingNotice=document.createElement('small');pendingNotice.className='ranking-pending-notice';pendingNotice.setAttribute('role','status');pendingBox.append(pendingNotice);personalBox.prepend(pendingBox);
+function setRankingControls(disabled){rankingDialog.querySelectorAll('.ranking-filters button,.ranking-refresh,#ranking-more').forEach(b=>b.disabled=disabled);}
+function renderPendingRecord(){const record=window.psRecordFeedback.readSpellPending(localStorage)[window.psRecordFeedback.spellBoardKey({lang:state.lang,diff:rankingDiff,mode:rankingMode})];pendingBox.hidden=!record;pendingNotice.textContent='';if(record){pendingInfo.querySelector('strong').textContent=record.score.toLocaleString()+'점 · '+fmtTime(record.elapsedMs);pendingInfo.querySelector('span').textContent=rankingBoardLabel();mineSubmit.disabled=false;mineSubmit.textContent='기록 제출';}}
+function rankingBoardLabel(){return [state.lang==='en'?'영어':'한글',document.querySelector(`#diff-row [data-diff="${rankingDiff}"]`).textContent.trim(),document.querySelector(`#mode-row [data-mode="${rankingMode}"]`).textContent.trim()].join(' · ');}
 for(const [source,key] of [['#diff-row','diff'],['#mode-row','mode']]){
   const group=$(source).cloneNode(true);group.removeAttribute('id');
   group.querySelectorAll('[id],[data-ps-edit-id],[data-ps-design-id]').forEach(n=>{n.removeAttribute('id');n.removeAttribute('data-ps-edit-id');n.removeAttribute('data-ps-design-id')});
-  group.querySelectorAll('button').forEach(button=>button.onclick=()=>{if(key==='diff')rankingDiff=button.dataset.diff;else rankingMode=button.dataset.mode;renderRankingSheet()});
+  group.querySelectorAll('button').forEach(button=>button.onclick=()=>{if(rankingSending||rankingMotion)return;mineBadge.classList.remove('is-renewed');if(key==='diff')rankingDiff=button.dataset.diff;else rankingMode=button.dataset.mode;renderRankingSheet()});
   rankingDialog.querySelector('.ranking-filters').append(group);
 }
 let rankingRequest=0,rankingCursor=null,rankingRows=[];
-async function renderRankingSheet(append=false){
+async function renderRankingSheet(append=false,retain=false){
   const request=++rankingRequest;
   rankingDialog.querySelector('.ranking-refresh').disabled=true;
   rankingDialog.querySelectorAll('[data-diff]').forEach(b=>b.classList.toggle('on',b.dataset.diff===rankingDiff));
   rankingDialog.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===rankingMode));
   const tbody=rankingDialog.querySelector('tbody'),mine=mineInfo,more=rankingDialog.querySelector('#ranking-more');
-  mineSubmit.disabled=!lastRankingResult||rankingSubmitted;mineSubmit.textContent=rankingSubmitted?(state.lang==='en'?'Saved!':'제출 완료'):(state.lang==='en'?'Summit!':'기록 제출');
-  if(!append){rankingRows=[];rankingCursor=null;tbody.innerHTML='<tr><td colspan="6">서버 기록을 불러오는 중…</td></tr>';mine.textContent='내 순위 확인 중…';more.hidden=true}
+  if(!rankingMotion)renderPendingRecord();
+  mineLabel.querySelector('.ranking-mine-title').textContent=rankingBoardLabel();
+  if(!append){rankingRows=[];rankingCursor=null;tbody.innerHTML='<tr><td colspan="6">서버 기록을 불러오는 중…</td></tr>';if(!retain)mine.textContent='내 순위 확인 중…';more.hidden=true}
   more.disabled=true;
   try{
     if(!window.psGameRanking)throw new Error('서버 연결을 준비 중입니다. 잠시 후 다시 열어 주세요.');
@@ -11342,11 +11373,13 @@ async function renderRankingSheet(append=false){
     if(!rankingRows.length){const cell=tbody.insertRow().insertCell();cell.colSpan=6;cell.textContent='등록된 기록이 없습니다. 첫 번째 기록을 남겨 보세요.'}
     mine.textContent=data.mine?`내 순위 ${data.mine.rank}위 · ${data.mine.nickname} · ${window.psRankingAffiliation(data.mine)} · 최대 콤보 ${data.mine.maxCombo==null?'—':`${data.mine.maxCombo}회`} · ${data.mine.score.toLocaleString()}점 · 소요 ${fmtTime(data.mine.elapsedMs)} · 플레이 ${playedAt(data.mine)}`:data.signedIn?'내 기록 없음 · 게임을 마치고 전체 랭킹에 등록해 주세요.':'프로필을 만들면 내 기록과 순위를 볼 수 있어요.';
     more.hidden=!data.more;if(!append)rankingDialog.querySelector('.ranking-scroll').scrollTop=0;
-  }catch(error){if(request!==rankingRequest)return;if(!append)tbody.replaceChildren();const cell=tbody.insertRow().insertCell();cell.colSpan=6;cell.textContent='기록을 불러오지 못했습니다. 잠시 후 다시 열어 주세요.';mine.textContent='서버 기록 확인 불가';console.warn('Ranking load:',error.code||error.message)}finally{if(request===rankingRequest){rankingDialog.querySelector('.ranking-refresh').disabled=false;more.disabled=false;}}
+  }catch(error){if(request!==rankingRequest)return;if(!append)tbody.replaceChildren();const cell=tbody.insertRow().insertCell();cell.colSpan=6;cell.textContent='기록을 불러오지 못했습니다. 잠시 후 다시 열어 주세요.';mine.textContent='서버 기록 확인 불가';console.warn('Ranking load:',error.code||error.message)}finally{if(request===rankingRequest&&!rankingSending&&!rankingMotion){rankingDialog.querySelector('.ranking-refresh').disabled=false;more.disabled=false;}}
 }
 rankingDialog.querySelector('#ranking-more').onclick=()=>renderRankingSheet(true);
 function openRanking(){rankingDiff=state.diff;rankingMode=state.mode;renderRankingSheet();rankingDialog.showModal()}
 rankingDialog.querySelector('.ranking-close').onclick=()=>rankingDialog.close();
+rankingDialog.addEventListener('close',()=>{cancelRankingAward?.();clearTimeout(rankingMergeTimer);pendingBox.classList.remove('is-merging');rankingMotion=false;rankingRequest++;setRankingControls(false);});
+window.addEventListener('storage',()=>{if(rankingDialog.open&&!rankingMotion&&!rankingSending)renderPendingRecord();});
 rankingDialog.querySelector('.ranking-refresh').onclick=()=>renderRankingSheet(false);
 const soundStack=document.createElement('div');soundStack.className='sound-stack';const settingsRow=stToggle.parentElement;settingsRow.before(soundStack);
 const rankingButton=document.createElement('button');rankingButton.type='button';rankingButton.className='ranking-launch';rankingButton.setAttribute('aria-haspopup','dialog');
@@ -11606,7 +11639,7 @@ function setLanguage(lang){
 </script>
 <script src="../share-widget.js?v=20261103-qr-clean" defer></script>
 <script src="/service-guide.js?v=20261101-1" defer></script>
-<script type="module" src="/game-account.js?v=20261102-cache-1"></script>
+<script type="module" src="/game-account.js?v=20261113-records-2"></script>
 <script src="../visitor-counter.js" defer></script>
 <a data-ps-edit-id="ps-spell-072" data-ps-design-id="ps-spell-072" id="ps-back-btn" href="/atlas-gears/" aria-label="아틀라스 기어즈로 이동" title="아틀라스 기어즈로 이동" style="position:fixed;top:14px;left:14px;z-index:99999;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#8C8C8C;cursor:pointer;padding:0" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.28)'" onmouseout="this.style.color='#8C8C8C';this.style.borderColor='rgba(255,255,255,.12)'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
 <style>
@@ -11631,4 +11664,8 @@ function setLanguage(lang){
 <style>
 .ranking-sheet{height:90dvh;max-height:90dvh;padding:20px;gap:12px}.ranking-sheet header{flex:none;align-items:flex-start;gap:12px}.ranking-heading{display:flex;align-items:center;gap:12px 20px;flex-wrap:wrap;min-width:0;flex:1}.ranking-heading h2{white-space:nowrap;font-size:22px}.ranking-heading .ranking-note{flex:1;min-width:220px;margin:0;font-size:10px;line-height:1.6}.ranking-sheet header button{min-height:34px;padding:3px 12px}.ranking-filters{flex:none;gap:6px;margin:0}.ranking-sheet .rank-table th,.ranking-sheet .rank-table td{padding:7px 10px;font-size:13px;line-height:1.4}.ranking-sheet .rank-table td small{font-size:11px!important;line-height:1.35;margin-top:2px}.ranking-sheet .ranking-mine{margin:0;padding:8px 12px;font-size:12px;line-height:1.5;border-color:#ffb11a66;font-weight:500}.ranking-scroll th{background:#151a22;z-index:1}
 @media(max-width:600px){.ranking-sheet{padding:14px;gap:10px}.ranking-heading{gap:5px}.ranking-heading h2{font-size:18px}.ranking-heading .ranking-note{flex-basis:100%;min-width:0;font-size:9px}.ranking-filters{gap:5px}.ranking-filters button{min-height:30px;padding:3px 8px;font-size:11px}.ranking-sheet .rank-table th,.ranking-sheet .rank-table td{padding:6px 8px;font-size:12px}.ranking-sheet .rank-table td small{font-size:10px!important}.ranking-sheet .ranking-mine{font-size:11px;padding:7px 10px}}
+</style>
+
+<style>
+.ranking-sheet{position:relative;padding:24px 18px 14px;gap:8px}.ranking-sheet>.ps-sheet-handle{position:absolute;top:0;left:50%;transform:translateX(-50%);margin:0;min-height:20px!important;padding:6px 16px!important}.ranking-heading{align-items:flex-start;gap:4px 16px;flex-wrap:nowrap}.ranking-heading .ranking-note{min-width:0;flex:1;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;text-align:right;font-size:9px;line-height:1.5}.ranking-sheet .ranking-heading h2{line-height:1.3}.ranking-personal{position:relative;flex:none}.ranking-sheet .ranking-mine{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap}.ranking-mine-kicker{display:block;font-size:8px;letter-spacing:.12em}.ranking-mine-title{font-size:12px}.ranking-mine-info{font-size:11px;line-height:1.6}.ranking-pending{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);z-index:3;box-sizing:border-box;width:min(460px,100%);display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;border:1px solid #68df9f88;border-radius:22px;background:#16352be8;box-shadow:0 10px 32px #0005;backdrop-filter:blur(16px);color:#d4ffe5}.ranking-pending[hidden]{display:none}.ranking-pending>div>small{display:block;color:#8be7af;font-size:9px;letter-spacing:.1em}.ranking-pending strong{display:block;font-size:22px;line-height:1.5}.ranking-pending>div>span{font-size:11px;color:#b6d5c4}.ranking-pending>.act{flex:none;min-height:44px;padding:10px 16px;border-color:#8be7af;border-radius:14px;background:#8be7af;color:#10271b;font-weight:700}.ranking-pending-notice:empty{display:none}.ranking-pending-notice{position:absolute;bottom:100%;left:0;color:#ffd3b1;background:#15251f;padding:6px 10px;border-radius:8px;font-size:11px}.ranking-pending.is-merging{pointer-events:none;animation:spell-record-merge .36s cubic-bezier(.4,0,.2,1) both}@keyframes spell-record-merge{0%{background:#8be7af;filter:brightness(1.5);transform:translate(-50%,0) scale(1);opacity:1}30%{filter:brightness(1);opacity:1}100%{transform:translate(-50%,60px) scale(.72);opacity:0}}@media(max-width:600px){.ranking-sheet{padding:22px 12px 12px;gap:6px}.ranking-heading{flex-wrap:wrap}.ranking-heading .ranking-note{flex-basis:100%;text-align:left;font-size:8px}.ranking-pending{padding:10px 12px;gap:10px}.ranking-pending strong{font-size:20px}.ranking-sheet .ranking-mine{gap:4px}.ranking-mine-info{flex-basis:100%}}@media(prefers-reduced-motion:reduce){.ranking-pending.is-merging{animation:none;opacity:.5}}
 </style>

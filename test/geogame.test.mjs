@@ -81,3 +81,7 @@ test('landmark countries never repeat consecutively, including across complete d
 test('each displayed river is a single connected coordinate chain without invented long joins',()=>{
  for(const q of pools.nature.filter(q=>q.category==='rivers')){assert.equal(q.features.length,1,q.name);const g=q.features[0].geometry;assert.equal(g.type,'LineString',q.name);assert.ok(g.coordinates.length>2);for(const p of g.coordinates)assert.ok(p.every(Number.isFinite));}
 });
+
+test('Korean Han river is not confused with the longer Chinese Han river',()=>{
+ const q=pools.nature.find(q=>q.id==='rivers:한강');for(const [lon,lat] of q.features[0].geometry.coordinates){assert.ok(lon>=124&&lon<=131);assert.ok(lat>=33&&lat<=40);}
+});

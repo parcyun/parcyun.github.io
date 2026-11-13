@@ -3,7 +3,7 @@
 ## 적용 결과
 
 - 실제 출제 가능한 랜드마크 100 → 348종, 자연환경 52 → 156종. 초급은 기존 대표 자료, 고급은 추가 자료로 구성한 교육용 편집 분류이며 인지도 통계가 아니다.
-- 게임에 쓰이는 사진은 랜드마크 920장, 자연환경 371장. 항목별 1–3장의 서로 다른 파일을 연결하고 2초 간격으로 순환한다. 모든 항목에 사진이 있으며, 실제 자료가 부족한 곳에 다른 장소의 사진을 복제하지 않는다.
+- 게임에 쓰이는 사진은 랜드마크 920장, 자연환경 338장. 항목별 1–3장의 서로 다른 파일을 연결하고 2초 간격으로 순환한다. 모든 항목에 사진이 있으며, 실제 자료가 부족한 곳에 다른 장소의 사진을 복제하지 않는다.
 - 사진마다 Commons 파일 원본·저작자·라이선스·라이선스 URL을 저장하고 현재 표시 사진에 맞춰 크레딧을 바꾼다. 지도/로고/위치도 후보를 제외했다. 브라마푸트라와 멕시코 고원은 별도로 실제 강/고원 풍경 사진을 선정했다.
 - 랜드마크 덱은 국가별 남은 문항 수를 고려해 직전 국가를 제외한다. 덱 경계에서도 같은 나라가 이어지지 않는다. 초급·고급에 각각 충분한 국가가 있다.
 
@@ -22,7 +22,7 @@ Wikipedia의 한국어 문서 연결·Wikidata 한국어/영어 별칭을 자료
 
 Natural Earth 50m 기존 영역과 10m 지형/하천 원본을 사용한다. 기존 대표 지형을 보존하고 추가 영역은 실제 원본 폴리곤을 사용한다. 강은 14 → 42종이다.
 
-동일한 강의 원본 구간 끝점을 0.03도 이내에서만 연결하고, 가장 큰 연결 성분에서 연속된 주 물길을 추출해 단일 LineString으로 저장한다. 서로 떨어진 조각을 긴 직선으로 잇거나 무관한 지류를 만들어 넣지 않는다. 이는 교육용 일반화 지도이며 모든 지류·상류의 전수 표시가 아니다.
+동일한 강의 원본 구간 끝점을 0.03도 이내에서만 연결하고, 가장 큰 연결 성분에서 연속된 주 물길을 추출해 단일 LineString으로 저장한다. 서로 떨어진 조각을 긴 직선으로 잇거나 무관한 지류를 만들어 넣지 않는다. 한국 한강은 동명의 중국 한수와 섞이지 않도록 한반도 원본 구간만 선택한다. 이는 교육용 일반화 지도이며 모든 지류·상류의 전수 표시가 아니다.
 
 출처: [Natural Earth 데이터](https://www.naturalearthdata.com/downloads/10m-physical-vectors/), [공공영역 이용 조건](https://www.naturalearthdata.com/about/terms-of-use/), [원본 지역](https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_10m_geography_regions_polys.geojson), [원본 하천](https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_10m_rivers_lake_centerlines.geojson).
 
@@ -39,7 +39,7 @@ Natural Earth 50m 기존 영역과 10m 지형/하천 원본을 사용한다. 기
 
 1. `scripts/expand-geogame-catalog.mjs`: 기존100 + 추가 후보의 문서/별칭/사진 라이선스 수집.
 2. `scripts/expand-geogame-nature.py SOURCE_DIR`: Natural Earth 원본에서 지형·연속 하천 생성 (사진 부족 후보를 제외할 수 있게 초과 후보 생성).
-3. `scripts/expand-geogame-nature-media.mjs`, `scripts/finalize-geogame-catalog.mjs`: 사진 있는156항목 확정.
-4. `scripts/curate-geogame-photos.mjs`: 지도 이미지·중복 파일 제거와 실제 풍경 보완.
+3. `scripts/expand-geogame-nature-media.mjs`, `scripts/curate-geogame-photos.mjs`: 사진 메타데이터 수집 후 지도·도표·전시물 등 부적절한 후보 제거.
+4. `scripts/finalize-geogame-catalog.mjs`: 실제 풍경 사진이 있는156항목 확정.
 
 이번 원본·API 캐시·수집 로그·규칙 백업·검증 기록은 `/Users/parcyun/Downloads/Codex/Artifacts/geoweb-content-20261113/`에 보관한다.

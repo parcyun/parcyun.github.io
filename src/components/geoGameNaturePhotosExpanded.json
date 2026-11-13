@@ -1,5 +1,6 @@
 {
   "mountains:알프스산맥": {
+    "displayName": "알프스산맥",
     "aliases": [
       "Alps",
       "알프스산맥",
@@ -31,19 +32,12 @@
         "author": "Terra (EOS AM-1) satellite",
         "license": "Public domain",
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      },
-      {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/d/db/Alps_with_borders.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "source": "https://commons.wikimedia.org/wiki/File:Alps_with_borders.jpg",
-        "author": "Perconte (map), Hanno Sandvik (addition of borders)",
-        "license": "CC BY-SA 2.5",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Alps",
-    "displayName": "알프스산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Alps"
   },
   "mountains:히말라야산맥": {
+    "displayName": "히말라야산맥",
     "aliases": [
       "Himalayas",
       "히말라야산맥",
@@ -60,19 +54,12 @@
       "the Himalaya",
       "the Himálaya"
     ],
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Himalayas_and_allied_ranges_NASA_Landsat_showing_the_eight_thousanders%2C_annotated_with_major_rivers.jpg/960px-Himalayas_and_allied_ranges_NASA_Landsat_showing_the_eight_thousanders%2C_annotated_with_major_rivers.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "source": "https://commons.wikimedia.org/wiki/File:Himalayas_and_allied_ranges_NASA_Landsat_showing_the_eight_thousanders,_annotated_with_major_rivers.jpg",
-    "author": "NASA Landsat image",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/Himalayas.jpg/960px-Himalayas.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:Himalayas.jpg",
+    "author": "NASA",
     "license": "Public domain",
     "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
     "photos": [
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Himalayas_and_allied_ranges_NASA_Landsat_showing_the_eight_thousanders%2C_annotated_with_major_rivers.jpg/960px-Himalayas_and_allied_ranges_NASA_Landsat_showing_the_eight_thousanders%2C_annotated_with_major_rivers.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Himalayas_and_allied_ranges_NASA_Landsat_showing_the_eight_thousanders,_annotated_with_major_rivers.jpg",
-        "author": "NASA Landsat image",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      },
       {
         "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/Himalayas.jpg/960px-Himalayas.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "source": "https://commons.wikimedia.org/wiki/File:Himalayas.jpg",
@@ -88,10 +75,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Himalayas",
-    "displayName": "히말라야산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Himalayas"
   },
   "mountains:우랄산맥": {
+    "displayName": "우랄산맥",
     "aliases": [
       "Ural Mountains",
       "우랄산맥",
@@ -127,10 +114,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Ural%20Mountains",
-    "displayName": "우랄산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Ural%20Mountains"
   },
   "mountains:캅카스산맥": {
+    "displayName": "캅카스산맥",
     "aliases": [
       "Caucasus Mountains",
       "캅카스산맥",
@@ -165,10 +152,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Caucasus%20Mountains",
-    "displayName": "캅카스산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Caucasus%20Mountains"
   },
   "mountains:아틀라스산맥": {
+    "displayName": "아틀라스산맥",
     "aliases": [
       "Atlas Mountains",
       "아틀라스산맥",
@@ -202,10 +189,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Atlas%20Mountains",
-    "displayName": "아틀라스산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Atlas%20Mountains"
   },
   "mountains:로키산맥": {
+    "displayName": "로키산맥",
     "aliases": [
       "Rocky Mountains",
       "로키산맥",
@@ -232,19 +219,12 @@
         "author": "Gorgo",
         "license": "Public domain",
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Bison_at_Rocky_Mountain_Arsenal_National_Wildlife_Refuge_%2828379374751%29.jpg/960px-Bison_at_Rocky_Mountain_Arsenal_National_Wildlife_Refuge_%2828379374751%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Bison_at_Rocky_Mountain_Arsenal_National_Wildlife_Refuge_(28379374751).jpg",
-        "author": "U.S. Fish and Wildlife Service Headquarters",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Rocky%20Mountains",
-    "displayName": "로키산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Rocky%20Mountains"
   },
   "mountains:애팔래치아산맥": {
+    "displayName": "애팔래치아산맥",
     "aliases": [
       "Appalachian Mountains",
       "애팔래치아산맥",
@@ -283,10 +263,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Appalachian%20Mountains",
-    "displayName": "애팔래치아산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Appalachian%20Mountains"
   },
   "mountains:안데스산맥": {
+    "displayName": "안데스산맥",
     "aliases": [
       "Andes",
       "안데스산맥",
@@ -325,10 +305,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Andes",
-    "displayName": "안데스산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Andes"
   },
   "mountains:그레이트디바이딩산맥": {
+    "displayName": "그레이트디바이딩산맥",
     "aliases": [
       "Great Dividing Range",
       "그레이트디바이딩산맥",
@@ -350,19 +330,12 @@
         "author": "Benjamint444, edited by Fir0002",
         "license": "CC BY-SA 3.0",
         "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/GreatDividingRangeSign.jpg/960px-GreatDividingRangeSign.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:GreatDividingRangeSign.jpg",
-        "author": "No machine-readable author provided. Matilda assumed (based on copyright claims).",
-        "license": "CC BY-SA 2.5",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Great%20Dividing%20Range",
-    "displayName": "그레이트디바이딩산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Great%20Dividing%20Range"
   },
   "plateaus:에티오피아고원": {
+    "displayName": "에티오피아고원",
     "aliases": [
       "Ethiopian Highlands",
       "에티오피아고원",
@@ -384,28 +357,21 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Ethiopian%20Highlands",
-    "displayName": "에티오피아고원"
+    "researchSource": "https://en.wikipedia.org/wiki/Ethiopian%20Highlands"
   },
   "plateaus:데칸고원": {
+    "displayName": "데칸고원",
     "aliases": [
       "Deccan Plateau",
       "데칸고원",
       "德干高原"
     ],
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Deccan%2C_India.png/960px-Deccan%2C_India.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "source": "https://commons.wikimedia.org/wiki/File:Deccan,_India.png",
-    "author": "PadFoot2008",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Dek%C3%A1nsk%C3%A1_krajina_u_Hajdar%C3%A1b%C3%A1du.jpg/960px-Dek%C3%A1nsk%C3%A1_krajina_u_Hajdar%C3%A1b%C3%A1du.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:Dek%C3%A1nsk%C3%A1_krajina_u_Hajdar%C3%A1b%C3%A1du.jpg",
+    "author": "Zeman",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
     "photos": [
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Deccan%2C_India.png/960px-Deccan%2C_India.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Deccan,_India.png",
-        "author": "PadFoot2008",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
       {
         "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Dek%C3%A1nsk%C3%A1_krajina_u_Hajdar%C3%A1b%C3%A1du.jpg/960px-Dek%C3%A1nsk%C3%A1_krajina_u_Hajdar%C3%A1b%C3%A1du.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "source": "https://commons.wikimedia.org/wiki/File:Dek%C3%A1nsk%C3%A1_krajina_u_Hajdar%C3%A1b%C3%A1du.jpg",
@@ -414,10 +380,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Deccan%20Plateau",
-    "displayName": "데칸고원"
+    "researchSource": "https://en.wikipedia.org/wiki/Deccan%20Plateau"
   },
   "plateaus:티베트고원": {
+    "displayName": "티베트고원",
     "aliases": [
       "Plateau of Tibet",
       "Tibetan Plateau",
@@ -460,10 +426,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Tibetan%20Plateau",
-    "displayName": "티베트고원"
+    "researchSource": "https://en.wikipedia.org/wiki/Tibetan%20Plateau"
   },
   "plateaus:브라질고원": {
+    "displayName": "브라질고원",
     "aliases": [
       "Brazilian Highlands",
       "브라질고원",
@@ -491,10 +457,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Brazilian%20Highlands",
-    "displayName": "브라질고원"
+    "researchSource": "https://en.wikipedia.org/wiki/Brazilian%20Highlands"
   },
   "plateaus:중앙시베리아고원": {
+    "displayName": "중앙시베리아고원",
     "aliases": [
       "Central Siberian Plateau",
       "중앙시베리아고원",
@@ -523,10 +489,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Central%20Siberian%20Plateau",
-    "displayName": "중앙시베리아고원"
+    "researchSource": "https://en.wikipedia.org/wiki/Central%20Siberian%20Plateau"
   },
   "plateaus:몽골고원": {
+    "displayName": "몽골고원",
     "aliases": [
       "Mongolian Plateau",
       "몽골고원",
@@ -548,13 +514,6 @@
         "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
       },
       {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Mongolei-Topografie%2CAtlas1903.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "source": "https://commons.wikimedia.org/wiki/File:Mongolei-Topografie,Atlas1903.JPG",
-        "author": "Geof (Bearb. +Kartenlegende)",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      },
-      {
         "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/Lone_Tree_-_Mongolia_Landscape.jpg/960px-Lone_Tree_-_Mongolia_Landscape.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "source": "https://commons.wikimedia.org/wiki/File:Lone_Tree_-_Mongolia_Landscape.jpg",
         "author": "tiarescott",
@@ -562,10 +521,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Mongolian%20Plateau",
-    "displayName": "몽골고원"
+    "researchSource": "https://en.wikipedia.org/wiki/Mongolian%20Plateau"
   },
   "plateaus:콜로라도고원": {
+    "displayName": "콜로라도고원",
     "aliases": [
       "Colorado Plateau",
       "콜로라도고원",
@@ -590,19 +549,12 @@
         "author": "Glysiak",
         "license": "CC BY-SA 3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Cliff_Palace-Colorado-Mesa_Verde_NP.jpg/960px-Cliff_Palace-Colorado-Mesa_Verde_NP.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Cliff_Palace-Colorado-Mesa_Verde_NP.jpg",
-        "author": "Tobi 87",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Colorado%20Plateau",
-    "displayName": "콜로라도고원"
+    "researchSource": "https://en.wikipedia.org/wiki/Colorado%20Plateau"
   },
   "plateaus:알티플라노고원": {
+    "displayName": "알티플라노고원",
     "aliases": [
       "Altiplano",
       "알티플라노고원",
@@ -632,10 +584,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Altiplano",
-    "displayName": "알티플라노고원"
+    "researchSource": "https://en.wikipedia.org/wiki/Altiplano"
   },
   "plains:북유럽평원": {
+    "displayName": "북유럽 평원",
     "aliases": [
       "North European Plain",
       "북유럽 평원",
@@ -658,10 +610,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/North%20European%20Plain",
-    "displayName": "북유럽 평원"
+    "researchSource": "https://en.wikipedia.org/wiki/North%20European%20Plain"
   },
   "plains:화베이평원": {
+    "displayName": "화베이 평원",
     "aliases": [
       "North China Plain",
       "화베이 평원",
@@ -690,10 +642,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/North%20China%20Plain",
-    "displayName": "화베이 평원"
+    "researchSource": "https://en.wikipedia.org/wiki/North%20China%20Plain"
   },
   "plains:그레이트플레인스": {
+    "displayName": "그레이트플레인스",
     "aliases": [
       "Great Plains",
       "그레이트플레인스",
@@ -727,10 +679,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Great%20Plains",
-    "displayName": "그레이트플레인스"
+    "researchSource": "https://en.wikipedia.org/wiki/Great%20Plains"
   },
   "plains:서시베리아평원": {
+    "displayName": "서시베리아 평원",
     "aliases": [
       "Western Siberian Plain",
       "West Siberian Plain",
@@ -759,10 +711,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/West%20Siberian%20Plain",
-    "displayName": "서시베리아 평원"
+    "researchSource": "https://en.wikipedia.org/wiki/West%20Siberian%20Plain"
   },
   "plains:갠지스평원": {
+    "displayName": "힌두스탄 평원",
     "aliases": [
       "Ganges Plain",
       "Indo-Gangetic Plain",
@@ -787,19 +739,12 @@
         "author": "Prince550475",
         "license": "CC0",
         "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
-      },
-      {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Indo-Gangetic_Plain.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "source": "https://commons.wikimedia.org/wiki/File:Indo-Gangetic_Plain.png",
-        "author": "Jeroen",
-        "license": "CC BY-SA 2.5",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Indo-Gangetic%20Plain",
-    "displayName": "힌두스탄 평원"
+    "researchSource": "https://en.wikipedia.org/wiki/Indo-Gangetic%20Plain"
   },
   "plains:만주평원": {
+    "displayName": "둥베이 평원",
     "aliases": [
       "Manchurian Plain",
       "Northeast China Plain",
@@ -818,19 +763,12 @@
         "author": "Charlie fong冯成",
         "license": "Public domain",
         "licenseUrl": "https://commons.wikimedia.org/wiki/File:%E4%B8%9C%E5%8C%97%E5%A4%A7%E9%9B%A8%E8%BF%87%E5%90%8E%E7%9A%84%E7%A8%BB%E7%94%B0.jpg"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/ChinaGeography.png/960px-ChinaGeography.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:ChinaGeography.png",
-        "author": "en:User:Alanmak Alan Mak",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Northeast%20China%20Plain",
-    "displayName": "둥베이 평원"
+    "researchSource": "https://en.wikipedia.org/wiki/Northeast%20China%20Plain"
   },
   "plains:팜파스": {
+    "displayName": "팜파스",
     "aliases": [
       "Pampas",
       "팜파스",
@@ -859,19 +797,12 @@
         "author": "Alex Pereira",
         "license": "Public domain",
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      },
-      {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Aut%C3%B3dromo_Eusebio_Marcilla.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "source": "https://commons.wikimedia.org/wiki/File:Aut%C3%B3dromo_Eusebio_Marcilla.jpg",
-        "author": "Javier Gabrielli",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Pampas",
-    "displayName": "팜파스"
+    "researchSource": "https://en.wikipedia.org/wiki/Pampas"
   },
   "plains:야노스": {
+    "displayName": "야노스",
     "aliases": [
       "Llanos",
       "야노스",
@@ -898,19 +829,12 @@
         "author": "Haroldarmitage",
         "license": "CC BY-SA 3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/CorocorasLlanos.jpg/960px-CorocorasLlanos.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:CorocorasLlanos.jpg",
-        "author": "Fernando Flores from Caracas, Venezuela",
-        "license": "CC BY-SA 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Llanos",
-    "displayName": "야노스"
+    "researchSource": "https://en.wikipedia.org/wiki/Llanos"
   },
   "plains:그란차코": {
+    "displayName": "그란차코",
     "aliases": [
       "Gran Chaco",
       "그란차코",
@@ -946,10 +870,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Gran%20Chaco",
-    "displayName": "그란차코"
+    "researchSource": "https://en.wikipedia.org/wiki/Gran%20Chaco"
   },
   "plains:중앙아시아 평원·저지": {
+    "displayName": "투란 저지",
     "aliases": [
       "Turan Depression",
       "투란 저지",
@@ -972,10 +896,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Turan%20Depression",
-    "displayName": "투란 저지"
+    "researchSource": "https://en.wikipedia.org/wiki/Turan%20Depression"
   },
   "deserts:사하라 사막": {
+    "displayName": "사하라 사막",
     "aliases": [
       "Sahara",
       "사하라 사막",
@@ -1027,10 +951,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Sahara",
-    "displayName": "사하라 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Sahara"
   },
   "deserts:고비 사막": {
+    "displayName": "고비 사막",
     "aliases": [
       "Gobi Desert",
       "고비 사막",
@@ -1084,10 +1008,10 @@
         "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Gobi%20Desert",
-    "displayName": "고비 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Gobi%20Desert"
   },
   "deserts:아라비아 사막": {
+    "displayName": "아라비아 사막",
     "aliases": [
       "Arabian Desert",
       "아라비아 사막",
@@ -1107,10 +1031,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Arabian%20Desert",
-    "displayName": "아라비아 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Arabian%20Desert"
   },
   "deserts:타르 사막": {
+    "displayName": "타르 사막",
     "aliases": [
       "Thar Desert",
       "타르 사막",
@@ -1147,10 +1071,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Thar%20Desert",
-    "displayName": "타르 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Thar%20Desert"
   },
   "deserts:타클라마칸 사막": {
+    "displayName": "타클라마칸 사막",
     "aliases": [
       "Taklamakan Desert",
       "타클라마칸 사막",
@@ -1188,10 +1112,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5/es/deed.en"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Taklamakan%20Desert",
-    "displayName": "타클라마칸 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Taklamakan%20Desert"
   },
   "deserts:중앙아시아 사막권": {
+    "displayName": "카라쿰 사막",
     "aliases": [
       "Karakum Desert",
       "카라쿰 사막",
@@ -1219,19 +1143,12 @@
         "author": "Ziegler175",
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Karakum.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "source": "https://commons.wikimedia.org/wiki/File:Karakum.png",
-        "author": "NASA World Wind",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Karakum%20Desert",
-    "displayName": "카라쿰 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Karakum%20Desert"
   },
   "deserts:칼라하리 사막": {
+    "displayName": "칼라하리 사막",
     "aliases": [
       "Kalahari Desert",
       "칼라하리 사막",
@@ -1249,26 +1166,12 @@
         "author": "Olga Ernst  &  Hp.Baumeler",
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/55/Kalahari.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "source": "https://commons.wikimedia.org/wiki/File:Kalahari.png",
-        "author": "Emilfarb at English Wikipedia",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Devil%27s_thorn_flower_%28Tribulus_zeyheri%29%2C_Kalahari.jpg/960px-Devil%27s_thorn_flower_%28Tribulus_zeyheri%29%2C_Kalahari.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Devil%27s_thorn_flower_(Tribulus_zeyheri),_Kalahari.jpg",
-        "author": "Olga Ernst",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Kalahari%20Desert",
-    "displayName": "칼라하리 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Kalahari%20Desert"
   },
   "deserts:나미브 사막": {
+    "displayName": "나미브 사막",
     "aliases": [
       "Namib Desert",
       "Namib",
@@ -1303,10 +1206,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Namib",
-    "displayName": "나미브 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Namib"
   },
   "deserts:아타카마 사막": {
+    "displayName": "아타카마 사막",
     "aliases": [
       "Atacama Desert",
       "아타카마 사막",
@@ -1343,10 +1246,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Atacama%20Desert",
-    "displayName": "아타카마 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Atacama%20Desert"
   },
   "deserts:파타고니아 사막": {
+    "displayName": "파타고니아 사막",
     "aliases": [
       "Patagonian Desert",
       "파타고니아 사막",
@@ -1381,10 +1284,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Patagonian%20Desert",
-    "displayName": "파타고니아 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Patagonian%20Desert"
   },
   "deserts:오스트레일리아 사막권": {
+    "displayName": "그레이트빅토리아 사막",
     "aliases": [
       "Great Victoria Desert",
       "그레이트빅토리아 사막",
@@ -1409,19 +1312,12 @@
         "author": "Marian Deschain",
         "license": "CC BY-SA 3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/IBRA_6.1_Great_Victoria_Desert.png/960px-IBRA_6.1_Great_Victoria_Desert.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:IBRA_6.1_Great_Victoria_Desert.png",
-        "author": "Hesperian",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Great%20Victoria%20Desert",
-    "displayName": "그레이트빅토리아 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Great%20Victoria%20Desert"
   },
   "rivers:나일강": {
+    "displayName": "나일강",
     "aliases": [
       "Nile",
       "나일강",
@@ -1456,19 +1352,12 @@
         "author": "Vyacheslav Argenberg",
         "license": "CC BY 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Nile_Barge_R08.jpg/960px-Nile_Barge_R08.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Nile_Barge_R08.jpg",
-        "author": "Marc Ryckaert",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Nile",
-    "displayName": "나일강"
+    "researchSource": "https://en.wikipedia.org/wiki/Nile"
   },
   "rivers:인더스강": {
+    "displayName": "인더스강",
     "aliases": [
       "Indus River",
       "인더스강",
@@ -1509,10 +1398,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Indus%20River",
-    "displayName": "인더스강"
+    "researchSource": "https://en.wikipedia.org/wiki/Indus%20River"
   },
   "rivers:갠지스강": {
+    "displayName": "갠지스강",
     "aliases": [
       "Ganges",
       "갠지스강",
@@ -1541,19 +1430,12 @@
         "author": "Wedstock 2011",
         "license": "CC BY-SA 2.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
-      },
-      {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/0/0c/A_girl_selling_plastic_containers_for_carrying_Ganges_water%2C_Haridwar.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "source": "https://commons.wikimedia.org/wiki/File:A_girl_selling_plastic_containers_for_carrying_Ganges_water,_Haridwar.jpg",
-        "author": "etrenard",
-        "license": "CC BY-SA 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Ganges",
-    "displayName": "갠지스강"
+    "researchSource": "https://en.wikipedia.org/wiki/Ganges"
   },
   "rivers:메콩강": {
+    "displayName": "메콩강",
     "aliases": [
       "Mekong",
       "메콩강",
@@ -1593,10 +1475,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Mekong",
-    "displayName": "메콩강"
+    "researchSource": "https://en.wikipedia.org/wiki/Mekong"
   },
   "rivers:황허강": {
+    "displayName": "황하",
     "aliases": [
       "Yellow River",
       "황하",
@@ -1651,10 +1533,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Yellow%20River",
-    "displayName": "황하"
+    "researchSource": "https://en.wikipedia.org/wiki/Yellow%20River"
   },
   "rivers:양쯔강": {
+    "displayName": "장강",
     "aliases": [
       "Yangtze",
       "장강",
@@ -1721,10 +1603,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Yangtze",
-    "displayName": "장강"
+    "researchSource": "https://en.wikipedia.org/wiki/Yangtze"
   },
   "rivers:미시시피강": {
+    "displayName": "미시시피주",
     "aliases": [
       "Mississippi",
       "미시시피주",
@@ -1752,10 +1634,10 @@
         "licenseUrl": "https://commons.wikimedia.org/wiki/File:Meandering_Mississippi_(5182095595).jpg"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Mississippi",
-    "displayName": "미시시피주"
+    "researchSource": "https://en.wikipedia.org/wiki/Mississippi"
   },
   "rivers:아마존강": {
+    "displayName": "아마존강",
     "aliases": [
       "Amazon River",
       "아마존강",
@@ -1793,10 +1675,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Amazon%20River",
-    "displayName": "아마존강"
+    "researchSource": "https://en.wikipedia.org/wiki/Amazon%20River"
   },
   "rivers:콩고강": {
+    "displayName": "콩고강",
     "aliases": [
       "Congo River",
       "콩고강",
@@ -1833,10 +1715,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Congo%20River",
-    "displayName": "콩고강"
+    "researchSource": "https://en.wikipedia.org/wiki/Congo%20River"
   },
   "rivers:다뉴브강": {
+    "displayName": "다뉴브강",
     "aliases": [
       "Danube",
       "다뉴브강",
@@ -1867,19 +1749,12 @@
         "author": "Gabor Eszes (UED77)",
         "license": "CC BY-SA 3.0",
         "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Canal_del_Danubio%2C_Viena%2C_Austria%2C_2020-01-31%2C_DD_02.jpg/960px-Canal_del_Danubio%2C_Viena%2C_Austria%2C_2020-01-31%2C_DD_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Canal_del_Danubio,_Viena,_Austria,_2020-01-31,_DD_02.jpg",
-        "author": "Diego Delso",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Danube",
-    "displayName": "다뉴브강"
+    "researchSource": "https://en.wikipedia.org/wiki/Danube"
   },
   "rivers:볼가강": {
+    "displayName": "볼가강",
     "aliases": [
       "Volga",
       "볼가강",
@@ -1925,10 +1800,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Volga",
-    "displayName": "볼가강"
+    "researchSource": "https://en.wikipedia.org/wiki/Volga"
   },
   "rivers:오비강": {
+    "displayName": "오비강",
     "aliases": [
       "Ob (river)",
       "Ob",
@@ -1965,10 +1840,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/2.5"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Ob",
-    "displayName": "오비강"
+    "researchSource": "https://en.wikipedia.org/wiki/Ob"
   },
   "rivers:예니세이강": {
+    "displayName": "예니세이강",
     "aliases": [
       "Yenisey",
       "Yenisei",
@@ -2016,10 +1891,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Yenisei",
-    "displayName": "예니세이강"
+    "researchSource": "https://en.wikipedia.org/wiki/Yenisei"
   },
   "rivers:레나강": {
+    "displayName": "레나강",
     "aliases": [
       "Lena (river)",
       "Lena River",
@@ -2041,13 +1916,6 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       },
       {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/c/c3/Lone-maiden-formation.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "source": "https://commons.wikimedia.org/wiki/File:Lone-maiden-formation.jpg",
-        "author": "No machine-readable author provided. Linjye assumed (based on copyright claims).",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      {
         "image": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Lena_2007_%28synchroswimr%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
         "source": "https://commons.wikimedia.org/wiki/File:Lena_2007_(synchroswimr).jpg",
         "author": "\"synchroswimr\"/Stacy, Minneapolis",
@@ -2055,10 +1923,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Lena%20River",
-    "displayName": "레나강"
+    "researchSource": "https://en.wikipedia.org/wiki/Lena%20River"
   },
   "rivers:한강": {
+    "displayName": "한강",
     "aliases": [
       "Han River (Korea)",
       "한강",
@@ -2104,10 +1972,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Han%20River%20(Korea)",
-    "displayName": "한강"
+    "researchSource": "https://en.wikipedia.org/wiki/Han%20River%20(Korea)"
   },
   "rivers:낙동강": {
+    "displayName": "낙동강",
     "aliases": [
       "Nakdong River",
       "낙동강",
@@ -2129,10 +1997,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Nakdong%20River",
-    "displayName": "낙동강"
+    "researchSource": "https://en.wikipedia.org/wiki/Nakdong%20River"
   },
   "rivers:라인강": {
+    "displayName": "라인강",
     "aliases": [
       "Rhine",
       "라인강",
@@ -2167,10 +2035,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Rhine",
-    "displayName": "라인강"
+    "researchSource": "https://en.wikipedia.org/wiki/Rhine"
   },
   "rivers:론강": {
+    "displayName": "론강",
     "aliases": [
       "Rhône",
       "론강",
@@ -2200,10 +2068,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Rh%C3%B4ne",
-    "displayName": "론강"
+    "researchSource": "https://en.wikipedia.org/wiki/Rh%C3%B4ne"
   },
   "rivers:센강": {
+    "displayName": "센강",
     "aliases": [
       "Seine",
       "센강",
@@ -2233,10 +2101,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Seine",
-    "displayName": "센강"
+    "researchSource": "https://en.wikipedia.org/wiki/Seine"
   },
   "rivers:템스강": {
+    "displayName": "템스강",
     "aliases": [
       "Thames",
       "River Thames",
@@ -2274,10 +2142,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/River%20Thames",
-    "displayName": "템스강"
+    "researchSource": "https://en.wikipedia.org/wiki/River%20Thames"
   },
   "rivers:엘베강": {
+    "displayName": "엘베강",
     "aliases": [
       "Elbe",
       "엘베강",
@@ -2307,19 +2175,12 @@
         "author": "Christian Fischer",
         "license": "CC BY-SA 3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Elbe_basin.png/960px-Elbe_basin.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Elbe_basin.png",
-        "author": "NordNordWest, revision/adaption by Ulamm (talk) 01:00, 27 March 2016 (UTC)",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Elbe",
-    "displayName": "엘베강"
+    "researchSource": "https://en.wikipedia.org/wiki/Elbe"
   },
   "rivers:오데르강": {
+    "displayName": "오데르강",
     "aliases": [
       "Oder",
       "오데르강",
@@ -2341,10 +2202,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Oder",
-    "displayName": "오데르강"
+    "researchSource": "https://en.wikipedia.org/wiki/Oder"
   },
   "rivers:루아르강": {
+    "displayName": "루아르강",
     "aliases": [
       "Loire",
       "루아르강",
@@ -2373,10 +2234,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Loire",
-    "displayName": "루아르강"
+    "researchSource": "https://en.wikipedia.org/wiki/Loire"
   },
   "rivers:나이저강": {
+    "displayName": "나이저강",
     "aliases": [
       "Niger River",
       "나이저강",
@@ -2415,10 +2276,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Niger%20River",
-    "displayName": "나이저강"
+    "researchSource": "https://en.wikipedia.org/wiki/Niger%20River"
   },
   "rivers:잠베지강": {
+    "displayName": "잠베지강",
     "aliases": [
       "Zambezi",
       "잠베지강",
@@ -2448,10 +2309,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Zambezi",
-    "displayName": "잠베지강"
+    "researchSource": "https://en.wikipedia.org/wiki/Zambezi"
   },
   "rivers:림포포강": {
+    "displayName": "림포포강",
     "aliases": [
       "Limpopo River",
       "림포포강",
@@ -2486,10 +2347,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Limpopo%20River",
-    "displayName": "림포포강"
+    "researchSource": "https://en.wikipedia.org/wiki/Limpopo%20River"
   },
   "rivers:오렌지강": {
+    "displayName": "오렌지강",
     "aliases": [
       "Orange River",
       "오렌지강",
@@ -2522,10 +2383,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Orange%20River",
-    "displayName": "오렌지강"
+    "researchSource": "https://en.wikipedia.org/wiki/Orange%20River"
   },
   "rivers:머리강": {
+    "displayName": "머리강",
     "aliases": [
       "Murray River",
       "머리강",
@@ -2556,10 +2417,10 @@
         "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Murray%20River",
-    "displayName": "머리강"
+    "researchSource": "https://en.wikipedia.org/wiki/Murray%20River"
   },
   "rivers:유콘강": {
+    "displayName": "유콘강",
     "aliases": [
       "Yukon River",
       "유콘강",
@@ -2594,10 +2455,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Yukon%20River",
-    "displayName": "유콘강"
+    "researchSource": "https://en.wikipedia.org/wiki/Yukon%20River"
   },
   "rivers:매켄지강": {
+    "displayName": "매켄지강",
     "aliases": [
       "Mackenzie River",
       "매켄지강",
@@ -2620,19 +2481,12 @@
         "author": "David Adamec",
         "license": "Public domain",
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      },
-      {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Mackenzie_River_drainage_basin.PNG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "source": "https://commons.wikimedia.org/wiki/File:Mackenzie_River_drainage_basin.PNG",
-        "author": "Geo Swan at English Wikipedia",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Mackenzie%20River",
-    "displayName": "매켄지강"
+    "researchSource": "https://en.wikipedia.org/wiki/Mackenzie%20River"
   },
   "rivers:컬럼비아강": {
+    "displayName": "컬럼비아강",
     "aliases": [
       "Columbia River",
       "컬럼비아강",
@@ -2666,10 +2520,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Columbia%20River",
-    "displayName": "컬럼비아강"
+    "researchSource": "https://en.wikipedia.org/wiki/Columbia%20River"
   },
   "rivers:콜로라도강": {
+    "displayName": "콜로라도강",
     "aliases": [
       "Colorado River",
       "콜로라도강",
@@ -2752,10 +2606,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Colorado%20River",
-    "displayName": "콜로라도강"
+    "researchSource": "https://en.wikipedia.org/wiki/Colorado%20River"
   },
   "rivers:리오그란데강": {
+    "displayName": "리오그란데강",
     "aliases": [
       "Rio Grande",
       "리오그란데강",
@@ -2797,10 +2651,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Rio%20Grande",
-    "displayName": "리오그란데강"
+    "researchSource": "https://en.wikipedia.org/wiki/Rio%20Grande"
   },
   "rivers:세인트로렌스강": {
+    "displayName": "세인트로렌스강",
     "aliases": [
       "Saint Lawrence River",
       "St. Lawrence River",
@@ -2832,19 +2686,12 @@
         "author": "Joël Truchon",
         "license": "CC BY-SA 3.0",
         "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Grand_canoe_reception_given_to_the_Prince_of_Wales_on_the_St._Lawrence_-_ILN_1860.jpg/960px-Grand_canoe_reception_given_to_the_Prince_of_Wales_on_the_St._Lawrence_-_ILN_1860.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Grand_canoe_reception_given_to_the_Prince_of_Wales_on_the_St._Lawrence_-_ILN_1860.jpg",
-        "author": "ILN staff, after special correspondent.",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/St.%20Lawrence%20River",
-    "displayName": "세인트로렌스강"
+    "researchSource": "https://en.wikipedia.org/wiki/St.%20Lawrence%20River"
   },
   "rivers:파라나강": {
+    "displayName": "파라나강",
     "aliases": [
       "Paraná River",
       "파라나강",
@@ -2852,19 +2699,12 @@
       "Parana",
       "Parana River"
     ],
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Cuenca_Paran%C3%A1.png/960px-Cuenca_Paran%C3%A1.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "source": "https://commons.wikimedia.org/wiki/File:Cuenca_Paran%C3%A1.png",
-    "author": "Chocofrito",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/85/City_of_Posadas.jpg/960px-City_of_Posadas.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:City_of_Posadas.jpg",
+    "author": "Nepenthes",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
     "photos": [
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Cuenca_Paran%C3%A1.png/960px-Cuenca_Paran%C3%A1.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Cuenca_Paran%C3%A1.png",
-        "author": "Chocofrito",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
       {
         "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/85/City_of_Posadas.jpg/960px-City_of_Posadas.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "source": "https://commons.wikimedia.org/wiki/File:City_of_Posadas.jpg",
@@ -2873,10 +2713,10 @@
         "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Paran%C3%A1%20River",
-    "displayName": "파라나강"
+    "researchSource": "https://en.wikipedia.org/wiki/Paran%C3%A1%20River"
   },
   "rivers:오리노코강": {
+    "displayName": "오리노코강",
     "aliases": [
       "Orinoco",
       "오리노코강",
@@ -2903,10 +2743,10 @@
         "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Orinoco",
-    "displayName": "오리노코강"
+    "researchSource": "https://en.wikipedia.org/wiki/Orinoco"
   },
   "rivers:티그리스강": {
+    "displayName": "티그리스강",
     "aliases": [
       "Tigris",
       "티그리스강",
@@ -2945,10 +2785,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Tigris",
-    "displayName": "티그리스강"
+    "researchSource": "https://en.wikipedia.org/wiki/Tigris"
   },
   "rivers:유프라테스강": {
+    "displayName": "유프라테스강",
     "aliases": [
       "Euphrates",
       "유프라테스강",
@@ -2986,10 +2826,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Euphrates",
-    "displayName": "유프라테스강"
+    "researchSource": "https://en.wikipedia.org/wiki/Euphrates"
   },
   "rivers:브라마푸트라강": {
+    "displayName": "브라마푸트라강",
     "aliases": [
       "Brahmaputra River",
       "브라마푸트라강",
@@ -3031,10 +2871,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Brahmaputra%20River",
-    "displayName": "브라마푸트라강"
+    "researchSource": "https://en.wikipedia.org/wiki/Brahmaputra%20River"
   },
   "rivers:아무르강": {
+    "displayName": "아무르강",
     "aliases": [
       "Amur",
       "아무르강",
@@ -3070,10 +2910,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Amur",
-    "displayName": "아무르강"
+    "researchSource": "https://en.wikipedia.org/wiki/Amur"
   },
   "rivers:살윈강": {
+    "displayName": "살윈강",
     "aliases": [
       "Salween",
       "Salween River",
@@ -3104,10 +2944,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Salween%20River",
-    "displayName": "살윈강"
+    "researchSource": "https://en.wikipedia.org/wiki/Salween%20River"
   },
   "rivers:압록강": {
+    "displayName": "압록강",
     "aliases": [
       "Yalu River",
       "압록강",
@@ -3135,19 +2975,12 @@
         "author": "Ffggss",
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/8/82/Bombing_of_Yalu_River_Bridges_at_Sinuiju_-_Dandong_Nov.1950.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "source": "https://commons.wikimedia.org/wiki/File:Bombing_of_Yalu_River_Bridges_at_Sinuiju_-_Dandong_Nov.1950.jpg",
-        "author": "U.S. Navy",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Yalu%20River",
-    "displayName": "압록강"
+    "researchSource": "https://en.wikipedia.org/wiki/Yalu%20River"
   },
   "plateaus:폴라 플래투": {
+    "displayName": "남극 고원",
     "aliases": [
       "Antarctic Plateau",
       "남극 고원",
@@ -3178,10 +3011,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/2.5"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Antarctic%20Plateau",
-    "displayName": "남극 고원"
+    "researchSource": "https://en.wikipedia.org/wiki/Antarctic%20Plateau"
   },
   "mountains:톈산산맥": {
+    "displayName": "톈산산맥",
     "aliases": [
       "Tian Shan",
       "톈산산맥",
@@ -3232,10 +3065,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Tian%20Shan",
-    "displayName": "톈산산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Tian%20Shan"
   },
   "mountains:남극횡단산지": {
+    "displayName": "남극횡단산맥",
     "aliases": [
       "Transantarctic Mountains",
       "남극횡단산맥",
@@ -3266,50 +3099,12 @@
         "author": "Icetent at English Wikipedia",
         "license": "CC BY-SA 3.0",
         "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Transantarctic_mountains_highlighted.jpg/960px-Transantarctic_mountains_highlighted.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Transantarctic_mountains_highlighted.jpg",
-        "author": "NASA",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Transantarctic%20Mountains",
-    "displayName": "남극횡단산맥"
-  },
-  "plateaus:이베리아반도": {
-    "aliases": [
-      "Iberian Peninsula",
-      "이베리아반도",
-      "伊比利亚半岛",
-      "Iberia"
-    ],
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/Espa%C3%B1a_y_Portugal.jpg/960px-Espa%C3%B1a_y_Portugal.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "source": "https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg",
-    "author": "Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC",
-    "license": "Public domain",
-    "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
-    "photos": [
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/Espa%C3%B1a_y_Portugal.jpg/960px-Espa%C3%B1a_y_Portugal.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg",
-        "author": "Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/Iberian_Peninsula_at_Night_-_NASA_Earth_Observatory.jpg/960px-Iberian_Peninsula_at_Night_-_NASA_Earth_Observatory.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Iberian_Peninsula_at_Night_-_NASA_Earth_Observatory.jpg",
-        "author": "NASA's Earth Observatory",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
-      }
-    ],
-    "researchSource": "https://en.wikipedia.org/wiki/Iberian%20Peninsula",
-    "displayName": "이베리아반도"
+    "researchSource": "https://en.wikipedia.org/wiki/Transantarctic%20Mountains"
   },
   "mountains:브룩스 레인지": {
+    "displayName": "브룩스 레인지",
     "aliases": [
       "Brooks Range",
       "布鲁克斯山脉"
@@ -3345,6 +3140,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Brooks%20Range"
   },
   "mountains:캐스케이드산맥": {
+    "displayName": "캐스케이드산맥",
     "aliases": [
       "Cascade Range",
       "캐스케이드산맥",
@@ -3373,19 +3169,12 @@
         "author": "Dllu",
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Mountain_Goat_in_North_Cascades.jpg/960px-Mountain_Goat_in_North_Cascades.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Mountain_Goat_in_North_Cascades.jpg",
-        "author": "Ron Clausen",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Cascade%20Range",
-    "displayName": "캐스케이드산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Cascade%20Range"
   },
   "mountains:코스트 마운틴스": {
+    "displayName": "코스트산맥",
     "aliases": [
       "Coast Mountains",
       "코스트산맥",
@@ -3412,10 +3201,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Coast%20Mountains",
-    "displayName": "코스트산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Coast%20Mountains"
   },
   "plains:코스탈 플레인": {
+    "displayName": "코스탈 플레인",
     "aliases": [
       "Atlantic coastal plain",
       "Atlantic Plain",
@@ -3433,18 +3222,12 @@
         "author": "U. S. Fish and Wildlife Service - Northeast Region",
         "license": "Public domain",
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      },
-      {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/0/06/Atlantic_Plain_Continental_Shelf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "source": "https://commons.wikimedia.org/wiki/File:Atlantic_Plain_Continental_Shelf.jpg",
-        "author": "Nevin N. Fenneman",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
     "researchSource": "https://en.wikipedia.org/wiki/Atlantic%20Plain"
   },
   "plateaus:돔 C (찰리)": {
+    "displayName": "돔 C (찰리)",
     "aliases": [
       "Dome C",
       "冰穹C",
@@ -3481,33 +3264,8 @@
     ],
     "researchSource": "https://en.wikipedia.org/wiki/Dome%20C"
   },
-  "plateaus:돔 F (후지)": {
-    "aliases": [
-      "Dome F",
-      "돔 후지 기지",
-      "富士圓頂",
-      "Valkyrjedomen",
-      "Dome Fuji",
-      "Valkyrie Dome"
-    ],
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Antarctica_base%28Japan%29_English_ver.png/960px-Antarctica_base%28Japan%29_English_ver.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "source": "https://commons.wikimedia.org/wiki/File:Antarctica_base(Japan)_English_ver.png",
-    "author": "Forestfarmer",
-    "license": "CC BY-SA 3.0",
-    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
-    "photos": [
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Antarctica_base%28Japan%29_English_ver.png/960px-Antarctica_base%28Japan%29_English_ver.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Antarctica_base(Japan)_English_ver.png",
-        "author": "Forestfarmer",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
-      }
-    ],
-    "researchSource": "https://en.wikipedia.org/wiki/Dome%20F",
-    "displayName": "돔 후지 기지"
-  },
   "mountains:엘스워스 마운틴스": {
+    "displayName": "엘스워스 마운틴스",
     "aliases": [
       "Ellsworth Mountains",
       "埃爾斯沃思山脈"
@@ -3542,43 +3300,8 @@
     ],
     "researchSource": "https://en.wikipedia.org/wiki/Ellsworth%20Mountains"
   },
-  "deserts:펀자브": {
-    "aliases": [
-      "Punjab",
-      "펀자브",
-      "旁遮普地区",
-      "펀자브 지역",
-      "펀자브 지방",
-      "펀잡",
-      "판쟙",
-      "Punjab region",
-      "Land of Five Rivers"
-    ],
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Malot_temple%2C_Jhelum%2C_Punjab.jpg/960px-Malot_temple%2C_Jhelum%2C_Punjab.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "source": "https://commons.wikimedia.org/wiki/File:Malot_temple,_Jhelum,_Punjab.jpg",
-    "author": "Maliktalha888",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "photos": [
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Malot_temple%2C_Jhelum%2C_Punjab.jpg/960px-Malot_temple%2C_Jhelum%2C_Punjab.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Malot_temple,_Jhelum,_Punjab.jpg",
-        "author": "Maliktalha888",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/Province_and_Princely_States_of_Punjab%2C_1947.jpg/960px-Province_and_Princely_States_of_Punjab%2C_1947.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Province_and_Princely_States_of_Punjab,_1947.jpg",
-        "author": "M1a1n dee $",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      }
-    ],
-    "researchSource": "https://en.wikipedia.org/wiki/Punjab",
-    "displayName": "펀자브"
-  },
   "mountains:펜사콜라 마운틴스": {
+    "displayName": "펜사콜라 마운틴스",
     "aliases": [
       "Pensacola Mountains",
       "彭薩科拉山脈"
@@ -3607,6 +3330,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Pensacola%20Mountains"
   },
   "mountains:퀸 모드 마운틴스": {
+    "displayName": "퀸 모드 마운틴스",
     "aliases": [
       "Queen Maud Mountains",
       "毛德皇后山脉",
@@ -3636,6 +3360,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Queen%20Maud%20Mountains"
   },
   "plains:사헬": {
+    "displayName": "사헬",
     "aliases": [
       "Sahel",
       "사헬",
@@ -3643,19 +3368,12 @@
       "West African Sahel region",
       "West African Sahel"
     ],
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Mud_Mosque_-_Bani_-_Sahel_Region_-_Burkina_Faso_-_02.jpg/960px-Mud_Mosque_-_Bani_-_Sahel_Region_-_Burkina_Faso_-_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "source": "https://commons.wikimedia.org/wiki/File:Mud_Mosque_-_Bani_-_Sahel_Region_-_Burkina_Faso_-_02.jpg",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Sahel_Scene_-_Dori_-_Sahel_Region_-_Burkina_Faso.jpg/960px-Sahel_Scene_-_Dori_-_Sahel_Region_-_Burkina_Faso.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:Sahel_Scene_-_Dori_-_Sahel_Region_-_Burkina_Faso.jpg",
     "author": "Adam Jones, Ph.D.",
     "license": "CC BY-SA 3.0",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
     "photos": [
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Mud_Mosque_-_Bani_-_Sahel_Region_-_Burkina_Faso_-_02.jpg/960px-Mud_Mosque_-_Bani_-_Sahel_Region_-_Burkina_Faso_-_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Mud_Mosque_-_Bani_-_Sahel_Region_-_Burkina_Faso_-_02.jpg",
-        "author": "Adam Jones, Ph.D.",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
-      },
       {
         "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Sahel_Scene_-_Dori_-_Sahel_Region_-_Burkina_Faso.jpg/960px-Sahel_Scene_-_Dori_-_Sahel_Region_-_Burkina_Faso.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "source": "https://commons.wikimedia.org/wiki/File:Sahel_Scene_-_Dori_-_Sahel_Region_-_Burkina_Faso.jpg",
@@ -3671,10 +3389,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Sahel",
-    "displayName": "사헬"
+    "researchSource": "https://en.wikipedia.org/wiki/Sahel"
   },
   "mountains:시왈릭 힐스": {
+    "displayName": "시왈릭 힐스",
     "aliases": [
       "Siwalik Hills",
       "Sivalik Hills",
@@ -3698,28 +3416,8 @@
     ],
     "researchSource": "https://en.wikipedia.org/wiki/Sivalik%20Hills"
   },
-  "plateaus:탈로스 돔": {
-    "aliases": [
-      "Talos Dome",
-      "塔洛斯穹"
-    ],
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/Ice_core_extracted_at_Talos_Dome_showing_an_ash_layer_corresponding_to_the_Toba_eruption.jpg/960px-Ice_core_extracted_at_Talos_Dome_showing_an_ash_layer_corresponding_to_the_Toba_eruption.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "source": "https://commons.wikimedia.org/wiki/File:Ice_core_extracted_at_Talos_Dome_showing_an_ash_layer_corresponding_to_the_Toba_eruption.jpg",
-    "author": "Dargaud",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "photos": [
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/Ice_core_extracted_at_Talos_Dome_showing_an_ash_layer_corresponding_to_the_Toba_eruption.jpg/960px-Ice_core_extracted_at_Talos_Dome_showing_an_ash_layer_corresponding_to_the_Toba_eruption.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Ice_core_extracted_at_Talos_Dome_showing_an_ash_layer_corresponding_to_the_Toba_eruption.jpg",
-        "author": "Dargaud",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      }
-    ],
-    "researchSource": "https://en.wikipedia.org/wiki/Talos%20Dome"
-  },
   "mountains:알래스카 레인지": {
+    "displayName": "알래스카산맥",
     "aliases": [
       "Alaska Range",
       "알래스카산맥",
@@ -3753,10 +3451,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Alaska%20Range",
-    "displayName": "알래스카산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Alaska%20Range"
   },
   "mountains:알타이산맥": {
+    "displayName": "알타이산맥",
     "aliases": [
       "Altai Mountains",
       "알타이산맥",
@@ -3783,75 +3481,12 @@
         "author": "Stefan Kühn",
         "license": "CC BY-SA 3.0",
         "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
-      },
-      {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/4/43/Reconstruction_of_a_Scythian%2C_found_in_the_kurgan_Olon-Kurin-Gol_10%2C_Altai_Mountains%2C_Mongolia_%28reconstruction_by_Dimitri_Pozdniakov%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "source": "https://commons.wikimedia.org/wiki/File:Reconstruction_of_a_Scythian,_found_in_the_kurgan_Olon-Kurin-Gol_10,_Altai_Mountains,_Mongolia_(reconstruction_by_Dimitri_Pozdniakov).jpg",
-        "author": "Unterländer, M., Palstra, F., Lazaridis, I. et al\n\nDrawing by Dimitri Pozdniakov",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Altai%20Mountains",
-    "displayName": "알타이산맥"
-  },
-  "deserts:카팅가스": {
-    "aliases": [
-      "Caatinga",
-      "卡廷加"
-    ],
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Um_mundo_chamado_Sert%C3%A3o.jpg/960px-Um_mundo_chamado_Sert%C3%A3o.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "source": "https://commons.wikimedia.org/wiki/File:Um_mundo_chamado_Sert%C3%A3o.jpg",
-    "author": "Otávio Nogueira from Fortaleza, BR",
-    "license": "CC BY 2.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-    "photos": [
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Um_mundo_chamado_Sert%C3%A3o.jpg/960px-Um_mundo_chamado_Sert%C3%A3o.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Um_mundo_chamado_Sert%C3%A3o.jpg",
-        "author": "Otávio Nogueira from Fortaleza, BR",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Caatinga_-_S%C3%ADtio_Gravat%C3%A1_dos_Velez%2C_Queimadas_-_PB_.2.jpg/960px-Caatinga_-_S%C3%ADtio_Gravat%C3%A1_dos_Velez%2C_Queimadas_-_PB_.2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Caatinga_-_S%C3%ADtio_Gravat%C3%A1_dos_Velez,_Queimadas_-_PB_.2.jpg",
-        "author": "Trigueiro martins",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3e/Hist%C3%B3ria_Geral_das_Bandeiras_Paulistas_-_tomo_5_-_1929.pdf/page1-500px-Hist%C3%B3ria_Geral_das_Bandeiras_Paulistas_-_tomo_5_-_1929.pdf.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Hist%C3%B3ria_Geral_das_Bandeiras_Paulistas_-_tomo_5_-_1929.pdf",
-        "author": "Afonso d'Escragnolle Taunay",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      }
-    ],
-    "researchSource": "https://en.wikipedia.org/wiki/Caatinga"
-  },
-  "plains:센트럴 로우랜드": {
-    "aliases": [
-      "Central Lowlands",
-      "中央低地"
-    ],
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Ochils2.jpg/960px-Ochils2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "source": "https://commons.wikimedia.org/wiki/File:Ochils2.jpg",
-    "author": "Alan Campbell (Tiger99 at English Wikipedia)",
-    "license": "CC BY-SA 2.5",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5",
-    "photos": [
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Ochils2.jpg/960px-Ochils2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Ochils2.jpg",
-        "author": "Alan Campbell (Tiger99 at English Wikipedia)",
-        "license": "CC BY-SA 2.5",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5"
-      }
-    ],
-    "researchSource": "https://en.wikipedia.org/wiki/Central%20Lowlands"
+    "researchSource": "https://en.wikipedia.org/wiki/Altai%20Mountains"
   },
   "mountains:힌두쿠시산맥": {
+    "displayName": "힌두쿠시산맥",
     "aliases": [
       "Hindu Kush",
       "힌두쿠시산맥",
@@ -3888,10 +3523,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Hindu%20Kush",
-    "displayName": "힌두쿠시산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Hindu%20Kush"
   },
   "mountains:카라코람산맥": {
+    "displayName": "카라코람산맥",
     "aliases": [
       "Karakoram",
       "카라코람산맥",
@@ -3931,10 +3566,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Karakoram",
-    "displayName": "카라코람산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Karakoram"
   },
   "mountains:쿤룬산맥": {
+    "displayName": "쿤룬산맥",
     "aliases": [
       "Kunlun Mountains",
       "쿤룬산맥",
@@ -3963,10 +3598,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Kunlun%20Mountains",
-    "displayName": "쿤룬산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Kunlun%20Mountains"
   },
   "mountains:파미르고원": {
+    "displayName": "파미르고원",
     "aliases": [
       "Pamir mountains",
       "Pamir Mountains",
@@ -4007,10 +3642,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Pamir%20Mountains",
-    "displayName": "파미르고원"
+    "researchSource": "https://en.wikipedia.org/wiki/Pamir%20Mountains"
   },
   "plains:폰틱 스텝": {
+    "displayName": "폰토스-카스피 스텝",
     "aliases": [
       "Pontic-Caspian steppe",
       "Pontic–Caspian steppe",
@@ -4046,10 +3681,10 @@
         "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Pontic%E2%80%93Caspian%20steppe",
-    "displayName": "폰토스-카스피 스텝"
+    "researchSource": "https://en.wikipedia.org/wiki/Pontic%E2%80%93Caspian%20steppe"
   },
   "deserts:룹알할리 사막": {
+    "displayName": "룹알할리 사막",
     "aliases": [
       "Rub' al Khali",
       "룹알할리 사막",
@@ -4085,10 +3720,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Rub'%20al%20Khali",
-    "displayName": "룹알할리 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Rub'%20al%20Khali"
   },
   "mountains:스타노보이산맥": {
+    "displayName": "스타노보이산맥",
     "aliases": [
       "Stanovoy Range",
       "스타노보이산맥",
@@ -4117,10 +3752,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Stanovoy%20Range",
-    "displayName": "스타노보이산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Stanovoy%20Range"
   },
   "mountains:자그로스산맥": {
+    "displayName": "자그로스산맥",
     "aliases": [
       "Zagros Mountains",
       "자그로스산맥",
@@ -4149,10 +3784,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Zagros%20Mountains",
-    "displayName": "자그로스산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Zagros%20Mountains"
   },
   "deserts:벳팩달라 데저트": {
+    "displayName": "벳팩달라 데저트",
     "aliases": [
       "Betpak-Dala",
       "饥饿草原",
@@ -4184,6 +3819,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Betpak-Dala"
   },
   "mountains:체인 아나미틱": {
+    "displayName": "안남산맥",
     "aliases": [
       "Annamite Range",
       "안남산맥",
@@ -4206,10 +3842,10 @@
         "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Annamite%20Range",
-    "displayName": "안남산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Annamite%20Range"
   },
   "mountains:대흥안령산맥": {
+    "displayName": "다싱안링산맥",
     "aliases": [
       "Greater Khingan",
       "다싱안링산맥",
@@ -4243,10 +3879,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Greater%20Khingan",
-    "displayName": "다싱안링산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Greater%20Khingan"
   },
   "mountains:시에라네바다산맥": {
+    "displayName": "시에라네바다산맥 (미국)",
     "aliases": [
       "Sierra Nevada",
       "시에라네바다산맥 (미국)",
@@ -4282,13 +3918,6 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
       },
       {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Bierstadt_-_Among_the_Sierra_Nevada_Mountains_-_1868.jpg/960px-Bierstadt_-_Among_the_Sierra_Nevada_Mountains_-_1868.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Bierstadt_-_Among_the_Sierra_Nevada_Mountains_-_1868.jpg",
-        "author": "Albert Bierstadt",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      },
-      {
         "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/SierraEscarpmentCA.jpg/960px-SierraEscarpmentCA.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "source": "https://commons.wikimedia.org/wiki/File:SierraEscarpmentCA.jpg",
         "author": "G. Thomas (talk · contribs)",
@@ -4296,10 +3925,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Sierra%20Nevada",
-    "displayName": "시에라네바다산맥 (미국)"
+    "researchSource": "https://en.wikipedia.org/wiki/Sierra%20Nevada"
   },
   "mountains:매켄지 마운틴스": {
+    "displayName": "매켄지 마운틴스",
     "aliases": [
       "Mackenzie Mountains",
       "马更些山脉",
@@ -4329,6 +3958,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Mackenzie%20Mountains"
   },
   "mountains:티베스티 마운틴스": {
+    "displayName": "티베스티산맥",
     "aliases": [
       "Tibesti Mountains",
       "티베스티산맥",
@@ -4363,10 +3993,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Tibesti%20Mountains",
-    "displayName": "티베스티산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Tibesti%20Mountains"
   },
   "deserts:웨스턴 데저트": {
+    "displayName": "서부 사막",
     "aliases": [
       "Western Desert",
       "서부 사막",
@@ -4400,10 +4030,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Western%20Desert",
-    "displayName": "서부 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Western%20Desert"
   },
   "plateaus:유콘 플래투": {
+    "displayName": "유콘 플래투",
     "aliases": [
       "Yukon Plateau"
     ],
@@ -4424,6 +4054,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Yukon%20Plateau"
   },
   "mountains:알툰 마운틴스": {
+    "displayName": "알툰 마운틴스",
     "aliases": [
       "Altyn-Tagh",
       "阿尔金山脉",
@@ -4460,6 +4091,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Altyn-Tagh"
   },
   "mountains:아펜니니": {
+    "displayName": "아펜니니",
     "aliases": [
       "Appennino Ligure",
       "利古雷亞平寧山脈"
@@ -4481,6 +4113,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Appennino%20Ligure"
   },
   "mountains:에어 마운틴스": {
+    "displayName": "아이르산맥",
     "aliases": [
       "Aïr Mountains",
       "아이르산맥",
@@ -4514,10 +4147,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/A%C3%AFr%20Mountains",
-    "displayName": "아이르산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/A%C3%AFr%20Mountains"
   },
   "mountains:카르파티아산맥": {
+    "displayName": "카르파티아산맥",
     "aliases": [
       "Carpathian Mountains",
       "카르파티아산맥",
@@ -4551,10 +4184,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Carpathian%20Mountains",
-    "displayName": "카르파티아산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Carpathian%20Mountains"
   },
   "plateaus:센트럴 러시안 업랜드": {
+    "displayName": "센트럴 러시안 업랜드",
     "aliases": [
       "Central Russian Upland",
       "中俄羅斯高地"
@@ -4583,6 +4216,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Central%20Russian%20Upland"
   },
   "mountains:추가치 마운틴스": {
+    "displayName": "추가치 마운틴스",
     "aliases": [
       "Chugach Mountains",
       "楚加奇山"
@@ -4618,6 +4252,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Chugach%20Mountains"
   },
   "mountains:코스트 레인지스": {
+    "displayName": "태평양 연안 산맥",
     "aliases": [
       "Pacific Coast Ranges",
       "태평양 연안 산맥",
@@ -4638,10 +4273,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Pacific%20Coast%20Ranges",
-    "displayName": "태평양 연안 산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Pacific%20Coast%20Ranges"
   },
   "mountains:코디렐라 센트럴": {
+    "displayName": "코디렐라 센트럴",
     "aliases": [
       "Cordillera Blanca",
       "布蘭卡山脈"
@@ -4670,6 +4305,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Cordillera%20Blanca"
   },
   "mountains:드라켄즈버그산맥": {
+    "displayName": "드라켄즈버그산맥",
     "aliases": [
       "Drakensberg",
       "드라켄즈버그산맥",
@@ -4711,10 +4347,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Drakensberg",
-    "displayName": "드라켄즈버그산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Drakensberg"
   },
   "mountains:동고츠산맥": {
+    "displayName": "동고츠산맥",
     "aliases": [
       "Eastern Ghats",
       "동고츠산맥",
@@ -4733,19 +4369,12 @@
         "author": "Pranayraj1985",
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/Khondalite_suite_of_rocks_%28Eastern_Ghats%29_at_Tenneti_park_beach.JPG/960px-Khondalite_suite_of_rocks_%28Eastern_Ghats%29_at_Tenneti_park_beach.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Khondalite_suite_of_rocks_(Eastern_Ghats)_at_Tenneti_park_beach.JPG",
-        "author": "Adityamadhav83",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Eastern%20Ghats",
-    "displayName": "동고츠산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Eastern%20Ghats"
   },
   "mountains:엘버즈 마운틴스": {
+    "displayName": "엘부르즈산맥",
     "aliases": [
       "Elburz Mountains",
       "Alborz",
@@ -4767,13 +4396,6 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       },
       {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/AlborzCentralColoredNumbered.png/960px-AlborzCentralColoredNumbered.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:AlborzCentralColoredNumbered.png",
-        "author": "Uploaded to English Wikipedia by Siamax as AlborzCentralColoredNumbered.PNG",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      },
-      {
         "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/Alborz_in_Semnan_Province_of_Iran.jpg/960px-Alborz_in_Semnan_Province_of_Iran.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "source": "https://commons.wikimedia.org/wiki/File:Alborz_in_Semnan_Province_of_Iran.jpg",
         "author": "Asadi",
@@ -4781,10 +4403,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Alborz",
-    "displayName": "엘부르즈산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Alborz"
   },
   "plateaus:기아나 고지": {
+    "displayName": "기아나 고지",
     "aliases": [
       "Guiana Highlands",
       "Guiana Shield",
@@ -4807,6 +4429,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Guiana%20Shield"
   },
   "mountains:스칸디나비아산맥": {
+    "displayName": "스칸디나비아산맥",
     "aliases": [
       "Scandinavian Mountains",
       "스칸디나비아산맥",
@@ -4834,10 +4457,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Scandinavian%20Mountains",
-    "displayName": "스칸디나비아산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Scandinavian%20Mountains"
   },
   "plateaus:코랏 분지": {
+    "displayName": "코랏고원",
     "aliases": [
       "Khorat Plateau",
       "코랏고원",
@@ -4859,10 +4482,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Khorat%20Plateau",
-    "displayName": "코랏고원"
+    "researchSource": "https://en.wikipedia.org/wiki/Khorat%20Plateau"
   },
   "deserts:리비아 사막": {
+    "displayName": "리비아 사막",
     "aliases": [
       "Libyan Desert",
       "리비아 사막",
@@ -4896,10 +4519,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Libyan%20Desert",
-    "displayName": "리비아 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Libyan%20Desert"
   },
   "mountains:미툼바 마운틴스": {
+    "displayName": "미툼바 마운틴스",
     "aliases": [
       "Mitumba Mountains",
       "米通巴山脈",
@@ -4922,6 +4545,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Mitumba%20Mountains"
   },
   "plains:노스 시베리안 로우랜드": {
+    "displayName": "노스 시베리안 로우랜드",
     "aliases": [
       "North Siberian Lowland",
       "北西伯利亞低地",
@@ -4944,43 +4568,30 @@
     "researchSource": "https://en.wikipedia.org/wiki/North%20Siberian%20Lowland"
   },
   "plains:노스 슬로프": {
+    "displayName": "알래스카 북쪽 경사",
     "aliases": [
       "Alaska North Slope",
       "알래스카 북쪽 경사",
       "阿拉斯加北坡"
     ],
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/NPRA_F1lg.gif/960px-NPRA_F1lg.gif?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "source": "https://commons.wikimedia.org/wiki/File:NPRA_F1lg.gif",
-    "author": "USGS",
-    "license": "Public domain",
-    "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Alaska_001.jpg/960px-Alaska_001.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:Alaska_001.jpg",
+    "author": "Pi3.124",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
     "photos": [
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/NPRA_F1lg.gif/960px-NPRA_F1lg.gif?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:NPRA_F1lg.gif",
-        "author": "USGS",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      },
       {
         "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Alaska_001.jpg/960px-Alaska_001.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "source": "https://commons.wikimedia.org/wiki/File:Alaska_001.jpg",
         "author": "Pi3.124",
         "license": "CC BY-SA 3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/Arches_and_Basins_of_the_North_Slope.jpg/960px-Arches_and_Basins_of_the_North_Slope.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Arches_and_Basins_of_the_North_Slope.jpg",
-        "author": "USDOI, MMS",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Alaska%20North%20Slope",
-    "displayName": "알래스카 북쪽 경사"
+    "researchSource": "https://en.wikipedia.org/wiki/Alaska%20North%20Slope"
   },
   "deserts:누비아 사막": {
+    "displayName": "누비아 사막",
     "aliases": [
       "Nubian Desert",
       "누비아 사막",
@@ -5007,10 +4618,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Nubian%20Desert",
-    "displayName": "누비아 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Nubian%20Desert"
   },
   "plateaus:푸토라나 플래투": {
+    "displayName": "푸토라나고원",
     "aliases": [
       "Putorana Plateau",
       "푸토라나고원",
@@ -5044,37 +4655,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Putorana%20Plateau",
-    "displayName": "푸토라나고원"
-  },
-  "mountains:피레네산맥": {
-    "aliases": [
-      "Pyrenees",
-      "피레네산맥",
-      "比利牛斯山脉",
-      "Pyrénées",
-      "Pyrenean Mountains",
-      "The Pyrenees",
-      "The Pyrénées"
-    ],
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/aa/Marbres_des_Pyrenees.jpg/960px-Marbres_des_Pyrenees.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "source": "https://commons.wikimedia.org/wiki/File:Marbres_des_Pyrenees.jpg",
-    "author": "Frédéric Neupont",
-    "license": "CC BY 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
-    "photos": [
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/aa/Marbres_des_Pyrenees.jpg/960px-Marbres_des_Pyrenees.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Marbres_des_Pyrenees.jpg",
-        "author": "Frédéric Neupont",
-        "license": "CC BY 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
-      }
-    ],
-    "researchSource": "https://en.wikipedia.org/wiki/Pyrenees",
-    "displayName": "피레네산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Putorana%20Plateau"
   },
   "mountains:치롄산맥": {
+    "displayName": "치롄산맥",
     "aliases": [
       "Qilian Mountains",
       "치롄산맥",
@@ -5107,19 +4691,12 @@
         "author": "Stefan Wagener (https://www.flickr.com/photos/stefanwagener/)",
         "license": "CC BY 2.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/DEMQilianShan.png/960px-DEMQilianShan.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:DEMQilianShan.png",
-        "author": "No machine-readable author provided. Jide~commonswiki assumed (based on copyright claims).",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Qilian%20Mountains",
-    "displayName": "치롄산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Qilian%20Mountains"
   },
   "mountains:시에라 마드레 옥시덴탈": {
+    "displayName": "서시에라마드레 산맥",
     "aliases": [
       "Sierra Madre Occidental",
       "서시에라마드레 산맥",
@@ -5140,13 +4717,6 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
       },
       {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/A_Nyugati-Sierra_Madre_elhelyezked%C3%A9se.jpg/960px-A_Nyugati-Sierra_Madre_elhelyezked%C3%A9se.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:A_Nyugati-Sierra_Madre_elhelyezked%C3%A9se.jpg",
-        "author": "Zerind",
-        "license": "CC0",
-        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
-      },
-      {
         "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Sierra.madre.occidental.volcanics.JPG/960px-Sierra.madre.occidental.volcanics.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "source": "https://commons.wikimedia.org/wiki/File:Sierra.madre.occidental.volcanics.JPG",
         "author": "Cataclasite",
@@ -5154,10 +4724,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Sierra%20Madre%20Occidental",
-    "displayName": "서시에라마드레 산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Sierra%20Madre%20Occidental"
   },
   "mountains:시에라 마드레 오리엔탈": {
+    "displayName": "동시에라마드레 산맥",
     "aliases": [
       "Sierra Madre Oriental",
       "동시에라마드레 산맥",
@@ -5191,10 +4761,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Sierra%20Madre%20Oriental",
-    "displayName": "동시에라마드레 산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Sierra%20Madre%20Oriental"
   },
   "deserts:시리아 사막": {
+    "displayName": "시리아 사막",
     "aliases": [
       "Syrian Desert",
       "Syrian desert",
@@ -5204,19 +4774,12 @@
       "Jordanian steppe",
       "Badia"
     ],
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/Syrian_Desert.png/960px-Syrian_Desert.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-    "source": "https://commons.wikimedia.org/wiki/File:Syrian_Desert.png",
-    "author": "Emilfarb at English Wikipedia",
-    "license": "Public domain",
-    "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Valley_of_the_Tombs%2C_Panoramic_view%2C_Palmyra%2C_Syria.jpg/960px-Valley_of_the_Tombs%2C_Panoramic_view%2C_Palmyra%2C_Syria.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:Valley_of_the_Tombs,_Panoramic_view,_Palmyra,_Syria.jpg",
+    "author": "Vyacheslav Argenberg",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
     "photos": [
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/Syrian_Desert.png/960px-Syrian_Desert.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Syrian_Desert.png",
-        "author": "Emilfarb at English Wikipedia",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
-      },
       {
         "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Valley_of_the_Tombs%2C_Panoramic_view%2C_Palmyra%2C_Syria.jpg/960px-Valley_of_the_Tombs%2C_Panoramic_view%2C_Palmyra%2C_Syria.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "source": "https://commons.wikimedia.org/wiki/File:Valley_of_the_Tombs,_Panoramic_view,_Palmyra,_Syria.jpg",
@@ -5232,10 +4795,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Syrian%20desert",
-    "displayName": "시리아 사막"
+    "researchSource": "https://en.wikipedia.org/wiki/Syrian%20desert"
   },
   "mountains:베르호얀스크산맥": {
+    "displayName": "베르호얀스크산맥",
     "aliases": [
       "Verkhoyansk Range",
       "베르호얀스크산맥",
@@ -5269,10 +4832,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Verkhoyansk%20Range",
-    "displayName": "베르호얀스크산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Verkhoyansk%20Range"
   },
   "mountains:서고츠산맥": {
+    "displayName": "서고츠산맥",
     "aliases": [
       "Western Ghats",
       "서고츠산맥",
@@ -5329,10 +4892,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Western%20Ghats",
-    "displayName": "서고츠산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Western%20Ghats"
   },
   "mountains:야블로노비 레인지": {
+    "displayName": "야블로노비산맥",
     "aliases": [
       "Yablonoi Mountains",
       "Yablonovy Mountains",
@@ -5354,29 +4917,22 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Yablonovy%20Mountains",
-    "displayName": "야블로노비산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Yablonovy%20Mountains"
   },
   "plateaus:앨러게니 플래투": {
+    "displayName": "앨러게니고원",
     "aliases": [
       "Allegheny Plateau",
       "앨러게니고원",
       "阿勒格尼高原",
       "앨러게니 고원"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Alleghenyplateaumap.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-    "source": "https://commons.wikimedia.org/wiki/File:Alleghenyplateaumap.png",
-    "author": "No machine-readable author provided. Kmusser assumed (based on copyright claims).",
-    "license": "CC BY-SA 2.5",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/Canisteo_valley_1453.JPG/960px-Canisteo_valley_1453.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:Canisteo_valley_1453.JPG",
+    "author": "Pollinator at English Wikipedia",
+    "license": "CC BY 2.5",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.5",
     "photos": [
-      {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Alleghenyplateaumap.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "source": "https://commons.wikimedia.org/wiki/File:Alleghenyplateaumap.png",
-        "author": "No machine-readable author provided. Kmusser assumed (based on copyright claims).",
-        "license": "CC BY-SA 2.5",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5"
-      },
       {
         "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/Canisteo_valley_1453.JPG/960px-Canisteo_valley_1453.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "source": "https://commons.wikimedia.org/wiki/File:Canisteo_valley_1453.JPG",
@@ -5385,10 +4941,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/2.5"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Allegheny%20Plateau",
-    "displayName": "앨러게니고원"
+    "researchSource": "https://en.wikipedia.org/wiki/Allegheny%20Plateau"
   },
   "plateaus:알티 플래니시 멕시카나": {
+    "displayName": "멕시코 고원",
     "aliases": [
       "Mexican Plateau",
       "멕시코 고원",
@@ -5426,10 +4982,10 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Mexican%20Plateau",
-    "displayName": "멕시코 고원"
+    "researchSource": "https://en.wikipedia.org/wiki/Mexican%20Plateau"
   },
   "mountains:아시르 마운틴스": {
+    "displayName": "아시르 마운틴스",
     "aliases": [
       "Asir Mountains",
       "阿西尔山脉"
@@ -5458,6 +5014,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Asir%20Mountains"
   },
   "mountains:아틀라스 사하리엔": {
+    "displayName": "아틀라스 사하리엔",
     "aliases": [
       "Saharan Atlas",
       "撒哈拉阿特拉斯山脈",
@@ -5480,6 +5037,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Saharan%20Atlas"
   },
   "plateaus:알단 업랜드": {
+    "displayName": "알단 업랜드",
     "aliases": [
       "Aldan Highlands",
       "阿爾丹山原",
@@ -5509,6 +5067,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Aldan%20Highlands"
   },
   "mountains:다볘산맥": {
+    "displayName": "다볘산맥",
     "aliases": [
       "Dabie Mountains",
       "다볘산맥",
@@ -5535,10 +5094,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Dabie%20Mountains",
-    "displayName": "다볘산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Dabie%20Mountains"
   },
   "mountains:오트 아틀라스": {
+    "displayName": "오트 아틀라스",
     "aliases": [
       "High Atlas",
       "大阿特拉斯山",
@@ -5575,6 +5134,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/High%20Atlas"
   },
   "mountains:헤자즈 마운틴스": {
+    "displayName": "헤자즈 마운틴스",
     "aliases": [
       "Hejaz Mountains",
       "希贾兹山脉"
@@ -5596,6 +5156,7 @@
     "researchSource": "https://en.wikipedia.org/wiki/Hejaz%20Mountains"
   },
   "mountains:샤오싱안링산맥": {
+    "displayName": "샤오싱안링산맥",
     "aliases": [
       "Lesser Khingan",
       "샤오싱안링산맥",
@@ -5625,10 +5186,10 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Lesser%20Khingan",
-    "displayName": "샤오싱안링산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Lesser%20Khingan"
   },
   "plains:널라버 플레인": {
+    "displayName": "널라버 플레인",
     "aliases": [
       "Nullabor Plain",
       "Nullarbor Plain",
@@ -5656,18 +5217,12 @@
         "author": "ross bate",
         "license": "CC BY 3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
-      },
-      {
-        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/Highway_sign%2C_Nullarbor%2C_2017_%2802%29.jpg/960px-Highway_sign%2C_Nullarbor%2C_2017_%2802%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "source": "https://commons.wikimedia.org/wiki/File:Highway_sign,_Nullarbor,_2017_(02).jpg",
-        "author": "Bahnfrend",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ],
     "researchSource": "https://en.wikipedia.org/wiki/Nullarbor%20Plain"
   },
   "mountains:난링산맥": {
+    "displayName": "난링산맥",
     "aliases": [
       "Nanling Mountains",
       "난링산맥",
@@ -5688,7 +5243,244 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ],
-    "researchSource": "https://en.wikipedia.org/wiki/Nanling%20Mountains",
-    "displayName": "난링산맥"
+    "researchSource": "https://en.wikipedia.org/wiki/Nanling%20Mountains"
+  },
+  "plateaus:샨 플래투": {
+    "displayName": "샨 플래투",
+    "aliases": [
+      "Shan Plateau",
+      "Shan Hills",
+      "掸邦高原",
+      "Shan Mountains"
+    ],
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Landscape_of_Southern_Shan_State.jpg/960px-Landscape_of_Southern_Shan_State.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:Landscape_of_Southern_Shan_State.jpg",
+    "author": "Yarzaryeni",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "photos": [
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Landscape_of_Southern_Shan_State.jpg/960px-Landscape_of_Southern_Shan_State.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:Landscape_of_Southern_Shan_State.jpg",
+        "author": "Yarzaryeni",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/DSC00850_Burma_Shan_Table_Land_Hills_%284678512683%29.jpg/960px-DSC00850_Burma_Shan_Table_Land_Hills_%284678512683%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:DSC00850_Burma_Shan_Table_Land_Hills_(4678512683).jpg",
+        "author": "DANIEL JULIE from Paris, France",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+      },
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Shan_Hills%2C_Myanmar%2C_Landscape_with_Shan-Karen_hills_and_forest_in_rural_remote_Myanmar.jpg/960px-Shan_Hills%2C_Myanmar%2C_Landscape_with_Shan-Karen_hills_and_forest_in_rural_remote_Myanmar.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:Shan_Hills,_Myanmar,_Landscape_with_Shan-Karen_hills_and_forest_in_rural_remote_Myanmar.jpg",
+        "author": "Vyacheslav Argenberg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+      }
+    ],
+    "researchSource": "https://en.wikipedia.org/wiki/Shan%20Hills"
+  },
+  "mountains:시호테알린산맥": {
+    "displayName": "시호테알린산맥",
+    "aliases": [
+      "Sikhote-Alin",
+      "시호테알린산맥",
+      "锡霍特山脉"
+    ],
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/%D0%92%D0%B8%D0%B4_%D1%81_%D0%9A%D1%80%D0%B8%D0%BD%D0%B8%D1%87%D0%BD%D0%BE%D0%B9.jpg/960px-%D0%92%D0%B8%D0%B4_%D1%81_%D0%9A%D1%80%D0%B8%D0%BD%D0%B8%D1%87%D0%BD%D0%BE%D0%B9.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:%D0%92%D0%B8%D0%B4_%D1%81_%D0%9A%D1%80%D0%B8%D0%BD%D0%B8%D1%87%D0%BD%D0%BE%D0%B9.jpg",
+    "author": "Вадим Юшкевич",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "photos": [
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/%D0%92%D0%B8%D0%B4_%D1%81_%D0%9A%D1%80%D0%B8%D0%BD%D0%B8%D1%87%D0%BD%D0%BE%D0%B9.jpg/960px-%D0%92%D0%B8%D0%B4_%D1%81_%D0%9A%D1%80%D0%B8%D0%BD%D0%B8%D1%87%D0%BD%D0%BE%D0%B9.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:%D0%92%D0%B8%D0%B4_%D1%81_%D0%9A%D1%80%D0%B8%D0%BD%D0%B8%D1%87%D0%BD%D0%BE%D0%B9.jpg",
+        "author": "Вадим Юшкевич",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Sopka_in_south_Sikhote-Alin.JPG/960px-Sopka_in_south_Sikhote-Alin.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:Sopka_in_south_Sikhote-Alin.JPG",
+        "author": "pauk aka Ruslan V Albitsky",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      }
+    ],
+    "researchSource": "https://en.wikipedia.org/wiki/Sikhote-Alin"
+  },
+  "mountains:시에라 마드레 델 수르": {
+    "displayName": "시에라 마드레 델 수르",
+    "aliases": [
+      "Sierra Madre del Sur",
+      "南马德雷山脉"
+    ],
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/be/Sierra-madre-del-sur.JPG/960px-Sierra-madre-del-sur.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:Sierra-madre-del-sur.JPG",
+    "author": "Not home (talk)",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "photos": [
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/be/Sierra-madre-del-sur.JPG/960px-Sierra-madre-del-sur.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:Sierra-madre-del-sur.JPG",
+        "author": "Not home (talk)",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/Sierra_Madres_of_Mexiko.jpg/960px-Sierra_Madres_of_Mexiko.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:Sierra_Madres_of_Mexiko.jpg",
+        "author": "NASA",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
+      }
+    ],
+    "researchSource": "https://en.wikipedia.org/wiki/Sierra%20Madre%20del%20Sur"
+  },
+  "mountains:타르바가타이 레인지": {
+    "displayName": "타르바가타이산맥",
+    "aliases": [
+      "Tarbagatai Mountains",
+      "타르바가타이산맥",
+      "塔尔巴哈台山"
+    ],
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/GNPP_TARBAGATAI.jpg/960px-GNPP_TARBAGATAI.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:GNPP_TARBAGATAI.jpg",
+    "author": "Tarbagatai2018",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "photos": [
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/GNPP_TARBAGATAI.jpg/960px-GNPP_TARBAGATAI.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:GNPP_TARBAGATAI.jpg",
+        "author": "Tarbagatai2018",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      }
+    ],
+    "researchSource": "https://en.wikipedia.org/wiki/Tarbagatai%20Mountains"
+  },
+  "mountains:빈디아산맥": {
+    "displayName": "빈디아산맥",
+    "aliases": [
+      "Vindhya Range",
+      "빈디아산맥",
+      "温迪亚山脉",
+      "Vindhya Mountains"
+    ],
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/View_of_valley_between_Malwa_and_Mandu_plateaus.jpg/960px-View_of_valley_between_Malwa_and_Mandu_plateaus.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:View_of_valley_between_Malwa_and_Mandu_plateaus.jpg",
+    "author": "Varun Shiv Kapur from New Delhi, India",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "photos": [
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/View_of_valley_between_Malwa_and_Mandu_plateaus.jpg/960px-View_of_valley_between_Malwa_and_Mandu_plateaus.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:View_of_valley_between_Malwa_and_Mandu_plateaus.jpg",
+        "author": "Varun Shiv Kapur from New Delhi, India",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+      },
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/Vindhyas_Mountain_Range_seen_from_Malwa_Plateau_Mandu_Mandav_Madhya_Pradesh_India_2009.jpg/960px-Vindhyas_Mountain_Range_seen_from_Malwa_Plateau_Mandu_Mandav_Madhya_Pradesh_India_2009.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:Vindhyas_Mountain_Range_seen_from_Malwa_Plateau_Mandu_Mandav_Madhya_Pradesh_India_2009.jpg",
+        "author": "Varun Shiv Kapur",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+      },
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Vindhyas_as_seen_from_Bhimbetka.jpg/960px-Vindhyas_as_seen_from_Bhimbetka.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:Vindhyas_as_seen_from_Bhimbetka.jpg",
+        "author": "Utcursch",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      }
+    ],
+    "researchSource": "https://en.wikipedia.org/wiki/Vindhya%20Range"
+  },
+  "mountains:우이산": {
+    "displayName": "우이산",
+    "aliases": [
+      "Wuyi Mountains",
+      "우이산",
+      "武夷山",
+      "Bohea Hills",
+      "Wuyishan",
+      "Wuyi Shan",
+      "Mount Wuyi"
+    ],
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Wuyi_Mountains_Sea_of_clouds_4.jpg/960px-Wuyi_Mountains_Sea_of_clouds_4.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:Wuyi_Mountains_Sea_of_clouds_4.jpg",
+    "author": "老过",
+    "license": "CC BY 2.5 cn",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.5/cn/deed.en",
+    "photos": [
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Wuyi_Mountains_Sea_of_clouds_4.jpg/960px-Wuyi_Mountains_Sea_of_clouds_4.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:Wuyi_Mountains_Sea_of_clouds_4.jpg",
+        "author": "老过",
+        "license": "CC BY 2.5 cn",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.5/cn/deed.en"
+      },
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/Wuyi_Shan_Fengjing_Mingsheng_Qu_2012.08.23_17-21-52.jpg/960px-Wuyi_Shan_Fengjing_Mingsheng_Qu_2012.08.23_17-21-52.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:Wuyi_Shan_Fengjing_Mingsheng_Qu_2012.08.23_17-21-52.jpg",
+        "author": "Zhangzhugang",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/21/Wuyi_Yulu.JPG/960px-Wuyi_Yulu.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:Wuyi_Yulu.JPG",
+        "author": "Ricky Chow",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
+      }
+    ],
+    "researchSource": "https://en.wikipedia.org/wiki/Wuyi%20Mountains"
+  },
+  "plateaus:윈구이고원": {
+    "displayName": "윈구이고원",
+    "aliases": [
+      "Yunnan-Guizhou Plateau",
+      "Yunnan–Guizhou Plateau",
+      "윈구이고원",
+      "云贵高原",
+      "Yungui Plateau"
+    ],
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/Sunrise_at_Duoyishu_Hani_Terraces_%2820210320072517%29.jpg/960px-Sunrise_at_Duoyishu_Hani_Terraces_%2820210320072517%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "source": "https://commons.wikimedia.org/wiki/File:Sunrise_at_Duoyishu_Hani_Terraces_(20210320072517).jpg",
+    "author": "N509FZ",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "photos": [
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/Sunrise_at_Duoyishu_Hani_Terraces_%2820210320072517%29.jpg/960px-Sunrise_at_Duoyishu_Hani_Terraces_%2820210320072517%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:Sunrise_at_Duoyishu_Hani_Terraces_(20210320072517).jpg",
+        "author": "N509FZ",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Huangguoshu_dapubu.jpg/960px-Huangguoshu_dapubu.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "source": "https://commons.wikimedia.org/wiki/File:Huangguoshu_dapubu.jpg",
+        "author": "Mrspaceman at English Wikipedia",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/"
+      },
+      {
+        "image": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Loessplateau-kl.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+        "source": "https://commons.wikimedia.org/wiki/File:Loessplateau-kl.jpg",
+        "author": "Andreas Gruschke",
+        "license": "CC BY-SA 2.0 de",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/de/deed.en"
+      }
+    ],
+    "researchSource": "https://en.wikipedia.org/wiki/Yunnan%E2%80%93Guizhou%20Plateau"
   }
 }

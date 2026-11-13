@@ -52,7 +52,10 @@ def connected_mainline(features):
  return {'type':'LineString','coordinates':coords}
 features=[f for f in old['features'] if f['properties']['category']!='rivers'];research=[]
 for ko,aliases,title in [(ko,v,groups[ko][0]['properties']['nameEn']) for ko,v in base_aliases.items()]+river_names:
- matching=[f for f in rivers if f['properties'].get('name') in aliases and f['properties'].get('featurecla') in ['River','Lake Centerline']];geometry=connected_mainline(matching)
+ matching=[f for f in rivers if f['properties'].get('name') in aliases and f['properties'].get('featurecla') in ['River','Lake Centerline']];
+ if ko=='한강':
+  matching=[f for f in matching if any(124<=p[0]<=131 and 33<=p[1]<=40 for line in (f['geometry']['coordinates'] if f['geometry']['type']=='MultiLineString' else [f['geometry']['coordinates']]) for p in line)]
+ geometry=connected_mainline(matching)
  if not geometry:raise ValueError('Missing real river geometry: '+ko)
  features.append(feature('rivers',ko,title,geometry,' / '.join(aliases),continuity='single connected mainstem; source endpoints snapped within0.03degree; disconnected components omitted'))
  research.append({'id':'rivers:'+ko,'name':ko,'title':title})

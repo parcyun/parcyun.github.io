@@ -2,6 +2,11 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync, existsSync} from 'node:fs';
 
+test('home exposes a direct dexterity entry', () => {
+  const html = readFileSync('dist/index.html', 'utf8');
+  assert.match(html, /href="\/dexterity\/"[^>]*>parcyun dexterity/);
+});
+
 test('gallery leads to the published cafe article without exposing counters', () => {
   assert.ok(existsSync('dist/dexterity/index.html'), 'gallery route must be built');
   const html = readFileSync('dist/dexterity/index.html', 'utf8');

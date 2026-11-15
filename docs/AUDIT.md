@@ -1,5 +1,19 @@
 # parcyun studio · 코드 감사 & 최적화 보고서
 
+## 2026-11-15 · dexterity 게시 검증
+
+- 사용자 승인: 미니멀 사각 갤러리 블로그와 향미사 리뷰 공개 업로드, GitHub 로그인 댓글.
+- 경로: `/dexterity/`, `/dexterity/hyangmisa/`. 첫 화면은 카테고리명·정사각 사진·하단 굵은 제목만 표시. 글 없는 카테고리는 숨김. 사용자 요청에 따라 브랜드 장식·고정 푸터는 목록에서 제외.
+- 댓글: 저장소 issue #1, 공개 API로 글 안에서 읽기. 작성은 GitHub 로그인 화면으로 이동. 별도 OAuth 앱·권한·DB 변경 없음. 실제 사용자 댓글 제출은 대행하지 않음. API 제한 시 GitHub 링크로 안내.
+- 조회수: 기존 visitor-counter를 글 안에서만 재사용. 목록에는 집계 스크립트도 없음.
+- 사진: 얼굴 가림본 7장과 메뉴·원두표 원본 2장만 게시. 원본 인물 사진이나 과거 초안은 업로드하지 않음. AI 편집 안내 유지.
+- 검증: build 성공, 신규 2개 테스트 통과. Chrome 390/1440px 정사각 비율, 목록→본문 이동, 9장 로드, GitHub 빈 댓글 응답, 가로 넘침·JS 오류 없음 확인.
+- 전체 테스트: 253개 중 252개 통과. 기존 `gallery previews contain five real feature scenes of two seconds each`가 `spawnSync ffprobe EACCES`로 실패. 블로그와 무관하여 수정하지 않음. 다음 확인: ffprobe 실행 환경 복구 후 `node --test test/spell-server-ranking.test.mjs`.
+- npm ci 기존 의존성 감사 경고 13건(중간 1, 높음 11, 치명적 1). 범위 밖 자동 업데이트 미실행. 다음 확인: 별도 의존성 보안 검토.
+- SEO: canonical, OG, description, sitemap 추가. 검색 색인 완료를 보장하지 않음.
+- Simplification: 댓글은 GitHub에서 작성 후 페이지 새로고침 시 반영. 인페이지 작성이 필요해지면 사용자 승인으로 giscus 앱 연결.
+
+
 **작성:** 2026-07-10 (자동 감사 세션) · **대상:** `parcyun-astro-pages` (라이브 = `main`)
 **방법:** 다중 에이전트 리뷰(8개 차원 × 적대적 검증) → 검증된 47건 + 완성도 비평 14건 → 안전한 것만 자동 적용, 나머지 문서화.
 

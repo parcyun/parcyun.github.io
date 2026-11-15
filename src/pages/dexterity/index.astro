@@ -1,0 +1,51 @@
+---
+const categories = ['일상', '여행', '맛집', '생각', '인사이트', 'AI', '디지털', '디자인', '건축'];
+const posts = [{ title: '경주체육관 간판 아래, 향미사', category: '맛집', href: '/dexterity/hyangmisa/', image: '/images/dexterity/hyangmisa/hyangmisa-exterior.png' }];
+---
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>parcyun dexterity</title>
+<meta name="description" content="parcyun의 일상, 여행, 맛집과 생각. AI, 디지털, 디자인, 건축을 기록하는 블로그." />
+<link rel="canonical" href="https://parcyun.github.io/dexterity/" />
+<meta property="og:title" content="parcyun dexterity" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://parcyun.github.io/dexterity/" />
+<meta property="og:image" content="https://parcyun.github.io/images/dexterity/hyangmisa/hyangmisa-exterior.png" />
+<link rel="icon" href="/favicon.svg" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+</head>
+<body>
+<main aria-label="parcyun dexterity">
+{categories.filter(category => posts.some(post => post.category === category)).map(category => (
+<section aria-label={category}>
+<h2>{category}</h2>
+<div class="gallery">
+{posts.filter(post => post.category === category).map(post => (
+<a href={post.href} class="entry">
+<img src={post.image} alt="" width="1086" height="1448" />
+<h3>{post.title}</h3>
+</a>
+))}
+</div>
+</section>
+))}
+</main>
+</body>
+</html>
+<style is:global>
+*{box-sizing:border-box}html,body{margin:0;background:#000;color:#fff}
+body{font-family:'Pretendard Variable',sans-serif;word-break:keep-all}
+main{max-width:1200px;margin:auto;padding:64px 32px 96px}
+section+section{margin-top:64px}h2{font-size:22px;font-weight:500;margin:0 0 24px;letter-spacing:-.04em}
+.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.entry{position:relative;display:block;aspect-ratio:1;overflow:hidden;color:white;text-decoration:none;background:#141414}
+.entry img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.entry::after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.85))}
+h3{position:absolute;left:24px;right:24px;bottom:24px;margin:0;z-index:1;font-size:28px;font-weight:800;line-height:1.25;letter-spacing:-.04em}
+.entry:focus-visible{outline:3px solid #FFB11A;outline-offset:5px}
+@media(max-width:900px){.gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){main{padding:40px 20px 64px}.gallery{grid-template-columns:1fr}h2{font-size:20px;margin-bottom:20px}h3{font-size:28px}}
+</style>

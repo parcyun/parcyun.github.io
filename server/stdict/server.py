@@ -34,7 +34,7 @@ def normalize_search(data):
     channel = data.get("channel", {})
     return {"total": int(channel.get("total") or 0), "items": [
         {"word": item["word"], "number": item.get("sup_no", "0"),
-         "code": str(item["target_code"]), "pos": item.get("pos", ""),
+         "code": str(item["target_code"]), "pos": item.get("pos", ""), "origin": item.get("origin", ""),
          "definition": item.get("sense", {}).get("definition", "")}
         for item in many(channel.get("item"))]}
 
@@ -51,7 +51,9 @@ def normalize_detail(data):
                     example["example"] for example in many(sense.get("example_info"))
                     if example.get("example") and not example.get("source")]})
         groups.append({"pos": pos.get("pos", ""), "senses": senses})
-    return {"word": word.get("word", ""), "groups": groups,
+    origins = [{"text": x["original_language"], "language": x.get("language_type", "")}
+               for x in many(word.get("original_language_info")) if x.get("original_language")]
+    return {"word": word.get("word", ""), "groups": groups, "origins": origins,
             "origin": ", ".join(x["original_language"] for x in many(word.get("original_language_info")) if x.get("original_language")),
             "pronunciation": [p for x in many(word.get("pronunciation_info")) for p in many(x.get("pronunciation"))]}
 

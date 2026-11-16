@@ -63,11 +63,6 @@ section>p{margin-top:32px;color:#a8b0c0}
 .satury-spinner{display:none;width:16px;height:16px;flex:none;border:2px solid #ffffff30;border-top-color:var(--ps-primary);border-radius:50%}
 .is-busy .satury-spinner{display:inline-block;animation:satury-spin .7s linear infinite}
 @keyframes satury-spin{to{transform:rotate(360deg)}}
-#word-recommendations{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:20px 0 24px;font-size:13px}
-#word-recommendations[hidden]{display:none}
-#word-recommendations>span{width:100%;color:#a8b0c0;margin-bottom:4px}
-#word-recommendations button{border:1px solid #ffffff30;border-radius:24px;padding:8px 16px;min-height:40px;background:#191919;color:#fafaf7;cursor:pointer;transition:background .15s,border-color .15s}
-#word-recommendations button:hover{background:#26221b;border-color:var(--ps-primary)}
 @media(prefers-reduced-motion:reduce){.is-busy .satury-spinner{animation:none}}
 @media(max-width:600px){.satury-header{inset:16px 16px auto}main{width:calc(100% - 32px);padding-bottom:180px}main.active{padding-top:104px}form button{padding:8px 20px}article{grid-template-columns:56px 1fr;gap:8px 16px}input{padding-left:12px}.satury-examples{font-size:13px}}
 @media(max-height:600px){main:not(.active){padding:80px 0 128px}main:not(.active) .satury-hero{margin-bottom:16px}main:not(.active) .satury-hero h1{font-size:48px;margin-bottom:8px}main:not(.active) .satury-examples{margin-bottom:16px}main:not(.active) .satury-source{margin-top:12px}}
@@ -94,7 +89,6 @@ section>p{margin-top:32px;color:#a8b0c0}
  <form role="search"><input required aria-label="표준어 검색" placeholder="표준어 검색 · 예: 갈퀴" type="search" maxlength="40"><button>검색</button></form>
  <div class="satury-examples">이런 말은 어때요? <button type="button" data-word="갈퀴">갈퀴</button><button type="button" data-word="옥수수">옥수수</button><button type="button" data-word="지렁이">지렁이</button></div>
  <div id="search-status" role="status"><span class="satury-spinner" aria-hidden="true"></span><span></span></div>
- <div id="word-recommendations" aria-label="추천 단어" hidden></div>
  <a class="stdict-mobile-link" href="#stdict-panel">표준국어대사전 뜻 보기 ↓</a>
  <section aria-label="지역별 방언 검색 결과"></section>
  <p class="satury-source">국립국어원 우리말샘 · 지역어 자료</p>
@@ -110,8 +104,8 @@ section>p{margin-top:32px;color:#a8b0c0}
   <a class="stdict-credit" href="https://stdict.korean.go.kr/" target="_blank" rel="noopener">출처 · 국립국어원 표준국어대사전 ↗</a>
  </aside>
 </main>
-<link rel="stylesheet" href="/satury/dictionary-panel.css?v=20261116-1">
-<script type="module" src="/satury/dictionary-panel.js?v=20261116-1"></script>
+<link rel="stylesheet" href="/satury/dictionary-panel.css?v=20261116-2">
+<script type="module" src="/satury/dictionary-panel.js?v=20261116-2"></script>
 <div data-ps-footer data-show-links="false" data-show-feedback="true" data-show-review="true" data-service-path="/satury/" data-site-url="https://parcyun.github.io/"></div>
 <script src="/service-context.js?v=20261030-motion-1" defer></script>
 <script src="/ps-footer.js?v=20261116-footer-3" defer></script>
@@ -128,7 +122,6 @@ function add(parent,tag,text){const el=document.createElement(tag);el.textConten
 
 let sequence=0, requestController, revealDeadline=0;
 const status=document.querySelector('#search-status');
-const recommendations=document.querySelector('#word-recommendations');
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const segmenter=typeof Intl.Segmenter==='function'?new Intl.Segmenter('ko',{granularity:'grapheme'}):null;
 function setBusy(busy, message){
@@ -137,19 +130,18 @@ function setBusy(busy, message){
  status.classList.toggle('is-busy',busy);
  status.querySelector('span:last-child').textContent=message;
 }
-function recommend(q){
- recommendations.replaceChildren();
- const label=add(recommendations,'span','다른 말도 찾아보세요');
- const common=['옥수수','감자','오이','지렁이','잠자리','가위','갈퀴','이끼','열쇠'];
- const keys=common.filter(word=>word!==q&&Object.hasOwn(dictionary,word));
- const offset=Array.from(q).reduce((n,c)=>n+c.codePointAt(0),0)%keys.length;
- for(let i=0;i<Math.min(4,keys.length);i++){
-  const word=keys[(offset+i)%keys.length];
-  const chip=add(recommendations,'button',word);chip.type='button';
-  chip.onclick=()=>{form.querySelector('input').value=word;form.requestSubmit();};
- }
- recommendations.hidden=false;
+function randomWords(count,exclude=[]){
+ const pool=Object.keys(dictionary).filter(word=>!exclude.includes(word));
+ for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+ return pool.slice(0,count);
 }
+function renderExamples(q=''){
+ const examples=document.querySelector('.satury-examples');
+ const previous=Array.from(examples.querySelectorAll('[data-word]'),button=>button.dataset.word);
+ examples.textContent='이런 말은 어때요? ';
+ for(const word of randomWords(3,[q,...previous])){const button=add(examples,'button',word);button.type='button';button.dataset.word=word;}
+}
+renderExamples();
 async function reveal(parent,tag,text,id){
  const el=add(parent,tag,'');
  const parts=segmenter?[...segmenter.segment(text)].map(p=>p.segment):Array.from(text);
@@ -173,7 +165,6 @@ form.onsubmit=async e=>{
  if(!q)return;
  const id=++sequence;
  requestController?.abort();requestController=new AbortController();
- recommendations.hidden=true;
  document.querySelector('main').className='active';
  window.dispatchEvent(new CustomEvent('satury-search',{detail:{query:q}}));
  out.replaceChildren();
@@ -213,14 +204,16 @@ form.onsubmit=async e=>{
  }
  if(id!==sequence)return;
  setBusy(false,hit?Object.keys(hit.groups).length+'개 지역의 방언을 찾았어요.':'검색을 마쳤어요.');
- recommend(q);
+ renderExamples(q);
  window.dispatchEvent(new CustomEvent('satury-results-ready'));
 };
 </script>
 <script>
-document.querySelectorAll('[data-word]').forEach(button=>button.addEventListener('click',()=>{
+document.querySelector('.satury-examples').addEventListener('click',event=>{
+ const button=event.target.closest('[data-word]');if(!button)return;
  document.querySelector('form input').value=button.dataset.word;
+ document.querySelector('form input').focus();
  document.querySelector('form').requestSubmit();
-}));
+});
 </script>
 </body></html>

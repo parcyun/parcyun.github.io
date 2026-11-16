@@ -14,11 +14,11 @@ export async function verifySatury(page,base){
    const expected=Math.max(rows[0]?.getBoundingClientRect().height||0,title.getBoundingClientRect().height)+content+Math.max(0,rows.length-1)*parseFloat(style.rowGap)+parseFloat(style.paddingTop)+parseFloat(style.paddingBottom)+4;
    return {name:title.textContent,height:article.getBoundingClientRect().height,expected,labelOverflow:title.scrollWidth>title.clientWidth+1};
   });
-  return {regions,chips:document.querySelectorAll('#word-recommendations button').length,source:document.querySelector('section>a')?.href,overflow:document.documentElement.scrollWidth>innerWidth};
+  return {regions,chips:document.querySelectorAll('.satury-examples [data-word]').length,source:document.querySelector('section>a')?.href,overflow:document.documentElement.scrollWidth>innerWidth};
  });
  if(result.regions.length<2)throw Error('Only one region rendered');
  if(result.regions.some(row=>row.height>row.expected+8||row.labelOverflow))throw Error('Region grid reserves empty rows or clips its label');
- if(result.chips!==4||result.overflow||!result.source?.startsWith('https://'))throw Error('Satury layout or recommendation regression');
+ if(result.chips!==3||result.overflow||!result.source?.startsWith('https://'))throw Error('Satury layout or recommendation regression');
  console.log(JSON.stringify(result));
  return result;
 }

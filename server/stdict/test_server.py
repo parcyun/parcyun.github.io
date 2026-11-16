@@ -19,6 +19,17 @@ class DictionaryTests(unittest.TestCase):
         result = normalize_search({"channel": {"total": "1", "item": {"word": "갈퀴", "target_code": 12, "sense": {"definition": "도구"}}}})
         self.assertEqual(result["items"][0]["code"], "12")
 
+    def test_search_retains_complete_chinese_and_foreign_origins(self):
+        for origin in ["學校", "computer", "敎育computer", "café au lait"]:
+            result = normalize_search({"channel": {"total": 1, "item": {"word": "표제어", "target_code": 1, "origin": origin}}})
+            self.assertEqual(result["items"][0]["origin"], origin)
+
+    def test_detail_preserves_every_original_language_component(self):
+        parts = [{"original_language": "敎育", "language_type": "한자"}, {"original_language": "computer", "language_type": "영어"}, {"original_language": "Schule", "language_type": "독일어"}]
+        result = normalize_detail({"channel": {"item": {"word_info": {"word": "혼종어", "original_language_info": parts}}}})
+        self.assertEqual(result["origins"], [{"text": p["original_language"], "language": p["language_type"]} for p in parts])
+        self.assertEqual(result["origin"], "敎育, computer, Schule")
+
     def test_detail_handles_single_and_repeated_xml_and_omits_copyright_examples(self):
         xml = '<channel><item><word_info><word>갈퀴</word><pronunciation_info><pronunciation>갈퀴</pronunciation></pronunciation_info><pos_info><pos>명사</pos><comm_pattern_info><sense_info><definition>도구</definition><example_info><example>낙엽을 모았다.</example></example_info><example_info><example>문학 용례</example><source>저작물</source></example_info></sense_info><sense_info><definition>두 번째 뜻</definition></sense_info></comm_pattern_info></pos_info></word_info></item></channel>'
         result = normalize_detail({"channel": xml_value(ET.fromstring(xml))})

@@ -57,6 +57,20 @@
 - Mobile panel has a viewport-based fixed height while outside the visible area,
   preventing its list from collapsing before the user follows the dictionary link.
   Expanded panel is top ~16/bottom ~676 at 390x844; desktop remains dynamic/sticky.
+- Original language update: search items preserve complete `origin`; details also
+  expose every original-language component with its language label (including mixed
+  scripts such as radio + 放送). List definitions are visually clamped to two lines;
+  originals and full detail definitions are never truncated. v=2 bypasses older
+  browser responses lacking origin fields.
+- Only “이런 말은 어때요?” recommendations remain. Three known regional-data words
+  are shuffled on entry and after completed searches, excluding current and previous
+  suggestions; delegated click handling survives replacement. The former lower
+  recommendation section and label were removed at the user's explicit request.
+- Original-language API revision `satury-dictionary-api-00003-czz` is serving 100%
+  traffic. Verified 학교→學校, 컴퓨터→computer and 라디오방송→radio + 放送
+  in provider and deployed API data. Local list clamp measured two visible lines
+  (50px of 74px for 컴퓨터); detail retains all text. 10 Python and 15 targeted
+  Node tests pass, as does Astro build. No unrelated service was redeployed.
 - Rollback: revert the dictionary frontend release only; keep the independent
   dictionary API/secret for diagnosis. Do not change mail, regional search or Battle.
 

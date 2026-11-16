@@ -41,12 +41,13 @@ async function openDetail(item,button){
  alignMobileDetail();
  loading(body,'단어 정보를 불러오고 있어요…');closeButton.focus({preventScroll:true});
  try{
-  const data=await read('/api/stdict/detail?code='+encodeURIComponent(item.code),detailRequest.signal);
+  const data=await read('/api/stdict/detail?v=2&code='+encodeURIComponent(item.code),detailRequest.signal);
   if(number!==detailNumber)return;
   body.replaceChildren();body.scrollTop=0;
   add(body,'h3',data.word);
   if(data.pronunciation.length)add(body,'p','발음 · '+data.pronunciation.join(', '),'stdict-pos');
-  if(data.origin)add(body,'p','어원 · '+data.origin,'stdict-pos');
+  if(data.origins?.length){for(const origin of data.origins)add(body,'p',(origin.language||'원어')+' · '+origin.text,'stdict-origin');}
+  else if(data.origin)add(body,'p','원어 · '+data.origin,'stdict-origin');
   for(const group of data.groups){
    if(group.pos)add(body,'h4',group.pos);
    const ol=add(body,'ol','');
@@ -61,7 +62,7 @@ window.addEventListener('satury-search',async event=>{
  searchRequest?.abort();searchRequest=new AbortController();closeDetail(false,false);panel.hidden=false;fitPanel();
  loading(list,'표준어의 뜻을 찾고 있어요…');
  try{
-  const data=await read('/api/stdict/search?q='+encodeURIComponent(q),searchRequest.signal);
+  const data=await read('/api/stdict/search?v=2&q='+encodeURIComponent(q),searchRequest.signal);
   if(number!==searchNumber)return;
   list.replaceChildren();list.scrollTop=0;
   add(list,'p',`‘${q}’ · ${data.total}개 표제어`,'stdict-message');
@@ -69,6 +70,7 @@ window.addEventListener('satury-search',async event=>{
   for(const item of data.items){
    const button=add(list,'button','','stdict-entry');button.type='button';button.setAttribute('aria-haspopup','dialog');
    const name=add(button,'span',item.word,'stdict-entry-word');if(Number(item.number))add(name,'sup',item.number);
+   if(item.origin)add(button,'span',item.origin,'stdict-origin');
    add(button,'span',item.pos,'stdict-pos');add(button,'span',item.definition,'stdict-definition');
    button.addEventListener('click',()=>openDetail(item,button));
   }

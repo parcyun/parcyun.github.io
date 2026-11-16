@@ -11,7 +11,8 @@
 .stdict-entry-word{display:block;font-size:24px;font-weight:500;line-height:1.4;transition:color .15s}
 .stdict-entry-word sup{font-size:12px;color:#aaa;margin-left:4px}
 .stdict-pos{display:inline-block;color:#c5ad86;font-size:12px;margin:8px 0}
-.stdict-definition{display:block;font-size:15px;color:#c7c3bf;font-weight:300;word-break:keep-all;overflow-wrap:anywhere}
+.stdict-origin{display:block;font-size:14px;line-height:1.6;color:#bcb6ad;margin:8px 0 0;overflow-wrap:anywhere;word-break:normal}
+.stdict-definition{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;text-overflow:ellipsis;max-height:3.3em;font-size:15px;line-height:1.65;color:#c7c3bf;font-weight:300;word-break:keep-all;overflow-wrap:anywhere}
 .stdict-credit{flex:none;padding:16px 24px;font-size:11px;color:#999;text-decoration:none;border-top:1px solid #ffffff14;line-height:1.5}
 .stdict-credit:hover{color:#ffb11a}
 .stdict-message{font-size:14px;color:#aaa;padding:16px 0;line-height:1.8}

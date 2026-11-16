@@ -21,10 +21,10 @@ function rpc(method,params){
 }
 await rpc('initialize',{protocolVersion:'2024-11-05',capabilities:{},clientInfo:{name:'satury-local-preview',version:'1'}});
 const many=x=>Array.isArray(x)?x:x?[x]:[];
-export function searchResult(data){return {total:Number(data.channel?.total)||0,items:many(data.channel?.item).map(item=>({word:item.word,number:item.sup_no,code:item.target_code,pos:item.pos||'',definition:item.sense?.definition||''}))};}
+export function searchResult(data){return {total:Number(data.channel?.total)||0,items:many(data.channel?.item).map(item=>({word:item.word,number:item.sup_no,code:item.target_code,pos:item.pos||'',origin:item.origin||'',definition:item.sense?.definition||''}))};}
 export function detailResult(data){
  const word=many(data.channel?.item)[0]?.word_info||{};
- return {word:word.word||'',origin:many(word.original_language_info).map(x=>x.original_language).filter(Boolean).join(', '),pronunciation:many(word.pronunciation_info).flatMap(x=>many(x.pronunciation)).filter(Boolean),groups:many(word.pos_info).map(pos=>({pos:pos.pos,senses:many(pos.comm_pattern_info).flatMap(pattern=>many(pattern.sense_info)).map(sense=>({definition:sense.definition||'',examples:many(sense.example_info).filter(x=>!x.source).map(x=>x.example).filter(Boolean)}))}))};
+ return {word:word.word||'',origin:many(word.original_language_info).map(x=>x.original_language).filter(Boolean).join(', '),origins:many(word.original_language_info).filter(x=>x.original_language).map(x=>({text:x.original_language,language:x.language_type||''})),pronunciation:many(word.pronunciation_info).flatMap(x=>many(x.pronunciation)).filter(Boolean),groups:many(word.pos_info).map(pos=>({pos:pos.pos,senses:many(pos.comm_pattern_info).flatMap(pattern=>many(pattern.sense_info)).map(sense=>({definition:sense.definition||'',examples:many(sense.example_info).filter(x=>!x.source).map(x=>x.example).filter(Boolean)}))}))};
 }
 const cache=new Map();
 const server=http.createServer(async(req,res)=>{

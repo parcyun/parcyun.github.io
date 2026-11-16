@@ -23,7 +23,7 @@ a{color:inherit}header{max-width:1120px;margin:auto;padding:25px 24px;display:fl
 main{padding:64px 24px 120px;max-width:1000px;margin:auto}.heading,.prose,.notes{max-width:640px;margin:auto}.eyebrow{font-size:11px;font-weight:500;letter-spacing:2px;color:var(--ps-text-secondary);margin:0 0 20px}h1{font-size:clamp(32px,5vw,52px);line-height:1.2;font-weight:500;letter-spacing:-2px;margin:0 0 24px}.meta{font-size:13px;color:var(--ps-text-secondary);display:flex;gap:16px}.status{margin:24px 0 0;font-size:12px;line-height:1.7;color:var(--ps-text-secondary)}figure{margin:48px auto;max-width:760px}img{display:block;width:100%;height:auto;border-radius:3px}figcaption{font-size:12px;color:var(--ps-text-secondary);margin-top:12px}.prose{font-size:18px;line-height:1.95;letter-spacing:-.25px}.prose p{margin:0 0 30px}.prose .pause{margin:46px 0;font-size:21px}.notes{border-top:1px solid var(--ps-border);margin-top:56px;padding-top:24px;color:var(--ps-text-secondary);font-size:14px;line-height:1.8}.notes h2{font-size:16px;font-weight:500;color:var(--ps-text)}.notes dt{font-weight:500;margin-top:18px}.notes dd{margin:4px 0 0}.ps-footer{position:fixed;right:16px;bottom:12px;background:var(--ps-bg);padding:8px 12px;display:flex;gap:7px;align-items:center;font-size:10px;color:var(--ps-text-secondary);border:1px solid var(--ps-border);border-radius:999px}.ps-signature{font-family:'Covered By Your Grace',cursive;font-size:15px;color:var(--ps-text)}.ps-ig{text-decoration:none;display:flex;gap:3px;align-items:center}
 @media(max-width:639px){main{padding-top:40px}.prose{font-size:17px}figure{margin:32px -24px}img{border-radius:0}figcaption{padding:0 24px}h1{letter-spacing:-1.2px}.ps-footer{right:8px;bottom:8px}}@media(min-width:1024px){main{padding-top:88px}}@media(min-width:1280px){main{max-width:1100px}}
 </style>
-<link rel="stylesheet" href="/dexterity.css?v=20261116-3">
+<link rel="stylesheet" href="/dexterity.css?v=20261116-4">
 </head>
 <body>
 <header><a class="brand dexterity-logo" href="/dexterity/">parcyun dexterity</a><button id="theme" aria-label="밝은 화면으로 전환" aria-pressed="true">밝은 화면</button></header>
@@ -58,14 +58,14 @@ main{padding:64px 24px 120px;max-width:1000px;margin:auto}.heading,.prose,.notes
 </article>
 <section class="article-actions" aria-label="글 반응과 공유">
 <div class="article-actions-buttons">
-<button type="button" id="article-like" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span>좋아요</span></button>
-<button type="button" id="article-share"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M5 13v7h14v-7"/></svg><span>공유</span></button>
+<button type="button" id="article-like" aria-label="좋아요" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></button>
+<button type="button" id="article-share" aria-label="공유"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M5 13v7h14v-7"/></svg></button>
 </div>
 <p id="article-action-status" role="status" aria-live="polite"></p>
 </section></main>
 <footer class="ps-footer">Designed by <span class="ps-signature">parcyun studio</span><a class="ps-ig" href="https://www.instagram.com/parcyun"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1"/></svg>@parcyun</a></footer>
 <script is:inline>document.getElementById('theme').addEventListener('click',function(){const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';this.textContent=dark?'밝은 화면':'어두운 화면';this.setAttribute('aria-pressed',String(dark));this.setAttribute('aria-label',dark?'밝은 화면으로 전환':'어두운 화면으로 전환')});</script>
 <script is:inline src="/visitor-counter.js?v=20261116-hierarchy-1" defer></script>
-<script is:inline src="/dexterity-actions.js?v=20261116-2" defer></script>
+<script is:inline src="/dexterity-actions.js?v=20261116-3" defer></script>
 <script is:inline src="/dexterity-map.js?v=20261116-1" defer></script>
 </body></html>

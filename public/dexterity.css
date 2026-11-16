@@ -27,8 +27,8 @@ article figure>a{cursor:zoom-in}
 @media(prefers-reduced-motion:reduce){.dexterity-logo,.naver-place{transition:none}}
 .article-actions{max-width:640px;margin:48px auto 0;text-align:center}
 .article-actions-buttons{display:flex;justify-content:center;gap:16px}
-.article-actions button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:112px;padding:12px 20px}
-.article-actions button:hover{border-color:var(--ps-primary)}
+.article-actions button{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;padding:12px;-webkit-tap-highlight-color:transparent}
+@media(hover:hover){.article-actions button:hover{border-color:var(--ps-primary)}}
 #article-like[aria-pressed=true]{color:var(--ps-primary);border-color:var(--ps-primary)}
 #article-like[aria-pressed=true] svg{fill:currentColor}
 #article-action-status{min-height:24px;margin:16px 0 0;font-size:13px;line-height:1.7;color:var(--ps-text-secondary)}

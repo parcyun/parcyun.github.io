@@ -44,7 +44,6 @@
   try { liked = localStorage.getItem(key) === '1'; } catch {}
   function render() {
     like.setAttribute('aria-pressed', String(liked));
-    like.querySelector('span').textContent = liked ? '좋아요 취소' : '좋아요';
   }
   render();
   like.addEventListener('click', () => {
@@ -53,8 +52,8 @@
     try {
       if (liked) localStorage.setItem(key, '1');
       else localStorage.removeItem(key);
-      status.textContent = liked ? '좋아요를 표시했어요.' : '좋아요를 취소했어요.';
-    } catch { status.textContent = liked ? '좋아요를 표시했어요. 이 브라우저에서는 저장할 수 없어요.' : '좋아요를 취소했어요.'; }
+      status.replaceChildren();
+    } catch { status.textContent = '이 브라우저에서는 선택을 저장할 수 없어요.'; }
   });
   share.addEventListener('click', async () => {
     status.replaceChildren();

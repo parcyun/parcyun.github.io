@@ -8,6 +8,7 @@ test('Satury lives at its Pages route, calls Cloud Run, and has no oversized res
  assert.match(html,/https:\/\/satury-api-1093702239224.asia-northeast3.run.app\/api\/search/);
  assert.doesNotMatch(html,/grid-row:1 \/ span 100|parcyun-dialect.vercel.app|URIMALSAEM_API_KEY/);
  assert.match(html,/article h2\{grid-column:1;grid-row:1;/);
+ assert.match(html,/margin:0;word-break:normal;overflow-wrap:anywhere/);
  assert.match(html,/from '\/studio-menu.js/);
  assert.match(html,/src="\/visitor-counter.js/);
  assert.match(html,/requestController\?\.abort/);

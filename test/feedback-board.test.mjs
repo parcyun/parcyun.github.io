@@ -111,7 +111,9 @@ test('coffee action opens a collaboration email hook instead of a QR donation mo
   const spelling = await read('public/spell-drill/index.html');
 
   assert.doesNotMatch(sharedFooter, /coffee-qr|coffee-qr-fallback|coffee-qr\.png/);
-  assert.match(sharedFooter, /커피 대신, 같이 뭔가 만들어볼까요\?/);
+  assert.match(sharedFooter, /함께 만들어가요/);
+  assert.match(sharedFooter, /찾아주셔서 감사합니다/);
+  assert.doesNotMatch(sharedFooter, /알아서 마실게요|커피 대신/);
   assert.match(sharedFooter, /pen\.layered@gmail\.com/);
   assert.match(sharedFooter, /mailto:pen\.layered@gmail\.com/);
   assert.doesNotMatch(spelling, /coffee-qr|coffee-qr-fallback|coffee-qr\.png/);

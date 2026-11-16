@@ -55,7 +55,7 @@
     + '</div>'
     + '<div class="coffee-modal" id="coffee-modal" hidden><div class="coffee-backdrop" data-coffee-close></div><div class="coffee-card" role="dialog" aria-modal="true" aria-labelledby="coffee-title">'
     + '<button class="coffee-close" id="coffee-close" type="button" aria-label="닫기">×</button><div class="coffee-emoji ico">' + coffeeIcon.replace('width="13" height="13"', 'width="40" height="40"') + '</div>'
-    + '<h3 class="coffee-title" id="coffee-title">커피 대신, 같이 뭔가 만들어볼까요?</h3><p class="coffee-sub" id="coffee-sub">커피는 제가 알아서 마실게요. 교실을 바꿀 아이디어나 함께 만들고 싶은 프로젝트가 있다면 메일 한 통 보내주세요.</p>'
+    + '<h3 class="coffee-title" id="coffee-title">함께 만들어가요</h3><p class="coffee-sub" id="coffee-sub">찾아주셔서 감사합니다. 교육 현장에 도움이 될 아이디어나 함께 해보고 싶은 프로젝트가 있다면, 아래 이메일로 편하게 연락 주세요.</p>'
     + '<a class="coffee-email" id="coffee-email" href="mailto:pen.layered@gmail.com">' + coffeeEmail + '</a><div class="coffee-actions"><button class="coffee-copy" id="coffee-copy" type="button">주소 복사</button><a class="coffee-mail" href="mailto:pen.layered@gmail.com">협업 메일 쓰기</a></div>'
     + '</div></div>';
   if (previewConfig && previewConfig.enabled) host.addEventListener('click', function (event) {

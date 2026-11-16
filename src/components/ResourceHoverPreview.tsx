@@ -2,6 +2,7 @@ import type { Resource } from '../data/resources';
 import { icon, typeIcon } from '../lib/icons';
 
 const PREVIEW_IMAGE_BY_ID: Record<string, string> = {
+  satury: '/images/resource-previews/satury.png',
   academica: '/images/resource-previews/academica.png',
   'llm-fundamentals': '/images/resource-previews/llm-fundamentals.png',
   'agentic-ai': '/images/resource-previews/agentic-ai.png',
@@ -20,6 +21,7 @@ const PREVIEW_IMAGE_BY_ID: Record<string, string> = {
 };
 
 const PREVIEW_DESCRIPTION_BY_ID: Record<string, string> = {
+  satury: '표준어 하나로 지역마다 다른 방언을 나란히 살펴보는 사전입니다. 국립국어원 우리말샘 API를 검색하고, 조회가 어려울 때는 저장된 국립국어원 지역어 자료를 보여줍니다. 검색 결과의 원자료 링크로 출처를 확인할 수 있어 국어 수업과 지역어 탐구에 활용하기 좋습니다.',
   academica: 'parcyun studio에서 진행한 교사 연수의 녹화본을 주제별로 다시 찾아볼 수 있는 영상 아카이브입니다. 놓친 연수를 복습하거나 필요한 대목만 골라 수업 준비에 활용할 수 있습니다.',
   'llm-fundamentals': 'LLM의 작동 원리부터 Skills·API·MCP·Harness·Orchestration까지, AI 에이전트를 다루기 위한 핵심 개념을 17개 섹션으로 설명합니다. 기술 용어를 교육 현장의 실제 활용 맥락과 함께 따라갈 수 있는 입문 강의입니다.',
   'agentic-ai': 'Claude Desktop을 자율형 에이전트 환경으로 설정하고 Skills와 MCP를 실제 워크플로에 연결하는 실습 자료입니다. 개념 설명에 머물지 않고 설치·구성·운영 흐름을 단계별로 직접 재현할 수 있습니다.',

@@ -57,7 +57,7 @@ test('reviews list provides a hidden-scrollbar ten-card viewport and removes the
   assert.match(reviews, /is-at-end/);
 });
 
-test('all public feedback and review scripts use the same cache-busting release', async () => {
+test('public footer hosts use its new release while unchanged review scripts retain theirs', async () => {
   const [component, spell, reviewsPage, preview, footer] = await Promise.all([
     read('src/components/PsFooter.astro'),
     read('public/spell-drill/index.html'),
@@ -68,9 +68,9 @@ test('all public feedback and review scripts use the same cache-busting release'
   const expected = '20261030-motion-1';
   for (const source of [component, spell, preview]) {
     assert.match(source, new RegExp(`service-context\\.js\\?v=${expected}`));
-    assert.match(source, new RegExp(`ps-footer\\.js\\?v=${expected}`));
+    assert.match(source, /ps-footer\.js\?v=20261116-footer-1/);
   }
   assert.match(reviewsPage, new RegExp(`review-viewport\\.js\\?v=${expected}`));
   assert.match(reviewsPage, new RegExp(`reviews\\.js\\?v=${expected}`));
-  assert.match(footer, new RegExp(`ASSET_VERSION = '${expected}'`));
+  assert.match(footer, /ASSET_VERSION = '20261116-footer-1'/);
 });

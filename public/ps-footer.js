@@ -21,14 +21,18 @@
   var showLinks = contextConfig ? contextConfig.showLinks : host.getAttribute('data-show-links') !== 'false';
   var reviewLabel = host.getAttribute('data-review-label') || '리뷰 남기기';
   var reviewService = host.getAttribute('data-review-service') || '';
-  var ASSET_VERSION = '20261030-motion-1';
+  var servicePath = host.getAttribute('data-service-path') || location.pathname;
+  var siteUrl = host.getAttribute('data-site-url') || location.origin;
+  var ASSET_VERSION = '20261116-footer-1';
   var submissionServiceKey = window.PSServiceContext
-    ? window.PSServiceContext.resolveSubmissionServiceKey(location.pathname, location.search, previewContext)
+    ? window.PSServiceContext.resolveSubmissionServiceKey(servicePath, location.search, previewContext)
     : 'other';
   var viewServiceKey = window.PSServiceContext
-    ? window.PSServiceContext.resolveViewServiceKey(location.pathname, location.search, previewContext)
+    ? window.PSServiceContext.resolveViewServiceKey(servicePath, location.search, previewContext)
     : submissionServiceKey;
   var reviewHref = `/reviews/?service=${encodeURIComponent(reviewService || viewServiceKey)}&source=${encodeURIComponent(submissionServiceKey)}`;
+  if (host.hasAttribute('data-site-url')) reviewHref = new URL(reviewHref, siteUrl).href;
+  window.__psFeedbackSourcePath = servicePath;
   window.__psFeedbackServiceKey = viewServiceKey;
   window.__psFeedbackSubmissionServiceKey = submissionServiceKey;
   var source = document.currentScript && document.currentScript.src;

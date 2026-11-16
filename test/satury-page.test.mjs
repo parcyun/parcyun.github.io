@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import vm from 'node:vm';
+test('Satury lives at its Pages route, calls Cloud Run, and has no oversized result grid',async()=>{
+ const html=await readFile(new URL('../public/satury/index.html',import.meta.url),'utf8');
+ assert.match(html,/https:\/\/parcyun.github.io\/satury\//);
+ assert.match(html,/https:\/\/satury-api-1093702239224.asia-northeast3.run.app\/api\/search/);
+ assert.doesNotMatch(html,/grid-row:1 \/ span 100|parcyun-dialect.vercel.app|URIMALSAEM_API_KEY/);
+ assert.match(html,/article h2\{grid-column:1;grid-row:1;/);
+ assert.match(html,/from '\/studio-menu.js/);
+ assert.match(html,/src="\/visitor-counter.js/);
+ assert.match(html,/requestController\?\.abort/);
+ assert.match(html,/granularity:'grapheme'/);
+ for(const script of html.matchAll(/<script>([\s\S]*?)<\/script>/g))new vm.Script(script[1]);
+});

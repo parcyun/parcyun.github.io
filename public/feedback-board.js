@@ -179,8 +179,8 @@
     submit.disabled = true;
     status.textContent = '등록 중…';
     var sourcePath = serviceContext
-      ? serviceContext.sourcePathForFeedback(location.pathname, location.search)
-      : (location.pathname || '/');
+      ? serviceContext.sourcePathForFeedback(window.__psFeedbackSourcePath || location.pathname, location.search)
+      : (window.__psFeedbackSourcePath || location.pathname || '/');
     rpc('submit_feedback', { p_body: body, p_source_path: sourcePath, p_author_id: voterId(), p_service_key: submissionServiceKey })
       .then(function () { textarea.value = ''; status.textContent = '등록되었습니다. 관리자 승인 후 공개됩니다.'; })
       .catch(function (error) { status.textContent = error.message || '등록에 실패했습니다.'; })

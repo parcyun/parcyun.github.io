@@ -1,4 +1,5 @@
 import './modal-motion.js?v=20261030-2';
+import {createStudioMenu} from './studio-menu.js?v=20261116-1';
 const CONFIG = { apiKey: 'AIzaSyBjkzvcIjyfnOU0TBF5VasoaQz3Xgw1C9I', authDomain: 'parcyun.firebaseapp.com', projectId: 'parcyun', appId: '1:1093702239224:web:021018208e667b21e7cc0d' };
 const MASCOT = '/images/dexter-base-character-01.png';
 import {createLeaderboard,rankingAffiliation,isReservedNickname,isDeveloperUser,compareRankingEfficiency} from './spell-leaderboard.js?v=20261113-geoweb-3';
@@ -24,16 +25,7 @@ function dialog(title) {
   header.append(img, h, close); el.append(header); document.body.append(el);
   return window.psModalMotion.bindDialog(el);
 }
-const studio = dialog('parcyun studio');
-const studioWordmark = document.createElement('a'); studioWordmark.href = '/'; studioWordmark.className = 'ps-studio-wordmark'; studioWordmark.textContent = 'parcyun studio'; studioWordmark.setAttribute('aria-label', 'parcyun studio 홈으로 이동');
-studio.querySelector('h2').replaceChildren(studioWordmark);
-style.textContent += '.ps-account-dialog .ps-studio-wordmark{display:inline-block;font-family:"Covered By Your Grace",cursive;font-size:30px;font-weight:400;color:#ffb11a;text-decoration:none;transition:color .2s ease,transform .2s ease}.ps-account-dialog .ps-studio-wordmark:hover{color:#ffd27a;transform:translateY(-2px)}.ps-studio-support{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:28px}.ps-studio-coffee,.ps-studio-share{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;background:transparent;cursor:pointer;white-space:nowrap}.ps-studio-coffee{color:#ffb11a;padding:0;font:300 12px Montserrat,Pretendard,sans-serif}.ps-studio-coffee:hover{color:#ffd27a}.ps-studio-share{background:#ffb11a;color:#000;padding:10px 15px!important;border-radius:100px;min-height:40px;font:700 12px Pretendard,sans-serif;transition:transform .2s ease,background .2s ease}.ps-studio-share svg{width:14px;height:14px;flex:none}.ps-studio-share:hover{background:#e89500!important;transform:translateY(-2px)}@media(max-width:480px){.ps-studio-support{flex-direction:column;align-items:stretch}.ps-studio-share{order:-1;width:100%;min-height:44px}.ps-studio-coffee{min-height:40px}}@media(prefers-reduced-motion:reduce){.ps-account-dialog .ps-studio-wordmark,.ps-studio-share{transition:none}.ps-account-dialog .ps-studio-wordmark:hover,.ps-studio-share:hover{transform:none}}';
-function menuAction(label, action) { const b = document.createElement('button'); b.type = 'button'; b.className = 'ps-menu-action'; b.textContent = label; b.onclick = () => { studio.close(); action(); }; studio.append(b); }
-menuAction('기능 개선 요청', () => document.querySelector('#foot-report')?.click());
-menuAction('리뷰 남기기', () => { const link = document.querySelector('a[href*="/reviews/"]'); if (link) location.href = link.href; });
-const gameAbout=document.createElement('a');gameAbout.className='ps-menu-action';gameAbout.href=location.pathname.startsWith('/spell-drill')?'/spell-drill/about/':'/world-map/about/';gameAbout.textContent='서비스 소개 · 사용 방법';studio.append(gameAbout);
-const support = document.createElement('div'); support.className = 'ps-studio-support'; studio.append(support);
-style.textContent += '.ps-account-dialog .ps-studio-share{box-sizing:border-box;border-radius:24px!important;height:44px;min-height:44px;flex-shrink:0;line-height:1.2;appearance:none;-webkit-appearance:none}.ps-account-dialog .ps-studio-share svg{display:block;width:18px;height:18px;flex:0 0 18px}.ps-account-dialog .ps-studio-wordmark:focus{outline:none}.ps-account-dialog .ps-studio-wordmark:focus-visible{text-decoration:underline;text-underline-offset:6px}.ps-account-dialog header h2{min-width:0}.ps-account-dialog header .ps-close,.ps-account-dialog header img{flex-shrink:0}@media(max-width:360px){.ps-account-dialog .ps-studio-wordmark{font-size:26px}.ps-account-dialog{padding:20px}}';
+const studio = createStudioMenu();
 const account = dialog('내 프로필');
 const body = document.createElement('div'); account.append(body);
 const legalDialog = dialog('이용약관');
@@ -198,25 +190,6 @@ function renderAccount() {
   if(body.querySelector('#ps-signout'))body.querySelector('#ps-signout').onclick = async () => { try { const s = await loadSdk(); await s.authApi.signOut(s.auth); } catch { message('로그아웃하지 못했습니다. 다시 시도해 주세요.'); } };
 }
 function install() {
-  studio.querySelector('.ps-menu-action').style.display = document.querySelector('#foot-report') ? '' : 'none';
-  const coffeeOriginal = document.querySelector('#ps-coffee');
-  const shareOriginal = document.querySelector('.ps-share-fab');
-  if (!support.childElementCount && coffeeOriginal && shareOriginal) {
-    for (const [original, className] of [[coffeeOriginal, 'ps-studio-coffee'], [shareOriginal, 'ps-studio-share']]) {
-      const copy = original.cloneNode(true); copy.removeAttribute('id'); copy.removeAttribute('style'); copy.querySelectorAll('[id]').forEach(node => node.removeAttribute('id')); copy.className = className;
-      const computed = getComputedStyle(original);
-      for (const property of ['color', 'fontFamily', 'fontSize', 'fontWeight', 'letterSpacing', 'gap']) copy.style[property] = computed[property];
-      if (original === shareOriginal) copy.style.backgroundColor = computed.backgroundColor;
-      copy.onclick = () => { studio.close(); original.click(); }; support.append(copy);
-    }
-  }
-  const home = document.querySelector('#ps-back-btn,.home-fab,.ps-back');
-  if (home && !home.dataset.studioMenu) {
-    home.dataset.studioMenu = 'true'; home.removeAttribute('onclick'); home.classList.add('ps-studio-home'); home.setAttribute('role', 'button'); home.setAttribute('aria-label', 'parcyun studio 메뉴'); home.setAttribute('aria-haspopup', 'dialog'); home.title = 'parcyun studio 메뉴';
-    const img = document.createElement('img'); img.src = MASCOT; img.alt = ''; img.className = 'ps-studio-avatar'; home.querySelector('svg')?.setAttribute('style', 'display:none'); home.append(img);
-    home.addEventListener('click', e => { e.preventDefault(); studio.showModal(); });
-    home.addEventListener('keydown', e => { if (e.key === ' ') { e.preventDefault(); studio.showModal(); } });
-  }
   const row = document.querySelector('.ps-service-row');
   if (row && !trigger) {
     trigger = document.createElement('button'); trigger.type = 'button'; trigger.className = 'ps-account-trigger'; trigger.setAttribute('aria-haspopup', 'dialog'); row.prepend(trigger); renderTrigger();

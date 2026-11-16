@@ -13,5 +13,6 @@ test('Satury lives at its Pages route, calls Cloud Run, and has no oversized res
  assert.match(html,/src="\/visitor-counter.js/);
  assert.match(html,/requestController\?\.abort/);
  assert.match(html,/granularity:'grapheme'/);
+ assert.doesNotMatch(html,/<datalist|list="words"|querySelector\('datalist'\)/);
  for(const script of html.matchAll(/<script>([\s\S]*?)<\/script>/g))new vm.Script(script[1]);
 });

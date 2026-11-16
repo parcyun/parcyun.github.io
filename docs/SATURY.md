@@ -32,7 +32,7 @@ The API and DOM contained 21 regions, but article h2 used grid-row:1 / span 100.
 3. Run scripts/verify-satury-ui.mjs through the existing ego-browser Page at desktop and mobile widths. Test both real API and UI fixtures for spinner, partial Korean text, rapid re-search and reduced motion.
 4. Verify ATLAS GEARS card opens /satury/, recommendations re-search, source links resolve, and common menu/about/QR siblings remain operational.
 5. Confirm production GET/OPTIONS CORS and rejection of an unrelated origin, visit count scope, source SHA, Pages workflow, Cloud Run traffic and error logs.
-6. After Pages is healthy, redirect the old Vercel frontend to /satury/ and its legacy /api/search to the Cloud Run endpoint. Never remove the old service before checking the new entry path.
+6. After Pages is healthy, the user approved deleting the old Vercel project and ending its former address, including its temporary redirect. Verify no frontend request depends on Vercel before deletion.
 
 ## Manual API deployment
 
@@ -48,7 +48,7 @@ This changes only satury-api. Do not run a similar command against Battle.
 
 - Pages: revert only the satury release commit, preserving other users' changes.
 - Cloud Run: route satury-api to its previous known-good revision. Keep secret version 1 available.
-- Vercel original deployment remains recoverable: dpl_6t5nkWXCvHpvGwA96LkQkTArHWUn. No source or data was deleted.
+- Deleting the Vercel project removes its deployments and aliases. Do not rely on the original deployment for rollback after deletion. Original source is archived locally; the API key remains in Google Secret Manager. Recovery uses Git and Cloud Run revisions.
 - Do not rotate or destroy the source key during the initial cutover. Review its retirement separately after stability is established.
 
 ## Existing unrelated test failure

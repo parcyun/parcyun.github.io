@@ -18,19 +18,13 @@ article img.photo-square{aspect-ratio:1/1;width:100%;height:auto;object-fit:cove
 #dexterity-map{width:100%;height:320px;overflow:hidden;border-radius:16px;background:#222;margin:8px 0}
 #dexterity-map[data-state=error]{height:120px}
 #dexterity-map-status{margin:0;font-size:13px;line-height:1.7}
-.comment-label{display:block;font-size:14px;margin:24px 0 8px}
-#comment-draft{display:block;resize:vertical;width:100%;min-height:120px;padding:16px;border:1px solid var(--ps-border);border-radius:16px;background:var(--ps-bg);color:var(--ps-text);font:300 16px/1.7 'Pretendard Variable',sans-serif}
-#comment-draft:focus-visible{outline:2px solid #FFB11A;outline-offset:3px}
-#comment-help{font-size:12px}
-#github-comment-dialog{width:min(520px,calc(100% - 32px));max-height:calc(100dvh - 48px);overflow:auto;padding:32px;border:1px solid var(--ps-border);border-radius:28px;background:var(--ps-bg);color:var(--ps-text)}
-#github-comment-dialog[open]{animation:dexterity-dialog-in .2s ease-out}
-#github-comment-dialog::backdrop{background:#0009;backdrop-filter:blur(8px)}
-#github-comment-dialog h2{font-size:24px;line-height:1.4}
-#github-comment-dialog p{font-size:15px;line-height:1.8}
-.dialog-close{float:right;width:44px;height:44px;padding:0;font-size:24px}
-.comment-actions{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:24px}
-.comment-actions a{display:inline-flex;align-items:center;min-height:44px;color:var(--ps-text)}
-#comment-copy-status{min-height:24px;color:var(--ps-text-secondary)}
-@keyframes dexterity-dialog-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-@media(max-width:639px){.dexterity-header{padding:24px 20px 0}.dexterity-logo,.brand.dexterity-logo{font-size:26px}.naver-place{padding:20px}#github-comment-dialog{padding:24px}}
-@media(prefers-reduced-motion:reduce){#github-comment-dialog[open]{animation:none}.dexterity-logo,.naver-place{transition:none}}
+@media(max-width:639px){.dexterity-header{padding:24px 20px 0}.dexterity-logo,.brand.dexterity-logo{font-size:26px}.naver-place{padding:20px}}
+@media(prefers-reduced-motion:reduce){.dexterity-logo,.naver-place{transition:none}}
+.article-actions{max-width:640px;margin:48px auto 0;text-align:center}
+.article-actions-buttons{display:flex;justify-content:center;gap:16px}
+.article-actions button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:112px;padding:12px 20px}
+.article-actions button:hover{border-color:var(--ps-primary)}
+#article-like[aria-pressed=true]{color:var(--ps-primary);border-color:var(--ps-primary)}
+#article-like[aria-pressed=true] svg{fill:currentColor}
+#article-action-status{min-height:24px;margin:16px 0 0;font-size:13px;line-height:1.7;color:var(--ps-text-secondary)}
+#article-action-status input{display:block;width:100%;margin-top:8px;padding:12px;border:1px solid var(--ps-border);border-radius:12px;background:var(--ps-bg);color:var(--ps-text);font:inherit}

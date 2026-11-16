@@ -17,19 +17,18 @@
 - Maps 앱 `parcyun-dexterity` 허용 환경은 `https://parcyun.github.io`와 로컬 검수 `http://127.0.0.1:62639`이다. 동적 지도는 일 1,000 / 월 20,000, 주소 검색은 일 1,000 / 월 3,000으로 제한하고 초과 사용은 허용하지 않는다. 콘솔의 ‘대표 계정 미설정’으로 무료 적용 여부는 확인되지 않았으므로 무료라고 단정하지 않는다.
 - `Designed by parcyun studio`와 `@parcyun` 푸터를 유지한다.
 
-## 댓글
+## 좋아요와 공유
 
-- 입력 필드와 GitHub에서 이어 쓰기 버튼을 제공한다. 입력을 처음 시도하면 로그인 확인 안내 모달을 연다.
-- 브라우저의 GitHub 쿠키를 읽거나 공개 API 응답으로 방문자의 로그인 상태를 추정하지 않는다.
-- 현재 방식은 GitHub Issues 댓글로 이어지는 안전한 외부 작성 흐름이다. 로그인 확인·실제 등록은 GitHub가 담당한다. 본 사이트에서 즉시 제출/로그인 상태 판정이 필요하면 별도 OAuth 서버 작업으로 다룬다.
-- 입력은 모달을 닫아도 보존한다. 필요한 경우 사용자 동작으로 복사한다. 자동 댓글 게시나 비공개 토큰을 브라우저에 추가하지 않는다.
-- 댓글 API의 내용을 textContent로 표시하고 빈 목록·호출 실패를 안내한다.
-- 모달은 native dialog, 닫기·Escape·초점 복귀를 제공한다. 키보드 포커스 표시는 유지한다.
+- 댓글 입력·목록·GitHub 안내·모달 및 댓글 API 호출은 제거한다. 기존 GitHub issue의 데이터는 삭제하지 않는다.
+- 글 하단 중앙에 좋아요와 공유 버튼을 둔다. 좋아요는 글별 localStorage에 저장하며 취소할 수 있다. 전체 독자의 공감 합계로 표시하지 않는다.
+- 공유는 Web Share API를 우선 사용하고 미지원·실패 시 canonical 주소를 복사한다. 취소하면 복사하지 않는다. 복사 권한이 없으면 선택 가능한 주소를 제공한다.
+- Simplification: 좋아요는 현재 브라우저의 선택이다. 전체 합계·기기 간 동기화가 필요해지면 글별 서버 집계와 중복 방지 기능을 추가한다.
+- 2026-11-16 검증: build·관련 테스트 4개·JS 구문 검사 통과. Chrome 390/1440px에서 중앙 정렬, 좋아요 저장·새로고침·취소, canonical 링크 복사, 공유 취소 시 복사 없음, 복사 실패 시 주소 선택, 댓글 API 호출 없음 확인. 운영체제 공유창은 브라우저 테스트 대역으로 분기 확인하며 실제 기기 공유 완료는 미검증.
 
 ## 원격 작업·배포
 
 - 정식 리포는 `parcyun/parcyun.github.io`, 공개 경로는 `/dexterity/`와 `/dexterity/hyangmisa/`이다.
 - 집의 맥북에서 시작하기 전 `git status`, `git fetch origin`으로 로컬 작업과 원격을 확인하고, 깨끗한 main에서는 `git pull --ff-only origin main`을 사용한다. 미커밋 작업이 있으면 덮어쓰거나 강제 리셋하지 않는다.
-- 화면 공통 스타일은 `public/dexterity.css`, 댓글 동작은 `public/dexterity-comments.js`에 있다.
-- `npm run build` 후 `node --test test/dexterity.test.mjs test/dexterity-enhancements.test.mjs`를 실행한다. 모바일·데스크톱에서 로고, 글 상단 수치, 마지막 장소 카드, 댓글 모달을 확인한다.
+- 화면 공통 스타일은 `public/dexterity.css`, 좋아요·공유 동작은 `public/dexterity-actions.js`에 있다.
+- `npm run build` 후 `node --test test/dexterity.test.mjs test/dexterity-enhancements.test.mjs`를 실행한다. 모바일·데스크톱에서 로고, 글 상단 수치, 마지막 장소 카드, 좋아요 유지·취소와 공유을 확인한다.
 - 푸시 성공과 라이브 반영은 별개다. GitHub Pages Actions 성공 및 공개 URL을 확인하고, 실제로 확인한 범위만 보고한다.

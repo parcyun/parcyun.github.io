@@ -23,7 +23,7 @@ a{color:inherit}header{max-width:1120px;margin:auto;padding:25px 24px;display:fl
 main{padding:64px 24px 120px;max-width:1000px;margin:auto}.heading,.prose,.notes{max-width:640px;margin:auto}.eyebrow{font-size:11px;font-weight:500;letter-spacing:2px;color:var(--ps-text-secondary);margin:0 0 20px}h1{font-size:clamp(32px,5vw,52px);line-height:1.2;font-weight:500;letter-spacing:-2px;margin:0 0 24px}.meta{font-size:13px;color:var(--ps-text-secondary);display:flex;gap:16px}.status{margin:24px 0 0;font-size:12px;line-height:1.7;color:var(--ps-text-secondary)}figure{margin:48px auto;max-width:760px}img{display:block;width:100%;height:auto;border-radius:3px}figcaption{font-size:12px;color:var(--ps-text-secondary);margin-top:12px}.prose{font-size:18px;line-height:1.95;letter-spacing:-.25px}.prose p{margin:0 0 30px}.prose .pause{margin:46px 0;font-size:21px}.notes{border-top:1px solid var(--ps-border);margin-top:56px;padding-top:24px;color:var(--ps-text-secondary);font-size:14px;line-height:1.8}.notes h2{font-size:16px;font-weight:500;color:var(--ps-text)}.notes dt{font-weight:500;margin-top:18px}.notes dd{margin:4px 0 0}.ps-footer{position:fixed;right:16px;bottom:12px;background:var(--ps-bg);padding:8px 12px;display:flex;gap:7px;align-items:center;font-size:10px;color:var(--ps-text-secondary);border:1px solid var(--ps-border);border-radius:999px}.ps-signature{font-family:'Covered By Your Grace',cursive;font-size:15px;color:var(--ps-text)}.ps-ig{text-decoration:none;display:flex;gap:3px;align-items:center}
 @media(max-width:639px){main{padding-top:40px}.prose{font-size:17px}figure{margin:32px -24px}img{border-radius:0}figcaption{padding:0 24px}h1{letter-spacing:-1.2px}.ps-footer{right:8px;bottom:8px}}@media(min-width:1024px){main{padding-top:88px}}@media(min-width:1280px){main{max-width:1100px}}
 </style>
-<link rel="stylesheet" href="/dexterity.css?v=20261116-1">
+<link rel="stylesheet" href="/dexterity.css?v=20261116-2">
 </head>
 <body>
 <header><a class="brand dexterity-logo" href="/dexterity/">parcyun dexterity</a><button id="theme" aria-label="밝은 화면으로 전환" aria-pressed="true">밝은 화면</button></header>
@@ -56,28 +56,16 @@ main{padding:64px 24px 120px;max-width:1000px;margin:auto}.heading,.prose,.notes
 <figure><a href="/images/dexterity/hyangmisa/hyangmisa-room.png" aria-label="창가 좌석 사진 크게 보기"><img class="photo-square" style="object-position:50% 65%" src="/images/dexterity/hyangmisa/hyangmisa-room.png" width="1086" height="1448" loading="lazy" alt="큰 창 앞에 놓인 테이블과 의자, 창밖 단풍나무."></a></figure>
 <aside class="notes" aria-label="장소 정보"><h2>향미사</h2><p>경주시 태종로 734<br>메뉴·가격: 방문 당시 메뉴판 기준</p><p><a href="https://www.gyeongju.go.kr/tour/page.do?cmd=2&amp;con_uid=374&amp;listType=thumb&amp;mnu_uid=4812&amp;pageNo=5&amp;sortKwd=&amp;srchKwd=" target="_blank" rel="noopener noreferrer">경주시 공식 소개 ↗</a> · <a href="https://www.instagram.com/hyangmisa/" target="_blank" rel="noopener noreferrer">향미사 공식 계정 ↗</a></p><div class="naver-place"><span class="map-label">NAVER MAP</span><div id="dexterity-map" role="region" aria-label="향미사 네이버 지도" aria-busy="false"></div><p id="dexterity-map-status" role="status">위치를 불러오는 중…</p><a href="https://map.naver.com/p/search/경주%20향미사" target="_blank" rel="noopener noreferrer"><strong>향미사</strong><span>경주시 태종로 734</span><span class="map-action">네이버 지도에서 위치·길찾기 보기 ↗</span></a></div></aside>
 </article>
-<section class="notes" aria-label="댓글">
-<div id="dexterity-comments" data-issue="1">
-<h2>댓글</h2>
-<label class="comment-label" for="comment-draft">댓글 작성</label>
-<textarea id="comment-draft" rows="4" maxlength="4000" placeholder="이 글에 대한 이야기를 남겨 주세요." aria-describedby="comment-help"></textarea>
-<p id="comment-help">댓글은 GitHub에서 로그인 확인 후 공개 등록됩니다.</p>
-<button type="button" id="comment-continue">GitHub에서 이어 쓰기</button>
-<p><a href="https://github.com/parcyun/parcyun.github.io/issues/1#new_comment_field" target="_blank" rel="noopener noreferrer">GitHub에서 댓글 쓰기 ↗</a></p>
-<p>GitHub 로그인 후 작성한 댓글이 이곳에도 표시됩니다.</p>
-<div id="comment-list" aria-live="polite">댓글 불러오는 중</div>
+<section class="article-actions" aria-label="글 반응과 공유">
+<div class="article-actions-buttons">
+<button type="button" id="article-like" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span>좋아요</span></button>
+<button type="button" id="article-share"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M5 13v7h14v-7"/></svg><span>공유</span></button>
 </div>
+<p id="article-action-status" role="status" aria-live="polite"></p>
 </section></main>
-<dialog id="github-comment-dialog" aria-labelledby="github-comment-title" aria-describedby="github-comment-description">
- <form method="dialog"><button class="dialog-close" aria-label="닫기">×</button></form>
- <h2 id="github-comment-title">GitHub 로그인 확인</h2>
- <p id="github-comment-description">로그인 여부는 GitHub에서 안전하게 확인합니다. 아래에서 입력 내용을 복사한 뒤 GitHub 댓글 창에 붙여 넣어 주세요. 로그인하지 않았다면 GitHub에서 먼저 로그인할 수 있습니다.</p>
- <div class="comment-actions"><button type="button" id="comment-copy">입력 내용 복사</button><a id="comment-github" href="https://github.com/parcyun/parcyun.github.io/issues/1#new_comment_field" target="_blank" rel="noopener noreferrer">GitHub에서 로그인 확인·작성 ↗</a></div>
- <p id="comment-copy-status" role="status"></p>
-</dialog>
 <footer class="ps-footer">Designed by <span class="ps-signature">parcyun studio</span><a class="ps-ig" href="https://www.instagram.com/parcyun"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1"/></svg>@parcyun</a></footer>
 <script is:inline>document.getElementById('theme').addEventListener('click',function(){const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';this.textContent=dark?'밝은 화면':'어두운 화면';this.setAttribute('aria-pressed',String(dark));this.setAttribute('aria-label',dark?'밝은 화면으로 전환':'어두운 화면으로 전환')});</script>
 <script is:inline src="/visitor-counter.js?v=20261116-hierarchy-1" defer></script>
-<script is:inline src="/dexterity-comments.js?v=20261116-1" defer></script>
+<script is:inline src="/dexterity-actions.js?v=20261116-1" defer></script>
 <script is:inline src="/dexterity-map.js?v=20261116-1" defer></script>
 </body></html>

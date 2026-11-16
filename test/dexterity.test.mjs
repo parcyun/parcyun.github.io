@@ -23,6 +23,7 @@ test('article publishes nine safe assets with canonical and internal-only discus
   for (const [,src] of images) assert.ok(existsSync('dist'+src), src);
   assert.match(html, /rel="canonical"[^>]+hyangmisa|hyangmisa[^>]+rel="canonical"/);
   assert.match(html, /visitor-counter\.js/);
-  assert.match(html, /dexterity-comments/);
+  assert.match(html, /dexterity-actions/);
+  assert.doesNotMatch(html, /dexterity-comments|comment-draft|github-comment-dialog/);
   assert.doesNotMatch(html, /noindex|검토용 초안|127\.0\.0\.1/);
 });

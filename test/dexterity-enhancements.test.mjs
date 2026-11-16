@@ -11,13 +11,3 @@ test('Dexterity article owns a top-right counter, restrained emphasis and place 
  assert.match(css,/#visitor-stats.article-visits\{[^}]*justify-content:flex-end;gap:24px/);
  assert.match(css,/\.prose \.pause\{font-size:22px;font-weight:600/);
 });
-test('comment entry has a native login handoff dialog without a fake authentication check',()=>{
- assert.match(article,/<textarea id="comment-draft"/);
- assert.match(article,/<dialog id="github-comment-dialog"/);
- assert.match(article,/method="dialog"/);
- const script=readFileSync('public/dexterity-comments.js','utf8');
- assert.match(script,/dialog.showModal\(\)/);
- assert.match(script,/draft\?\.addEventListener\('focus'/);
- assert.match(script,/navigator.clipboard.writeText/);
- assert.doesNotMatch(script,/document.cookie|localStorage.*token|innerHTML/);
-});

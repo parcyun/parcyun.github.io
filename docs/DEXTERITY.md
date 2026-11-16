@@ -20,6 +20,8 @@
 
 ## 좋아요와 공유
 
+- 지도 미리보기와 장소 링크는 모바일에서 네이버 지도 앱을 즉시 호출한다. iOS는 nmap URL scheme, Android는 intent 및 웹 fallback을 사용한다. PC는 웹 지도. 지도 하단 제공자 표시는 클릭 영역에서 제외한다. 구현: public/dexterity-place.js. 앱 실행으로 페이지가 숨겨지면 iOS fallback을 취소한다. 공식 문서: https://guide.ncloud-docs.com/docs/maps-url-scheme . 실제 기기의 앱 실행은 별도 확인 필요.
+
 - 댓글 입력·목록·GitHub 안내·모달 및 댓글 API 호출은 제거한다. 기존 GitHub issue의 데이터는 삭제하지 않는다.
 - 글 하단 중앙에 좋아요와 공유 버튼을 둔다. 좋아요는 글별 localStorage에 저장하며 취소할 수 있다. 전체 독자의 공감 합계로 표시하지 않는다.
 - 버튼은 아이콘만 표시하며 접근성 이름은 유지한다. 공유에는 선택 상태를 두지 않고 포인터 호버만 강조한다. 키보드 초점 표시는 유지하며 클릭 즉시 공유/복사를 실행한다.

@@ -9,7 +9,9 @@ test('dictionary is isolated in a sticky viewport-fit panel with an internal she
  assert.match(html,/aria-modal="false"/);
  assert.match(css,/position:sticky/);
  assert.match(css,/100dvh - var\(--stdict-offset/);
- assert.match(css,/height:calc\(100dvh - 184px\)/);
+ assert.match(css,/position:relative;top:auto/);
+ assert.match(js,/querySelector\('\.satury-main-column form'\)\.after\(panel\)/);
+ assert.match(js,/mobileLayout\.addEventListener\('change',positionPanel\)/);
  assert.match(css,/overflow:auto;overscroll-behavior:contain/);
  assert.match(js,/getBoundingClientRect\(\)\.top/);
  assert.match(js,/event\.key==='Escape'/);

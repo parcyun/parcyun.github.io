@@ -4,10 +4,16 @@
 
 - Scope: user approved production API connection and live release after verification.
 - Intent: compare regional words with the standard dictionary in one view.
+- Mobile order update: move the existing panel directly after the search form
+  below 850px, using the actual DOM order (not CSS visual order only). Restore it
+  to the desktop right column above that width. Mobile panel scrolls with the page
+  so it cannot cover the regional results; desktop remains sticky. Panel height
+  still reserves footer space. Existing focus survives responsive reparenting.
 - Preserve: satury dark/amber brand, typography, search, regional streaming, footer.
 - Desktop: right-hand rounded sticky panel; height follows visual viewport and
   current top position while reserving space for the shared floating footer.
-- Mobile: dictionary follows the regional results; panel/list/detail scroll locally.
+- Mobile: dictionary immediately follows the search form, before regional results;
+  the panel scrolls with the page and its list/detail scroll independently.
 - Word click opens a bottom-up sheet contained in the panel, not a page-blocking modal.
 - States: loading, exact-match homonyms, empty, provider error, stale/cancelled search;
   Escape/close restores list focus, reduced-motion disables sheet animation.
@@ -54,9 +60,8 @@
   provider's empty `{}` response is normalized as zero results (regression test added).
 - Revision `satury-dictionary-api-00002-fbb` serves 100% traffic. Deployed API
   search, detail and empty result all returned 200; unrelated Origin returned 403.
-- Mobile panel has a viewport-based fixed height while outside the visible area,
-  preventing its list from collapsing before the user follows the dictionary link.
-  Expanded panel is top ~16/bottom ~676 at 390x844; desktop remains dynamic/sticky.
+- Mobile panel height follows its visible position and reserves footer space.
+  Initial result panel is top 186/bottom 676 at 390x844; desktop remains sticky.
 - Original language update: search items preserve complete `origin`; details also
   expose every original-language component with its language label (including mixed
   scripts such as radio + 放送). List definitions are visually clamped to two lines;

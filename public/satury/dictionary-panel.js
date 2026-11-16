@@ -12,6 +12,16 @@ function fitPanel(){
 }
 window.addEventListener('scroll',fitPanel,{passive:true});window.addEventListener('resize',fitPanel);
 window.visualViewport?.addEventListener('resize',fitPanel);
+const mobileLayout=matchMedia('(max-width:850px)');
+function positionPanel(){
+ const focused=panel.contains(document.activeElement)?document.activeElement:null;
+ if(mobileLayout.matches)document.querySelector('.satury-main-column form').after(panel);
+ else document.querySelector('main').append(panel);
+ if(focused)focused.focus({preventScroll:true});
+ fitPanel();
+}
+mobileLayout.addEventListener('change',positionPanel);
+positionPanel();
 function alignMobileDetail(){
  if(sheet.hidden||!matchMedia('(max-width:850px)').matches)return;
  // Reserve the final height before scrolling; otherwise a short panel at the

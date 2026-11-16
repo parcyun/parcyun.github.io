@@ -31,6 +31,6 @@
 .stdict-detail li+li{margin-top:16px}
 .stdict-detail .stdict-example{color:#aaa;border-left:1px solid #555;padding-left:16px;margin:12px 0;font-size:14px}
 .stdict-detail a{display:inline-block;color:#c5ad86;font-size:13px;margin-top:24px}
-@media(max-width:850px){main.active{display:flex;flex-direction:column;gap:32px;width:min(720px,calc(100% - 32px))}.stdict-panel{--stdict-bottom:168px;top:16px;width:100%;height:calc(100dvh - 184px)}.satury-main-column{width:100%}.stdict-header{padding-top:20px}.stdict-detail{inset:80px 0 0}}
+@media(max-width:850px){main.active{display:flex;flex-direction:column;gap:32px;width:min(720px,calc(100% - 32px))}.stdict-panel{--stdict-bottom:168px;position:relative;top:auto;width:100%;margin:16px 0}.satury-main-column{width:100%}.stdict-header{padding-top:20px}.stdict-detail{inset:80px 0 0}}
 @media(prefers-reduced-motion:reduce){.stdict-detail,.stdict-loading::before{animation:none}.stdict-entry-word{transition:none}}
-@media(max-width:850px){main.active .stdict-mobile-link{display:inline-flex;align-items:center;min-height:44px;margin:0 0 16px;font-size:14px;color:#c5ad86}.stdict-panel{scroll-margin-top:16px}}
+@media(max-width:850px){main.active .stdict-mobile-link{display:none}.stdict-panel{scroll-margin-top:16px}}

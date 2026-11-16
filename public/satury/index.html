@@ -3,14 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>satury · 방언 사전 | parcyun studio</title>
-<meta name="description" content="표준어를 검색해 지역별 방언을 비교하는 satury. 국립국어원 우리말샘과 지역어 자료로 우리 지역의 말을 찾아보세요.">
+<title>표준국어대사전 · 방언 사전 검색 | satury</title>
+<meta name="description" content="satury에서 표준국어대사전의 단어 뜻·한자·외래어 원어와 지역별 방언·사투리를 함께 검색하세요. 국립국어원 표준국어대사전과 우리말샘 자료를 연결한 무료 사전 검색 서비스입니다.">
+<meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="https://parcyun.github.io/satury/">
-<meta property="og:title" content="satury · 방언 사전">
-<meta property="og:description" content="같은 뜻, 다른 말. 표준어로 지역별 방언을 찾아보세요.">
+<meta property="og:title" content="표준국어대사전 · 방언 사전 검색 | satury">
+<meta property="og:description" content="단어 뜻·한자·외래어 원어부터 지역별 방언·사투리까지 한 번에 찾아보세요.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ko_KR">
 <meta property="og:url" content="https://parcyun.github.io/satury/">
 <meta property="og:image" content="https://parcyun.github.io/images/resource-previews/satury.png">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="표준국어대사전 · 방언 사전 검색 | satury">
+<meta name="twitter:description" content="국립국어원 자료로 단어 뜻과 지역별 사투리를 함께 찾아보세요.">
+<meta name="twitter:image" content="https://parcyun.github.io/images/resource-previews/satury.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","@id":"https://parcyun.github.io/satury/#app","name":"satury · 표준국어대사전·방언 사전 검색","url":"https://parcyun.github.io/satury/","description":"국립국어원 표준국어대사전의 단어 뜻·한자·원어와 우리말샘의 지역별 방언을 함께 검색하는 독립 서비스입니다.","inLanguage":"ko-KR","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"creator":{"@type":"Organization","name":"parcyun studio","url":"https://parcyun.github.io/"},"image":"https://parcyun.github.io/images/resource-previews/satury.png"}</script>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -85,17 +92,10 @@ section>p{margin-top:32px;color:#a8b0c0}
 </header>
 <main>
  <div class="satury-main-column">
- <div class="satury-hero"><h1 class="satury-wordmark">satury</h1><p>같은 뜻, 다른 말. 지역별 방언 사전</p></div>
+ <div class="satury-hero"><h1 class="satury-wordmark">satury</h1><p>표준국어대사전 · 방언 사전 검색</p></div>
  <form role="search"><input required aria-label="표준어 검색" placeholder="표준어 검색 · 예: 갈퀴" type="search" maxlength="40"><button>검색</button></form>
- <div class="satury-examples">이런 말은 어때요? <button type="button" data-word="갈퀴">갈퀴</button><button type="button" data-word="옥수수">옥수수</button><button type="button" data-word="지렁이">지렁이</button></div>
- <div id="search-status" role="status"><span class="satury-spinner" aria-hidden="true"></span><span></span></div>
- <a class="stdict-mobile-link" href="#stdict-panel">표준국어대사전 뜻 보기 ↓</a>
- <section aria-label="지역별 방언 검색 결과"></section>
- <p class="satury-source">국립국어원 우리말샘 · 지역어 자료</p>
- <noscript><p>방언을 검색하려면 JavaScript를 켜 주세요.</p></noscript>
- </div>
  <aside id="stdict-panel" class="stdict-panel" aria-label="표준국어대사전" hidden>
-  <header class="stdict-header"><span class="stdict-eyebrow">국립국어원</span><h2>표준국어대사전</h2></header>
+  <header class="stdict-header"><span class="stdict-eyebrow">국립국어원</span><h2>표준국어대사전</h2><button type="button" id="stdict-toggle" aria-expanded="false" aria-controls="stdict-list">표준국어대사전 · 뜻 보기 <span aria-hidden="true">⌄</span></button></header>
   <div id="stdict-list" class="stdict-scroll" aria-live="polite"></div>
   <div class="stdict-detail" id="stdict-detail" role="dialog" aria-modal="false" aria-labelledby="stdict-detail-title" hidden>
    <div class="stdict-detail-top"><span id="stdict-detail-title">단어 자세히 보기</span><button type="button" id="stdict-close" aria-label="단어 상세 닫기">×</button></div>
@@ -103,9 +103,16 @@ section>p{margin-top:32px;color:#a8b0c0}
   </div>
   <a class="stdict-credit" href="https://stdict.korean.go.kr/" target="_blank" rel="noopener">출처 · 국립국어원 표준국어대사전 ↗</a>
  </aside>
+ <div class="satury-examples">이런 말은 어때요? <button type="button" data-word="갈퀴">갈퀴</button><button type="button" data-word="옥수수">옥수수</button><button type="button" data-word="지렁이">지렁이</button></div>
+ <div id="search-status" role="status"><span class="satury-spinner" aria-hidden="true"></span><span></span></div>
+ <a class="stdict-mobile-link" href="#stdict-panel">표준국어대사전 뜻 보기 ↓</a>
+ <section aria-label="지역별 방언 검색 결과"></section>
+ <p class="satury-source">국립국어원 표준국어대사전 · 우리말샘 자료<br><a href="/satury/about/">단어 뜻과 지역별 사투리 검색 안내</a></p>
+ <noscript><p>방언을 검색하려면 JavaScript를 켜 주세요.</p></noscript>
+ </div>
 </main>
-<link rel="stylesheet" href="/satury/dictionary-panel.css?v=20261116-3">
-<script type="module" src="/satury/dictionary-panel.js?v=20261116-3"></script>
+<link rel="stylesheet" href="/satury/dictionary-panel.css?v=20261116-4">
+<script type="module" src="/satury/dictionary-panel.js?v=20261116-4"></script>
 <div data-ps-footer data-show-links="false" data-show-feedback="true" data-show-review="true" data-service-path="/satury/" data-site-url="https://parcyun.github.io/"></div>
 <script src="/service-context.js?v=20261030-motion-1" defer></script>
 <script src="/ps-footer.js?v=20261116-footer-3" defer></script>

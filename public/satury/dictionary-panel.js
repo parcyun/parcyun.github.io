@@ -13,6 +13,15 @@ function fitPanel(){
 window.addEventListener('scroll',fitPanel,{passive:true});window.addEventListener('resize',fitPanel);
 window.visualViewport?.addEventListener('resize',fitPanel);
 const mobileLayout=matchMedia('(max-width:850px)');
+const toggle=document.querySelector('#stdict-toggle');
+panel.dataset.collapsed='true';
+toggle.addEventListener('click',()=>{
+ const collapsed=panel.dataset.collapsed!=='true';
+ panel.dataset.collapsed=String(collapsed);
+ toggle.setAttribute('aria-expanded',String(!collapsed));
+ if(collapsed)closeDetail(false,false);
+ fitPanel();
+});
 function positionPanel(){
  const focused=panel.contains(document.activeElement)?document.activeElement:null;
  if(mobileLayout.matches)document.querySelector('.satury-main-column form').after(panel);

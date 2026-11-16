@@ -1,0 +1,35 @@
+/* Dexterity: article/gallery identity, preserving editorial photography. */
+.dexterity-logo,.brand.dexterity-logo{font-family:'Covered By Your Grace',cursive;font-size:30px;font-weight:400;color:#FFB11A;line-height:1.2;text-decoration:none;transition:opacity .18s ease}
+.dexterity-logo:hover{opacity:.75}
+.dexterity-header{max-width:1200px;margin:auto;padding:24px 32px 0}
+.dexterity-logo:focus-visible{outline:2px solid #FFB11A;outline-offset:5px}
+#visitor-stats.article-visits{display:flex;justify-content:flex-end;gap:24px;min-height:18px;margin-bottom:24px;font-size:12px}
+#visitor-stats.article-visits .ps-visits-item{display:inline-flex;gap:6px}
+.prose .pause{font-size:22px;font-weight:600}
+.ps-footer .ps-signature{color:#FFB11A}
+.naver-place{display:flex;flex-direction:column;gap:8px;margin-top:24px;padding:24px;border:1px solid var(--ps-border,#333);border-radius:20px;background:var(--ps-bg,#000);text-decoration:none;transition:border-color .18s ease}
+.naver-place:hover{border-color:#FFB11A}
+.naver-place .map-label{font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.12em}
+.naver-place strong{font-size:22px;color:var(--ps-text,#fff);font-weight:600}
+.naver-place .map-action{margin-top:8px;color:var(--ps-text,#fff)}
+.naver-place>a{display:flex;flex-direction:column;gap:8px;text-decoration:none}
+#dexterity-map strong{font-size:14px;line-height:1.6;color:#111}
+#dexterity-map{width:100%;height:320px;overflow:hidden;border-radius:16px;background:#222;margin:8px 0}
+#dexterity-map[data-state=error]{height:120px}
+#dexterity-map-status{margin:0;font-size:13px;line-height:1.7}
+.comment-label{display:block;font-size:14px;margin:24px 0 8px}
+#comment-draft{display:block;resize:vertical;width:100%;min-height:120px;padding:16px;border:1px solid var(--ps-border);border-radius:16px;background:var(--ps-bg);color:var(--ps-text);font:300 16px/1.7 'Pretendard Variable',sans-serif}
+#comment-draft:focus-visible{outline:2px solid #FFB11A;outline-offset:3px}
+#comment-help{font-size:12px}
+#github-comment-dialog{width:min(520px,calc(100% - 32px));max-height:calc(100dvh - 48px);overflow:auto;padding:32px;border:1px solid var(--ps-border);border-radius:28px;background:var(--ps-bg);color:var(--ps-text)}
+#github-comment-dialog[open]{animation:dexterity-dialog-in .2s ease-out}
+#github-comment-dialog::backdrop{background:#0009;backdrop-filter:blur(8px)}
+#github-comment-dialog h2{font-size:24px;line-height:1.4}
+#github-comment-dialog p{font-size:15px;line-height:1.8}
+.dialog-close{float:right;width:44px;height:44px;padding:0;font-size:24px}
+.comment-actions{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:24px}
+.comment-actions a{display:inline-flex;align-items:center;min-height:44px;color:var(--ps-text)}
+#comment-copy-status{min-height:24px;color:var(--ps-text-secondary)}
+@keyframes dexterity-dialog-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@media(max-width:639px){.dexterity-header{padding:24px 20px 0}.dexterity-logo,.brand.dexterity-logo{font-size:26px}.naver-place{padding:20px}#github-comment-dialog{padding:24px}}
+@media(prefers-reduced-motion:reduce){#github-comment-dialog[open]{animation:none}.dexterity-logo,.naver-place{transition:none}}

@@ -30,7 +30,7 @@
     '/works/': worksPaths,
     '/': ['/'].concat(atlasPaths, lecturePaths, worksPaths, [
       '/reviews/', '/studio/', '/dexterity/hyangmisa/', '/spell-drill/about/',
-      '/world-map/about/', '/terms/', '/privacy/', '/library/', '/arcade/',
+      '/world-map/about/', '/satury/about/', '/terms/', '/privacy/', '/library/', '/arcade/',
       '/mongdang-production-schedule.html', '/dashboard.html'
     ])
   };

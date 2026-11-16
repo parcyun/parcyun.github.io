@@ -15,9 +15,12 @@ const posts = [{ title: '경주체육관 간판 아래, 향미사', category: '�
 <meta property="og:url" content="https://parcyun.github.io/dexterity/" />
 <meta property="og:image" content="https://parcyun.github.io/images/dexterity/hyangmisa/hyangmisa-exterior.png" />
 <link rel="icon" href="/favicon.svg" />
+<link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/dexterity.css?v=20261116-1" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 </head>
 <body>
+<header class="dexterity-header"><a class="dexterity-logo" href="/dexterity/">parcyun dexterity</a></header>
 <main aria-label="parcyun dexterity">
 {categories.filter(category => posts.some(post => post.category === category)).map(category => (
 <section aria-label={category}>

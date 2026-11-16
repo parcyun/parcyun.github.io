@@ -36,6 +36,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--ps-primary);outline
 .satury-header .satury-wordmark{font-size:28px}
 main{width:min(720px,calc(100% - 48px));margin:0 auto;padding:clamp(160px,30svh,320px) 0 160px}
 main.active{padding-top:128px}
+main:not(.active){height:100dvh;display:flex;flex-direction:column;justify-content:center;padding:96px 0 144px}
+main:not(.active) .satury-source{margin-bottom:0}
 .satury-hero{text-align:center;margin-bottom:40px}
 .satury-hero h1{font-size:clamp(56px,10vw,88px);margin:0 0 16px}
 .satury-hero p{font-size:16px;color:#a8b0c0;margin:0}
@@ -67,6 +69,9 @@ section>p{margin-top:32px;color:#a8b0c0}
 #word-recommendations button:hover{background:#26221b;border-color:var(--ps-primary)}
 @media(prefers-reduced-motion:reduce){.is-busy .satury-spinner{animation:none}}
 @media(max-width:600px){.satury-header{inset:16px 16px auto}main{width:calc(100% - 32px);padding-bottom:180px}main.active{padding-top:104px}form button{padding:8px 20px}article{grid-template-columns:56px 1fr;gap:8px 16px}input{padding-left:12px}.satury-examples{font-size:13px}}
+@media(max-height:600px){main:not(.active){padding:80px 0 128px}main:not(.active) .satury-hero{margin-bottom:16px}main:not(.active) .satury-hero h1{font-size:48px;margin-bottom:8px}main:not(.active) .satury-examples{margin-bottom:16px}main:not(.active) .satury-source{margin-top:12px}}
+@media(max-height:480px){main:not(.active) .satury-hero{display:none}}
+@media(max-height:360px){main:not(.active) .satury-examples,main:not(.active) .satury-source{display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>

@@ -2,6 +2,7 @@
 export async function verifySatury(page,base){
  await page.goto(base+'/satury/');
  await page.waitForFunction(()=>document.documentElement.dataset.gameIntro==='complete');
+ if(await page.evaluate(()=>document.documentElement.scrollHeight>innerHeight+1))throw Error('Initial Satury screen exceeds the browser viewport');
  await page.fill('input[type=search]','갈퀴');
  await page.click('form button');
  await page.waitForFunction(()=>document.querySelector('form').getAttribute('aria-busy')==='false',undefined,{timeout:60000});

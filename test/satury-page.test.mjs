@@ -11,6 +11,8 @@ test('Satury lives at its Pages route, calls Cloud Run, and has no oversized res
  assert.match(html,/margin:0;word-break:normal;overflow-wrap:anywhere/);
  assert.ok(html.includes('scrollbar-width:none'));
  assert.ok(html.includes('*::-webkit-scrollbar{display:none}'));
+ assert.ok(html.includes('main:not(.active){height:100dvh;display:flex'));
+ assert.ok(html.includes('main.active{padding-top:128px}'));
  assert.match(html,/from '\/studio-menu.js/);
  assert.match(html,/src="\/visitor-counter.js/);
  assert.match(html,/requestController\?\.abort/);

@@ -1,0 +1,3 @@
+node_modules
+authorize-local.mjs
+*.private.json

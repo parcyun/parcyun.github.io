@@ -115,7 +115,8 @@ test('coffee action opens a collaboration email hook instead of a QR donation mo
   assert.match(sharedFooter, /찾아주셔서 감사합니다/);
   assert.doesNotMatch(sharedFooter, /알아서 마실게요|커피 대신/);
   assert.match(sharedFooter, /pen\.layered@gmail\.com/);
-  assert.match(sharedFooter, /mailto:pen\.layered@gmail\.com/);
+  assert.doesNotMatch(sharedFooter, /mailto:/);
+  assert.match(sharedFooter, /id="coffee-compose"/);
   assert.doesNotMatch(spelling, /coffee-qr|coffee-qr-fallback|coffee-qr\.png/);
 });
 

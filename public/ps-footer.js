@@ -55,8 +55,15 @@
     + '</div>'
     + '<div class="coffee-modal" id="coffee-modal" hidden><div class="coffee-backdrop" data-coffee-close></div><div class="coffee-card" role="dialog" aria-modal="true" aria-labelledby="coffee-title">'
     + '<button class="coffee-close" id="coffee-close" type="button" aria-label="닫기">×</button><div class="coffee-emoji ico">' + coffeeIcon.replace('width="13" height="13"', 'width="40" height="40"') + '</div>'
-    + '<h3 class="coffee-title" id="coffee-title">함께 만들어가요</h3><p class="coffee-sub" id="coffee-sub">찾아주셔서 감사합니다. 교육 현장에 도움이 될 아이디어나 함께 해보고 싶은 프로젝트가 있다면, 아래 이메일로 편하게 연락 주세요.</p>'
-    + '<a class="coffee-email" id="coffee-email" href="mailto:pen.layered@gmail.com">' + coffeeEmail + '</a><div class="coffee-actions"><button class="coffee-copy" id="coffee-copy" type="button">주소 복사</button><a class="coffee-mail" href="mailto:pen.layered@gmail.com">협업 메일 쓰기</a></div>'
+    + '<h3 class="coffee-title" id="coffee-title">함께 만들어가요</h3><div id="coffee-info"><p class="coffee-sub" id="coffee-sub">찾아주셔서 감사합니다. 교육 현장에 도움이 될 아이디어나 함께 해보고 싶은 프로젝트가 있다면, 아래 이메일로 편하게 연락 주세요.</p>'
+    + '<span class="coffee-email" id="coffee-email">' + coffeeEmail + '</span><div class="coffee-actions"><button class="coffee-copy" id="coffee-copy" type="button">주소 복사</button><button type="button" class="coffee-mail" id="coffee-compose">협업 메일 쓰기</button></div></div>'
+    + '<form id="coffee-form" hidden><p class="coffee-sub">답장받을 이메일과 함께 제안을 보내주세요.</p>'
+    + '<label>내 이메일 주소<input id="coffee-sender" name="email" type="email" autocomplete="email" maxlength="254" required></label>'
+    + '<label>제목<input name="subject" maxlength="120" required></label>'
+    + '<label>내용<textarea name="message" rows="5" maxlength="5000" required></textarea></label>'
+    + '<label hidden aria-hidden="true">웹사이트<input name="website" tabindex="-1" autocomplete="off"></label>'
+    + '<p class="coffee-notice">입력한 이메일과 내용은 문의 확인 및 답장에만 사용됩니다. 학생 등 다른 사람의 개인정보는 적지 말아 주세요. <a href="/privacy/" target="_blank" rel="noopener">개인정보처리방침</a></p>'
+    + '<p id="coffee-send-status" role="status" aria-live="polite"></p><button type="submit" class="coffee-mail" id="coffee-send">발송</button></form>'
     + '</div></div>';
   if (previewConfig && previewConfig.enabled) host.addEventListener('click', function (event) {
     if (event.target.closest && event.target.closest('a[href]')) event.preventDefault();
@@ -76,15 +83,77 @@
     #ps-footer-root .coffee-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:24px;font-family:var(--ps-footer-font-family);line-height:var(--ps-footer-line-height)}#ps-footer-root .coffee-modal[hidden]{display:none}#ps-footer-root .coffee-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:psCoffeeFade .2s ease}#ps-footer-root .coffee-card{position:relative;z-index:1;background:#141414;border:var(--ps-footer-border-width) solid var(--ps-footer-primary);border-radius:18px;padding:32px 32px 26px;text-align:center;max-width:380px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 40px rgba(255,177,26,.12);animation:psCoffeePop .28s cubic-bezier(.16,1,.3,1)}@keyframes psCoffeeFade{from{opacity:0}to{opacity:1}}@keyframes psCoffeePop{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}#ps-footer-root .coffee-close{position:absolute;top:12px;right:16px;background:transparent;border:0;color:var(--ps-footer-muted);font-size:24px;line-height:1;cursor:pointer}#ps-footer-root .coffee-close:hover{color:var(--ps-footer-primary)}#ps-footer-root .coffee-emoji{display:flex;align-items:center;justify-content:center;color:var(--ps-footer-primary);margin-bottom:10px}#ps-footer-root .coffee-title{margin:0 0 8px;font-family:var(--ps-footer-font-family);font-size:19px;font-weight:500;line-height:1.35;color:#fff}#ps-footer-root .coffee-sub{margin:0 0 20px;font-family:var(--ps-footer-font-family);font-size:13px;font-weight:300;line-height:1.7;color:var(--ps-footer-muted)}#ps-footer-root .coffee-email{display:block;margin:0 auto 16px;padding:14px 16px;border:var(--ps-footer-border-width) solid var(--ps-footer-primary);border-radius:10px;background:#0b0b0b;color:var(--ps-footer-primary);font-family:var(--ps-footer-font-family);font-size:15px;font-weight:500;letter-spacing:.01em;text-decoration:none;user-select:all}#ps-footer-root .coffee-actions{display:flex;justify-content:center;align-items:center;gap:var(--ps-footer-gap)}#ps-footer-root .coffee-copy,#ps-footer-root .coffee-mail{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 14px;border-radius:var(--ps-footer-radius);font-family:var(--ps-footer-font-family);font-size:var(--ps-footer-font-size);font-weight:var(--ps-footer-font-weight);cursor:pointer;text-decoration:none}#ps-footer-root .coffee-copy{border:var(--ps-footer-border-width) solid var(--ps-footer-border);background:transparent;color:#fff}#ps-footer-root .coffee-mail{border:var(--ps-footer-border-width) solid var(--ps-footer-primary);background:var(--ps-footer-primary);color:#16120a}
     @media(max-width:480px){#ps-footer-root .ps-brand-fixed{left:14px;right:14px;max-width:calc(100vw - 28px);font-size:var(--ps-footer-font-size);padding:var(--ps-footer-padding);gap:var(--ps-footer-gap)}#ps-footer-root .coffee-card{padding-left:20px;padding-right:20px}#ps-footer-root .coffee-actions{flex-direction:column}#ps-footer-root .coffee-copy,#ps-footer-root .coffee-mail{width:100%}}
   `;
+  style.textContent += `
+    #ps-footer-root .coffee-card{box-sizing:border-box;max-height:calc(100dvh - 48px);overflow:auto}
+    #ps-footer-root:has(#coffee-form:not([hidden])) .coffee-card{max-width:520px}
+    #ps-footer-root #coffee-info[hidden],#ps-footer-root #coffee-form[hidden],#ps-footer-root #coffee-form [hidden]{display:none}
+    #ps-footer-root #coffee-form{box-sizing:border-box;display:block;position:static;width:100%;max-width:none;height:auto;min-height:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;animation:psCoffeePop .28s cubic-bezier(.16,1,.3,1);text-align:left}
+    #ps-footer-root #coffee-form label{display:block;margin:16px 0 0;color:#eee;font-size:14px;line-height:1.5}
+    #ps-footer-root #coffee-form input,#ps-footer-root #coffee-form textarea{box-sizing:border-box;display:block;width:100%;margin:8px 0 0;border:1px solid #444;border-radius:12px;padding:12px 16px;background:#0b0b0b;color:#fff;font:400 16px/1.5 var(--ps-footer-font-family)}
+    #ps-footer-root #coffee-form textarea{resize:vertical;min-height:120px}
+    #ps-footer-root #coffee-form input:focus,#ps-footer-root #coffee-form textarea:focus{outline:none;border-color:var(--ps-footer-primary)}
+    #ps-footer-root .coffee-notice{font-size:12px;line-height:1.6;color:#aaa;margin:16px 0}
+    #ps-footer-root .coffee-notice a{color:var(--ps-footer-primary)}
+    #ps-footer-root #coffee-send-status{font-size:14px;line-height:1.6;color:#eee}
+    #ps-footer-root #coffee-send{width:100%;min-height:48px;font-size:16px}
+    #ps-footer-root #coffee-send:disabled{opacity:.5;cursor:wait}
+    #ps-footer-root .coffee-mail:hover{filter:brightness(.92)}
+    @media(prefers-reduced-motion:reduce){#ps-footer-root .coffee-card,#ps-footer-root .coffee-backdrop,#ps-footer-root #coffee-form{animation:none}}
+  `;
   document.head.appendChild(style);
   if (showLinks) document.body.classList.add('ps-has-footer-links');
 
   var modal = document.getElementById('coffee-modal');
-  var close = function () { var done=function(){modal.hidden=true;}; if(window.psModalMotion)window.psModalMotion.exit(modal,done);else done(); };
-  document.getElementById('ps-coffee').addEventListener('click', function () { modal.hidden = false; });
+  var coffeeForm = document.getElementById('coffee-form');
+  var coffeeInfo = document.getElementById('coffee-info');
+  var coffeeSending = false;
+  var coffeeDraft = '';
+  var coffeeRequestId = '';
+  var coffeeReturnFocus;
+  var close = function () { var done=function(){modal.hidden=true;if(coffeeReturnFocus&&coffeeReturnFocus.isConnected)coffeeReturnFocus.focus();}; if(window.psModalMotion)window.psModalMotion.exit(modal,done);else done(); };
+  document.getElementById('ps-coffee').addEventListener('click', function () { coffeeReturnFocus=document.activeElement;modal.hidden = false;document.getElementById('coffee-close').focus(); });
+  document.getElementById('coffee-compose').addEventListener('click', function () {
+    coffeeInfo.hidden = true;
+    coffeeForm.hidden = false;
+    document.getElementById('coffee-sender').focus();
+  });
+  coffeeForm.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    if (coffeeSending || !coffeeForm.reportValidity()) return;
+    var status = document.getElementById('coffee-send-status');
+    var endpoint = host.getAttribute('data-contact-endpoint') || 'https://studio-contact-api-1093702239224.asia-northeast3.run.app/api/contact';
+    if (!endpoint) { status.textContent = '메일 발송 연결을 준비 중입니다. 입력 내용은 그대로 유지됩니다.'; return; }
+    var button = document.getElementById('coffee-send');
+    var fields = new FormData(coffeeForm);
+    var payload = { email: String(fields.get('email')).trim(), subject: String(fields.get('subject')).trim(), message: String(fields.get('message')).trim(), website: String(fields.get('website') || '') };
+    var draft = JSON.stringify(payload);
+    if (draft !== coffeeDraft) { coffeeDraft = draft;coffeeRequestId = new Date().toISOString().slice(0,10) + '_' + crypto.randomUUID(); }
+    payload.id = coffeeRequestId;
+    var inputs = Array.from(coffeeForm.querySelectorAll('input,textarea'));
+    inputs.forEach(function (input) { input.disabled = true; });
+    coffeeSending = true;button.disabled = true;button.textContent = '발송 중…';coffeeForm.setAttribute('aria-busy', 'true');status.textContent = '';
+    try {
+      var response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: AbortSignal.timeout(25000) });
+      var result = await response.json();
+      if (!response.ok || result.sent !== true) { status.textContent = result.message || '발송하지 못했습니다. 입력 내용은 그대로 유지됩니다.';return; }
+      status.textContent = '메일을 발송했습니다. 제안해 주셔서 감사합니다.';
+      coffeeForm.reset();
+      coffeeDraft = '';coffeeRequestId = '';
+    } catch (_) { status.textContent = '발송 완료를 확인하지 못했습니다. 입력 내용은 그대로 유지됩니다. 잠시 후 다시 시도해 주세요.'; }
+    finally { coffeeSending = false;button.disabled = false;button.textContent = '발송';inputs.forEach(function (input) { input.disabled = false; });coffeeForm.removeAttribute('aria-busy'); }
+  });
   document.getElementById('coffee-close').addEventListener('click', close);
   modal.addEventListener('click', function (event) { if (event.target.hasAttribute('data-coffee-close')) close(); });
-  document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !modal.hidden) close(); });
+  document.addEventListener('keydown', function (event) {
+    if (modal.hidden) return;
+    if (event.key === 'Escape') { event.preventDefault();event.stopPropagation();close(); }
+    if (event.key === 'Tab') {
+      var items = Array.from(modal.querySelectorAll('button:not(:disabled),input,textarea,a[href]')).filter(function (node) { return node.getClientRects().length; });
+      var first = items[0], last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault();last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault();first.focus(); }
+    }
+  });
   document.getElementById('coffee-copy').addEventListener('click', function () {
     var button = this;
     var done = function () { button.textContent = '복사됨 ✓'; setTimeout(function () { button.textContent = '주소 복사'; }, 1500); };

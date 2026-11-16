@@ -68,7 +68,7 @@ test('public footer hosts use its new release while unchanged review scripts ret
   const expected = '20261030-motion-1';
   for (const source of [component, spell, preview]) {
     assert.match(source, new RegExp(`service-context\\.js\\?v=${expected}`));
-    assert.match(source, /ps-footer\.js\?v=20261116-footer-2/);
+    assert.match(source, /ps-footer\.js\?v=20261116-footer-3/);
   }
   assert.match(reviewsPage, new RegExp(`review-viewport\\.js\\?v=${expected}`));
   assert.match(reviewsPage, new RegExp(`reviews\\.js\\?v=${expected}`));

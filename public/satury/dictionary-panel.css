@@ -1,0 +1,35 @@
+.stdict-panel{--stdict-bottom:112px;position:sticky;top:24px;align-self:start;height:max(200px,calc(100dvh - var(--stdict-offset,128px) - var(--stdict-bottom)));max-height:calc(100dvh - 48px);min-height:200px;display:flex;flex-direction:column;overflow:hidden;border:1px solid #383633;border-radius:28px;background:#141414;box-shadow:0 16px 48px #0004;isolation:isolate}
+.stdict-panel[hidden],.stdict-detail[hidden]{display:none}
+.stdict-panel{scroll-margin-top:24px}
+.stdict-mobile-link{display:none}
+.stdict-header{flex:none;padding:24px 24px 16px;border-bottom:1px solid #ffffff14}
+.stdict-eyebrow{font-size:12px;color:#aaa;letter-spacing:.04em}
+.stdict-header h2{font-size:20px;font-weight:500;margin:4px 0 0;line-height:1.4}
+.stdict-scroll{min-height:0;overflow:auto;overscroll-behavior:contain;padding:8px 24px 24px;flex:1}
+.stdict-entry{display:block;width:100%;text-align:left;background:transparent;color:#fafaf7;border:0;border-bottom:1px solid #ffffff14;padding:20px 0;cursor:pointer;line-height:1.65;transition:color .15s}
+.stdict-entry:hover .stdict-entry-word{color:#ffb11a}
+.stdict-entry-word{display:block;font-size:24px;font-weight:500;line-height:1.4;transition:color .15s}
+.stdict-entry-word sup{font-size:12px;color:#aaa;margin-left:4px}
+.stdict-pos{display:inline-block;color:#c5ad86;font-size:12px;margin:8px 0}
+.stdict-definition{display:block;font-size:15px;color:#c7c3bf;font-weight:300;word-break:keep-all;overflow-wrap:anywhere}
+.stdict-credit{flex:none;padding:16px 24px;font-size:11px;color:#999;text-decoration:none;border-top:1px solid #ffffff14;line-height:1.5}
+.stdict-credit:hover{color:#ffb11a}
+.stdict-message{font-size:14px;color:#aaa;padding:16px 0;line-height:1.8}
+.stdict-loading{display:inline-flex;align-items:center;gap:12px}
+.stdict-loading::before{content:'';width:14px;height:14px;border:2px solid #555;border-top-color:#ffb11a;border-radius:50%;animation:stdict-spin .7s linear infinite;flex:none}
+@keyframes stdict-spin{to{transform:rotate(360deg)}}
+.stdict-detail{position:absolute;inset:88px 0 0;z-index:2;display:flex;flex-direction:column;background:#1b1a18;border-top:1px solid #5b4d36;border-radius:24px 24px 0 0;box-shadow:0 -16px 40px #0006;animation:stdict-rise .24s cubic-bezier(.16,1,.3,1)}
+@keyframes stdict-rise{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.stdict-detail-top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px 24px;font-size:12px;color:#aaa;flex:none}
+.stdict-detail-top button{width:40px;height:40px;display:grid;place-items:center;font-size:24px;border:0;border-radius:50%;background:transparent;color:#ddd;cursor:pointer}
+.stdict-detail-top button:hover{background:#ffffff0d;color:#ffb11a}
+.stdict-detail h3{font-size:32px;line-height:1.3;font-weight:500;margin:8px 0 16px;color:#ffb11a}
+.stdict-detail h4{font-size:14px;font-weight:500;color:#c5ad86;margin:24px 0 8px}
+.stdict-detail p,.stdict-detail li{font-size:16px;line-height:1.85;overflow-wrap:anywhere}
+.stdict-detail ol{padding-left:20px}
+.stdict-detail li+li{margin-top:16px}
+.stdict-detail .stdict-example{color:#aaa;border-left:1px solid #555;padding-left:16px;margin:12px 0;font-size:14px}
+.stdict-detail a{display:inline-block;color:#c5ad86;font-size:13px;margin-top:24px}
+@media(max-width:850px){main.active{display:flex;flex-direction:column;gap:32px;width:min(720px,calc(100% - 32px))}.stdict-panel{--stdict-bottom:168px;top:16px;width:100%;height:calc(100dvh - 184px)}.satury-main-column{width:100%}.stdict-header{padding-top:20px}.stdict-detail{inset:80px 0 0}}
+@media(prefers-reduced-motion:reduce){.stdict-detail,.stdict-loading::before{animation:none}.stdict-entry-word{transition:none}}
+@media(max-width:850px){main.active .stdict-mobile-link{display:inline-flex;align-items:center;min-height:44px;margin:0 0 16px;font-size:14px;color:#c5ad86}.stdict-panel{scroll-margin-top:16px}}

@@ -1,0 +1,78 @@
+const panel=document.querySelector('#stdict-panel');
+const list=document.querySelector('#stdict-list');
+const sheet=document.querySelector('#stdict-detail');
+const body=document.querySelector('#stdict-detail-body');
+const closeButton=document.querySelector('#stdict-close');
+let searchNumber=0,detailNumber=0,searchRequest,detailRequest,returnFocus,closingAnimation;
+const reduced=matchMedia('(prefers-reduced-motion:reduce)');
+let resizeFrame;
+function fitPanel(){
+ if(resizeFrame)return;
+ resizeFrame=requestAnimationFrame(()=>{resizeFrame=0;if(!panel.hidden)panel.style.setProperty('--stdict-offset',Math.max(16,panel.getBoundingClientRect().top)+'px');});
+}
+window.addEventListener('scroll',fitPanel,{passive:true});window.addEventListener('resize',fitPanel);
+window.visualViewport?.addEventListener('resize',fitPanel);
+function alignMobileDetail(){
+ if(sheet.hidden||!matchMedia('(max-width:850px)').matches)return;
+ // Reserve the final height before scrolling; otherwise a short panel at the
+ // document end cannot reach the top of a mobile viewport.
+ panel.style.setProperty('--stdict-offset','16px');
+ panel.getBoundingClientRect();
+ panel.scrollIntoView({block:'start',behavior:'instant'});
+ fitPanel();
+}
+window.addEventListener('satury-results-ready',()=>{alignMobileDetail();fitPanel();});
+function add(parent,tag,text,className){const e=document.createElement(tag);e.textContent=text;if(className)e.className=className;parent.append(e);return e;}
+function loading(parent,text){parent.replaceChildren();add(parent,'p',text,'stdict-message stdict-loading');parent.setAttribute('aria-busy','true');}
+function closeDetail(restore=true,animate=true){
+ detailNumber++;detailRequest?.abort();closingAnimation?.cancel();
+ const done=()=>{sheet.hidden=true;list.inert=false;if(restore&&returnFocus?.isConnected)returnFocus.focus({preventScroll:true});};
+ if(!sheet.hidden&&animate&&!reduced.matches){closingAnimation=sheet.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(100%)',opacity:0}],{duration:160,easing:'ease-in'});closingAnimation.onfinish=done;}
+ else done();
+}
+closeButton.addEventListener('click',()=>closeDetail());
+panel.addEventListener('keydown',event=>{if(event.key==='Escape'&&!sheet.hidden){event.preventDefault();event.stopPropagation();closeDetail();}});
+const apiBase=location.hostname==='127.0.0.1'?'':'https://satury-dictionary-api-1093702239224.asia-northeast3.run.app';
+async function read(url,signal){const res=await fetch(apiBase+url,{signal});const data=await res.json();if(!res.ok)throw Error(data.message||'사전을 불러오지 못했어요. 잠시 후 다시 검색해 주세요.');return data;}
+function officialLink(parent,code){const a=add(parent,'a','국립국어원 원문 보기 ↗');a.href='https://stdict.korean.go.kr/search/searchView.do?word_no='+encodeURIComponent(code)+'&searchKeywordTo=3';a.target='_blank';a.rel='noopener';}
+async function openDetail(item,button){
+ closeDetail(false,false);returnFocus=button;const number=++detailNumber;
+ detailRequest=new AbortController();sheet.hidden=false;list.inert=true;
+ alignMobileDetail();
+ loading(body,'단어 정보를 불러오고 있어요…');closeButton.focus({preventScroll:true});
+ try{
+  const data=await read('/api/stdict/detail?code='+encodeURIComponent(item.code),detailRequest.signal);
+  if(number!==detailNumber)return;
+  body.replaceChildren();body.scrollTop=0;
+  add(body,'h3',data.word);
+  if(data.pronunciation.length)add(body,'p','발음 · '+data.pronunciation.join(', '),'stdict-pos');
+  if(data.origin)add(body,'p','어원 · '+data.origin,'stdict-pos');
+  for(const group of data.groups){
+   if(group.pos)add(body,'h4',group.pos);
+   const ol=add(body,'ol','');
+   for(const sense of group.senses){const li=add(ol,'li',sense.definition);for(const example of sense.examples)add(li,'p',example,'stdict-example');}
+  }
+  officialLink(body,item.code);
+ }catch(error){if(number!==detailNumber)return;body.replaceChildren();add(body,'h3',item.word);add(body,'p',error.message,'stdict-message');officialLink(body,item.code);}
+ finally{if(number===detailNumber)body.removeAttribute('aria-busy');}
+}
+window.addEventListener('satury-search',async event=>{
+ const q=event.detail.query,number=++searchNumber;
+ searchRequest?.abort();searchRequest=new AbortController();closeDetail(false,false);panel.hidden=false;fitPanel();
+ loading(list,'표준어의 뜻을 찾고 있어요…');
+ try{
+  const data=await read('/api/stdict/search?q='+encodeURIComponent(q),searchRequest.signal);
+  if(number!==searchNumber)return;
+  list.replaceChildren();list.scrollTop=0;
+  add(list,'p',`‘${q}’ · ${data.total}개 표제어`,'stdict-message');
+  if(!data.items.length)add(list,'p','표준국어대사전에서 일치하는 표제어를 찾지 못했어요. 지역어 검색 결과는 왼쪽에서 확인할 수 있어요.','stdict-message');
+  for(const item of data.items){
+   const button=add(list,'button','','stdict-entry');button.type='button';button.setAttribute('aria-haspopup','dialog');
+   const name=add(button,'span',item.word,'stdict-entry-word');if(Number(item.number))add(name,'sup',item.number);
+   add(button,'span',item.pos,'stdict-pos');add(button,'span',item.definition,'stdict-definition');
+   button.addEventListener('click',()=>openDetail(item,button));
+  }
+  if(data.total>data.items.length)add(list,'p',`상위 ${data.items.length}개를 표시했어요. 전체 결과는 국립국어원 원문에서 확인할 수 있어요.`,'stdict-message');
+ }catch(error){if(number!==searchNumber)return;list.replaceChildren();add(list,'p',error.message,'stdict-message');}
+ finally{if(number===searchNumber)list.removeAttribute('aria-busy');}
+});

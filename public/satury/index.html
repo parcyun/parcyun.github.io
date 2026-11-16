@@ -35,7 +35,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--ps-primary);outline
 .satury-wordmark::after{content:'.';color:var(--ps-primary)}
 .satury-header .satury-wordmark{font-size:28px}
 main{width:min(720px,calc(100% - 48px));margin:0 auto;padding:clamp(160px,30svh,320px) 0 160px}
-main.active{padding-top:128px}
+main.active{padding-top:128px;width:min(1200px,calc(100% - 48px));display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,400px);gap:48px;align-items:start}
+.satury-main-column{min-width:0}
 main:not(.active){height:100dvh;display:flex;flex-direction:column;justify-content:center;padding:96px 0 144px}
 main:not(.active) .satury-source{margin-bottom:0}
 .satury-hero{text-align:center;margin-bottom:40px}
@@ -88,15 +89,29 @@ section>p{margin-top:32px;color:#a8b0c0}
  <a class="satury-wordmark" href="/satury/" aria-label="satury 처음으로">satury</a>
 </header>
 <main>
+ <div class="satury-main-column">
  <div class="satury-hero"><h1 class="satury-wordmark">satury</h1><p>같은 뜻, 다른 말. 지역별 방언 사전</p></div>
  <form role="search"><input required aria-label="표준어 검색" placeholder="표준어 검색 · 예: 갈퀴" type="search" maxlength="40"><button>검색</button></form>
  <div class="satury-examples">이런 말은 어때요? <button type="button" data-word="갈퀴">갈퀴</button><button type="button" data-word="옥수수">옥수수</button><button type="button" data-word="지렁이">지렁이</button></div>
  <div id="search-status" role="status"><span class="satury-spinner" aria-hidden="true"></span><span></span></div>
  <div id="word-recommendations" aria-label="추천 단어" hidden></div>
+ <a class="stdict-mobile-link" href="#stdict-panel">표준국어대사전 뜻 보기 ↓</a>
  <section aria-label="지역별 방언 검색 결과"></section>
  <p class="satury-source">국립국어원 우리말샘 · 지역어 자료</p>
  <noscript><p>방언을 검색하려면 JavaScript를 켜 주세요.</p></noscript>
+ </div>
+ <aside id="stdict-panel" class="stdict-panel" aria-label="표준국어대사전" hidden>
+  <header class="stdict-header"><span class="stdict-eyebrow">국립국어원</span><h2>표준국어대사전</h2></header>
+  <div id="stdict-list" class="stdict-scroll" aria-live="polite"></div>
+  <div class="stdict-detail" id="stdict-detail" role="dialog" aria-modal="false" aria-labelledby="stdict-detail-title" hidden>
+   <div class="stdict-detail-top"><span id="stdict-detail-title">단어 자세히 보기</span><button type="button" id="stdict-close" aria-label="단어 상세 닫기">×</button></div>
+   <div class="stdict-scroll" id="stdict-detail-body" tabindex="0"></div>
+  </div>
+  <a class="stdict-credit" href="https://stdict.korean.go.kr/" target="_blank" rel="noopener">출처 · 국립국어원 표준국어대사전 ↗</a>
+ </aside>
 </main>
+<link rel="stylesheet" href="/satury/dictionary-panel.css?v=20261116-1">
+<script type="module" src="/satury/dictionary-panel.js?v=20261116-1"></script>
 <div data-ps-footer data-show-links="false" data-show-feedback="true" data-show-review="true" data-service-path="/satury/" data-site-url="https://parcyun.github.io/"></div>
 <script src="/service-context.js?v=20261030-motion-1" defer></script>
 <script src="/ps-footer.js?v=20261116-footer-3" defer></script>
@@ -160,11 +175,13 @@ form.onsubmit=async e=>{
  requestController?.abort();requestController=new AbortController();
  recommendations.hidden=true;
  document.querySelector('main').className='active';
+ window.dispatchEvent(new CustomEvent('satury-search',{detail:{query:q}}));
  out.replaceChildren();
  setBusy(true,'지역별 방언을 찾고 있어요…');
  let hit,notice='';
  try{
-  const res=await fetch('https://satury-api-1093702239224.asia-northeast3.run.app/api/search?q='+encodeURIComponent(q),{signal:requestController.signal});
+  const dialectApi=location.hostname==='127.0.0.1'?'/api/dialect/search':'https://satury-api-1093702239224.asia-northeast3.run.app/api/search';
+  const res=await fetch(dialectApi+'?q='+encodeURIComponent(q),{signal:requestController.signal});
   const data=await res.json();
   if(!res.ok)throw Error(data.message);
   hit=Object.keys(data.groups).length?data:null;
@@ -197,6 +214,7 @@ form.onsubmit=async e=>{
  if(id!==sequence)return;
  setBusy(false,hit?Object.keys(hit.groups).length+'개 지역의 방언을 찾았어요.':'검색을 마쳤어요.');
  recommend(q);
+ window.dispatchEvent(new CustomEvent('satury-results-ready'));
 };
 </script>
 <script>

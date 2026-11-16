@@ -1,5 +1,69 @@
 # satury · route and API operations
 
+## Dictionary panel · release authorized 2026-11-16
+
+- Scope: user approved production API connection and live release after verification.
+- Intent: compare regional words with the standard dictionary in one view.
+- Preserve: satury dark/amber brand, typography, search, regional streaming, footer.
+- Desktop: right-hand rounded sticky panel; height follows visual viewport and
+  current top position while reserving space for the shared floating footer.
+- Mobile: dictionary follows the regional results; panel/list/detail scroll locally.
+- Word click opens a bottom-up sheet contained in the panel, not a page-blocking modal.
+- States: loading, exact-match homonyms, empty, provider error, stale/cancelled search;
+  Escape/close restores list focus, reduced-motion disables sheet animation.
+- Source: existing local stdict MCP, official API; no API key in browser/Git.
+  Show source links; omit source-attributed literary examples and multimedia.
+- Local server: `node scripts/satury-dictionary-local.mjs`, bound only to loopback
+  with an OS-assigned free port (current preview port 62583).
+- Local dependency: configured stdict MCP at `/Users/parcyun/Downloads/Codex/Tools/stdict-mcp/server.py`.
+  Production does not depend on a local computer or MCP process.
+- Existing production dialect API is read through a fixed upstream local proxy;
+  no CORS or API production configuration was changed for this experiment.
+- Mail release is in separate checkout `satury-integration`, remote commit 605ad181.
+  Its changes were merged without conflict and retained before the dictionary release.
+- Verified: 3 targeted tests and Astro build pass. Actual local API/UI: 갈퀴 returns
+  21 regional groups plus dictionary definition; 가다 detail has 34 senses and
+  independent inner scrolling. Empty/invalid queries and rapid re-search verified.
+- At 1440x900, scrolled panel top=24/bottom=788; at 390x844, expanded mobile
+  panel top≈16/bottom≈676 (660px tall), no horizontal overflow. Escape restores
+  the clicked word, and reduced-motion removes the sheet animation. Mobile detail
+  alignment is repeated after regional streaming settles to prevent layout drift.
+- Existing root dependency audit reports 13 issues from the unchanged lockfile;
+  no dependency upgrade or broad audit fix is part of this local UI experiment.
+
+### Production dictionary API
+
+- Source: `server/stdict/server.py`, Python standard library only. Search JSON,
+  detail XML, normalized data matches the verified local UI contract.
+- URL: `https://satury-dictionary-api-1093702239224.asia-northeast3.run.app`.
+  GET `/api/stdict/search?q=갈퀴`, GET `/api/stdict/detail?code=387667`.
+- Secret Manager: `studio-stdict-key:1`, exposed only to dedicated runtime service
+  account `satury-dictionary-api@parcyun.iam.gserviceaccount.com`.
+- CORS: studio origin only; unrelated origins rejected. Public read-only data.
+- Seoul Cloud Run min 0/max 1, 256Mi, concurrency 8, upstream concurrency max 4.
+- 24h bounded cache (128 entries, each at most 128KiB), browser cache 300 seconds,
+  shared in-flight lookups; no automatic upstream retries. Response limit 2MB.
+- Per-instance uncached budgets: 120/min and 20,000/UTC day. These reset on cold
+  starts; they are not a durable global quota. The provider additionally enforces
+  the shared key's daily limit. Cache and single maximum instance reduce pressure.
+- Source-attributed literary examples and multimedia are not redistributed.
+- Verify before release: 8 Python tests, targeted frontend/search regressions,
+  Astro build, Cloud Run GET/detail/CORS, real desktop/mobile UI and Pages CI.
+- Pre-release: 8 Python tests, 13 targeted frontend/shared regressions, Astro build
+  and local desktop/mobile UI pass. Production search/detail/CORS verified;
+  provider's empty `{}` response is normalized as zero results (regression test added).
+- Revision `satury-dictionary-api-00002-fbb` serves 100% traffic. Deployed API
+  search, detail and empty result all returned 200; unrelated Origin returned 403.
+- Mobile panel has a viewport-based fixed height while outside the visible area,
+  preventing its list from collapsing before the user follows the dictionary link.
+  Expanded panel is top ~16/bottom ~676 at 390x844; desktop remains dynamic/sticky.
+- Rollback: revert the dictionary frontend release only; keep the independent
+  dictionary API/secret for diagnosis. Do not change mail, regional search or Battle.
+
+```sh
+gcloud run deploy satury-dictionary-api --project=parcyun --region=asia-northeast3 --source=server/stdict --service-account=satury-dictionary-api@parcyun.iam.gserviceaccount.com --min=0 --max=1 --min-instances=0 --max-instances=1 --concurrency=8 --cpu=1 --memory=256Mi --timeout=30 --allow-unauthenticated --set-secrets=STDICT_API_KEY=studio-stdict-key:1 --quiet
+```
+
 ## Source ownership
 
 - Frontend: public/satury/index.html, public/satury/about/index.html.

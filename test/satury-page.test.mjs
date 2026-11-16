@@ -5,14 +5,17 @@ import vm from 'node:vm';
 test('Satury lives at its Pages route, calls Cloud Run, and has no oversized result grid',async()=>{
  const html=await readFile(new URL('../public/satury/index.html',import.meta.url),'utf8');
  assert.match(html,/https:\/\/parcyun.github.io\/satury\//);
+ assert.match(html,/\/api\/dialect\/search/);
  assert.match(html,/https:\/\/satury-api-1093702239224.asia-northeast3.run.app\/api\/search/);
+ const localServer=await readFile(new URL('../scripts/satury-dictionary-local.mjs',import.meta.url),'utf8');
+ assert.match(localServer,/https:\/\/satury-api-1093702239224.asia-northeast3.run.app\/api\/search/);
  assert.doesNotMatch(html,/grid-row:1 \/ span 100|parcyun-dialect.vercel.app|URIMALSAEM_API_KEY/);
  assert.match(html,/article h2\{grid-column:1;grid-row:1;/);
  assert.match(html,/margin:0;word-break:normal;overflow-wrap:anywhere/);
  assert.ok(html.includes('scrollbar-width:none'));
  assert.ok(html.includes('*::-webkit-scrollbar{display:none}'));
  assert.ok(html.includes('main:not(.active){height:100dvh;display:flex'));
- assert.ok(html.includes('main.active{padding-top:128px}'));
+ assert.ok(html.includes('main.active{padding-top:128px;'));
  assert.match(html,/from '\/studio-menu.js/);
  assert.match(html,/src="\/visitor-counter.js/);
  assert.match(html,/requestController\?\.abort/);

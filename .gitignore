@@ -4,6 +4,7 @@ dist/
 .astro/
 server/conquest/.data/
 server/contact/*.private.json
+server/stdict/__pycache__/
 .worktrees/
 
 # OS / editor

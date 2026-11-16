@@ -1,4 +1,39 @@
 (function () {
+  const viewer = document.createElement('dialog');
+  viewer.className = 'photo-viewer';
+  viewer.setAttribute('aria-label', '사진 크게 보기');
+  const closePhoto = document.createElement('button');
+  closePhoto.type = 'button';
+  closePhoto.setAttribute('aria-label', '사진 닫기');
+  const fullPhoto = document.createElement('img');
+  closePhoto.append(fullPhoto);
+  viewer.append(closePhoto);
+  document.body.append(viewer);
+  let photoTrigger;
+  let previousOverflow;
+  function dismissPhoto() {
+    viewer.close();
+    document.documentElement.style.overflow = previousOverflow;
+    fullPhoto.removeAttribute('src');
+    photoTrigger?.focus({preventScroll: true});
+  }
+  viewer.addEventListener('click', dismissPhoto);
+  viewer.addEventListener('cancel', event => { event.preventDefault(); dismissPhoto(); });
+  document.querySelectorAll('article figure > a').forEach(link => {
+    const image = link.querySelector('img');
+    if (!image) return;
+    link.setAttribute('aria-haspopup', 'dialog');
+    link.addEventListener('click', event => {
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
+      event.preventDefault();
+      photoTrigger = link;
+      fullPhoto.src = link.href;
+      fullPhoto.alt = image.alt;
+      previousOverflow = document.documentElement.style.overflow;
+      document.documentElement.style.overflow = 'hidden';
+      viewer.showModal();
+    });
+  });
   const like = document.getElementById('article-like');
   const share = document.getElementById('article-share');
   const status = document.getElementById('article-action-status');

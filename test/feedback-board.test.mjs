@@ -41,7 +41,7 @@ test('Atlas, GeoWeb, and Spell Drill load one shared footer module', async () =>
   assert.match(spelling, /data-ps-footer/);
   assert.match(spelling, /src="\.\.\/ps-footer\.js\?v=[^"]+"/);
   assert.doesNotMatch(spelling, /class="ps-brand-fixed"/);
-  assert.match(spelling, /src="\.\.\/visitor-counter\.js"/);
+  assert.match(spelling, /src="\.\.\/visitor-counter\.js\?v=20261116-hierarchy-1"/);
   assert.match(spelling, /src="\.\.\/share-widget\.js(?:\?[^\"]+)?"/);
   assert.match(sharedFooter, /class="ps-brand-fixed"/);
   assert.match(sharedFooter, /id="ps-coffee"/);

@@ -45,8 +45,8 @@ test('a browser counts each page only once per visitor day', async () => {
 });
 
 test('homepage total is the exact sum of current canonical page counters', async () => {
-  const home = await readFile(new URL('../src/pages/index.astro', import.meta.url), 'utf8');
-  assert.match(home, /window\.__psVisitorScopePaths/);
+  const home = await readFile(sourceUrl, 'utf8');
+  assert.match(home, /var parentScopes/);
   for (const path of ['/', '/academica/', '/atlas-gears/', '/works/', '/world-map/', '/reviews/', '/spell-drill/']) {
     assert.match(home, new RegExp(`['"]${path.replaceAll('/', '\\/')}['"]`));
   }
@@ -111,7 +111,7 @@ test('ATLAS GEARS renders the total for its configured internal pages', async ()
   await new Promise((resolve) => setImmediate(resolve));
 
   assert.equal(calls.length, 2);
-  assert.deepEqual(calls[1].body, { p_paths: context.window.__psVisitorScopePaths });
+  assert.deepEqual(calls[1].body, { p_paths: ['/atlas-gears/', '/spell-drill/', '/world-map/', '/satury/', '/math-solid-volume/'] });
   assert.match(elements.get('visitor-stats').innerHTML, /오늘 <b>7<\/b>/);
   assert.match(elements.get('visitor-stats').innerHTML, /전체 <b>42<\/b>/);
 });

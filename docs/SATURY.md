@@ -137,3 +137,11 @@ This changes only satury-api. Do not run a similar command against Battle.
 ## Existing unrelated test failure
 
 The main baseline 53c4a81 already has a dexterity home link without data-ps-edit-id; studio-design.test.mjs reports that invariant failure. This release does not change that unrelated home link.
+
+## ATLAS GEARS catalog identity · 2026-11-17
+
+- GeoWeb, Spell Drill and satury cards use the published Tuilders titles and descriptions, verified against `/api/v1/apps/{slug}` on 2026-11-17.
+- Official full-bleed icons are stored locally in `public/images/service-logos/`; the catalog does not depend on Tuilders availability at runtime.
+- The same catalog description supplies the hover tooltip, including Spell Drill's English grammar and satury's standard Korean dictionary and regional dialect search.
+- `useResources` preserves static logo and visitor-route metadata when loading administrator content.
+- Verification: Astro production build, five existing ATLAS tests, desktop rendered cards, loaded logo assets and 390px mobile layout without horizontal overflow.

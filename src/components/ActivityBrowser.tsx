@@ -110,7 +110,11 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
         rel="noopener"
         onClick={() => countView(r.id)}
       >
-        <div className="act-thumb ico" dangerouslySetInnerHTML={{ __html: icon(typeIcon[r.type], 28) }} />
+        {r.logo ? (
+          <img className="act-thumb act-service-logo" src={r.logo} alt="" width="60" height="60" loading="lazy" />
+        ) : (
+          <div className="act-thumb ico" dangerouslySetInnerHTML={{ __html: icon(typeIcon[r.type], 28) }} />
+        )}
         <div className="act-body">
           <div className="act-meta">
             <span className="act-type">{r.type}</span>
@@ -252,6 +256,7 @@ export default function ActivityBrowser({ types }: { types: string[] }) {
         @media(max-width:767px){.act-admin{gap:8px}.act-admin-btn{width:34px;height:34px;font-size:15px}}
         .act-admin-btn:hover{color:#fff;border-color:rgba(255,255,255,.4)}
         .act-admin-btn.danger:hover{color:#ff8080}
+        .act-service-logo{object-fit:cover;background:#080808}
         .resource-hover-preview{display:none}
         @media(hover:hover) and (pointer:fine){
           .act-card-wrap:hover,.act-card-wrap:focus-within{z-index:50}

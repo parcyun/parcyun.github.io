@@ -41,5 +41,5 @@ test('cards for independent services prefer their own all-time visitor totals', 
   assert.match(views, /resource\.visitPath \? \(services\[resource\.visitPath\] \|\| 0\) : \(clicks\[resource\.id\] \|\| 0\)/);
   assert.match(migration, /create or replace function public\.list_page_visit_totals/);
   assert.match(migration, /sum\(visits\.count\)::bigint as total/);
-  assert.match(resourceStore, /\{ \.\.\.override, visitPath: r\.visitPath \}/);
+  assert.match(resourceStore, /\{ \.\.\.override, visitPath: r\.visitPath, logo: r\.logo \}/);
 });

@@ -5,8 +5,10 @@ import HomeCollections from '../components/HomeCollections';
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
-  name: '박창현',
+  '@id': 'https://parcyun.github.io/#parcyun',
+  name: '박윤',
   alternateName: 'parcyun',
+  description: '박윤(parcyun)은 교육·AI·디자인 분야에서 활동하며 parcyun studio를 운영합니다.',
   url: 'https://parcyun.github.io/',
   jobTitle: '초등교사 · 프롬프트 엔지니어 · 디자이너',
   sameAs: [
@@ -18,16 +20,22 @@ const jsonLd = {
 };
 ---
 <CinematicLayout
-  title="parcyun studio"
-  description="초등교사 parcyun이 운영하는 교육·AI·디자인 강의 자료 허브. Designed by parcyun studio."
-  ogTitle="parcyun studio"
-  ogDescription="초등교사 · 프롬프트 엔지니어 · 디자이너. 교육과 AI를 잇는 강의 자료 허브."
+  title="parcyun studio | parcyun(박윤)"
+  description="parcyun(박윤)이 운영하는 교육·AI·디자인 강의 자료 허브. 초등교사·디자이너의 웹서비스와 포트폴리오. Designed by parcyun studio."
+  ogTitle="parcyun studio | parcyun(박윤)"
+  ogDescription="parcyun(박윤)의 교육·AI·디자인 프로젝트와 강의 자료. 초등교사 · 프롬프트 엔지니어 · 디자이너."
   ogUrl="https://parcyun.github.io/"
   showFeedback={false}
   showReview={false}
   showBack={false}
 >
-<script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)}></script>
+<script type="application/ld+json" is:inline set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': [jsonLd, {
+  '@type': 'Organization', '@id': 'https://parcyun.github.io/#organization', name: 'parcyun studio',
+  url: 'https://parcyun.github.io/', founder: { '@id': 'https://parcyun.github.io/#parcyun' },
+}, {
+  '@type': 'WebSite', '@id': 'https://parcyun.github.io/#website', name: 'parcyun studio',
+  url: 'https://parcyun.github.io/', inLanguage: 'ko-KR', publisher: { '@id': 'https://parcyun.github.io/#organization' },
+}] })}></script>
 
 <!-- ===== HERO ===== -->
 <main id="home-scenes" aria-label="parcyun studio 소개">
@@ -49,9 +57,10 @@ const jsonLd = {
 </section>
 
 <!-- ===== ABOUT / MANIFESTO ===== -->
-<section class="about">
+<section class="about" id="parcyun">
   <div class="wrap">
     <div class="identity-tags">
+      <span class="tag-pill">parcyun(박윤)</span>
       <span data-ps-edit-id="ps-home-018" data-ps-design-id="ps-home-018" class="tag-pill">초등 교사</span>
       <span data-ps-edit-id="ps-home-019" data-ps-design-id="ps-home-019" class="tag-pill">Prompt Engineer</span>
       <span data-ps-edit-id="ps-home-020" data-ps-design-id="ps-home-020" class="tag-pill">Google Educator L2</span>

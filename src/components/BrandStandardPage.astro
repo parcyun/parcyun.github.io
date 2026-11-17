@@ -1,5 +1,6 @@
 ---
 import PsFooter from './PsFooter.astro';
+import SeoHead from './SeoHead.astro';
 import type { BrandStandard } from '../data/brandStandards';
 
 interface Props { standard: BrandStandard }
@@ -11,8 +12,7 @@ const title = `${standard.name} · Web Standard — parcyun studio Works`;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{title}</title>
-  <meta name="description" content={`${standard.name} 웹 컴포넌트와 섹션 표준 카탈로그`} />
+  <SeoHead title={title} description={`${standard.name} 웹 컴포넌트와 섹션 표준 카탈로그`} />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />

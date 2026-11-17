@@ -1,26 +1,35 @@
 ---
+import SeoHead from '../../components/SeoHead.astro';
+import { dexterityPosts, dexterityAuthor } from '../../data/dexterity';
 const categories = ['일상', '여행', '맛집', '생각', '인사이트', 'AI', '디지털', '디자인', '건축'];
-const posts = [{ title: '경주체육관 간판 아래, 향미사', category: '맛집', href: '/dexterity/hyangmisa/', image: '/images/dexterity/hyangmisa/hyangmisa-exterior.png' }];
+const posts = dexterityPosts;
+const description = 'parcyun(박윤)의 일상·여행·카페 기록과 디자인 관찰. 직접 경험하고 사진으로 담은 장소와 생각을 parcyun dexterity에 기록합니다.';
+const structuredData = {
+  '@context': 'https://schema.org', '@type': 'Blog', '@id': 'https://parcyun.github.io/dexterity/#blog',
+  name: 'parcyun dexterity', url: 'https://parcyun.github.io/dexterity/', description,
+  inLanguage: 'ko-KR', author: dexterityAuthor,
+  blogPost: posts.map(post => ({ '@type': 'BlogPosting', headline: post.title,
+    url: new URL(post.href, 'https://parcyun.github.io').href, author: dexterityAuthor,
+    datePublished: post.datePublished, dateModified: post.dateModified,
+    image: new URL(post.image, 'https://parcyun.github.io').href })),
+};
 ---
 <!doctype html>
 <html lang="ko">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>parcyun dexterity</title>
-<meta name="description" content="parcyun의 일상, 여행, 맛집과 생각. AI, 디지털, 디자인, 건축을 기록하는 블로그." />
-<link rel="canonical" href="https://parcyun.github.io/dexterity/" />
-<meta property="og:title" content="parcyun dexterity" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://parcyun.github.io/dexterity/" />
-<meta property="og:image" content="https://parcyun.github.io/images/dexterity/hyangmisa/hyangmisa-exterior.png" />
+<SeoHead title="parcyun dexterity | 박윤의 일상·여행·카페 기록" description={description}
+  siteName="parcyun dexterity" image={new URL(posts[0].image, 'https://parcyun.github.io').href}
+  imageAlt={posts[0].imageAlt} structuredData={structuredData} />
+<link rel="alternate" type="application/rss+xml" title="parcyun dexterity" href="/dexterity/feed.xml" />
 <link rel="icon" href="/favicon.svg" />
 <link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/dexterity.css?v=20261116-1" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 </head>
 <body>
-<header class="dexterity-header"><a class="dexterity-logo" href="/dexterity/">parcyun dexterity</a></header>
+<header class="dexterity-header"><h1 style="margin:0;font:inherit"><a class="dexterity-logo" href="/dexterity/">parcyun dexterity</a></h1></header>
 <main aria-label="parcyun dexterity">
 {categories.filter(category => posts.some(post => post.category === category)).map(category => (
 <section aria-label={category}>

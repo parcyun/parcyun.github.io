@@ -1,0 +1,35 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article';
+  siteName?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  structuredData?: Record<string, unknown>;
+}
+const { title, description, canonical = new URL(Astro.url.pathname, Astro.site).href,
+  image = 'https://parcyun.github.io/images/og-card.png', imageAlt = 'parcyun studio',
+  type = 'website', siteName = 'parcyun studio', ogTitle = title, ogDescription = description, structuredData } = Astro.props;
+---
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta name="robots" content="max-image-preview:large" />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:locale" content="ko_KR" />
+<meta property="og:type" content={type} />
+<meta property="og:title" content={ogTitle} />
+<meta property="og:description" content={ogDescription} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={image} />
+<meta property="og:image:alt" content={imageAlt} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={image} />
+<meta name="twitter:image:alt" content={imageAlt} />
+{structuredData && <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />}

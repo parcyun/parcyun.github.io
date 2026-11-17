@@ -2,11 +2,11 @@ import test from 'node:test';import assert from 'node:assert/strict';import {Bat
 import {storage} from '../server/spell-battle/storage.mjs';
 const corpus={ko:{easy:[{wrong:'됬다.',correct:'됐다.'}],med:[{wrong:'틀림',correct:'정답'}],hard:[{wrong:'틀림',correct:'정답'}]}};
 const person=n=>({id:String(n),subject:'browser:'+n,name:'참여자'+n,kind:'browser'});
-test('2–10 teams, balanced random assignment, host controls and append-on-drop',()=>{const game=new Battle(corpus),host=person(1),r=game.create(host,10);for(let i=2;i<=21;i++)game.join(r.code,person(i));assert.deepEqual(Array.from({length:10},(_,t)=>r.players.filter(p=>p.team===t).length),Array(10).fill(2));assert.throws(()=>game.create(host,11));assert.throws(()=>game.create(host,1));assert.throws(()=>game.move(r.code,'2','3',0),/만/);game.move(r.code,'1','2',0);assert.equal(r.players.filter(p=>p.team===0).at(-1).id,'2');game.kick(r.code,'1','2');assert.throws(()=>game.join(r.code,person(2)),/내보내/);assert.throws(()=>game.kick(r.code,'1','1'),/진행자/);});
-test('server owns time, round progression, settings and replay protection',()=>{let now=0;const game=new Battle(corpus,{now:()=>now}),r=game.create(person(1),2);game.join(r.code,person(2));game.join(r.code,person(3));game.configure(r.code,'1',{difficulty:'easy',seconds:15,rounds:2});game.ready(r.code,'2',true);game.ready(r.code,'3',true);game.start(r.code,'1');assert.equal(game.view(r,'2').question.wrong,'됬다.');assert.equal('correct' in game.view(r,'2').question,false);assert.equal(game.answer(r.code,'2','됐다.',0).correct,true);assert.throws(()=>game.answer(r.code,'2','됐다.',0),/처리/);assert.throws(()=>game.configure(r.code,'1',{difficulty:'easy',seconds:15,rounds:2}),/시작 전/);now=15000;assert.throws(()=>game.answer(r.code,'2','됐다.',1),/지금/);assert.equal(r.phase,'between');now=24999;game.tick(r);assert.equal(r.phase,'between');now=25000;game.tick(r);assert.equal(r.round,2);assert.equal(r.players[1].roundScore,0);assert.equal(r.players[1].score,0);assert.ok(r.players[1].totalScore>0);now=40000;game.tick(r);assert.equal(r.phase,'finished');});
+test('2–10 teams, balanced random assignment, host controls and append-on-drop',()=>{const game=new Battle(corpus),host=person(1),r=game.create(host,10);for(let i=2;i<=21;i++)game.join(r.code,person(i));assert.deepEqual(Array.from({length:10},(_,t)=>r.players.filter(p=>p.team===t).length),Array(10).fill(2));assert.throws(()=>game.create(host,11));assert.throws(()=>game.create(host,1));assert.throws(()=>game.move(r.code,'2','3',0),/만/);game.move(r.code,'1','2',0);assert.equal(r.players.filter(p=>p.team===0).at(-1).id,'2');game.kick(r.code,'1','2');game.join(r.code,person(2));assert.throws(()=>game.kick(r.code,'1','1'),/진행자/);});
+test('server owns time, round progression, settings and replay protection',()=>{let now=0;const game=new Battle(corpus,{now:()=>now}),r=game.create(person(1),2);game.join(r.code,person(2));game.join(r.code,person(3));game.configure(r.code,'1',{difficulty:'easy',seconds:15,rounds:2});game.ready(r.code,'2',true);game.ready(r.code,'3',true);game.start(r.code,'1');game.rooms.get(r.code).startsAt=game.now();game.room(r.code);assert.equal(game.view(r,'2').question.wrong,'됬다.');assert.equal('correct' in game.view(r,'2').question,false);assert.equal(game.answer(r.code,'2','됐다.',0).correct,true);assert.throws(()=>game.answer(r.code,'2','됐다.',0),/처리/);assert.throws(()=>game.configure(r.code,'1',{difficulty:'easy',seconds:15,rounds:2}),/시작 전/);now=15000;assert.throws(()=>game.answer(r.code,'2','됐다.',1),/지금/);assert.equal(r.phase,'between');now=24999;game.tick(r);assert.equal(r.phase,'between');now=25000;game.tick(r);assert.equal(r.round,2);assert.equal(r.players[1].roundScore,0);assert.equal(r.players[1].score,0);assert.ok(r.players[1].totalScore>0);now=40000;game.tick(r);assert.equal(r.phase,'finished');});
 test('membership required and rejoin retains the original team and host rights',()=>{const game=new Battle(corpus),r=game.create(person(1),2);assert.throws(()=>game.view(r,'stranger'),/참여/);game.join(r.code,{...person(1),id:'reconnected'});assert.equal(r.players.length,1);assert.equal(r.host,'reconnected');});
 
-test('readiness, private teams, captain naming and settings changes',()=>{const g=new Battle(corpus),r=g.create(person(1),2);g.join(r.code,person(2));g.join(r.code,person(3));g.join(r.code,person(4));const member=r.players.find(p=>!p.isHost),team=r.players.filter(p=>p.team===member.team);g.rename(r.code,team[0].id,'새로운팀');assert.equal(r.teamNames[member.team],'새로운팀');if(team[1])assert.throws(()=>g.rename(r.code,team[1].id,'불가팀'));for(const p of team)g.ready(r.code,p.id,true);assert.throws(()=>g.rename(r.code,team[0].id,'잠긴이름'));assert.throws(()=>g.move(r.code,'1',team[0].id,1));assert.ok(g.view(r,member.id).players.every(p=>p.team===member.team));g.resize(r.code,'1',10);assert.ok(r.players.every(p=>!p.ready));assert.equal(r.teamCount,10);});
+test('readiness, private teams, captain naming and settings changes',()=>{const g=new Battle(corpus),r=g.create(person(1),2);g.join(r.code,person(2));g.join(r.code,person(3));g.join(r.code,person(4));const member=r.players.find(p=>!p.isHost),team=r.players.filter(p=>p.team===member.team);g.rename(r.code,team[0].id,'새로운팀');assert.equal(r.teamNames[member.team],'새로운팀');if(team[1])assert.throws(()=>g.rename(r.code,team[1].id,'불가팀'));for(const p of team)g.ready(r.code,p.id,true);assert.throws(()=>g.rename(r.code,team[0].id,'잠긴이름'));g.move(r.code,'1',team[0].id,1);assert.ok(g.view(r,member.id).players.every(p=>p.team===member.team));g.resize(r.code,'1',10);assert.ok(r.players.every(p=>!p.ready));assert.equal(r.teamCount,10);});
 
 test('individual competition has no teams, common settings and independent scores',()=>{
  let now=0;const g=new Battle(corpus,{now:()=>now}),r=g.create(person(1),undefined,'individual');
@@ -15,7 +15,7 @@ test('individual competition has no teams, common settings and independent score
  assert.throws(()=>g.resize(r.code,'1',2),/개인전/);assert.throws(()=>g.move(r.code,'1','2',0),/개인전/);assert.throws(()=>g.rename(r.code,'2','팀이름'),/개인전/);
  g.configure(r.code,'1',{difficulty:'hard',seconds:15,rounds:1});
  assert.throws(()=>g.configure(r.code,'2',{difficulty:'easy',seconds:30,rounds:1}));
- for(const id of ['2','3'])g.ready(r.code,id,true);g.start(r.code,'1');
+ for(const id of ['2','3'])g.ready(r.code,id,true);g.start(r.code,'1');g.rooms.get(r.code).startsAt=g.now();g.room(r.code);
  const a=g.view(r,'2'),b=g.view(r,'3');assert.deepEqual(a.settings,b.settings);assert.equal(a.deadline,b.deadline);assert.equal(a.players.length,1);assert.equal(a.players[0].id,'2');
  assert.equal(g.answer(r.code,'2','정답',0).correct,true);g.view(r,'2');assert.equal(g.answer(r.code,'2','정답',1).correct,true);assert.equal(g.answer(r.code,'3','정답',0).correct,true);
  const scores=g.view(r,'1').standings;assert.ok(scores.find(p=>p.id==='2').score>scores.find(p=>p.id==='3').score);assert.deepEqual(g.view(r,'2').teamTotals,[]);
@@ -32,7 +32,7 @@ test('leaving a lobby releases readiness and captain position; only its host can
 });
 
 test('leaving a running match preserves the score and rejects further answers',()=>{
- const g=new Battle(corpus),r=g.create(person(1),2);for(const id of [2,3]){g.join(r.code,person(id));g.ready(r.code,String(id),true);}g.start(r.code,'1');
+ const g=new Battle(corpus),r=g.create(person(1),2);for(const id of [2,3]){g.join(r.code,person(id));g.ready(r.code,String(id),true);}g.start(r.code,'1');g.rooms.get(r.code).startsAt=g.now();g.room(r.code);
  g.view(r,'2');g.answer(r.code,'2','됐다.',0);const before=g.view(r,'1').teamTotals;g.leave(r.code,'2');
  assert.deepEqual(g.view(r,'1').teamTotals,before);assert.equal(g.view(r,'1').participantCount,1);assert.equal(g.view(r,'1').players.find(p=>p.id==='2').connected,false);
  assert.throws(()=>g.answer(r.code,'2','됐다.',1),/참여/);g.join(r.code,person(2));assert.equal(g.view(r,'2').stats.combo,1);g.end(r.code,'1');assert.equal(r.phase,'finished');assert.deepEqual(g.view(r,'1').teamTotals,before);
@@ -46,7 +46,7 @@ test('storage can acknowledge leaving without requesting a view for the removed 
 });
 
 test('server-issued question time, hint penalty, combo multiplier and early finish match solo scoring',()=>{
- let now=1000;const g=new Battle(corpus,{now:()=>now}),r=g.create(person(1),2);for(const id of[2,3]){g.join(r.code,person(id));g.ready(r.code,String(id),true);}g.start(r.code,'1');
+ let now=1000;const g=new Battle(corpus,{now:()=>now}),r=g.create(person(1),2);for(const id of[2,3]){g.join(r.code,person(id));g.ready(r.code,String(id),true);}g.start(r.code,'1');g.rooms.get(r.code).startsAt=g.now();g.room(r.code);
  assert.throws(()=>g.answer(r.code,'2','됐다.',0),/먼저/);const served=g.view(r,'2');assert.equal(served.question.startedAt,1000);assert.equal(served.question.hint,'');
  g.hint(r.code,'2',0);assert.equal(g.view(r,'2').question.hintUsed,true);assert.throws(()=>g.hint(r.code,'2',1),/넘어간/);
  now=2000;const hinted=g.answer(r.code,'2','됐다.',0);assert.equal(hinted.points,160);assert.equal(hinted.details.speedTag,'LIGHTNING');assert.equal(hinted.details.elapsedMs,1000);assert.equal(hinted.details.baseScore,50);
@@ -56,7 +56,7 @@ test('server-issued question time, hint penalty, combo multiplier and early fini
 });
 
 test('wrong-answer and pass penalties, remaining passes and earned passes follow solo rules',()=>{
- let now=1000;const g=new Battle(corpus,{now:()=>now}),r=g.create(person(1),2);for(const id of[2,3]){g.join(r.code,person(id));g.ready(r.code,String(id),true);}g.start(r.code,'1');
+ let now=1000;const g=new Battle(corpus,{now:()=>now}),r=g.create(person(1),2);for(const id of[2,3]){g.join(r.code,person(id));g.ready(r.code,String(id),true);}g.start(r.code,'1');g.rooms.get(r.code).startsAt=g.now();g.room(r.code);
  const answer=()=>{const q=g.view(r,'2').question;now+=100;return g.answer(r.code,'2','됐다.',q.index);};answer();
  g.view(r,'2');assert.equal(g.answer(r.code,'2','오답',1).penalty,10);assert.equal(g.answer(r.code,'2','오답',1).penalty,20);assert.equal(g.member(r,'2').score,180);answer();assert.equal(g.member(r,'2').wrongCount,0);assert.equal(g.member(r,'2').score,390);
  for(const [index,penalty]of[[2,10],[3,20],[4,30]]){g.view(r,'2');assert.equal(g.pass(r.code,'2',index).penalty,penalty);assert.throws(()=>g.pass(r.code,'2',index),/처리/);}
@@ -69,7 +69,7 @@ test('verified accounts reuse one participant across profile versions and repair
  g.join(r.code,a);const team=g.member(r,a.id).team;g.ready(r.code,a.id,true);g.join(r.code,b);
  assert.equal(r.players.filter(p=>!p.isHost).length,1);assert.equal(g.member(r,b.id).team,team);assert.equal(g.member(r,b.id).name,a.name);assert.equal(g.member(r,b.id).photo,'avatar-a');assert.equal(g.member(r,b.id).ready,false);
  r.players.push({...g.member(r,b.id),id:'duplicate',team:1-team,score:200});g.room(r.code);assert.equal(r.players.filter(p=>!p.isHost).length,1);assert.equal(g.member(r,b.id).score,200);
- g.kick(r.code,'1',b.id);assert.throws(()=>g.join(r.code,a),/내보내/);
+ g.kick(r.code,'1',b.id);g.join(r.code,a);
 });
 
 test('disconnect clears readiness, restores the original profile and requires preparing again',()=>{
@@ -80,7 +80,7 @@ test('disconnect clears readiness, restores the original profile and requires pr
 });
 
 test('new rounds start at zero and final standings sum every completed round exactly once',()=>{
- let now=1000;const g=new Battle(corpus,{now:()=>now}),r=g.create(person(1),2);for(const id of[2,3]){g.join(r.code,person(id));g.ready(r.code,String(id),true);}g.configure(r.code,'1',{difficulty:'easy',seconds:15,rounds:2});for(const id of['2','3'])g.ready(r.code,id,true);g.start(r.code,'1');
+ let now=1000;const g=new Battle(corpus,{now:()=>now}),r=g.create(person(1),2);for(const id of[2,3]){g.join(r.code,person(id));g.ready(r.code,String(id),true);}g.configure(r.code,'1',{difficulty:'easy',seconds:15,rounds:2});for(const id of['2','3'])g.ready(r.code,id,true);g.start(r.code,'1');g.rooms.get(r.code).startsAt=g.now();g.room(r.code);
  g.view(r,'2');now=2000;g.answer(r.code,'2','됐다.',0);const first=g.view(r,'2').players.find(p=>p.id==='2').score;now=16000;g.room(r.code);assert.equal(r.phase,'between');assert.equal(g.member(r,'2').totalScore,first);
  now=26000;g.view(r,'2');assert.equal(r.round,2);assert.equal(g.member(r,'2').score,0);now=27000;g.answer(r.code,'2','됐다.',0);const second=g.member(r,'2').score;g.end(r.code,'1');assert.equal(g.view(r,'2').players.find(p=>p.id==='2').score,first+second);g.end(r.code,'1');assert.equal(g.member(r,'2').totalScore,first+second);
 });
@@ -90,10 +90,17 @@ test('browser profile and verified account aliases cannot occupy different teams
  g.join(r.code,a);const team=g.member(r,'a').team;g.member(r,'a').score=100;
  for(const value of[identity('b','uid-a','version-b'),identity('c','uid-b','version-b'),identity('d','uid-b','version-c')]){g.join(r.code,value);assert.equal(r.players.filter(p=>!p.isHost).length,1);assert.equal(g.member(r,value.id).team,team);assert.equal(g.member(r,value.id).score,100);}
  r.players.push({...a,team:1-team,score:200,totalScore:50,roundScore:200});g.room(r.code);assert.equal(r.players.filter(p=>!p.isHost).length,1);assert.equal(g.member(r,'d').score,200);
- const shown=g.view(r,'1').players[0];assert.equal(shown.account,undefined);assert.equal(shown.profileKeys,undefined);g.kick(r.code,'1','d');assert.throws(()=>g.join(r.code,identity('e','uid-a','version-d')),/내보내/);assert.throws(()=>g.join(r.code,identity('f','uid-c','version-b')),/내보내/);
+ const shown=g.view(r,'1').players[0];assert.equal(shown.account,undefined);assert.equal(shown.profileKeys,undefined);g.kick(r.code,'1','d');g.join(r.code,identity('e','uid-a','version-d'));g.join(r.code,identity('f','uid-c','version-b'));
 });
 
 test('avatar snapshots are bound to the session without putting image bytes in its bearer',async()=>{
  const store=await storage(corpus),photo='data:image/webp;base64,UklGRg==',session=await store.identity({kind:'browser',name:'사진검수',version:'aa'.repeat(16),photo});const identity=store.verify(session.token);
  assert.equal(identity.photo,undefined);assert.equal(store.withPhoto(identity,photo).photo,photo);assert.equal(store.withPhoto(identity,photo+'AA').photo,'');assert.ok(session.token.length<2000);
+});
+
+test('start countdown gates answers, late arrivals wait until next round, and kicked accounts may rejoin',()=>{let now=0;const g=new Battle(corpus,{now:()=>now}),r=g.create(person(1),2);for(const n of[2,3]){g.join(r.code,person(n));g.ready(r.code,String(n),true);}g.start(r.code,'1');assert.equal(r.phase,'starting');now=2999;assert.equal(g.room(r.code).phase,'starting');now=3000;g.room(r.code);assert.equal(r.phase,'playing');g.join(r.code,person(4));assert.equal(g.view(r,'4').waiting,true);assert.equal(g.view(r,'4').question,null);assert.throws(()=>g.answer(r.code,'4','됐다.',0),/다음/);now=63000;g.room(r.code);now=73000;g.room(r.code);assert.equal(g.view(r,'4').waiting,false);assert.ok(g.view(r,'4').question);});
+
+test('host can move a ready player and rematch retains one roster while clearing scores and readiness',()=>{
+ const g=new Battle(corpus),r=g.create(person(1),2);for(const id of[2,3]){g.join(r.code,person(id));g.ready(r.code,String(id),true);}
+ const p=g.member(r,'2');g.move(r.code,'1','2',1-p.team);assert.equal(p.ready,true);g.start(r.code,'1');r.startsAt=g.now();g.room(r.code);p.score=123;g.end(r.code,'1');assert.equal(p.totalScore,123);g.rematch(r.code,'1');assert.equal(r.phase,'lobby');assert.equal(r.players.length,3);assert.equal(r.round,0);assert.equal(p.totalScore,0);assert.equal(p.score,0);assert.equal(p.ready,false);assert.throws(()=>g.rematch(r.code,'2'),/진행자/);
 });

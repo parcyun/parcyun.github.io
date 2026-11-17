@@ -1,11 +1,12 @@
 const preferenceKey='parcyunSpellGame_sound_v2';
 let enabled=true;try{enabled=JSON.parse(localStorage.getItem(preferenceKey)??'true')!==false;}catch{}
 const music=new Audio('/spell-drill/audio/exit-the-premises.mp3');
-music.id='spell-background-music';music.loop=true;music.preload='none';music.volume=.24;music.setAttribute('aria-hidden','true');document.body.append(music);
+music.id='spell-background-music';music.loop=false;music.preload='none';music.volume=.24;music.setAttribute('aria-hidden','true');document.body.append(music);
 let soloPlaying=document.querySelector('#play')?.classList.contains('active')||false,battlePlaying=false,primed=false,priming=null;
+const playlist=['exit-the-premises','edm-detection-mode','raving-energy','raving-energy-faster','cipher'];let track=0;music.addEventListener('ended',()=>{track=(track+1)%playlist.length;music.src='/spell-drill/audio/'+playlist[track]+'.mp3';primed=true;sync();});
 const toggles=new Set();
 function paint(){for(const button of toggles){button.classList.toggle('on',enabled);button.setAttribute('aria-pressed',String(enabled));button.setAttribute('aria-label',enabled?'소리 끄기':'소리 켜기');const label=button.querySelector('[data-spell-sound-label],#sound-label');if(label)label.textContent=enabled?'SOUND ON':'SOUND OFF';}}
-function active(){return enabled&&!document.hidden&&(soloPlaying||battlePlaying);}
+function active(){return enabled&&!document.hidden;}
 function sync(){if(active()&&primed){music.muted=false;music.play().catch(()=>{});}else if(!priming)music.pause();}
 function prime(){if(!enabled||primed||priming)return;music.muted=true;priming=music.play().then(()=>{primed=true;priming=null;music.muted=false;sync();}).catch(()=>{priming=null;music.muted=false;});}
 function setEnabled(value){const changed=enabled!==Boolean(value);enabled=Boolean(value);try{localStorage.setItem(preferenceKey,JSON.stringify(enabled));}catch{}paint();if(enabled)prime();sync();if(changed)window.dispatchEvent(new CustomEvent('ps-spell-sound-change',{detail:{enabled}}));}

@@ -12,3 +12,11 @@ Instruments: Synths, Percussion. Genre: Electronica. Feel: Driving, Intense. Tem
 Changes: re-encoded from the official MP3 to 128 kbps, 44.1 kHz MP3 for web delivery.
 The game repeats the complete track at reduced playback volume. No excerpting or vocal removal.
 The author does not endorse this game. The music remains under CC BY 4.0.
+
+Additional playlist tracks by Kevin MacLeod (incompetech.com), licensed CC BY 4.0:
+EDM Detection Mode — USUAN1500026
+Raving Energy — USUAN1900013
+Raving Energy (faster) — USUAN1900012
+Cipher — USUAN1100844
+Official catalog: https://incompetech.com/music/royalty-free/pieces.json
+All tracks re-encoded to 128 kbps MP3; complete tracks play in sequence and repeat.

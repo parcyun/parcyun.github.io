@@ -34,6 +34,13 @@ test('base score comes from each question difficulty and Mix has no base score',
   assert.equal(baseScoreForDifficulty('mix'), null);
 });
 
+test('typing speed rewards scale with sentence length at the same boundaries', () => {
+  const {speedForAnswer}=loadScoring();
+  assert.deepEqual([2250,2251,2875,2876,3750,3751].map(ms=>speedForAnswer('abcdef',ms).speedBonus),[100,50,50,20,20,0]);
+  assert.equal(speedForAnswer('가나',2100).speedTag,'LIGHTNING');
+  assert.equal(speedForAnswer('가나',2101).speedTag,'FAST');
+});
+
 test('pass penalty increases by ten points on each pass', () => {
   const { passPenalty } = loadScoring();
   assert.deepEqual([1,2,3,4,5,6,7,8].map(passPenalty), [10,20,30,40,50,60,70,80]);

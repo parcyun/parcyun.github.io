@@ -493,6 +493,7 @@
     </section>
 
     <section class="screen" id="play">
+      <div class="spell-play-top"><button class="sound-toggle on" id="solo-sound-toggle" type="button"><span data-spell-sound-label>SOUND ON</span></button><a href="/spell-drill/music-credits.html" target="_blank" rel="noopener" class="spell-music-credit">BGM ⓘ</a></div>
       <div class="hud">
         <div class="cell qidx"><div class="h">// Question</div><div class="v"><span data-ps-edit-id="ps-spell-034" data-ps-design-id="ps-spell-034" id="q-idx">1</span><small> / <span data-ps-edit-id="ps-spell-035" data-ps-design-id="ps-spell-035" id="q-total">25</span></small></div></div>
         <div class="cell timer center-cell" id="timer-cell" style="display:none"><div class="h">// Time</div><div class="v mono" id="timer">60</div></div>
@@ -583,6 +584,7 @@
 
   <div data-ps-footer data-show-feedback="true" data-show-links="false" data-show-review="true"></div>
   <script src="../service-context.js?v=20261030-motion-1"></script>
+  <script src="/share-widget.js?v=20261117-battle-qr"></script>
   <script src="../ps-footer.js?v=20261116-footer-3"></script>
   <script src="../site-content.js?v=20260714.1" defer></script>
 </div>
@@ -617,7 +619,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="./scoring.js?v=20261012.1"></script>
+<script src="./scoring.js?v=20261117-1"></script>
 <script src="./questions.js?v=20261012.1"></script>
 <script src="./timer-ui.js?v=20261012.1"></script>
 <script src="./context-hints.js?v=20261015.1"></script>
@@ -10916,8 +10918,10 @@ function applySound(v){
   stToggle.classList.toggle('on', v);
   stLabel.textContent = v ? 'SOUND ON' : 'SOUND OFF';
   localStorage.setItem(SOUND_KEY, JSON.stringify(v));
+  window.psSpellAudio?.setEnabled(v);
 }
 applySound(JSON.parse(localStorage.getItem(SOUND_KEY) ?? 'true'));
+window.addEventListener('ps-spell-sound-change',event=>applySound(event.detail.enabled));
 stToggle.addEventListener('click', ()=>{ ensureAudio(); applySound(!soundOn); });
 
 /* ────────────────────────── state ────────────────────────── */
@@ -10940,8 +10944,6 @@ spellUpdateToggle.addEventListener('click',()=>{
   const open=spellUpdateHistory.classList.toggle('open');spellUpdateToggle.setAttribute('aria-expanded',String(open));
   spellUpdateToggle.querySelector('span').textContent=open?'−':'+';
 });
-// 타자 수 추정: 한글 음절은 평균 ~2.5 타(초·중·종성), 그 외(영문·공백·문장부호)는 1 타
-const estKeystrokes = s => { let k=0; for(const ch of (s||'')){ k += /[가-힣]/.test(ch) ? 2.5 : 1; } return k; };
 const show = id => { $$('.screen').forEach(s=>s.classList.remove('active')); const screen=$('#'+id); screen.classList.add('active'); screen.scrollTop=0; window.scrollTo({top:0,behavior:'instant'}); };
 function toggleScoreFormula(open){
   const trigger=$('#score-formula-trigger'),formula=$('#score-formula');
@@ -11041,6 +11043,7 @@ function startGame(){
   else { $('#timer-cell').style.display='none'; stopTimer(); }
   SpellTimerUI.reset($('#timer'),state.remaining);
   if(timerSec > 0) startTimer();
+  window.psSpellAudio?.setSoloPlaying(true);
   loadQuestion(); show('play'); $('#q-input').focus({preventScroll:true});
 }
 function startTimer(){ stopTimer(); SpellTimerUI.reset($('#timer'),state.remaining); state.timerId=setInterval(()=>{ state.remaining--; SpellTimerUI.render($('#timer'),state.remaining); if(state.remaining<=0){stopTimer();endGame()} },1000); }
@@ -11094,12 +11097,7 @@ function submit(){
     // 보상하려면 길이에 비례한 기준이 필요하다.
     //   par = (키 수 / 6타·초) + 1.5초(읽기·판단 여유). 6타/s는 "잘 치는" 페이스.
     const elapsed = (performance.now() - (state.qStartTs || performance.now())) / 1000;
-    const parTime = estKeystrokes(state.current.correct) / 6 + 1.5;
-    const ratio = elapsed / parTime;
-    let speedBonus = 0, speedTag = '';
-    if(ratio <= 0.9){ speedBonus = 100; speedTag = 'LIGHTNING'; }   // par보다 빠름
-    else if(ratio <= 1.15){ speedBonus = 50; speedTag = 'FAST'; }   // par 근처
-    else if(ratio <= 1.5){ speedBonus = 20; speedTag = 'QUICK'; }   // par의 1.5배 이내
+    const {speedBonus,speedTag} = SpellScoring.speedForAnswer(state.current.correct,elapsed*1000);
     state.combo++; state.bestCombo=Math.max(state.bestCombo,state.combo);
     const breakdown=SpellScoring.calculateCorrectGain({baseScore:base,speedBonus,comboCount:state.combo,hintUsed:state.hintUsed});
     const gain=breakdown.total,mult=breakdown.multiplier;
@@ -11269,6 +11267,7 @@ function fmtTime(ms){
   return m + ':' + String(s%60).padStart(2,'0');
 }
 function endGame(){
+  window.psSpellAudio?.setSoloPlaying(false);
   stopTimer();
   const elapsedMs = performance.now() - (state.gameStartTs || performance.now());
   const clearTime = fmtTime(elapsedMs);
@@ -11659,7 +11658,8 @@ function setLanguage(lang){
 </style>
 <style>.ranking-sheet{height:90dvh;max-height:90dvh;width:min(900px,calc(100vw - 24px))}.ranking-scroll{flex:1;max-height:none;min-height:0}.ranking-scroll table{min-width:600px}.ranking-mine{flex:none;margin-top:16px;padding:18px;border:1px solid var(--amber);border-radius:12px;background:#ffb11a18;color:var(--amber);font-weight:700;line-height:1.7}.ranking-sheet h2{font-size:clamp(18px,3vw,24px)}@media(max-width:600px){.hero-meta>.sound-stack,.hero-meta .ranking-launch{width:132px}.ranking-sheet{padding:20px 16px}.ranking-mine{font-size:12px;padding:12px}}</style>
 <style>.ranking-result-submit{display:block;margin:24px auto 0;min-width:180px}.ranking-mine{display:flex;align-items:center;justify-content:space-between;gap:16px}.ranking-mine-info{min-width:0;flex:1}.ranking-mine button{flex:none;max-width:45%;padding:12px 16px;font-size:12px}.ranking-mine button:disabled{opacity:.5;cursor:not-allowed}</style>
-<script type="module" src="/spell-drill/battle/client.js?v=20261117-2"></script>
+<script type="module" src="/spell-drill/battle/client.js?v=20261117-3"></script>
+<style>.spell-play-top{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:10px}.spell-play-top .sound-toggle{height:32px}.spell-music-credit{font-size:10px;color:var(--muted);text-decoration:none}@media(max-height:650px){.spell-play-top{margin-bottom:5px}.spell-play-top .sound-toggle{height:28px;font-size:10px}}</style>
 </body>
 </html>
 

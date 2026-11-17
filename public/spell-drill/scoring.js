@@ -14,6 +14,17 @@
     return 1;
   }
 
+  function speedForAnswer(answer, elapsedMs) {
+    let strokes = 0;
+    for (const char of String(answer || '')) strokes += /[가-힣]/.test(char) ? 2.5 : 1;
+    const elapsed = Math.max(0, Number(elapsedMs) || 0);
+    const ratio = elapsed / ((strokes / 6 + 1.5) * 1000);
+    if (ratio <= 0.9) return { speedBonus: 100, speedTag: 'LIGHTNING', elapsedMs: elapsed };
+    if (ratio <= 1.15) return { speedBonus: 50, speedTag: 'FAST', elapsedMs: elapsed };
+    if (ratio <= 1.5) return { speedBonus: 20, speedTag: 'QUICK', elapsedMs: elapsed };
+    return { speedBonus: 0, speedTag: '', elapsedMs: elapsed };
+  }
+
   function calculateCorrectGain({ baseScore, speedBonus = 0, comboCount = 0, hintUsed = false }) {
     const base = Math.max(0, Number(baseScore) || 0);
     const scoredBase = hintUsed ? Math.floor(base * 0.5) : base;
@@ -77,5 +88,5 @@
     return count * 10;
   }
 
-  global.SpellScoring = Object.freeze({ baseScoreForDifficulty, comboMultiplier, calculateCorrectGain, passPenalty, takePass, passesEarned, addEarnedScore, takeWrongAnswer, resetWrongAnswerStreak, wrongAnswerPenalty });
+  global.SpellScoring = Object.freeze({ baseScoreForDifficulty, comboMultiplier, speedForAnswer, calculateCorrectGain, passPenalty, takePass, passesEarned, addEarnedScore, takeWrongAnswer, resetWrongAnswerStreak, wrongAnswerPenalty });
 })(typeof window === 'undefined' ? globalThis : window);

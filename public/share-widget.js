@@ -131,7 +131,7 @@
       var geometry = savedWindow.geometry;
       if (!geometry || !['left', 'top', 'width', 'height'].every(function (key) { return Number.isFinite(geometry[key]); }) || geometry.width <= 0 || geometry.height <= 0) geometry = null;
       function saveWindow() {
-        try { localStorage.setItem(storageKey, JSON.stringify({ geometry: geometry, pinned: pinned, open: !popover.hidden })); }
+        try { localStorage.setItem(storageKey, JSON.stringify({ geometry: geometry, pinned: pinned, open: !popover.hidden && !customQr })); }
         catch (error) { /* 비공개 모드·저장 공간 제한 시 메모리 상태 사용 */ }
       }
       var dragHandle = document.createElement('button');
@@ -208,6 +208,8 @@
         popover.removeAttribute('style');
         saveWindow();
       });
+      var customQr = false;
+      var defaultQrSource = popover.querySelector('.ps-qr-code').src, defaultQrAlt = popover.querySelector('.ps-qr-code').alt;
       var pinned = savedWindow.pinned === true;
       function setPinned(value) {
         pinned = value;
@@ -216,7 +218,7 @@
         pinButton.title = value ? 'QR 코드 고정 해제' : 'QR 코드 고정';
         popover.classList.toggle('is-pinned', value);
         if (typeof popover.showPopover === 'function') {
-          if (value && !popover.hidden) {
+          if ((value || customQr) && !popover.hidden) {
             popover.setAttribute('popover', 'manual');
             popover.showPopover();
           } else if (popover.hasAttribute('popover')) {
@@ -232,6 +234,7 @@
         if (popover.hasAttribute('popover')) { popover.hidePopover(); popover.removeAttribute('popover'); }
         popover.classList.remove('is-open');
         popover.hidden = true;
+        if(customQr){customQr=false;popover.classList.remove('ps-battle-qr');document.body.appendChild(popover);popover.querySelector('.ps-qr-code').src=defaultQrSource;popover.querySelector('.ps-qr-code').alt=defaultQrAlt;popover.setAttribute('aria-label',destination.pageLabel+' QR 코드');}
         qrButton.setAttribute('aria-expanded', 'false');
         saveWindow();
         if (restoreFocus) qrButton.focus();
@@ -247,6 +250,7 @@
         requestAnimationFrame(function () { if (!popover.hidden) { popover.classList.add('is-open'); if (keyboard) closeButton.focus(); } });
         saveWindow();
       }
+      window.psGameQr={openInvitation:function(options){customQr=true;popover.classList.add('ps-battle-qr');popover.querySelector('.ps-qr-code').src=options.image;popover.querySelector('.ps-qr-code').alt=options.label;popover.setAttribute('aria-label',options.label);options.container.appendChild(popover);openQr(false);},closeInvitation:function(){if(customQr)closeQr(false);}};
       qrButton.addEventListener('click', function (event) {
         if (!popover.hidden) { closeQr(true); return; }
         openQr(event.detail === 0);

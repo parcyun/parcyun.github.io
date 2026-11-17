@@ -145,3 +145,4 @@ The main baseline 53c4a81 already has a dexterity home link without data-ps-edit
 - The same catalog description supplies the hover tooltip, including Spell Drill's English grammar and satury's standard Korean dictionary and regional dialect search.
 - `useResources` preserves static logo and visitor-route metadata when loading administrator content.
 - Verification: Astro production build, five existing ATLAS tests, desktop rendered cards, loaded logo assets and 390px mobile layout without horizontal overflow.
+- Follow-up: the three hover thumbnails also use the current Tuilders representative scenes (GeoWeb flag quiz, Spell Drill score feedback, satury standard/dialect results). Local WebP assets use contain fitting so key information is not cropped. Production build and visible desktop hover verified.

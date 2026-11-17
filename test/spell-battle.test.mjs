@@ -51,6 +51,15 @@ test('server-issued question time, hint penalty, combo multiplier and early fini
  g.hint(r.code,'2',0);assert.equal(g.view(r,'2').question.hintUsed,true);assert.throws(()=>g.hint(r.code,'2',1),/넘어간/);
  now=2000;const hinted=g.answer(r.code,'2','됐다.',0);assert.equal(hinted.points,160);assert.equal(hinted.details.speedTag,'LIGHTNING');assert.equal(hinted.details.elapsedMs,1000);assert.equal(hinted.details.baseScore,50);
  g.view(r,'2');now=3000;assert.equal(g.answer(r.code,'2','됐다.',1).points,220);g.view(r,'2');now=4000;const third=g.answer(r.code,'2','됐다.',2);assert.equal(third.points,345);assert.equal(third.details.multiplier,1.5);assert.equal(g.view(r,'2').stats.maxCombo,3);
- g.answer(r.code,'2','오답',3);assert.equal(g.view(r,'2').stats.combo,0);g.leave(r.code,'2');assert.throws(()=>g.answer(r.code,'2','됐다.',3),/참여/);g.join(r.code,person(2));assert.equal(g.view(r,'2').players.find(p=>p.id==='2').score,725);
+ g.answer(r.code,'2','오답',3);assert.equal(g.view(r,'2').stats.combo,0);g.leave(r.code,'2');assert.throws(()=>g.answer(r.code,'2','됐다.',3),/참여/);g.join(r.code,person(2));assert.equal(g.view(r,'2').players.find(p=>p.id==='2').score,715);
  const before=g.view(r,'1').teamTotals;g.end(r.code,'1');assert.equal(r.phase,'finished');assert.equal(g.view(r,'2').endedEarly,true);assert.deepEqual(g.view(r,'1').teamTotals,before);assert.throws(()=>g.answer(r.code,'2','됐다.',3),/지금/);
+});
+
+test('wrong-answer and pass penalties, remaining passes and earned passes follow solo rules',()=>{
+ let now=1000;const g=new Battle(corpus,{now:()=>now}),r=g.create(person(1),2);for(const id of[2,3]){g.join(r.code,person(id));g.ready(r.code,String(id),true);}g.start(r.code,'1');
+ const answer=()=>{const q=g.view(r,'2').question;now+=100;return g.answer(r.code,'2','됐다.',q.index);};answer();
+ g.view(r,'2');assert.equal(g.answer(r.code,'2','오답',1).penalty,10);assert.equal(g.answer(r.code,'2','오답',1).penalty,20);assert.equal(g.member(r,'2').score,180);answer();assert.equal(g.member(r,'2').wrongCount,0);assert.equal(g.member(r,'2').score,390);
+ for(const [index,penalty]of[[2,10],[3,20],[4,30]]){g.view(r,'2');assert.equal(g.pass(r.code,'2',index).penalty,penalty);assert.throws(()=>g.pass(r.code,'2',index),/처리/);}
+ assert.equal(g.view(r,'2').stats.passesRemaining,0);assert.equal(g.member(r,'2').score,330);assert.throws(()=>g.pass(r.code,'2',5),/패스/);
+ answer();answer();answer();assert.equal(g.view(r,'2').stats.passesRemaining,1);assert.equal(g.member(r,'2').earnedScore,1195);
 });

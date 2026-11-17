@@ -29,7 +29,13 @@ const jsonLd = {
   showReview={false}
   showBack={false}
 >
-<script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)}></script>
+<script type="application/ld+json" is:inline set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': [jsonLd, {
+  '@type': 'Organization', '@id': 'https://parcyun.github.io/#organization', name: 'parcyun studio',
+  url: 'https://parcyun.github.io/', founder: { '@id': 'https://parcyun.github.io/#parcyun' },
+}, {
+  '@type': 'WebSite', '@id': 'https://parcyun.github.io/#website', name: 'parcyun studio',
+  url: 'https://parcyun.github.io/', inLanguage: 'ko-KR', publisher: { '@id': 'https://parcyun.github.io/#organization' },
+}] })}></script>
 
 <!-- ===== HERO ===== -->
 <main id="home-scenes" aria-label="parcyun studio 소개">
@@ -51,7 +57,7 @@ const jsonLd = {
 </section>
 
 <!-- ===== ABOUT / MANIFESTO ===== -->
-<section class="about">
+<section class="about" id="parcyun">
   <div class="wrap">
     <div class="identity-tags">
       <span class="tag-pill">parcyun(박윤)</span>

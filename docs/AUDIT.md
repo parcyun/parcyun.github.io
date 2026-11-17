@@ -1,5 +1,14 @@
 # parcyun studio · 코드 감사 & 최적화 보고서
 
+## 2026-11-17 · 사이트 SEO 및 dexterity 정비
+
+- 공통 SeoHead로 canonical·OG·Twitter·큰 이미지 미리보기 지시를 통일. 기존 OG 문구는 유지하고 개인정보/약관/리뷰/브랜드 표준 및 정적 강의·포트폴리오의 누락 canonical을 보완. 내부 푸터 미리보기는 noindex 처리.
+- 홈페이지 Person(박윤/parcyun)과 Organization/WebSite를 연결. dexterity의 Blog/BlogPosting·작성자·발행/수정일·대표 사진·본문 위치·Breadcrumb를 연결하고 공유 설명·RSS·목록 h1을 추가. 평점/허위 후기는 만들지 않음.
+- 발행일은 향미사 최초 공개 커밋 bdbb890(2026-11-15)의 작성 시각을 근거로 고정. 수정일은 이번 작성자/발행 메타데이터 교정 시점이며 빌드 때 자동 갱신하지 않음.
+- 향미사 사진 9장은 보존. 누락된 실제 이미지 크기를 추가하고 첫 사진을 높은 로딩 우선순위로 지정. 모바일 메타 정보는 줄바꿈 허용.
+- 새로운 글은 `src/data/dexterity.ts`에 공개 글의 메타데이터를 등록하고 해당 페이지를 생성한 다음 `public/sitemap.xml`에 canonical URL을 추가. 공개 시 실제 날짜·사진·작성자를 맞추며 RSS는 같은 등록 정보에서 생성한다.
+- 로컬: Astro build 및 관련 테스트 15개 통과, indexable HTML 23개 모두 canonical/description 확인. RSS/사이트맵 XML 파싱, 모바일 390px 글 화면 가로 넘침 없음 확인. 공개 배포·검증 결과는 상위 `seo-verification-20261117/RESULT.md`에 기록한다.
+
 ## 2026-11-17 · parcyun 한글 활동명 명시
 
 - 사용자 확인 한글 활동명 `박윤`을 홈페이지 본문·title·description·OG와 Person 구조화 데이터에 일치시켰다. works의 활동명에도 병기하며 기존 박창현 경력·개인정보 문서는 보존한다.

@@ -2,7 +2,7 @@ import type { Resource } from '../data/resources';
 import { icon, typeIcon } from '../lib/icons';
 
 const PREVIEW_IMAGE_BY_ID: Record<string, string> = {
-  satury: '/images/resource-previews/satury.png',
+  satury: '/images/resource-previews/satury-tuilders.webp',
   academica: '/images/resource-previews/academica.png',
   'llm-fundamentals': '/images/resource-previews/llm-fundamentals.png',
   'agentic-ai': '/images/resource-previews/agentic-ai.png',
@@ -12,12 +12,12 @@ const PREVIEW_IMAGE_BY_ID: Record<string, string> = {
   'yearly-life-archive': '/images/resource-previews/yearly-life-archive.png',
   'math-volume': '/images/resource-previews/math-volume.png',
   'world-city-research': '/images/resource-previews/world-city-research.png',
-  'world-map': '/images/resource-previews/world-map.png',
+  'world-map': '/images/resource-previews/geoweb-tuilders.webp',
   'ai-class': '/images/resource-previews/ai-class.png',
   'kocomate': '/images/resource-previews/kocomate.png',
   'zoomit': '/images/resource-previews/zoomit.png',
   'snipaste': '/images/resource-previews/snipaste.png',
-  'spell-drill': '/spell-drill/og-cover.png',
+  'spell-drill': '/images/resource-previews/spell-drill-tuilders.webp',
 };
 
 const PREVIEW_DESCRIPTION_BY_ID: Record<string, string> = {
@@ -47,7 +47,7 @@ export default function ResourceHoverPreview({ resource }: { resource: Resource 
 
   return (
     <aside className="resource-hover-preview" id={previewId} role="tooltip">
-      <img className="resource-hover-image" src={previewImage} alt="" loading="lazy" />
+      <img className="resource-hover-image" src={previewImage} alt="" loading="lazy" style={resource.logo ? { objectFit: 'contain' } : undefined} />
       <span className="resource-hover-copy">
         <span className="resource-hover-kind">
           <span className="ico" dangerouslySetInnerHTML={{ __html: icon(typeIcon[resource.type] || 'guide', 14) }} />

@@ -6,7 +6,8 @@ const output=resolve(process.argv[2]||resolve(homedir(),'Downloads/Codex/verific
 const html=await readFile(resolve(root,'public/spell-drill/index.html'),'utf8');
 const corpus=JSON.parse(html.match(/const SENTENCES = (\{[\s\S]*?\n\});/)[1]);
 await mkdir(output,{recursive:true});
-for(const file of ['engine.mjs','storage.mjs','server.mjs','identity-bridge.js','package.json','package-lock.json','Dockerfile'])await copyFile(resolve(root,'server/spell-battle',file),resolve(output,file));
+for(const file of ['qr.mjs','engine.mjs','storage.mjs','server.mjs','identity-bridge.js','package.json','package-lock.json','Dockerfile'])await copyFile(resolve(root,'server/spell-battle',file),resolve(output,file));
 for(const file of ['scoring.js','context-hints.js'])await copyFile(resolve(root,'public/spell-drill',file),resolve(output,file));
+await copyFile(resolve(root,'public/qr/spell-drill.svg'),resolve(output,'spell-drill.svg'));
 await writeFile(resolve(output,'corpus.json'),JSON.stringify(corpus));
 console.log(output);

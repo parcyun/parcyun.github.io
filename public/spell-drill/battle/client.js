@@ -1,6 +1,6 @@
 import {spellAudio} from '../audio.js?v=20261117-1';
 const localBattle=location.port==='47820';const battleConfig=localBattle?{}:await fetch('/spell-drill/battle/config.json',{cache:'no-store'}).then(r=>r.json());const apiBase=localBattle?'/api/battle/':battleConfig.apiBase+'/api/battle/';
-const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='/spell-drill/battle/style.css?v=20261117-5';document.head.append(sheet);
+const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='/spell-drill/battle/style.css?v=20261117-6';document.head.append(sheet);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $=(s,r=document)=>r.querySelector(s);let session=null,room=null,last='',dragging=null,feedback='',busy=false,invite=null,serverOffset=0,needsReconnectReset=false;
 const launch=document.createElement('button');launch.id='battle-launch';launch.textContent='대항전 시작하기 ↗';document.body.append(launch);

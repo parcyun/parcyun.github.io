@@ -14,6 +14,7 @@ export interface Resource {
   category: Category;
   type: ResourceType;   // 카테고리(타입)별 분류·필터용
   subject: string;      // 소분류 (국어, 수학 · 도형과 기하, LLM · Harness Agent …)
+  logo?: string;       // 서비스의 공식 로고
   thumb: string;        // 이모지 썸네일
   lid: string;          // 포스터 라벨
   posterTitle: string;  // 포스터 제목 (HTML 허용: <strong>, <br>)
@@ -135,20 +136,21 @@ export const resources: Resource[] = [
   },
   {
     id: 'spell-drill',
-    title: '한글 맞춤법 연습 게임',
-    desc: '헷갈리기 쉬운 한글 맞춤법을 게임으로 익히는 학생용 학습 도구. 짧은 자투리 시간에 교실에서 바로 활용 가능합니다.',
+    title: '스펠드릴 Spell Drill',
+    desc: '틀린 문장을 바르게 고쳐 입력하는 무료 한글 맞춤법·영어 문법 게임입니다. 초급·중급·고급·믹스 난이도와 연습·타이머·커스텀 모드를 제공합니다. 힌트·콤보·랭킹을 활용해 교실과 가정에서 연습할 수 있습니다. parcyun studio가 만들었습니다.',
     url: '/spell-drill/',
     visitPath: '/spell-drill/',
     external: true,
     category: '교육 활동 자료',
     type: '게임',
-    subject: '국어',
+    subject: '국어 · 영어',
     thumb: '✏️',
     lid: 'Activity · 001',
-    posterTitle: '<strong>맞춤법</strong><br>연습 게임',
+    posterTitle: '<strong>스펠드릴 Spell Drill</strong>',
     date: '2026.05.15',
     meta: ['2026.05.15', 'GAME ↗', '초등'],
-    tags: ['국어', '맞춤법', '게임'],
+    tags: ['국어', '영어', '맞춤법', '문법', '게임'],
+    logo: '/images/service-logos/spell-drill.webp',
   },
   {
     id: 'math-volume',
@@ -182,8 +184,8 @@ export const resources: Resource[] = [
   },
   {
     id: 'world-map',
-    title: '세계 지도 · 6대륙 5대양',
-    desc: '메르카토르·렌즈·지구본 3가지 도법을 오가며 6대륙과 5대양을 탐색하는 인터랙티브 세계지도. 대륙·대양·국가를 클릭해 강조·설명을 보고, 격자·확대·회전으로 자유롭게 살펴봅니다.',
+    title: '지오웹 GeoWeb',
+    desc: '6대륙·5대양과 세계의 기후·지형을 탐색하는 무료 인터랙티브 세계지도입니다. 나라·수도·국기·자연환경·랜드마크 퀴즈와 연습 모드로 세계지리를 배울 수 있습니다. parcyun studio가 만들었습니다.',
     url: '/world-map/',
     visitPath: '/world-map/',
     category: '교육 활동 자료',
@@ -191,15 +193,16 @@ export const resources: Resource[] = [
     subject: '사회',
     thumb: '🌍',
     lid: 'Interactive · 지도',
-    posterTitle: '6대륙 5대양<br><strong>인터랙티브 세계지도</strong>',
+    posterTitle: '<strong>지오웹 GeoWeb</strong>',
     date: '2026.07.03',
     meta: ['2026.07.03', '인터랙티브', '초등 사회'],
     tags: ['세계지리', '6대륙5대양', '지구본'],
+    logo: '/images/service-logos/geoweb.webp',
   },
   {
     id: 'satury',
-    title: '방언 사전 · satury',
-    desc: '표준어를 검색해 지역별 방언을 비교하는 사전. 국립국어원 우리말샘 API와 지역어 자료로 우리 지역의 말을 탐색합니다.',
+    title: '사투리 satury',
+    desc: '사투리(satury)는 표준어와 지역별 사투리를 함께 검색하는 무료 사전입니다. 국립국어원 표준국어대사전에서 단어 뜻·품사·한자·외래어 원어를 확인하고, 우리말샘 자료로 지역별 방언을 비교할 수 있습니다. 낱말의 정확한 뜻을 찾거나 같은 대상을 지역마다 어떻게 부르는지 살펴볼 때 활용하세요. parcyun studio가 만들었습니다.',
     url: '/satury/',
     visitPath: '/satury/',
     external: true,
@@ -207,11 +210,12 @@ export const resources: Resource[] = [
     type: '인터랙티브',
     subject: '국어',
     thumb: '사투리',
-    lid: 'Interactive · 방언',
-    posterTitle: '같은 뜻, 다른 말<br><strong>방언 사전 · satury</strong>',
+    lid: 'Interactive · 사전',
+    posterTitle: '<strong>사투리 satury</strong>',
     date: '2026.11.16',
-    meta: ['방언 사전', '국립국어원', '국어'],
-    tags: ['국어', '방언', '사투리', '지역어'],
+    meta: ['표준어·사투리 사전', '국립국어원', '국어'],
+    tags: ['국어', '표준어', '사전', '방언', '사투리', '지역어'],
+    logo: '/images/service-logos/satury.webp',
   },
   {
     id: 'ai-class',

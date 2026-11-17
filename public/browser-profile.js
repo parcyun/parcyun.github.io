@@ -21,7 +21,7 @@ export function createBrowserProfileStore({storage,eventTarget,channel,randomId=
   try{trusted=restore(JSON.parse(storage.getItem(BROWSER_PROFILE_KEY)||'null'));}catch{}
   const write=()=>{if(trusted)storage.setItem(BROWSER_PROFILE_KEY,JSON.stringify(trusted));else storage.removeItem(BROWSER_PROFILE_KEY);};
   const check=()=>{try{const expected=trusted?JSON.stringify(trusted):null;if(storage.getItem(BROWSER_PROFILE_KEY)!==expected)write();}catch{}};
-  const receive=event=>{const next=restore(event.data);if(next&&(!trusted||next.updatedAt>trusted.updatedAt)){trusted=next;check();eventTarget?.dispatchEvent(new Event('ps-browser-profile-updated'));}};
+  const receive=event=>{if(event.data?.type==='signout'&&Number.isFinite(event.data.updatedAt)&&event.data.updatedAt>(trusted?.updatedAt||0)){trusted=null;check();eventTarget?.dispatchEvent(new Event('ps-browser-profile-updated'));return;}const next=restore(event.data);if(next&&(!trusted||next.updatedAt>trusted.updatedAt)){trusted=next;check();eventTarget?.dispatchEvent(new Event('ps-browser-profile-updated'));}};
   channel?.addEventListener('message',receive);
   eventTarget?.addEventListener('storage',check);eventTarget?.addEventListener('focus',check);
   const timer=eventTarget?.setInterval(check,100);check();
@@ -33,6 +33,7 @@ export function createBrowserProfileStore({storage,eventTarget,channel,randomId=
       if(!candidate)throw new Error('프로필을 저장하지 못했어요.');
       storage.setItem(BROWSER_PROFILE_KEY,JSON.stringify(candidate));trusted=candidate;channel?.postMessage(trusted);return trusted;
     },
+    clear(){const updatedAt=Math.max(Date.now(),(trusted?.updatedAt||0)+1);trusted=null;write();channel?.postMessage({type:'signout',updatedAt});eventTarget?.dispatchEvent(new Event('ps-browser-profile-updated'));},
     check,
     destroy(){if(timer!==undefined)eventTarget.clearInterval(timer);eventTarget?.removeEventListener('storage',check);eventTarget?.removeEventListener('focus',check);channel?.removeEventListener('message',receive);channel?.close();}
   };

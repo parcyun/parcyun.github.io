@@ -20,3 +20,8 @@ test('anonymous submissions use version-specific rows with submission-time ident
  version='b'.repeat(32);profile={nickname:'구름모험가',school:'구름초'};await api.submit(record);
  assert.equal(rows.size,2);assert.equal(rows.get('anonymous_'+ 'a'.repeat(32)).nickname,'별빛탐험가');assert.equal(rows.get('anonymous_'+version).school,'구름초');
 });
+
+test('browser logout clears the active profile without restoring it or deleting game records',()=>{
+ const map=new Map([['spell-drill.best','keep']]),storage={getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)},store=createBrowserProfileStore({storage,randomId:()=> 'a'.repeat(32)});
+ store.save({nickname:'별빛탐험가',school:'별빛초'});store.clear();store.check();assert.equal(store.current(),null);assert.equal(storage.getItem(BROWSER_PROFILE_KEY),null);assert.equal(storage.getItem('spell-drill.best'),'keep');assert.equal(createBrowserProfileStore({storage}).current(),null);
+});

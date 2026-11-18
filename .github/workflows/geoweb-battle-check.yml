@@ -5,8 +5,8 @@ on:
     paths:
       - 'src/components/GeoBattle.jsx'
       - 'src/components/geoBattle.css'
-      - 'src/components/ConquestGeoGame.jsx'
-      - 'src/components/ConquestGlobe.jsx'
+      - 'src/components/GeoGame.jsx'
+      - 'src/components/GlobeLab.jsx'
       - 'server/geoweb-battle/**'
       - 'scripts/build-geoweb-battle-corpus.mjs'
       - 'test/geoweb-battle-engine.test.mjs'

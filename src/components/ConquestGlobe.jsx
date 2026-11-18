@@ -360,7 +360,6 @@ export default function ConquestGlobe({quizView=false,question:quizQuestion=null
     gameTimers.current.push(setTimeout(()=>{api.current.enterGameLobby?.(typeof cell==='string'?cell:conquestStore.selected());setGameActive(true);},delay));
     gameTimers.current.push(setTimeout(()=>setGameWipe(false),delay?680:0));
   };
-  useEffect(()=>{if(!quizView&&gamePools&&new URLSearchParams(location.search).has('geoBattle'))enterGame();},[quizView,gamePools]);
   const exitGame=()=>{
     if(gameSnapshot.current){Object.assign(S.current,gameSnapshot.current,{game:false,gameQuestion:null,drawerTarget:0,drawerDrag:null});api.current.restoreGame?.();}
     setGameActive(false);setTimeout(()=>document.querySelector('.game-entry')?.focus(),0);

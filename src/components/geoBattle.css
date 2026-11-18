@@ -357,14 +357,33 @@
   .gb-screen .gb-question { padding: 12px; }
   .gb-map-round .gb-question { margin-top: clamp(92px, 27vh, 240px); }
 }
-.gb-roster { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 18px 0; }
-.gb-roster .gb-players { margin: 0; min-height: 100px; background: #141b26; }
-.gb-roster .gb-players h3 { margin: 0 0 8px; color: #ffcb73; }
-.gb-roster[data-teams="6"], .gb-roster[data-teams="7"], .gb-roster[data-teams="8"], .gb-roster[data-teams="9"], .gb-roster[data-teams="10"] { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-@media (max-width: 980px) {
-  .gb-roster[data-teams] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .gb-roster[data-teams="1"] { grid-template-columns: minmax(0, 1fr); }
-}
-body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
-.gb-roster .gb-players, .gb-roster .gb-manage { min-width: 0; overflow-wrap: anywhere; }
+.gb-roster { display: grid; gap: 12px; margin: 18px 0; }
+.gb-roster .gb-players { margin: 0; min-height: 100px; min-width: 0; overflow-wrap: anywhere; }
+.gb-roster .gb-players h3 { margin: 0 0 8px; }
+.gb-roster .gb-manage { min-width: 0; }
 .gb-roster .gb-manage select { max-width: 100%; }
+body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
+.gb-settings { align-items: center; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 18px; }
+.gb-settings > small { margin-left: auto; color: #a7b0c0; white-space: nowrap; }
+.gb-lobby-setting { display: flex; align-items: center; flex: none; gap: 8px; white-space: nowrap; }
+.gb-lobby-setting .gb-stepper output { min-width: 54px; padding-inline: 5px; font: 700 13px Pretendard, sans-serif; }
+.gb-lobby-setting .gb-stepper button { min-height: 23px; min-width: 30px; padding: 0; border-radius: 7px; }
+.gb-roster {
+  position: relative; grid-template-columns: repeat(var(--gb-columns, 1), minmax(148px, 1fr));
+  overflow-x: auto; scrollbar-width: none; padding: 2px 0 8px;
+}
+.gb-roster .gb-players {
+  display: flex; flex-direction: column; height: clamp(145px, 26vh, 270px); box-sizing: border-box;
+  border-color: color-mix(in srgb, var(--gb-team-color, #596876) 52%, #25303f);
+  background: color-mix(in srgb, var(--gb-team-color, #596876) 12%, #10151e);
+  transform-origin: top left;
+}
+.gb-roster .gb-players h3 { color: var(--gb-team-color, #ffcb73); }
+.gb-roster .gb-team-members { flex: 1; overflow: auto; scrollbar-width: none; padding: 0; border: 0; }
+.gb-team-members > div { padding: 6px 8px; margin-bottom: 5px; border: 1px solid #ffffff19; border-radius: 8px; background: #18212b; }
+.gb-modal[data-phase="lobby"] footer { justify-content: center; }
+.gb-modal[data-phase="lobby"] .gb-heading .gb-lobby-action { margin: 0; }
+@media (max-width: 760px) {
+  .gb-modal[data-phase="lobby"] .gb-heading { flex-wrap: wrap; }
+  .gb-settings > small { display: none; }
+}

@@ -21,6 +21,27 @@ const modes = [
   ["nature", "자연환경"],
   ["landmark", "랜드마크"],
 ];
+const teamColors = ["#ffb11a", "#69c7b5", "#829def", "#ed89a5", "#b2cf72", "#b294df", "#e99a6c", "#72bddc", "#cf8dc5", "#7ab88e"];
+
+function LobbyStepper({ label, value, previous, next, onChange, busy }) {
+  return (
+    <div className="gb-lobby-setting">
+      <span>{label}</span>
+      <div className="gb-stepper">
+        <output aria-label={label}>{value}</output>
+        <div>
+          <button type="button" aria-label={label + " 다음"} disabled={busy || next == null} onClick={() => onChange(next)}>
+            <span className="gb-arrow gb-arrow-up" aria-hidden="true" />
+          </button>
+          <button type="button" aria-label={label + " 이전"} disabled={busy || previous == null} onClick={() => onChange(previous)}>
+            <span className="gb-arrow" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BattleLeaderboard({ room }) {
   const list = useRef(null);
   const previous = useRef(new Map());
@@ -86,7 +107,9 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     serverOffset = useRef(0),
     pending = useRef(false),
     backdrop = useRef(null),
-    screen = useRef(null);
+    screen = useRef(null),
+    roster = useRef(null),
+    teamPositions = useRef(new Map());
   sessionRef.current = session;
   roomRef.current = room;
   async function api(path, body) {
@@ -334,6 +357,24 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     return () => animation?.cancel();
   }, [open, gate, entry, phase, round, room?.waiting]);
 
+  useLayoutEffect(() => {
+    const cards = Array.from(roster.current?.children ?? []);
+    const positions = new Map();
+    const motion = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+    for (const card of cards) {
+      const position = { x: card.offsetLeft, y: card.offsetTop, width: card.offsetWidth };
+      const previous = teamPositions.current.get(card.dataset.team);
+      positions.set(card.dataset.team, position);
+      if (!motion || !teamPositions.current.size) continue;
+      if (!previous) {
+        card.animate([{ opacity: 0, transform: "translateX(32px) scale(.9)" }, { opacity: 1, transform: "scale(1.025)", offset: .75 }, { transform: "none" }], { duration: 420 });
+      } else if (previous.x !== position.x || previous.y !== position.y || previous.width !== position.width) {
+        card.animate([{ transform: `translate(${previous.x - position.x}px,${previous.y - position.y}px) scaleX(${previous.width / position.width})` }, { transform: "scale(1.025)", offset: .74 }, { transform: "none" }], { duration: 420, easing: "cubic-bezier(.2,.75,.2,1)" });
+      }
+    }
+    teamPositions.current = positions;
+  });
+
   return (
     <>
       {!open && (
@@ -485,6 +526,19 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                   >
                     초대 QR
                   </button>
+                  {host && room.phase === "lobby" && (
+                      <button
+                        className="gb-primary gb-lobby-action"
+                        disabled={
+                          busy ||
+                          room.participantCount < 2 ||
+                          ready < room.participantCount
+                        }
+                        onClick={() => act(`rooms/${room.code}/start`, {})}
+                      >
+                        경기 시작 · 준비 {ready}/{room.participantCount}
+                      </button>
+                  )}
                 </div>
                 {invite && (
                   <div className="gb-invite">
@@ -507,88 +561,36 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                 )}
                 {room.phase === "lobby" ? (
                   <>
-                    <div className="gb-settings">
-                      {host && (
-                        <>
-                          {room.mode === "team" && (
-                            <label>
-                              팀 수
-                              <select
-                                value={room.teamCount}
-                                onChange={(e) =>
-                                  act(`rooms/${room.code}/teams`, {
-                                    teamCount: Number(e.target.value),
-                                  })
-                                }
-                              >
-                                {Array.from({ length: 9 }, (_, i) => (
-                                  <option key={i} value={i + 2}>
-                                    {i + 2}
-                                  </option>
-                                ))}
-                              </select>
-                            </label>
-                          )}
-                          <label>
-                            문제 종류
-                            <select
-                              value={room.settings.difficulty}
-                              onChange={(e) =>
-                                act(`rooms/${room.code}/settings`, {
-                                  ...room.settings,
-                                  difficulty: e.target.value,
-                                })
-                              }
-                            >
-                              {modes.map(([value, label]) => (
-                                <option value={value} key={value}>
-                                  {label}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-                          <label>
-                            시간
-                            <select
-                              value={room.settings.seconds}
-                              onChange={(e) =>
-                                act(`rooms/${room.code}/settings`, {
-                                  ...room.settings,
-                                  seconds: Number(e.target.value),
-                                })
-                              }
-                            >
-                              {[30, 60, 90, 120].map((n) => (
-                                <option key={n}>{n}</option>
-                              ))}
-                            </select>
-                          </label>
-                          <label>
-                            라운드
-                            <select
-                              value={room.settings.rounds}
-                              onChange={(e) =>
-                                act(`rooms/${room.code}/settings`, {
-                                  ...room.settings,
-                                  rounds: Number(e.target.value),
-                                })
-                              }
-                            >
-                              {[1, 2, 3, 4, 5].map((n) => (
-                                <option key={n}>{n}</option>
-                              ))}
-                            </select>
-                          </label>
-                        </>
-                      )}
-                    </div>
-                    <div className="gb-roster" data-teams={room.mode === "team" ? (host ? room.teamCount : 1) : undefined}>
+                    {host && (
+                      <div className="gb-settings">
+                        {room.mode === "team" && <LobbyStepper label="팀 개수" value={room.teamCount} busy={busy}
+                          previous={room.teamCount > 2 ? room.teamCount - 1 : null}
+                          next={room.teamCount < 10 ? room.teamCount + 1 : null}
+                          onChange={teamCount => act(`rooms/${room.code}/teams`, { teamCount }).catch(() => {})} />}
+                        <LobbyStepper label="난이도" value={modes.find(([key]) => key === room.settings.difficulty)?.[1]} busy={busy}
+                          previous={modes[modes.findIndex(([key]) => key === room.settings.difficulty) - 1]?.[0]}
+                          next={modes[modes.findIndex(([key]) => key === room.settings.difficulty) + 1]?.[0]}
+                          onChange={difficulty => act(`rooms/${room.code}/settings`, { ...room.settings, difficulty }).catch(() => {})} />
+                        <LobbyStepper label="시간" value={room.settings.seconds + "초"} busy={busy}
+                          previous={room.settings.seconds > 15 ? Math.max(15, room.settings.seconds - 15) : null}
+                          next={room.settings.seconds < 600 ? Math.min(600, room.settings.seconds + 15) : null}
+                          onChange={seconds => act(`rooms/${room.code}/settings`, { ...room.settings, seconds }).catch(() => {})} />
+                        <LobbyStepper label="라운드" value={room.settings.rounds + "회"} busy={busy}
+                          previous={room.settings.rounds > 1 ? room.settings.rounds - 1 : null}
+                          next={room.settings.rounds < 10 ? room.settings.rounds + 1 : null}
+                          onChange={rounds => act(`rooms/${room.code}/settings`, { ...room.settings, rounds }).catch(() => {})} />
+                        <small>설정이 바뀌면 준비 상태가 해제돼요.</small>
+                      </div>
+                    )}
+                    <div className="gb-roster" ref={roster}
+                      style={{ "--gb-columns": host && room.mode === "team" ? Math.ceil(room.teamCount / (room.teamCount > 5 ? 2 : 1)) : 1 }}>
                       {(room.mode === "team"
                         ? room.teamNames.map((name, team) => ({ name, team })).filter(group => host || group.team === me?.team)
                         : [{ name: "참여자", team: null }]
                       ).map(({ name, team }) => (
-                        <section className="gb-players" key={team ?? "individual"}>
+                        <section className="gb-players" key={team ?? "individual"} data-team={team ?? "individual"} style={{ "--gb-team-color": teamColors[team] }}>
                           <h3>{name}</h3>
+                          <div className="gb-team-members">
                           {room.players?.filter(p => !p.isHost && (team === null || p.team === team)).map((p) => (
                         <div key={p.id}>
                           {p.name} {p.isHost ? "· 진행자" : ""}{" "}
@@ -628,6 +630,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                           )}
                         </div>
                           ))}
+                          </div>
                         </section>
                       ))}
                     </div>
@@ -644,19 +647,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                         우리 팀 이름 바꾸기
                       </button>
                     )}
-                    {host ? (
-                      <button
-                        className="gb-primary gb-lobby-action"
-                        disabled={
-                          busy ||
-                          room.participantCount < 2 ||
-                          ready < room.participantCount
-                        }
-                        onClick={() => act(`rooms/${room.code}/start`, {})}
-                      >
-                        경기 시작 · 준비 {ready}/{room.participantCount}
-                      </button>
-                    ) : (
+                    {!host && (
                       <button
                         className="gb-primary gb-lobby-action"
                         disabled={busy}

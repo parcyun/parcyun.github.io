@@ -34,6 +34,30 @@ try{
  await host.getByRole('button',{name:'팀 대항전',exact:true}).click();
  await host.getByRole('button',{name:'방 만들기'}).click();
  const heading=host.locator('.gb-toolbar-code strong');await heading.waitFor();const code=(await heading.innerText()).match(/\d{6}/)?.[0];if(!code)throw Error('Room code missing');
+ const cards=host.locator('.gb-roster .gb-players');
+ await cards.last().waitFor();
+ const rows=()=>cards.evaluateAll(elements=>new Set(elements.map(el=>el.offsetTop)).size);
+ assert.equal(await cards.count(),10);
+ assert.equal(await rows(),2);
+ assert.equal(await cards.evaluateAll(elements=>new Set(elements.map(el=>el.style.getPropertyValue('--gb-team-color'))).size),10);
+ for(let count=9;count>=5;count--){
+  await host.getByRole('button',{name:'팀 개수 이전',exact:true}).click();
+  await host.waitForFunction(n=>document.querySelectorAll('.gb-roster .gb-players').length===n,count);
+ }
+ assert.equal(await rows(),1);
+ for(let count=6;count<=10;count++){
+  await host.getByRole('button',{name:'팀 개수 다음',exact:true}).click();
+  await host.waitForFunction(n=>document.querySelectorAll('.gb-roster .gb-players').length===n,count);
+ }
+ await host.getByRole('button',{name:'시간 다음',exact:true}).click();
+ await host.waitForFunction(()=>document.querySelector('output[aria-label="시간"]').textContent==='75초');
+ await host.getByRole('button',{name:'라운드 다음',exact:true}).click();
+ await host.waitForFunction(()=>document.querySelector('output[aria-label="라운드"]').textContent==='4회');
+ const difficultyBefore=await host.locator('output[aria-label=난이도]').textContent();
+ await host.getByRole('button',{name:'난이도 다음',exact:true}).click();
+ await host.waitForFunction(old=>document.querySelector('output[aria-label="난이도"]').textContent!==old,difficultyBefore);
+ await host.getByRole('button',{name:'난이도 이전',exact:true}).click();
+ await host.waitForFunction(old=>document.querySelector('output[aria-label="난이도"]').textContent===old,difficultyBefore);
  const one=await api('session',identity('테스트선수1','b'));const two=await api('session',identity('테스트선수2','c'));
  const players=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
  await players.route('**/game-account.js*',route=>route.fulfill({contentType:'text/javascript',body:`window.psBattleIdentity=async()=>(${JSON.stringify(identity('테스트선수1','b'))});`}));

@@ -12,6 +12,7 @@
     return()=>{clearTimeout(timer);flight?.cancel();};
   }
   function celebrate(host,target,onComplete=()=>{}){
+    root.psGameSfx?.celebrate();
     const overlay=document.createElement('div');overlay.className='gg-ranking-award';overlay.setAttribute('role','status');overlay.innerHTML='<div class="gg-ranking-award-flash"></div><div class="gg-ranking-award-title"><small>NEW PERSONAL BEST</small><strong><span class="gg-ranking-award-prefix">기록 </span><span class="gg-ranking-award-word">경신!</span></strong></div>';
     target.classList.remove('is-renewed');host.append(overlay);
     const cancel=fly(overlay.querySelector('.gg-ranking-award-word'),target,()=>{overlay.remove();target.classList.add('is-renewed');onComplete();},()=>overlay.classList.add('is-flying'));

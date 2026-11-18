@@ -1,3 +1,4 @@
+import {setPlayerFocus} from "../spell-battle/player-focus.mjs";
 import {readFile} from 'node:fs/promises';
 import {storage} from './storage.mjs';
 import {inviteQr} from '../spell-battle/qr.mjs';
@@ -30,6 +31,7 @@ export async function handleGeoWeb(req,res,{url,cloud,lan,port,json,body,mascot}
    case 'name':battle.rename(code,identity.id,input.name);break;
    case 'pass':return battle.pass(code,identity.id,input.index);
    case 'hint':battle.hint(code,identity.id,input.index);break;
+   case 'focus':setPlayerFocus(battle,room,identity.id,input.paused===true);break;
    case 'ready':battle.ready(code,identity.id,input.ready);break;
    case 'move':battle.move(code,identity.id,input.playerId,input.team);break;
    case 'kick':battle.kick(code,identity.id,input.playerId);break;

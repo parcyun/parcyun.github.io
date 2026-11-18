@@ -1,5 +1,5 @@
 import {savePendingRecord} from './geoPendingRecords.js';
-import {finishOnHidden,tabExitMessage} from './geoRoundVisibility.js';
+import {watchGameFocus} from '../../public/game-focus-guard.js';
 import { useEffect, useRef, useState } from 'react';
 import { GAME_MODES, matchesAnswer, scoreAnswer, scoring, shuffledDeck, contentDeck } from './geoGameData.js';
 import './geoGame.css';
@@ -37,6 +37,8 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   const openRanking=event=>{rankingOpener.current=event.currentTarget;setRankingOpen(true);};
   const closeRanking=()=>{setRankingOpen(false);requestAnimationFrame(()=>rankingOpener.current?.focus());};
   const input=useRef(null), nextButton=useRef(null), deck=useRef([]), current=useRef(null), started=useRef(0), locked=useRef(true), timers=useRef([]), serial=useRef(0), composing=useRef(false);
+  const pausedAt=useRef(null), pausedTotal=useRef(0), pausedJobs=useRef([]);
+  const gameNow=()=> (pausedAt.current ?? performance.now())-pausedTotal.current;
   const config=GAME_MODES.find(m=>m.id===mode);
   const expert=hasCountryDifficulty(mode)&&difficulty==='expert';
   const tier=expert?'hard':hasGameDifficulty(mode)?difficulty:config.tier;
@@ -57,9 +59,9 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   useEffect(()=>{if(!result)return;const timer=setTimeout(()=>setResult(null),2200);return()=>clearTimeout(timer);},[result]);
   useEffect(()=>{if(practice&&playing&&!busy&&!summary)nextButton.current?.focus();},[practice,playing,busy,summary,question]);
   const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const later=(fn,delay)=>{const id=setTimeout(fn,delay);timers.current.push(id);};
-  function cancelPending(){timers.current.forEach(clearTimeout);timers.current=[];serial.current++;deadline.current=0;}
-  function ready(){if(!locked.current)return;locked.current=false;setBusy(false);started.current=performance.now();deadline.current=expert&&!practice?started.current+EXPERT_ANSWER_MS:0;setCountdown(deadline.current?5:null);(practice?nextButton:input).current?.focus();}
+  const later=(fn,delay)=>{const id=setTimeout(()=>{if(pausedAt.current!==null)pausedJobs.current.push(fn);else fn();},delay);timers.current.push(id);};
+  function cancelPending(){timers.current.forEach(clearTimeout);timers.current=[];pausedJobs.current=[];serial.current++;deadline.current=0;}
+  function ready(){if(!locked.current)return;locked.current=false;setBusy(false);started.current=gameNow();deadline.current=expert&&!practice?started.current+EXPERT_ANSWER_MS:0;setCountdown(deadline.current?5:null);(practice?nextButton:input).current?.focus();}
   function nextQuestion(activeMode=mode){
     serial.current++;deadline.current=0;setCountdown(null);composing.current=false;
     const pool=pools[activeMode];
@@ -72,18 +74,18 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   }
   useEffect(()=>{
     if(!playing)return;
-    cancelPending();deck.current=[];setResult(null);setStats({score:0,combo:0,bestCombo:0,correct:0,attempts:0});
-    setFinishReason('');roundStarted.current=performance.now();setElapsed(0);
+    pausedAt.current=null;pausedTotal.current=0;cancelPending();deck.current=[];setResult(null);setStats({score:0,combo:0,bestCombo:0,correct:0,attempts:0});
+    setFinishReason('');roundStarted.current=gameNow();setElapsed(0);
     nextQuestion(mode);
     return cancelPending;
   },[mode,difficulty,playing,practice]);
   useEffect(()=>{
     if(summary||!playing)return;
-    const timer=setInterval(()=>setElapsed(Math.floor((performance.now()-roundStarted.current)/1000)),1000);
+    const timer=setInterval(()=>setElapsed(Math.floor((gameNow()-roundStarted.current)/1000)),1000);
     return()=>clearInterval(timer);
   },[mode,summary,playing]);
   function recordScore(score,maxCombo){
-    const seconds=(performance.now()-roundStarted.current)/1000;
+    const seconds=(gameNow()-roundStarted.current)/1000;
     const record={maxCombo,mode,diff:hasGameDifficulty(mode)?difficulty:undefined,score,elapsedMs:Math.max(1000,Math.round(seconds*1000)),playedAt:Date.now()};
     try{savePendingRecord(window.localStorage,record);}catch{setStorageError(true);}
     setRecords(previous=>{
@@ -105,26 +107,28 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     later(()=>{if(message.skipped)setResult(null);nextQuestion();},practice?reduced()?80:420:message.skipped?1400:reduced()?80:420);
   }
   function expireQuestion(){
-    if(!expert||practice||summary||locked.current||!deadline.current||performance.now()<deadline.current)return;
+    if(!expert||practice||summary||locked.current||!deadline.current||gameNow()<deadline.current)return;
     setStats(s=>({...s,combo:0,attempts:s.attempts+1}));
     cancelPending();setResult(null);nextQuestion();
   }
   useEffect(()=>{
     if(!playing||summary||busy||practice||!expert||!deadline.current)return;
-    const tick=()=>{const remaining=Math.max(0,Math.ceil((deadline.current-performance.now())/1000));if(!remaining){expireQuestion();return;}setCountdown(remaining);};
+    const tick=()=>{const remaining=Math.max(0,Math.ceil((deadline.current-gameNow())/1000));if(!remaining){expireQuestion();return;}setCountdown(remaining);};
     const timer=setInterval(tick,40);
     return()=>clearInterval(timer);
   },[playing,summary,busy,practice,expert,question]);
   function submit(event){
     event.preventDefault();
-    if(practice||locked.current||composing.current||!answer.trim()||summary)return;
-    if(expert&&deadline.current&&performance.now()>=deadline.current){expireQuestion();return;}
-    if(matchesAnswer(answer,question)){
+    if(pausedAt.current!==null||practice||locked.current||composing.current||!answer.trim()||summary)return;
+    if(expert&&deadline.current&&gameNow()>=deadline.current){expireQuestion();return;}
+    const correct=matchesAnswer(answer,question);
+    window.psGameSfx?.answer(correct);
+    if(correct){
       const combo=stats.combo+1;
-      const gain=scoreAnswer(answer,(performance.now()-started.current)/1000,tier,combo);
+      const gain=scoreAnswer(answer,(gameNow()-started.current)/1000,tier,combo);
       recordScore(stats.score+gain.total,Math.max(stats.bestCombo,combo));
       setStats(s=>({score:s.score+gain.total,combo,bestCombo:Math.max(combo,s.bestCombo),correct:s.correct+1,attempts:s.attempts+1}));
-      advance({good:true,text:`${question.name} · 정답!`,gain,combo,id:performance.now()});
+      advance({good:true,text:`${question.name} · 정답!`,gain,combo,id:gameNow()});
     }else{
       setStats(s=>({...s,combo:0,attempts:s.attempts+1}));
       setResult({good:false,text:'다시 생각해 보세요. 콤보가 초기화됐어요.'});
@@ -132,10 +136,22 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
     }
   }
   function skip(){
-    if(leaving||(locked.current&&!mediaError)||summary)return;
-    if(!practice)setStats(s=>({...s,combo:0}));advance({good:false,skipped:true,text:question.name,id:performance.now()});
+    if(pausedAt.current!==null||leaving||(locked.current&&!mediaError)||summary)return;
+    if(!practice)setStats(s=>({...s,combo:0}));advance({good:false,skipped:true,text:question.name,id:gameNow()});
   }
-  useEffect(()=>{if(!playing||summary)return;return finishOnHidden(document,()=>{setFinishReason(tabExitMessage());finish();});},[playing,summary,mode,practice]);
+  useEffect(()=>{
+    if(!playing||summary)return;
+    return watchGameFocus({
+      pause:()=>{pausedAt.current=performance.now();},
+      resume:()=>{
+        pausedTotal.current+=performance.now()-pausedAt.current;
+        pausedAt.current=null;
+        for(const job of pausedJobs.current.splice(0))job();
+        input.current?.focus();
+      },
+      finish:()=>finish(),
+    });
+  },[playing,summary,mode,practice]);
   function finish(){cancelPending();locked.current=true;onFinish?.(mode);if(practice){returnToMenu();return;}setSummary(true);}
   function returnToMenu(){const complete=()=>{setSummary(false);setPlaying(false);setQuestion(null);setResult(null);setFormula(false);later(()=>document.querySelector('.gg-menu nav button')?.focus(),0);};if(summary)window.psModalMotion.exit(document.querySelector('.gg-summary'),complete);else complete();}
   return <section className={`geo-game ${playing?'gg-playing':''} ${playing&&mode==='flag'?'geo-game-flags':''} ${expert?'gg-expert':''} ${battleOpen?'gg-battle-open':''}`} aria-label="지오웹 게임 모드">

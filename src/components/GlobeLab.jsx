@@ -1051,6 +1051,7 @@ export default function GlobeLab(){
           <button onClick={closeUpdateStory}>시작하기</button>
           <button className="update-history-toggle" aria-expanded={showUpdateHistory} onClick={()=>setShowUpdateHistory(value=>!value)}>업데이트 내역 보기 <span>{showUpdateHistory?'−':'+'}</span></button>
           <div className={'update-history'+(showUpdateHistory?' open':'')}>
+            <div><b>2026.11 · v1.3.3</b><p>대항전 설정과 참여자 관리를 개선했어요. 화면을 처음 벗어나면 경고 후 다시 시작할 수 있고, 두 번째에는 해당 플레이가 끝나요.</p></div>
             <div><b>2026.10</b><p>나라·수도·국기·자연환경·랜드마크를 맞히는 6가지 게임을 추가했어요. 정답을 이어 가며 스펠 드릴과 같은 콤보·속도 점수를 쌓아 보세요.</p></div>
             <div><b>2026.09</b><p>지형마다 이름을 표시하고, 고원·평원·사막의 대표 범위를 넓혔어요. 기후대도 각각 켜고 끌 수 있어요.</p></div>
             <div><b>2026.09</b><p>주요 강·산맥·고원·평원·사막을 선택해 함께 볼 수 있는 지형 레이어를 추가했어요.</p></div>

@@ -39,6 +39,17 @@ export function createLeaderboard(context, game='spell') {
     if (!['ko','en'].includes(lang)||!['easy','med','hard','mix'].includes(diff)||!['practice','timer','custom'].includes(mode)) throw new Error('Invalid board');
     return `${lang}_${diff}_${mode}`;
   };
+  const lastKey = (filters, owner) => `ps-last-submission:${collectionName}:${boardId(filters)}:${owner}`;
+  function lastSubmission(filters, owner, rows, mine) {
+    if (!owner || !mine) return null;
+    try {
+      const record = JSON.parse(localStorage.getItem(lastKey(filters, owner)));
+      if (!Number.isFinite(record?.score) || !Number.isFinite(record?.elapsedMs)) return null;
+      const sameRecord = record.playedAt === mine.playedAt?.toMillis?.();
+      return { ...record, estimated: !sameRecord, rank: sameRecord ? mine.rank :
+        1 + rows.filter(row => row.id !== owner && compareRankingEfficiency(row, record) < 0).length };
+    } catch { return null; }
+  }
   return {
     async load(filters, cursor, {refresh=false}={}) {
       const {s,user,entryId}=await context(); const d=s.dbApi;
@@ -55,7 +66,7 @@ export function createLeaderboard(context, game='spell') {
       const start=first<0?rows.length:first,page=rows.slice(start,start+50);
       const own=user?rows.find(row=>row.id===(entryId||user.uid)):null;
       const mine=own?{...own,rank:1+rows.findIndex(row=>compareRankingEfficiency(row,own)===0)}:null;
-      return {rows:page,cursor:page.at(-1),more:start+page.length<rows.length,mine,signedIn:!!user};
+      return {rows:page,cursor:page.at(-1),more:start+page.length<rows.length,mine,last:lastSubmission(filters,user&&(entryId||user.uid),rows,mine),signedIn:!!user};
     },
     async submit(record) {
       const {s,user,profile,nickname,entryId}=await context();if(!user)throw new Error('프로필을 먼저 만들어 주세요. Google 로그인 없이 브라우저 프로필로도 제출할 수 있어요.');
@@ -70,6 +81,11 @@ export function createLeaderboard(context, game='spell') {
         return {improved:true};
       });
       cache.invalidate(`${collectionName}/${boardId(record)}`);
+      try {
+        localStorage.setItem(lastKey(record, entryId || user.uid), JSON.stringify({
+          score: next.score, elapsedMs: next.elapsedMs, playedAt: record.playedAt,
+        }));
+      } catch {}
       return result;
     }
   };

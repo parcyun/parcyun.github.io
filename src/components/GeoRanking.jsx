@@ -10,7 +10,7 @@ const played = value => value?.toDate ? new Intl.DateTimeFormat('ko-KR',{dateSty
 export default function GeoRanking({ initialMode, initialDifficulty='easy', onClose }) {
   const dialog=useRef(null),request=useRef(0),submitting=useRef(false),alive=useRef(true),mineBadge=useRef(null),minePanel=useRef(null),awardWord=useRef(null),animationTimers=useRef([]);
   const [difficulty,setDifficulty]=useState(initialDifficulty);
-  const [mode,setMode]=useState(initialMode),[rows,setRows]=useState([]),[mine,setMine]=useState(null),[signedIn,setSignedIn]=useState(false);
+  const [mode,setMode]=useState(initialMode),[rows,setRows]=useState([]),[mine,setMine]=useState(null),[last,setLast]=useState(null),[flashing,setFlashing]=useState(null),[signedIn,setSignedIn]=useState(false);
   const [cursor,setCursor]=useState(null),[more,setMore]=useState(false),[loading,setLoading]=useState(true),[error,setError]=useState('');
   const [sending,setSending]=useState(false),[notice,setNotice]=useState('');
   const [pending,setPending]=useState(()=>{try{return readPendingRecords(window.localStorage);}catch{return {};}}),[merging,setMerging]=useState(null),[award,setAward]=useState(null),[renewed,setRenewed]=useState(null);
@@ -22,16 +22,22 @@ export default function GeoRanking({ initialMode, initialDifficulty='easy', onCl
   useEffect(()=>{load(false);return()=>{request.current++;};},[mode,boardDifficulty]);
   useEffect(()=>{
     if(!award)return;
+    window.psGameSfx?.celebrate();
     return window.psRecordFeedback.fly(awardWord.current,mineBadge.current,()=>{if(alive.current){setRenewed(award.key);setAward(null);}},()=>setAward(previous=>previous?{...previous,flying:true}:null));
   },[award?.key]);
-  async function load(append=false,retain=false) {
+  async function load(append=false,retain=false,highlight=false) {
     const token=++request.current;setLoading(true);setError('');
     if(!append){setRows([]);if(!retain)setMine(null);setMore(false);setCursor(null);}
     try {
       if(!window.psGeoRanking)throw new Error('서버 연결을 준비 중이에요. 잠시 후 다시 시도해 주세요.');
       const data=await window.psGeoRanking.load({mode,diff:boardDifficulty},append?cursor:null);
       if(token!==request.current||!alive.current)return;
-      setRows(previous=>append?[...previous,...data.rows]:data.rows);setMine(data.mine);setSignedIn(data.signedIn);setCursor(data.cursor);setMore(data.more);
+      setRows(previous=>append?[...previous,...data.rows]:data.rows);setMine(data.mine);setLast(data.last);
+      if(highlight&&data.mine){
+        setFlashing({key:boardKey,id:data.mine.id});
+        animationTimers.current.push(setTimeout(()=>setFlashing(null),6500));
+      }
+      setSignedIn(data.signedIn);setCursor(data.cursor);setMore(data.more);
     } catch(e) {if(token===request.current)setError(e.message||'랭킹을 불러오지 못했어요. 다시 시도해 주세요.');}
     finally {if(token===request.current)setLoading(false);}
   }
@@ -45,9 +51,8 @@ export default function GeoRanking({ initialMode, initialDifficulty='easy', onCl
       let next;try{next=acknowledgePendingRecord(window.localStorage,candidate);}catch{next={...pending};delete next[key];}
       if(!alive.current)return;
       setMerging({key,record:candidate});
-      setNotice('기록을 제출했어요.');
       animationTimers.current.push(setTimeout(()=>{const focused=dialog.current?.querySelector('.gg-ranking-pending')?.contains(document.activeElement);try{setPending(readPendingRecords(window.localStorage));}catch{setPending(next);}setMerging(null);if(focused)requestAnimationFrame(()=>minePanel.current?.focus({preventScroll:true}));},360));
-      await load(false,true);
+      await load(false,true,result?.improved);
       if(alive.current&&result?.improved){setRenewed(null);setAward({key,flying:false});}
     } catch(e) {if(alive.current)setNotice(e.message||'기록을 제출하지 못했어요. 다시 시도해 주세요.');}
     finally {submitting.current=false;if(alive.current)setSending(false);}
@@ -72,7 +77,7 @@ export default function GeoRanking({ initialMode, initialDifficulty='easy', onCl
     <nav className="gg-ranking-games" aria-label="랭킹 게임 종류">{GAME_MODES.map(item=><button key={item.id} type="button" aria-pressed={mode===item.id} disabled={sending||!!merging||!!award} onClick={()=>{setMode(item.id);if(difficulty!=='legacy'&&!difficultyOptions(item.id).some(level=>level.id===difficulty))setDifficulty('easy');}}>{item.title}</button>)}</nav>
     <div className="gg-ranking-content">
     <div className="gg-ranking-scroll" tabIndex="0" aria-label="랭킹 목록"><table><thead><tr><th>순위</th><th>플레이어</th><th>최대 콤보</th><th>점수</th><th>소요 시간</th><th>플레이 시각</th></tr></thead><tbody>
-      {rows.map((row,i)=>{if(i===0||compareRankingEfficiency(row,rows[i-1])!==0)rank=i+1;return <tr key={row.id}><td>{rank}</td><td>{row.nickname}<small>{rankingAffiliation(row)}</small></td><td>{row.maxCombo??'—'}</td><td>{row.score.toLocaleString()}</td><td>{time(row.elapsedMs)}</td><td>{played(row.playedAt)}</td></tr>;})}
+      {rows.map((row,i)=>{if(i===0||compareRankingEfficiency(row,rows[i-1])!==0)rank=i+1;return <tr key={row.id} className={flashing?.key===boardKey&&flashing.id===row.id?"ps-submitted-row":undefined}><td>{rank}</td><td>{row.nickname}<small>{rankingAffiliation(row)}</small></td><td>{row.maxCombo??'—'}</td><td>{row.score.toLocaleString()}</td><td>{time(row.elapsedMs)}</td><td>{played(row.playedAt)}</td></tr>;})}
       {!rows.length&&<tr><td colSpan="6">{loading?'서버 기록을 불러오는 중…':error?'서버 기록 확인 불가':'첫 번째 지구 탐험 기록을 남겨 보세요.'}</td></tr>}
     </tbody></table></div>
     {error&&<p role="alert" className="gg-ranking-note">{error} <button type="button" onClick={()=>load(false)}>다시 시도</button></p>}
@@ -83,9 +88,14 @@ export default function GeoRanking({ initialMode, initialDifficulty='easy', onCl
       <div><span className="gg-eyebrow">NEW RECORD · 미제출</span><strong>{(merging?.key===boardKey?merging.record:record).score.toLocaleString()}점 <small>· {time((merging?.key===boardKey?merging.record:record).elapsedMs)}</small></strong><small>{selectedTitle} · {difficultyLabel(boardDifficulty)}</small></div>
       <button type="button" className="gg-ranking-submit" disabled={sending||!!merging||loading||!!award} onClick={submit}>{sending?'제출 중…':merging?'제출 완료':'기록 제출'}</button>
     </div>}
-    <section ref={minePanel} tabIndex={-1} className={`gg-ranking-mine ${merging?.key===boardKey?'gg-ranking-mine-merge':''}`} aria-label="내 최고 기록" role="status">
-      <div className="gg-ranking-mine-label"><span className="gg-eyebrow">MY BEST RECORD</span><h3>{selectedTitle}{boardDifficulty?` · ${difficultyLabel(boardDifficulty)}`:''}</h3><span ref={mineBadge} className={`gg-ranking-renewed ${renewed===boardKey?'is-renewed':''}`} aria-hidden={renewed!==boardKey}>경신!</span>{mine&&<p>{mine.nickname} · {rankingAffiliation(mine)} · {played(mine.playedAt)}</p>}</div>
-      {loading?<p>내 순위를 확인하고 있어요…</p>:error?<p>내 기록을 확인하지 못했어요. 다시 시도해 주세요.</p>:mine?<p className="gg-ranking-mine-score"><strong>{mine.rank}위</strong><span>최대 콤보 {mine.maxCombo==null?'—':`${mine.maxCombo}회`}</span><b>{mine.score.toLocaleString()}점</b><span>소요 {time(mine.elapsedMs)}</span></p>:<p>{signedIn?'이 게임·난이도에 제출한 기록이 없어요.':'프로필을 만들면 내 기록과 순위를 볼 수 있어요.'}</p>}
+    {!record&&!merging&&last&&!loading&&<section className="ps-last-ranking">
+      <small>LAST RECORD · 마지막 제출 기록</small>
+      <strong>{last.score.toLocaleString()}점 · {last.estimated?'환산 ':''}{last.rank}위</strong>
+      <span>소요 {time(last.elapsedMs)}</span>
+    </section>}
+    <section ref={minePanel} tabIndex={-1} className={`gg-ranking-mine ps-best-record ${merging?.key===boardKey?'gg-ranking-mine-merge':''}`} aria-label="내 최고 기록" role="status">
+      <div className="gg-ranking-mine-label ps-best-record-label"><span className="gg-eyebrow">MY BEST RECORD</span><h3>{selectedTitle}{boardDifficulty?` · ${difficultyLabel(boardDifficulty)}`:''}</h3><span ref={mineBadge} className={`gg-ranking-renewed ${renewed===boardKey?'is-renewed':''}`} aria-hidden={renewed!==boardKey}>경신!</span>{mine&&<p>{mine.nickname} · {rankingAffiliation(mine)} · {played(mine.playedAt)}</p>}</div>
+      {loading?<p>내 순위를 확인하고 있어요…</p>:error?<p>내 기록을 확인하지 못했어요. 다시 시도해 주세요.</p>:mine?<p className="gg-ranking-mine-score ps-best-record-score"><strong>{mine.rank}위</strong><span>최대 콤보 {mine.maxCombo==null?'—':`${mine.maxCombo}회`}</span><b>{mine.score.toLocaleString()}점</b><span>소요 {time(mine.elapsedMs)}</span></p>:<p>{signedIn?'이 게임·난이도에 제출한 기록이 없어요.':'프로필을 만들면 내 기록과 순위를 볼 수 있어요.'}</p>}
       {!loading&&!signedIn&&<button type="button" onClick={()=>{dismiss(()=>document.querySelector('.ps-account-trigger')?.click());}}>내 프로필 만들기</button>}
     </section></div>
     {award&&<div className={`gg-ranking-award ${award.flying?'is-flying':''}`} role="status"><div className="gg-ranking-award-flash"/><div className="gg-ranking-award-title"><small>NEW PERSONAL BEST</small><strong><span className="gg-ranking-award-prefix">기록 </span><span ref={awardWord} className="gg-ranking-award-word">경신!</span></strong></div></div>}

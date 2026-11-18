@@ -381,10 +381,25 @@
   .spell-onboarding[hidden]{display:none}.spell-onboarding-card{width:min(510px,100%);max-height:calc(100vh - 40px);overflow:auto;padding:30px;border:1px solid rgba(255,177,26,.34);border-radius:24px;background:rgba(12,12,12,.98);box-shadow:0 30px 100px rgba(0,0,0,.7),0 0 48px rgba(255,177,26,.08);animation:spellOnboardingIn .42s cubic-bezier(.16,1,.3,1)}
   @keyframes spellOnboardingIn{from{opacity:0;transform:translateY(15px) scale(.97)}to{opacity:1;transform:none}}.spell-onboarding-kicker{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.22em}.spell-onboarding h2{margin:8px 0 13px;font-size:23px;line-height:1.35}.spell-onboarding p,.spell-onboarding li{color:rgba(255,255,255,.68);font-size:13px;font-weight:300;line-height:1.7}.spell-onboarding ul{display:grid;gap:6px;margin:16px 0;padding:0;list-style:none}.spell-onboarding li{position:relative;padding-left:17px}.spell-onboarding li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;background:var(--amber)}.spell-onboarding li b{color:#fff;font-weight:600}.spell-onboarding-sign{color:rgba(255,255,255,.43)!important}.spell-onboarding-start{width:100%;margin-top:18px;padding:12px;border:0;border-radius:12px;background:var(--amber);color:#050505;font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;cursor:pointer}.spell-update-toggle{display:flex;width:100%;align-items:center;justify-content:center;gap:7px;margin-top:8px;padding:5px;border:0;background:transparent;color:rgba(255,255,255,.38);font-family:Pretendard,sans-serif;font-size:10.5px;cursor:pointer}.spell-update-history{max-height:0;overflow:hidden;opacity:0;transition:max-height .42s cubic-bezier(.16,1,.3,1),opacity .24s ease,margin .42s cubic-bezier(.16,1,.3,1)}.spell-update-history.open{max-height:250px;margin-top:8px;opacity:1}.spell-update-history>div{padding:9px 0;border-top:1px solid rgba(255,255,255,.08)}.spell-update-history b{color:rgba(255,255,255,.58);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em}.spell-update-history p{margin:3px 0 0;color:rgba(255,255,255,.4);font-size:10.5px;line-height:1.55}
 </style>
+<style>
+  .stage:has(#play.active){align-items:stretch;max-height:100dvh;box-sizing:border-box}
+  #play.active{height:100%;min-height:0;display:grid;align-content:safe center;scrollbar-width:none}
+  #play.active::-webkit-scrollbar{display:none}
+  #home.active #start{position:relative;overflow:hidden;isolation:isolate}
+  #home.active #start::after{content:"";position:absolute;inset:-65%;z-index:0;pointer-events:none;background:linear-gradient(112deg,transparent 43%,#fff7 49%,#fff9 50%,transparent 56%);animation:spell-idle-shine 4.8s ease-in-out infinite}
+  #home.active #start .start-label,#home.active #start .arrow{position:relative;z-index:1;display:inline-block}
+  #home.active #start .start-label{--spell-nudge:-7px;--spell-rebound:2px;animation:spell-idle-nudge 4.8s infinite}
+  #home.active #start .arrow{--spell-nudge:8px;--spell-rebound:-2px;animation:spell-idle-nudge 4.8s infinite}
+  #home.active .ranking-launch svg{transform-origin:center;animation:spell-idle-star 5.8s ease-in-out infinite}
+  @keyframes spell-idle-shine{0%,10%{transform:translateX(-75%)}32%,100%{transform:translateX(75%)}}
+  @keyframes spell-idle-nudge{0%,28%,70%,100%{transform:translateX(0)}45%{transform:translateX(var(--spell-nudge));animation-timing-function:cubic-bezier(.2,.65,.3,1)}55%{transform:translateX(var(--spell-rebound))}61%{transform:translateX(calc(var(--spell-nudge) * .15))}}
+  @keyframes spell-idle-star{0%,64%{transform:rotate(0)}88%,100%{transform:rotate(360deg)}}
+  @media(prefers-reduced-motion:reduce){#home.active #start::after{display:none}#home.active #start .start-label,#home.active #start .arrow,#home.active .ranking-launch svg{animation:none}}
+</style>
 <style>#spell-update-history.open{max-height:340px}</style>
 <link rel="stylesheet" href="/mobile-games.css?v=20261101-1" />
 <script src="/modal-motion.js?v=20261101-1"></script>
-<link rel="stylesheet" href="/record-feedback.css?v=20261113-1"><script src="/record-feedback.js?v=20261113-1"></script>
+<script src="/game-sfx.js?v=1"></script><link rel="stylesheet" href="/record-feedback.css?v=20261118-2"><script src="/record-feedback.js?v=20261118-2"></script>
 <script src="/content-guard.js" defer></script>
 </head>
 <body>
@@ -409,6 +424,7 @@
     <button data-ps-edit-id="ps-spell-079" data-ps-design-id="ps-spell-079" class="spell-onboarding-start" id="spell-onboarding-start">시작하기</button>
     <button data-ps-edit-id="ps-spell-080" data-ps-design-id="ps-spell-080" class="spell-update-toggle" id="spell-update-toggle" aria-expanded="false">업데이트 내역 보기 <span data-ps-edit-id="ps-spell-081" data-ps-design-id="ps-spell-081">+</span></button>
     <div class="spell-update-history" id="spell-update-history">
+      <div><b>2026.11 · v2.1.5</b><p>홈의 시작 버튼과 랭킹 별에 움직임을 더했어요. 경기 중 화면을 벗어나면 첫 번째는 3초 후 이어서 할 수 있고, 두 번째는 종료돼요. 배경음악 다섯 곡은 한 바퀴마다 순서를 섞어요.</p></div>
       <div><b>2026.10 · v2.1.4</b><p data-ps-edit-id="ps-spell-084" data-ps-design-id="ps-spell-084">헷갈리는 표현 92문항의 맥락은 문장이 뜻하는 상황만 먼저 보여 주고, 표현 차이는 힌트에서 확인하도록 분리했어요. 타이머 경고 초기화, 믹스 난이도별 기본점수, 점수 안내와 패스 처리도 개선했어요.</p></div>
       <div><b>2026.09</b><p data-ps-edit-id="ps-spell-085" data-ps-design-id="ps-spell-085">힌트 뒤 바로 입력할 수 있게 고치고, ‘먹든지/먹던지’와 ‘아프대/아프데’ 설명을 보강했어요. 헷갈리는 표현 문항도 19개 추가했어요.</p></div>
       <div><b>2026.07</b><p data-ps-edit-id="ps-spell-082" data-ps-design-id="ps-spell-082">새 콤보 배율과 누적 패스·오답 감점, 점수 크기에 따른 화면 효과를 추가했어요.</p></div>
@@ -417,7 +433,7 @@
   </div>
 </div>
 <div id="version-tip">
-  <b id="version-tip-title">v2.1.4 업데이트</b>
+  <b id="version-tip-title">v2.1.5 업데이트</b>
   <ul id="version-tip-list">
     <li data-ps-edit-id="ps-spell-001" data-ps-design-id="ps-spell-001">문항 대폭 확충 — 한국어·영어 각 1,000문항으로 확대</li>
     <li data-ps-edit-id="ps-spell-002" data-ps-design-id="ps-spell-002">초급 난이도 재배치 — 짧고 자주 쓰는 문장 위주로 개선</li>
@@ -438,7 +454,7 @@
       <h1 data-ps-edit-id="ps-spell-004" data-ps-design-id="ps-spell-004" class="hero-title"><span data-ps-edit-id="ps-spell-005" data-ps-design-id="ps-spell-005" class="y" id="hero-y">스펠</span> <span data-ps-edit-id="ps-spell-006" data-ps-design-id="ps-spell-006" class="stroke" id="hero-stroke">드릴</span></h1>
 
       <div class="hero-meta">
-        <div class="logo"><span data-ps-edit-id="ps-spell-008" data-ps-design-id="ps-spell-008" class="dot"></span> SPELL DRILL // v2.1.4
+        <div class="logo"><span data-ps-edit-id="ps-spell-008" data-ps-design-id="ps-spell-008" class="dot"></span> SPELL DRILL // v2.1.5
           <span data-ps-edit-id="ps-spell-009" data-ps-design-id="ps-spell-009" class="version-note" tabindex="0"><span data-ps-edit-id="ps-spell-010" data-ps-design-id="ps-spell-010" class="vq">i</span></span>
         </div>
         <div class="hero-meta-right">
@@ -487,7 +503,7 @@
         </div>
       </div>
 
-      <button data-ps-edit-id="ps-spell-032" data-ps-design-id="ps-spell-032" class="play-btn" id="start">▶ Start Drill <span data-ps-edit-id="ps-spell-033" data-ps-design-id="ps-spell-033" class="arrow">→</span></button>
+      <button data-ps-edit-id="ps-spell-032" data-ps-design-id="ps-spell-032" class="play-btn" id="start"><span class="start-label">▶ Start Drill</span> <span data-ps-edit-id="ps-spell-033" data-ps-design-id="ps-spell-033" class="arrow">→</span></button>
 
       <div class="stats-row" id="best-cards" style="grid-template-columns:repeat(2,1fr)"></div>
     </section>
@@ -10810,56 +10826,9 @@ function ensureAudio(){
   }
   if(audioCtx && audioCtx.state === 'suspended'){ audioCtx.resume(); }
 }
-function playCorrect(){
-  if(!soundOn || !audioCtx) return;
-  const now = audioCtx.currentTime;
-  // C5 → E5 → G5 → C6 ascending arpeggio (쾌감 chord)
-  const notes = [523.25, 659.25, 783.99, 1046.50];
-  notes.forEach((freq, i)=>{
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.value = freq;
-    osc.connect(gain).connect(audioCtx.destination);
-    const t = now + i * 0.05;
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(0.18, t + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
-    osc.start(t);
-    osc.stop(t + 0.45);
-  });
-  // sparkle high note
-  const sp = audioCtx.createOscillator();
-  const sg = audioCtx.createGain();
-  sp.type = 'sine';
-  sp.frequency.setValueAtTime(1568, now + 0.20); // G6
-  sp.frequency.exponentialRampToValueAtTime(2637, now + 0.45); // E7
-  sp.connect(sg).connect(audioCtx.destination);
-  sg.gain.setValueAtTime(0, now + 0.20);
-  sg.gain.linearRampToValueAtTime(0.10, now + 0.22);
-  sg.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-  sp.start(now + 0.20);
-  sp.stop(now + 0.55);
-}
-function playWrong(){
-  if(!soundOn || !audioCtx) return;
-  const now = audioCtx.currentTime;
-  // beep beep — two short low square pulses
-  [0, 0.14].forEach(off=>{
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'square';
-    osc.frequency.value = 196; // G3
-    osc.connect(gain).connect(audioCtx.destination);
-    const t = now + off;
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(0.12, t + 0.005);
-    gain.gain.setValueAtTime(0.12, t + 0.07);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.10);
-    osc.start(t);
-    osc.stop(t + 0.12);
-  });
-}
+function playCorrect(){ if(soundOn) window.psGameSfx?.answer(true,audioCtx); }
+function playWrong(){ if(soundOn) window.psGameSfx?.answer(false,audioCtx); }
+
 function makeNoise(dur){
   const n = Math.floor(audioCtx.sampleRate * dur);
   const buf = audioCtx.createBuffer(1, n, audioCtx.sampleRate);
@@ -11021,7 +10990,31 @@ function buildPool(diff){
   if(diff==='mix') return ['easy','med','hard'].flatMap(tier=>SpellQuestions.withDifficulty(pool[tier]||[],tier));
   return SpellQuestions.withDifficulty(pool[diff]||[],diff);
 }
+let stopFocusGuard, soloPauseAt = null, deferredNext = false;
+function clearSoloFocusGuard() {
+  stopFocusGuard?.();
+  stopFocusGuard = null;
+}
+function resumeSoloFocus() {
+  if (soloPauseAt === null) return;
+  const duration = performance.now() - soloPauseAt;
+  state.gameStartTs += duration;
+  state.qStartTs += duration;
+  soloPauseAt = null;
+  if (state.timerLimit > 0 && state.remaining > 0) startTimer();
+  if (deferredNext) { deferredNext = false; next(); }
+  $('#q-input').focus();
+}
 function startGame(){
+  clearSoloFocusGuard();
+  soloPauseAt = null;
+  deferredNext = false;
+  stopFocusGuard = window.psWatchGameFocus?.({
+    isActive: () => $('#play').classList.contains('active'),
+    pause: () => { soloPauseAt = performance.now(); stopTimer(); },
+    resume: resumeSoloFocus,
+    finish: () => { resumeSoloFocus(); if ($('#play').classList.contains('active')) endGame(); },
+  });
   // 모드별 limit + timer 결정
   let limit = null;       // null = 무제한
   let timerSec = 0;       // 0 = 타이머 없음
@@ -11040,7 +11033,7 @@ function startGame(){
   $('#q-total').textContent = limit ?? '∞';
   $('#bar').style.width='0%';
   if(timerSec > 0){ state.timerLimit = timerSec; state.remaining = timerSec; $('#timer-cell').style.display=''; }
-  else { $('#timer-cell').style.display='none'; stopTimer(); }
+  else { state.timerLimit = 0; $('#timer-cell').style.display='none'; stopTimer(); }
   SpellTimerUI.reset($('#timer'),state.remaining);
   if(timerSec > 0) startTimer();
   window.psSpellAudio?.setSoloPlaying(true);
@@ -11079,7 +11072,7 @@ function loadQuestion(){
 function submit(){
   if(!state.current) return;
   if(registerRapid()) return; // 연타 방지 — 과다 연타 시 경고/블랙아웃 후 이번 제출 무효
-  if(state.locked) return; // 정답 처리중 — 엔터 연타 가드
+  if(soloPauseAt !== null || state.locked) return; // 정답 처리중 — 엔터 연타 가드
   const user = normalize($('#q-input').value);
   if(!user){ // 빈 입력은 무효 — beep도 없음
     $('#q-input').focus();
@@ -11132,7 +11125,7 @@ function submit(){
     playWrong();
   }
 }
-function showHint(){ if(state.locked || state.hintUsed) return; state.hintUsed=true; $('#hint').textContent = SpellContextHints.hintFor(state.current); $('#hint').classList.add('show'); $('#q-input').focus(); }
+function showHint(){ if(soloPauseAt !== null || state.locked || state.hintUsed) return; state.hintUsed=true; $('#hint').textContent = SpellContextHints.hintFor(state.current); $('#hint').classList.add('show'); $('#q-input').focus(); }
 function updatePassesLeft(){
   const el=$('#passes-left');
   if(!el) return;
@@ -11141,13 +11134,15 @@ function updatePassesLeft(){
   $('#skip-btn').setAttribute('aria-label',`${I18N[state.lang].skipBtn} (${state.passesRemaining})`);
 }
 function skip(){
-  if(state.locked || spam.blocked) return;
+  if(soloPauseAt !== null || state.locked || spam.blocked) return;
   const penalty=SpellScoring.takePass(state);if(penalty===null) return;
   updatePassesLeft();state.combo=0;$('#combo-n').textContent=0;updateComboVisual();state.totalCount++;
   const sc=$('#score');sc.textContent=state.score;sc.classList.remove('bump');void sc.offsetWidth;sc.classList.add('bump');
   pointPop(penalty ? '-'+penalty : '0',true,penalty);if(penalty>0)scoreEffect(penalty, true);setTimeout(next,160);
 }
 function next(){
+  if (!$('#play').classList.contains('active')) return;
+  if (soloPauseAt !== null) { deferredNext = true; return; }
   state.qIdx++;
   state.seq++;   // 표시용 누적 문제 번호 — 무제한 모드 reshuffle로도 리셋되지 않음
   if(state.qIdx >= state.qList.length){
@@ -11267,6 +11262,7 @@ function fmtTime(ms){
   return m + ':' + String(s%60).padStart(2,'0');
 }
 function endGame(){
+  clearSoloFocusGuard();
   window.psSpellAudio?.setSoloPlaying(false);
   stopTimer();
   const elapsedMs = performance.now() - (state.gameStartTs || performance.now());
@@ -11313,8 +11309,8 @@ async function submitLatestRanking(button){
     if(!rankingDialog.open)return;
     rankingMotion=true;pendingBox.classList.add('is-merging');
     const focused=pendingBox.contains(document.activeElement);
-    rankingMergeTimer=setTimeout(()=>{pendingBox.hidden=true;pendingBox.classList.remove('is-merging');if(focused)mineBox.focus({preventScroll:true});if(!result?.improved){rankingMotion=false;setRankingControls(false);}},360);
-    await renderRankingSheet(false,true);
+    rankingMergeTimer=setTimeout(()=>{pendingBox.hidden=true;if(lastRankBox.childElementCount)lastRankBox.hidden=false;pendingBox.classList.remove('is-merging');if(focused)mineBox.focus({preventScroll:true});if(!result?.improved){rankingMotion=false;setRankingControls(false);}},360);
+    await renderRankingSheet(false,true,result?.improved);
     if(result?.improved&&rankingDialog.open)cancelRankingAward=window.psRecordFeedback.celebrate(rankingDialog,mineBadge,()=>{rankingMotion=false;setRankingControls(false);});
   }catch(error){button.disabled=false;pendingNotice.textContent=error.message||'제출 실패 · 다시 시도';}
   finally{rankingSending=false;if(!rankingMotion)setRankingControls(false);}
@@ -11334,11 +11330,13 @@ rankingDialog.innerHTML='<header><div class="ranking-heading"><h2>전체 플레�
 document.body.append(rankingDialog);
 window.psModalMotion.bindSheet(rankingDialog,()=>rankingDialog.close(),false);
 let rankingDiff='easy',rankingMode='timer';
-const mineBox=rankingDialog.querySelector('.ranking-mine');mineBox.tabIndex=-1;
-const personalBox=document.createElement('div');personalBox.className='ranking-personal';mineBox.before(personalBox);personalBox.append(mineBox);
-const mineLabel=document.createElement('div');mineLabel.innerHTML='<span class="ranking-mine-kicker">MY BEST RECORD</span><strong class="ranking-mine-title"></strong>';
-const mineBadge=document.createElement('span');mineBadge.className='gg-ranking-renewed';mineBadge.textContent='경신!';mineLabel.append(mineBadge);mineBox.append(mineLabel);
-const mineInfo=document.createElement('span');mineInfo.className='ranking-mine-info';mineBox.append(mineInfo);
+const mineBox=rankingDialog.querySelector('.ranking-mine');mineBox.classList.add('ps-best-record');
+const lastRankBox=document.createElement('section');lastRankBox.className='ps-last-ranking';lastRankBox.hidden=true;mineBox.before(lastRankBox);mineBox.tabIndex=-1;
+const personalBox=document.createElement('div');personalBox.className='ranking-personal';mineBox.before(personalBox);personalBox.append(lastRankBox,mineBox);
+const mineLabel=document.createElement('div');mineLabel.className='ps-best-record-label';mineLabel.innerHTML='<span class="ranking-mine-kicker">MY BEST RECORD</span><h3 class="ranking-mine-title"></h3>';
+const minePlayer=document.createElement('p');
+const mineBadge=document.createElement('span');mineBadge.className='gg-ranking-renewed';mineBadge.textContent='경신!';mineLabel.append(mineBadge,minePlayer);mineBox.append(mineLabel);
+const mineInfo=document.createElement('p');mineInfo.className='ranking-mine-info ps-best-record-score';mineBox.append(mineInfo);
 const pendingBox=document.createElement('div');pendingBox.className='ranking-pending';pendingBox.setAttribute('aria-label','미제출 기록');pendingBox.hidden=true;
 const pendingInfo=document.createElement('div');pendingInfo.innerHTML='<small>NEW RECORD · 미제출</small><strong></strong><span></span>';pendingBox.append(pendingInfo);
 const mineSubmit=document.createElement('button');mineSubmit.type='button';mineSubmit.className='act primary';mineSubmit.textContent='기록 제출';pendingBox.append(mineSubmit);mineSubmit.onclick=()=>submitLatestRanking(mineSubmit);
@@ -11353,7 +11351,7 @@ for(const [source,key] of [['#diff-row','diff'],['#mode-row','mode']]){
   rankingDialog.querySelector('.ranking-filters').append(group);
 }
 let rankingRequest=0,rankingCursor=null,rankingRows=[];
-async function renderRankingSheet(append=false,retain=false){
+async function renderRankingSheet(append=false,retain=false,highlight=false){
   const request=++rankingRequest;
   rankingDialog.querySelector('.ranking-refresh').disabled=true;
   rankingDialog.querySelectorAll('[data-diff]').forEach(b=>b.classList.toggle('on',b.dataset.diff===rankingDiff));
@@ -11361,7 +11359,7 @@ async function renderRankingSheet(append=false,retain=false){
   const tbody=rankingDialog.querySelector('tbody'),mine=mineInfo,more=rankingDialog.querySelector('#ranking-more');
   if(!rankingMotion)renderPendingRecord();
   mineLabel.querySelector('.ranking-mine-title').textContent=rankingBoardLabel();
-  if(!append){rankingRows=[];rankingCursor=null;tbody.innerHTML='<tr><td colspan="6">서버 기록을 불러오는 중…</td></tr>';if(!retain)mine.textContent='내 순위 확인 중…';more.hidden=true}
+  if(!append){lastRankBox.hidden=true;rankingRows=[];rankingCursor=null;tbody.innerHTML='<tr><td colspan="6">서버 기록을 불러오는 중…</td></tr>';if(!retain)mine.textContent='내 순위 확인 중…';more.hidden=true}
   more.disabled=true;
   try{
     if(!window.psGameRanking)throw new Error('서버 연결을 준비 중입니다. 잠시 후 다시 열어 주세요.');
@@ -11369,9 +11367,28 @@ async function renderRankingSheet(append=false,retain=false){
     if(request!==rankingRequest)return;
     rankingRows=rankingRows.concat(data.rows);rankingCursor=data.cursor;tbody.replaceChildren();
     const playedAt=r=>r.playedAt?.toDate?new Intl.DateTimeFormat('ko-KR',{dateStyle:'short',timeStyle:'short'}).format(r.playedAt.toDate()):'—';
-    let rank=1;rankingRows.forEach((r,i)=>{if(i===0||window.psCompareRanking(r,rankingRows[i-1])!==0)rank=i+1;const row=tbody.insertRow();[rank,r.nickname,r.maxCombo??'—',r.score,fmtTime(r.elapsedMs),playedAt(r)].forEach((value,column)=>{const cell=row.insertCell();cell.textContent=String(value);if(column===1){const affiliation=document.createElement('small');affiliation.style.cssText='display:block;font-size:12px;color:var(--muted,#9ca4b0);white-space:normal;overflow-wrap:anywhere';affiliation.textContent=window.psRankingAffiliation(r);cell.append(affiliation)}})});
+    let rank=1;rankingRows.forEach((r,i)=>{if(i===0||window.psCompareRanking(r,rankingRows[i-1])!==0)rank=i+1;const row=tbody.insertRow();if(highlight&&r.id===data.mine?.id){row.classList.add('ps-submitted-row');setTimeout(()=>row.classList.remove('ps-submitted-row'),6500);}[rank,r.nickname,r.maxCombo??'—',r.score,fmtTime(r.elapsedMs),playedAt(r)].forEach((value,column)=>{const cell=row.insertCell();cell.textContent=String(value);if(column===1){const affiliation=document.createElement('small');affiliation.style.cssText='display:block;font-size:12px;color:var(--muted,#9ca4b0);white-space:normal;overflow-wrap:anywhere';affiliation.textContent=window.psRankingAffiliation(r);cell.append(affiliation)}})});
     if(!rankingRows.length){const cell=tbody.insertRow().insertCell();cell.colSpan=6;cell.textContent='등록된 기록이 없습니다. 첫 번째 기록을 남겨 보세요.'}
-    mine.textContent=data.mine?`내 순위 ${data.mine.rank}위 · ${data.mine.nickname} · ${window.psRankingAffiliation(data.mine)} · 최대 콤보 ${data.mine.maxCombo==null?'—':`${data.mine.maxCombo}회`} · ${data.mine.score.toLocaleString()}점 · 소요 ${fmtTime(data.mine.elapsedMs)} · 플레이 ${playedAt(data.mine)}`:data.signedIn?'내 기록 없음 · 게임을 마치고 전체 랭킹에 등록해 주세요.':'프로필을 만들면 내 기록과 순위를 볼 수 있어요.';
+    mine.replaceChildren();
+    minePlayer.textContent=data.mine?`${data.mine.nickname} · ${window.psRankingAffiliation(data.mine)} · ${playedAt(data.mine)}`:'';
+    if(data.mine){
+      for(const [tag,text] of [
+        ['strong',`${data.mine.rank}위`],
+        ['span',`최대 콤보 ${data.mine.maxCombo==null?'—':data.mine.maxCombo+'회'}`],
+        ['b',`${data.mine.score.toLocaleString()}점`],
+        ['span',`소요 ${fmtTime(data.mine.elapsedMs)}`]
+      ]){const field=document.createElement(tag);field.textContent=text;mine.append(field);}
+    }else mine.textContent=data.signedIn?'이 게임·난이도에 제출한 기록이 없어요.':'프로필을 만들면 내 기록과 순위를 볼 수 있어요.';
+
+    const recent=data.last;
+    lastRankBox.hidden=!recent||!pendingBox.hidden;
+    if(recent){
+      lastRankBox.replaceChildren();
+      const label=document.createElement('small');label.textContent='LAST RECORD · 마지막 제출 기록';
+      const value=document.createElement('strong');value.textContent=`${recent.score.toLocaleString()}점 · ${recent.estimated?'환산 ':''}${recent.rank}위`;
+      const duration=document.createElement('span');duration.textContent='소요 '+fmtTime(recent.elapsedMs);
+      lastRankBox.append(label,value,duration);
+    }
     more.hidden=!data.more;if(!append)rankingDialog.querySelector('.ranking-scroll').scrollTop=0;
   }catch(error){if(request!==rankingRequest)return;if(!append)tbody.replaceChildren();const cell=tbody.insertRow().insertCell();cell.colSpan=6;cell.textContent='기록을 불러오지 못했습니다. 잠시 후 다시 열어 주세요.';mine.textContent='서버 기록 확인 불가';console.warn('Ranking load:',error.code||error.message)}finally{if(request===rankingRequest&&!rankingSending&&!rankingMotion){rankingDialog.querySelector('.ranking-refresh').disabled=false;more.disabled=false;}}
 }
@@ -11525,21 +11542,15 @@ const I18N = {
     resultLabels: { correct:'맞힌 개수', attempts:'시도', combo:'최고 콤보', time:'클리어 시간' },
     bestLabels: { easy:'초급 best', med:'중급 best', hard:'고급 best', solved:'누적 정답' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
-    versionTitle: 'v2.1.4 업데이트',
+    versionTitle: 'v2.1.5 업데이트',
     scoreLabel: 'Score', scoreDifficulty: '{difficulty} · 기본 {score}점', scoreMixDifficulty: '믹스 · 문항별 기본점수', scoreInfoLabel: '점수 계산 보기',
     scoreFormulaTitle: '점수 계산 방식', scoreFormula: '(기본점수 + 속도점수 + 콤보 횟수 × 10점) × 콤보 배율',
     scoreHintRule: '힌트를 사용하면 기본점수만 절반으로 줄어요.',
     scoreSpeedRule: '속도점수는 LIGHTNING +100, FAST +50, QUICK +20점이며, 콤보 배율 적용 전 점수예요.',
     versionItems: [
-      '문항 대폭 확충 — 한국어·영어 각 1,000문항으로 확대',
-      '초급 난이도 재배치 — 짧고 자주 쓰는 문장 위주로 개선',
-      '전 문항 맞춤법·문법 교차 검증',
-      '패스 3개로 시작, 정답 획득 점수 1,000점마다 1개 충전',
-      '패스가 다음 문제로 넘어가지 않던 오류 수정',
-      '믹스는 문항 난이도에 따라 초급 100점·중급 200점·고급 300점 적용',
-      '타이머 재시작 때 경고 색상 초기화',
-      '점수 옆에서 현재 문항 난이도와 기본점수 확인',
-      '맥락은 문장 의도만 표시하고 표현 구별법은 힌트로 분리'
+      '시작 버튼 빛 효과와 랭킹 별 회전',
+      '화면 이탈 시 1회 경고와 3초 후 재개',
+      '배경음악 5곡을 매번 새 순서로 재생'
     ]
   },
   en: {
@@ -11562,21 +11573,15 @@ const I18N = {
     resultLabels: { correct:'Correct', attempts:'Attempts', combo:'Max Combo', time:'Clear Time' },
     bestLabels: { easy:'Beginner Best', med:'Intermediate Best', hard:'Advanced Best', solved:'Total Solved' },
     playsLabel: 'PLAYS', solvedLabel: 'SOLVED',
-    versionTitle: 'v2.1.4 Update',
+    versionTitle: 'v2.1.5 Update',
     scoreLabel: 'Score', scoreDifficulty: '{difficulty} · Base {score} pts', scoreMixDifficulty: 'Mix · question-specific base score', scoreInfoLabel: 'View score calculation',
     scoreFormulaTitle: 'How scoring works', scoreFormula: '(Base points + Speed bonus + Combo count × 10) × Combo multiplier',
     scoreHintRule: 'Using a hint halves only the base points.',
     scoreSpeedRule: 'Speed bonus: LIGHTNING +100, FAST +50, QUICK +20; these are added before the combo multiplier.',
     versionItems: [
-      'Major expansion — 1,000 items each for Korean & English',
-      'Beginner level rebalanced — shorter, everyday sentences',
-      'All items cross-checked for correctness',
-      'Start with 3 passes; earn 1 more per 1,000 points gained from correct answers',
-      'Fixed an issue that could prevent Pass from advancing to the next question',
-      'Mix uses each question tier: 100 Beginner, 200 Intermediate, 300 Advanced points',
-      'Cleared stale warning color when restarting a timer game',
-      'Separated sentence intent from expression guidance across 92 Korean items',
-      'Shows the current question difficulty and base score beside Score'
+      'Start-button shine and a rotating ranking star',
+      'One focus-loss warning, with a three-second restart',
+      'Five background tracks reshuffled each cycle'
     ]
   }
 };
@@ -11639,7 +11644,7 @@ function setLanguage(lang){
 </script>
 <script src="../share-widget.js?v=20261103-qr-clean" defer></script>
 <script src="/service-guide.js?v=20261101-1" defer></script>
-<script type="module" src="/game-account.js?v=20261117-logout-1"></script>
+<script type="module" src="/game-account.js?v=20261118-last-record"></script>
 <script src="../visitor-counter.js?v=20261116-hierarchy-1" defer></script>
 <a data-ps-edit-id="ps-spell-072" data-ps-design-id="ps-spell-072" id="ps-back-btn" href="/atlas-gears/" aria-label="아틀라스 기어즈로 이동" title="아틀라스 기어즈로 이동" style="position:fixed;top:14px;left:14px;z-index:99999;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#8C8C8C;cursor:pointer;padding:0" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.28)'" onmouseout="this.style.color='#8C8C8C';this.style.borderColor='rgba(255,255,255,.12)'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
 <style>
@@ -11658,7 +11663,8 @@ function setLanguage(lang){
 </style>
 <style>.ranking-sheet{height:90dvh;max-height:90dvh;width:min(900px,calc(100vw - 24px))}.ranking-scroll{flex:1;max-height:none;min-height:0}.ranking-scroll table{min-width:600px}.ranking-mine{flex:none;margin-top:16px;padding:18px;border:1px solid var(--amber);border-radius:12px;background:#ffb11a18;color:var(--amber);font-weight:700;line-height:1.7}.ranking-sheet h2{font-size:clamp(18px,3vw,24px)}@media(max-width:600px){.hero-meta>.sound-stack,.hero-meta .ranking-launch{width:132px}.ranking-sheet{padding:20px 16px}.ranking-mine{font-size:12px;padding:12px}}</style>
 <style>.ranking-result-submit{display:block;margin:24px auto 0;min-width:180px}.ranking-mine{display:flex;align-items:center;justify-content:space-between;gap:16px}.ranking-mine-info{min-width:0;flex:1}.ranking-mine button{flex:none;max-width:45%;padding:12px 16px;font-size:12px}.ranking-mine button:disabled{opacity:.5;cursor:not-allowed}</style>
-<script type="module" src="/spell-drill/battle/client.js?v=20261118-daily-close"></script>
+<script type="module">import {watchGameFocus} from "/game-focus-guard.js?v=1";window.psWatchGameFocus=watchGameFocus;</script>
+<script type="module" src="/spell-drill/battle/client.js?v=20261118-focus-rotation"></script>
 <style>.spell-play-top{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:10px}.spell-play-top .sound-toggle{height:32px}.spell-music-credit{font-size:10px;color:var(--muted);text-decoration:none}@media(max-height:650px){.spell-play-top{margin-bottom:5px}.spell-play-top .sound-toggle{height:28px;font-size:10px}}</style>
 </body>
 </html>

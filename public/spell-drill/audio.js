@@ -1,9 +1,11 @@
+import { createMusicRotation } from "../music-rotation.js";
 const preferenceKey='parcyunSpellGame_sound_v2';
 let enabled=true;try{enabled=JSON.parse(localStorage.getItem(preferenceKey)??'true')!==false;}catch{}
-const music=new Audio('/spell-drill/audio/exit-the-premises.mp3');
+const nextTrack=createMusicRotation(['exit-the-premises','edm-detection-mode','raving-energy','raving-energy-faster','cipher']);
+const music=new Audio('/spell-drill/audio/'+nextTrack()+'.mp3');
 music.id='spell-background-music';music.loop=false;music.preload='none';music.volume=.24;music.setAttribute('aria-hidden','true');document.body.append(music);
 let soloPlaying=document.querySelector('#play')?.classList.contains('active')||false,battlePlaying=false,primed=false,priming=null;
-const playlist=['exit-the-premises','edm-detection-mode','raving-energy','raving-energy-faster','cipher'];let track=0;music.addEventListener('ended',()=>{track=(track+1)%playlist.length;music.src='/spell-drill/audio/'+playlist[track]+'.mp3';primed=true;sync();});
+music.addEventListener('ended',()=>{music.src='/spell-drill/audio/'+nextTrack()+'.mp3';primed=true;sync();});
 const toggles=new Set();
 function paint(){for(const button of toggles){button.classList.toggle('on',enabled);button.setAttribute('aria-pressed',String(enabled));button.setAttribute('aria-label',enabled?'소리 끄기':'소리 켜기');const label=button.querySelector('[data-spell-sound-label],#sound-label');if(label)label.textContent=enabled?'SOUND ON':'SOUND OFF';}}
 function active(){return enabled&&!document.hidden;}

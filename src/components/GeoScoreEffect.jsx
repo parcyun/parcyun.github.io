@@ -23,7 +23,7 @@ export default function GeoScoreEffect({ gain, combo }) {
     const particles=[...root.querySelectorAll('.gg-score-particle')];
     particles.forEach((el,i)=>{
       const angle=Math.PI*2*i/particles.length+(Math.random()-.5)*.28;
-      const distance=90+power*220+Math.random()*70;
+      const distance=108+power*252+Math.random()*70;
       animations.push(el.animate([
         {transform:`rotate(${angle}rad) translateY(0) scale(1)`,opacity:.9},
         {transform:`rotate(${angle}rad) translateY(-${distance}px) scale(.15)`,opacity:0}
@@ -36,7 +36,7 @@ export default function GeoScoreEffect({ gain, combo }) {
     <i className="gg-score-ring" aria-hidden="true"/>
     {Array.from({length:Math.round(8+power*28)},(_,i)=><i key={i} className="gg-score-particle" aria-hidden="true"/>)}
     <div className={`gg-speed-tag ${(gain.speedTag||'').toLowerCase()}`}>{gain.speedTag}</div>
-    <div className="gg-point-pop" style={{fontSize:`clamp(48px,12vw,${52+power*62}px)`}}>+{gain.total}</div>
+    <div className="gg-point-pop" style={{fontSize:`clamp(55px,14vw,${60+power*72}px)`}}>+{gain.total}</div>
     <div className="gg-combo-fx">{praise&&<strong>{praise} </strong>}{combo} COMBO <small>×{gain.multiplier}</small></div>
   </div>;
 }

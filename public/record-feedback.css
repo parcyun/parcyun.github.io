@@ -1,1 +1,36 @@
 .gg-ranking-renewed{display:inline-block;min-width:0;margin-left:8px;color:#8be7af;font:800 12px/1.4 Pretendard,sans-serif;visibility:hidden;white-space:nowrap}.gg-ranking-renewed.is-renewed{visibility:visible;animation:gg-record-blink 1.4s ease-in-out infinite}.gg-ranking-award{position:fixed;inset:0;z-index:10;pointer-events:none;color:#8be7af}.gg-ranking-award-flash{position:fixed;inset:0;background:#83ffc0;opacity:0;animation:gg-record-screen .3s ease-out both}.gg-ranking-award-title{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max-content;max-width:90vw;text-align:center;font-family:Pretendard,sans-serif;text-shadow:0 3px 20px #081b13}.gg-ranking-award-title small{display:block;font:600 12px Montserrat,Pretendard,sans-serif;letter-spacing:.16em}.gg-ranking-award-title strong{display:block;font-size:clamp(42px,8vw,82px);font-weight:800;line-height:1.4;white-space:nowrap}.gg-ranking-award-word{display:inline-block;transform-origin:center;white-space:nowrap;letter-spacing:normal;animation:gg-record-blink 1.4s ease-in-out infinite}.gg-ranking-award.is-flying .gg-ranking-award-prefix,.gg-ranking-award.is-flying .gg-ranking-award-title small{opacity:0;transition:opacity .1s ease}.gg-ranking-award.is-flying .gg-ranking-award-word{animation:none}@keyframes gg-record-screen{0%{opacity:0}18%{opacity:.19}100%{opacity:0}}@keyframes gg-record-blink{0%,100%{opacity:1}50%{opacity:.45}}@media(prefers-reduced-motion:reduce){.gg-ranking-award-word,.gg-ranking-renewed.is-renewed{animation:none}.gg-ranking-award-flash{display:none}}
+.ps-last-ranking { margin-inline: auto; display: grid; align-content: center; gap: 3px; padding: 6px 12px; min-width: 0; text-align: center; color: #e5ebf3; }
+.ps-last-ranking[hidden] { display: none; }
+.ps-last-ranking small,.ps-last-ranking span { font-size: 10px; color: #a7b1c3; }
+.ps-last-ranking strong { color: #ffce7a; font-size: 13px; }
+.ranking-mine,.gg-ranking-mine { margin-inline-start: auto; }
+.ps-submitted-row > td { animation: ps-submitted-flash 2.1s ease-in-out 3; }
+@keyframes ps-submitted-flash { 0%,100% { background-color: transparent; } 50% { background-color: #ffb11a32; } }
+@media(prefers-reduced-motion:reduce){ .ps-submitted-row > td { animation: none; background-color: #ffb11a20; } }
+:is(.ranking-personal,.gg-ranking-personal):has(.ps-last-ranking:not([hidden])) {
+  display: grid; grid-template-columns: 1fr minmax(100px, 1fr) minmax(180px, 1.35fr); align-items: stretch; gap: 8px;
+}
+:is(.ranking-personal,.gg-ranking-personal):has(.ps-last-ranking:not([hidden])) .ps-last-ranking { grid-column: 2; }
+:is(.ranking-personal,.gg-ranking-personal):has(.ps-last-ranking:not([hidden])) :is(.ranking-mine,.gg-ranking-mine) { grid-column: 3; min-width: 0; width: auto; margin: 0; }
+@media(max-width:600px) {
+  :is(.ranking-personal,.gg-ranking-personal):has(.ps-last-ranking:not([hidden])) { grid-template-columns: minmax(0,1fr) minmax(0,1.25fr); gap: 4px; }
+  :is(.ranking-personal,.gg-ranking-personal):has(.ps-last-ranking:not([hidden])) .ps-last-ranking { grid-column: 1; padding-inline: 4px; }
+  :is(.ranking-personal,.gg-ranking-personal):has(.ps-last-ranking:not([hidden])) :is(.ranking-mine,.gg-ranking-mine) { grid-column: 2; }
+}
+:is(.ranking-sheet,.gg-ranking-dialog) .ps-best-record {
+  box-sizing: border-box; display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 8px 14px; border: 1px solid #ffb11a66; border-radius: 12px;
+  background: #ffb11a14; color: #ffcf78; text-align: left;
+}
+.ps-best-record-label { flex: 1; min-width: 0; }
+.ps-best-record-label > h3 { display: inline; margin: 0 0 0 8px; font-size: 13px; color: #ffb11a; }
+.ps-best-record-label > p { margin: 2px 0; font-size: 11px; overflow-wrap: anywhere; }
+:is(.ranking-sheet,.gg-ranking-dialog) .ps-best-record-score {
+  display: flex; align-items: baseline; flex-wrap: wrap; justify-content: flex-end; gap: 5px 10px; margin: 0; font-size: 11px;
+}
+:is(.ranking-sheet,.gg-ranking-dialog) .ps-best-record-score > strong { color: #ffb11a; font: 700 18px Montserrat,Pretendard,sans-serif; }
+:is(.ranking-sheet,.gg-ranking-dialog) .ps-best-record-score > b { font-size: 16px; }
+@media(max-width:600px) {
+  :is(.ranking-sheet,.gg-ranking-dialog) .ps-best-record { flex-wrap: wrap; gap: 5px; padding: 6px 8px; }
+  :is(.ranking-sheet,.gg-ranking-dialog) .ps-best-record-score { justify-content: flex-start; }
+}

@@ -1,6 +1,9 @@
 import { createPortal } from "react-dom";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import "./geoBattle.css";
+import GeoScoreEffect from "./GeoScoreEffect.jsx";
+import { watchGameFocus } from "../../public/game-focus-guard.js";
+import { createMusicRotation } from "../../public/music-rotation.js";
 import { difficultyOptions, EXPERT_ANSWER_MS } from "./geoGameDifficulty.js";
 
 const base = import.meta.env.DEV
@@ -157,7 +160,9 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     [teamCount, setTeamCount] = useState(2),
     [busy, setBusy] = useState(false),
     [answer, setAnswer] = useState(""),
+    [focusPaused, setFocusPaused] = useState(false),
     [feedback, setFeedback] = useState(""),
+    [scoreEffect, setScoreEffect] = useState(null),
     [clock, setClock] = useState(Date.now()),
     [confirmExit, setConfirmExit] = useState(false),
     [managed, setManaged] = useState(null),
@@ -177,18 +182,18 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     roster = useRef(null),
     teamPositions = useRef(new Map());
   const music = useRef(null);
-  const musicTrack = useRef(0);
+  const nextTrack = useRef(null);
   useEffect(() => {
     try { setMusicEnabled(localStorage.getItem(musicKey) !== "off"); } catch {}
     return () => { music.current?.pause(); };
   }, []);
   function playMusic() {
     if (!music.current) {
-      const audio = new Audio(`/geoweb-battle/audio/${battleTracks[musicTrack.current]}.mp3`);
+      nextTrack.current = createMusicRotation(battleTracks);
+      const audio = new Audio(`/geoweb-battle/audio/${nextTrack.current()}.mp3`);
       audio.volume = 0.24;
       audio.addEventListener("ended", () => {
-        musicTrack.current = (musicTrack.current + 1) % battleTracks.length;
-        audio.src = `/geoweb-battle/audio/${battleTracks[musicTrack.current]}.mp3`;
+        audio.src = `/geoweb-battle/audio/${nextTrack.current()}.mp3`;
         audio.play().catch(() => {});
       });
       music.current = audio;
@@ -419,7 +424,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     ? room.question.startedAt + EXPERT_ANSWER_MS
     : null;
   const expertSeconds = expertDeadline == null ? null : Math.ceil((expertDeadline - clock - serverOffset.current) / 1000);
-  const expertExpired = expertSeconds != null && expertSeconds <= 0;
+  const expertExpired = !focusPaused && expertSeconds != null && expertSeconds <= 0;
   const shownQuestion = expertExpired ? room.nextQuestion : room?.question;
   const shownSeconds = expertExpired && shownQuestion
     ? Math.ceil((shownQuestion.startedAt + EXPERT_ANSWER_MS - clock - serverOffset.current) / 1000)
@@ -432,12 +437,14 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
   }, [room?.nextQuestion?.image]);
   async function submit(e) {
     e.preventDefault();
-    if (!answer.trim() || !shownQuestion || (shownSeconds != null && shownSeconds <= 0)) return;
+    if (focusPaused || !answer.trim() || !shownQuestion || (shownSeconds != null && shownSeconds <= 0)) return;
     try {
       const result = await act(`rooms/${room.code}/answer`, {
         answer,
         index: shownQuestion.index,
       });
+      window.psGameSfx?.answer(result.correct);
+      if (result.correct && result.details) setScoreEffect({ ...result.details, id: performance.now() });
       setFeedback(
         result.correct ? `정답! +${result.points}점` : "다시 생각해 보세요.",
       );
@@ -482,7 +489,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
       shownQuestion.mode, room.settings.level ?? "easy");
   }, [shownQuestion?.id, shownQuestion?.index, room?.round]);
   useEffect(() => {
-    if (!open || expertDeadline == null) return;
+    if (!open || focusPaused || expertDeadline == null) return;
     let timeout;
     let cancelled = false;
     let expired = false;
@@ -506,7 +513,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     }
     timeout = setTimeout(advance, Math.max(0, expertDeadline - Date.now() - serverOffset.current));
     return () => { cancelled = true; clearTimeout(timeout); };
-  }, [open, expertDeadline]);
+  }, [open, focusPaused, expertDeadline]);
   const deadline =
     room?.phase === "starting"
       ? room.startsAt
@@ -536,6 +543,37 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
   function movePlayer(playerId, team) {
     act(`rooms/${room.code}/move`, { playerId, team }).catch(() => {});
   }
+  const focusGuardActive = open && !host && ["starting", "playing", "between"].includes(room?.phase);
+  useEffect(() => {
+    if (!focusGuardActive) { setFocusPaused(false); return; }
+    const code = room.code;
+    let pauseRequest = Promise.resolve();
+    return watchGameFocus({
+      initialPaused: me?.focusPausedAt != null,
+      warned: me?.focusWarned,
+      pause: () => {
+        setFocusPaused(true);
+        pauseRequest = api(`rooms/${code}/focus`, { paused: true }).catch(failure);
+      },
+      resume: async () => {
+        await pauseRequest;
+        try {
+          const next = await api(`rooms/${code}/focus`, { paused: false });
+          if (roomRef.current?.code === code) { roomRef.current = next; setRoom(next); }
+          setFocusPaused(false);
+        } catch (error) { failure(error); }
+      },
+      finish: () => {
+        roomRef.current = null;
+        setRoom(null);
+        setEntry(null);
+        sessionStorage.removeItem(roomKey);
+        clearInviteCode();
+        close();
+        pauseRequest.then(() => api(`rooms/${code}/leave`, {})).catch(() => {});
+      },
+    });
+  }, [focusGuardActive, room?.code]);
   const game = room?.settings.difficulty ?? "country";
   const levels = difficultyOptions(game);
   const levelIndex = Math.max(0, levels.findIndex(item => item.id === (room?.settings.level ?? "easy")));
@@ -600,6 +638,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                 <button onClick={close} aria-label="대항전 닫기">×</button>
               </div>
             </header>
+            {room?.phase === "playing" && scoreEffect && !host && <GeoScoreEffect key={scoreEffect.id} gain={scoreEffect} combo={scoreEffect.combo} />}
             <main ref={screen} className="gb-screen">
             {gate === "checking" ? (
               <div className="gb-center" role="status">

@@ -11,5 +11,6 @@ export default defineConfig({
   base: '/',
   integrations: [react(),staticDelivery()],
   build: { format: 'directory' },
+  devToolbar: { enabled: process.env.GEOWEB_LOCAL_BATTLE !== '1' },
   vite: process.env.GEOWEB_LOCAL_BATTLE==='1'?{server:{strictPort:true,proxy:{'/api/conquest':{target:process.env.CONQUEST_LOCAL_API||'http://127.0.0.1:47585',changeOrigin:false},'/api/geoweb-battle':{target:process.env.GEOWEB_BATTLE_LOCAL_API||'http://127.0.0.1:47820',changeOrigin:false}}}}:undefined,
 });

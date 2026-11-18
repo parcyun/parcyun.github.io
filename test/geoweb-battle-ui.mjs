@@ -27,15 +27,18 @@ try{
  await host.locator('.gb-launch').waitFor({timeout:30000}).catch(async error=>{await mkdir(resolve(root,'test-artifacts'),{recursive:true});await host.screenshot({path:resolve(root,'test-artifacts/geoweb-desktop-failure.png')});console.error('GeoGame count',await host.locator('.geo-game').count(),'body',String(await host.locator('body').innerText()).slice(-1500));throw error;});await host.locator('.gb-launch').click();
  assert.ok(await host.getByRole('button',{name:'로그인 또는 브라우저 계정 만들기',exact:true}).isDisabled());
  await host.getByText('계정 정보 확인 중',{exact:true}).waitFor();
- assert.equal(await host.locator('.gb-backdrop').evaluate(el=>getComputedStyle(el).animationName),'gb-fade-in');await host.getByRole('button',{name:'게임 참여하기',exact:true}).click();await host.getByRole('textbox',{name:'참가 코드'}).waitFor();await host.getByRole('button',{name:'돌아가기',exact:true}).click();await host.getByRole('button',{name:'게임 만들기',exact:true}).click();await host.getByRole('button',{name:'방 만들기'}).waitFor({timeout:15000});const increase=host.getByRole('button',{name:'팀 개수 늘리기'});
+ assert.equal(await host.locator('.gb-backdrop').evaluate(el=>getComputedStyle(el).animationName),'gb-fade-in');await host.getByRole('button',{name:'게임 참여하기',exact:true}).click();await host.getByRole('textbox',{name:'참가 코드'}).waitFor();await host.getByRole('button',{name:'돌아가기',exact:true}).click();await host.getByRole('button',{name:'게임 만들기',exact:true}).click();await host.getByRole('button',{name:'게임 만들기',exact:true}).waitFor({timeout:15000});const increase=host.getByRole('button',{name:'팀 개수 늘리기'});
  const decrease=host.getByRole('button',{name:'팀 개수 줄이기'});
  if(!await decrease.isDisabled())throw Error('Minimum team count was not enforced');
  for(let i=2;i<10;i++)await increase.click();
  if(!await increase.isDisabled())throw Error('Maximum team count was not enforced');
- await host.getByRole('button',{name:'개인 대항전',exact:true}).click();
+ await host.getByRole('button',{name:/^개인전/}).click();
  if(await increase.isVisible())throw Error('Individual mode showed team controls');
- await host.getByRole('button',{name:'팀 대항전',exact:true}).click();
- await host.getByRole('button',{name:'방 만들기'}).click();
+ await host.getByRole('button',{name:/^팀전/}).click();
+ await host.getByRole('button',{name:'게임 만들기',exact:true}).click();
+ // The account module is mocked for this local test, but the shared QR widget still runs.
+ await host.locator('#ps-qr-popover:not([hidden])').waitFor();
+ await host.locator('.ps-qr-close').click();
  const heading=host.locator('.gb-toolbar-code strong');await heading.waitFor();const code=(await heading.innerText()).match(/\d{6}/)?.[0];if(!code)throw Error('Room code missing');
  const cards=host.locator('.gb-roster .gb-players');
  await cards.last().waitFor();
@@ -102,7 +105,7 @@ try{
   assert.ok(await page.locator('.gb-modal').evaluate(el=>{const bounds=el.getBoundingClientRect();return innerWidth-bounds.width<=26&&innerHeight-bounds.height<=26;}));
   await page.screenshot({path:resolve(process.env.GEOWEB_QA_OUTPUT||root,'test-artifacts',`geoweb-${label}.png`)});
  }
- await host.getByRole('button',{name:'경기 종료 / 방 취소'}).click();
+ await host.getByRole('button',{name:'경기 종료'}).click();
  await host.getByRole('button',{name:'종료 확인'}).click();
  for(const page of [host,player]){
   await page.getByRole('heading',{name:'최종 순위'}).waitFor();

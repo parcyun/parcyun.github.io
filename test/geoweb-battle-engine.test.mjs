@@ -77,9 +77,14 @@ test('expert expires a question after five seconds without granting points', ()=
  battle.configure(room.code,'host',{difficulty:'country',level:'expert',seconds:60,rounds:1});
  for(const id of ['one','two']){battle.join(room.code,identity(id));battle.ready(room.code,id,true);}
  battle.start(room.code,'host');now+=3000;
- assert.equal(battle.view(room,'one').question.index,0);
+ const initial=battle.view(room,'one');
+ assert.equal(initial.question.index,0);
+ assert.equal(initial.nextQuestion.index,1);
+ assert.equal(initial.nextQuestion.startedAt,initial.question.startedAt+5000);
+ assert.equal('answers' in initial.nextQuestion,false);
  now+=5000;
  const state=battle.view(room,'one');
  assert.equal(state.question.index,1);
+ assert.equal(state.question.startedAt,initial.nextQuestion.startedAt);
  assert.equal(state.standings.find(player=>player.id==='one').score,0);
 });

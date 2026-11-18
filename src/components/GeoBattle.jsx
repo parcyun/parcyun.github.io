@@ -26,6 +26,7 @@ const teamColors = ["#ffb11a", "#69c7b5", "#829def", "#ed89a5", "#b2cf72", "#b29
 
 function GamePicker({ value, onChange, busy }) {
   const list = useRef(null);
+  const drag = useRef(null);
   const index = modes.findIndex(([key]) => key === value);
   useEffect(() => {
     const active = list.current?.children[index];
@@ -34,10 +35,36 @@ function GamePicker({ value, onChange, busy }) {
   return (
     <div className="gb-game-picker">
       <div className="gb-game-wheel" ref={list} aria-label="게임 종류"
+        onPointerDown={event => {
+          if (event.pointerType === "mouse" && event.button === 0) {
+            drag.current = { y: event.clientY, top: event.currentTarget.scrollTop, moved: false };
+          }
+        }}
+        onPointerMove={event => {
+          const state = drag.current;
+          if (!state || !(event.buttons & 1)) return;
+          const delta = state.y - event.clientY;
+          if (!state.moved && Math.abs(delta) < 4) return;
+          state.moved = true;
+          const wheel = event.currentTarget;
+          wheel.setPointerCapture(event.pointerId);
+          wheel.style.scrollSnapType = "none";
+          wheel.scrollTop = state.top + delta;
+        }}
+        onPointerUp={event => {
+          const state = drag.current;
+          drag.current = null;
+          if (!state?.moved) return;
+          const wheel = event.currentTarget;
+          wheel.style.scrollSnapType = "";
+          const next = modes[Math.round(wheel.scrollTop / wheel.firstElementChild.offsetHeight)]?.[0];
+          if (!busy && next && next !== value) onChange(next);
+        }}
+        onPointerCancel={event => { drag.current = null; event.currentTarget.style.scrollSnapType = ""; }}
         onScrollEnd={event => {
           const wheel = event.currentTarget;
           const next = modes[Math.round(wheel.scrollTop / wheel.firstElementChild.offsetHeight)]?.[0];
-          if (!busy && next && next !== value) onChange(next);
+          if (!drag.current?.moved && !busy && next && next !== value) onChange(next);
         }}>
         {modes.map(([key, label]) => (
           <button key={key} type="button" aria-pressed={key === value} disabled={busy} onClick={() => onChange(key)}>{label}</button>
@@ -47,9 +74,10 @@ function GamePicker({ value, onChange, busy }) {
   );
 }
 
-function LobbyStepper({ label, value, previous, next, onChange, busy }) {
+function LobbyStepper({ title, label, value, previous, next, onChange, busy }) {
   return (
     <div className="gb-lobby-setting">
+      <small>{title}</small>
       <span>{label}</span>
       <div className="gb-stepper">
         <output aria-label={label}>{value}</output>
@@ -124,7 +152,6 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     [answer, setAnswer] = useState(""),
     [feedback, setFeedback] = useState(""),
     [clock, setClock] = useState(Date.now()),
-    [invite, setInvite] = useState(""),
     [confirmExit, setConfirmExit] = useState(false);
   const sessionRef = useRef(null),
     roomRef = useRef(null),
@@ -221,7 +248,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     const next = await api(`rooms/${value}`);
     if (roomRef.current !== previous) return next;
     if (previous?.settings.level === "expert" &&
-        previous.question && (previous.question.index !== next.question?.index || previous.round !== next.round)) {
+        previous.question && !previous.nextQuestion && (previous.question.index !== next.question?.index || previous.round !== next.round)) {
       setAnswer("");
       setFeedback("");
     }
@@ -279,16 +306,26 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     }).finished.catch(() => {});
   }
   async function close() {
+    window.psGameQr?.closeInvitation();
     await dismiss(backdrop.current);
     setOpen(false);
     onOpenChange?.(false);
     setError("");
+  }
+  async function showInvite(code) {
+    try {
+      const invite = await api(`rooms/${code}/qr`);
+      if (backdrop.current) window.psGameQr.openInvitation({
+        image: invite.image, label: `대항전 ${code} 참여 QR 코드`, container: backdrop.current.querySelector(".gb-modal"),
+      });
+    } catch (error) { setError(error.message); }
   }
   async function create() {
     const next = await act("rooms", { mode, teamCount });
     if (next) {
       sessionStorage.setItem(roomKey, next.code);
       setRoom(next);
+      await showInvite(next.code);
     }
   }
   async function join() {
@@ -319,13 +356,28 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
       }
     } catch {}
   }
+  const expertDeadline = room?.settings.level === "expert" && room?.question?.startedAt != null
+    ? room.question.startedAt + EXPERT_ANSWER_MS
+    : null;
+  const expertSeconds = expertDeadline == null ? null : Math.ceil((expertDeadline - clock - serverOffset.current) / 1000);
+  const expertExpired = expertSeconds != null && expertSeconds <= 0;
+  const shownQuestion = expertExpired ? room.nextQuestion : room?.question;
+  const shownSeconds = expertExpired && shownQuestion
+    ? Math.ceil((shownQuestion.startedAt + EXPERT_ANSWER_MS - clock - serverOffset.current) / 1000)
+    : expertSeconds;
+  useEffect(() => {
+    if (!room?.nextQuestion?.image) return;
+    const image = new Image();
+    image.src = room.nextQuestion.image;
+    image.decode?.().catch(() => {});
+  }, [room?.nextQuestion?.image]);
   async function submit(e) {
     e.preventDefault();
-    if (!answer.trim() || !room?.question || expertExpired) return;
+    if (!answer.trim() || !shownQuestion || (shownSeconds != null && shownSeconds <= 0)) return;
     try {
       const result = await act(`rooms/${room.code}/answer`, {
         answer,
-        index: room.question.index,
+        index: shownQuestion.index,
       });
       setFeedback(
         result.correct ? `정답! +${result.points}점` : "다시 생각해 보세요.",
@@ -365,27 +417,16 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
       window.removeEventListener("online", on);
     };
   }, [open]);
-  useEffect(() => {
-    if (room?.question)
-      onTarget?.(
-        {
-          id: room.question.id,
-          coordinates: room.question.coordinates,
-          mode: room.question.mode,
-        },
-        room.question.mode,
-        "easy",
-      );
-  }, [room?.question?.id, room?.question?.index]);
-  const expertDeadline = room?.settings.level === "expert" && room?.question?.startedAt != null
-    ? room.question.startedAt + EXPERT_ANSWER_MS
-    : null;
-  const expertSeconds = expertDeadline == null ? null : Math.ceil((expertDeadline - clock - serverOffset.current) / 1000);
-  const expertExpired = expertSeconds != null && expertSeconds <= 0;
+  useLayoutEffect(() => {
+    if (!shownQuestion) return;
+    onTarget?.({ id: shownQuestion.id, coordinates: shownQuestion.coordinates, mode: shownQuestion.mode },
+      shownQuestion.mode, room.settings.level ?? "easy");
+  }, [shownQuestion?.id, shownQuestion?.index, room?.round]);
   useEffect(() => {
     if (!open || expertDeadline == null) return;
     let timeout;
     let cancelled = false;
+    let expired = false;
     async function advance() {
       if (cancelled) return;
       const remaining = expertDeadline - Date.now() - serverOffset.current;
@@ -393,7 +434,12 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
         timeout = setTimeout(advance, remaining);
         return;
       }
-      setClock(Date.now());
+      if (!expired) {
+        expired = true;
+        setAnswer("");
+        setFeedback("");
+        setClock(Date.now());
+      }
       if (!document.hidden) await refreshRoom();
       if (!cancelled && roomRef.current?.question?.startedAt + EXPERT_ANSWER_MS === expertDeadline) {
         timeout = setTimeout(advance, 100);
@@ -501,7 +547,8 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
               </div>
             ) : !room ? (
               <div className="gb-center">
-                <h1>{entry === "create" ? "게임 만들기" : entry === "join" ? "게임 참여하기" : "함께 지리를 풀어요"}</h1>
+                {entry === "create" && <small className="gb-create-eyebrow">CREATE A GAME</small>}
+                <h1>{entry === "create" ? "어떻게 겨뤄 볼까요?" : entry === "join" ? "게임 참여하기" : "함께 지리를 풀어요"}</h1>
                 {!entry && (
                   <div className="gb-entry-options">
                     <button aria-label="게임 만들기" onClick={() => setEntry("create")}>
@@ -514,14 +561,15 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                 )}
                 {entry === "create" && (
                   <>
-                    <div className="gb-options">
+                    <div className="gb-entry-options" role="group" aria-label="게임 방식">
                       <button onClick={() => setMode("team")} aria-pressed={mode === "team"}>
-                        팀 대항전
+                        <strong>팀전</strong><small>우리 팀의 점수를 모아요</small>
                       </button>
                       <button onClick={() => setMode("individual")} aria-pressed={mode === "individual"}>
-                        개인 대항전
+                        <strong>개인전</strong><small>나의 점수로 겨뤄요</small>
                       </button>
                     </div>
+                    <p>{mode === "team" ? "참여자는 인원이 적은 팀에 배정돼요. 진행자는 시작 전에 팀을 바꿀 수 있어요." : "같은 난이도와 시간으로 각자의 점수를 겨뤄요."}</p>
                     {mode === "team" && (
                       <div className="gb-team-count">
                         <label htmlFor="gb-team-count">팀 개수</label>
@@ -541,7 +589,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                       </div>
                     )}
                     <button className="gb-primary" disabled={busy} onClick={() => create().catch(() => {})}>
-                      방 만들기
+                      게임 만들기
                     </button>
                   </>
                 )}
@@ -589,20 +637,10 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                       if (difficulty !== game) act(`rooms/${room.code}/settings`, { ...room.settings, difficulty, level: "easy" }).catch(() => {});
                     }} />
                   ) : <span>{modes.find(([key]) => key === game)?.[1]} · {levels[levelIndex]?.label}</span>)}
-                  <button
-                    onClick={() => navigator.clipboard.writeText(room.code)}
-                  >
-                    코드 복사
-                  </button>
-                  <button
-                    onClick={() =>
-                      api(`rooms/${room.code}/qr`)
-                        .then((data) => setInvite(data.image))
-                        .catch((e) => setError(e.message))
-                    }
-                  >
-                    초대 QR
-                  </button>
+                  <button onClick={() => {
+                    navigator.clipboard?.writeText(room.code).catch(() => {});
+                    showInvite(room.code);
+                  }}>코드 {room.code} · QR</button>
                   {host && room.phase === "lobby" && (
                       <button
                         className="gb-primary gb-lobby-action"
@@ -617,15 +655,6 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                       </button>
                   )}
                 </div>
-                {invite && (
-                  <div className="gb-invite">
-                    <img src={invite} alt={`방 ${room.code} 참가 QR 코드`} />
-                    <button onClick={async event => {
-                      await dismiss(event.currentTarget.closest(".gb-invite"));
-                      setInvite("");
-                    }}>QR 닫기</button>
-                  </div>
-                )}
                 {["starting", "playing", "between"].includes(room.phase) && (
                   <p role="timer" className="gb-clock">
                     {room.phase === "starting"
@@ -640,19 +669,19 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                   <>
                     {host && (
                       <div className="gb-settings">
-                        {room.mode === "team" && <LobbyStepper label="팀 개수" value={room.teamCount} busy={busy}
+                        {room.mode === "team" && <LobbyStepper title="TEAMS" label="팀 개수" value={room.teamCount} busy={busy}
                           previous={room.teamCount > 2 ? room.teamCount - 1 : null}
                           next={room.teamCount < 10 ? room.teamCount + 1 : null}
                           onChange={teamCount => act(`rooms/${room.code}/teams`, { teamCount }).catch(() => {})} />}
-                        <LobbyStepper label="난이도" value={levels[levelIndex]?.label} busy={busy}
+                        <LobbyStepper title="DIFFICULTY" label="난이도" value={levels[levelIndex]?.label} busy={busy}
                           previous={levels[levelIndex - 1]?.id}
                           next={levels[levelIndex + 1]?.id}
                           onChange={level => act(`rooms/${room.code}/settings`, { ...room.settings, level }).catch(() => {})} />
-                        <LobbyStepper label="시간" value={room.settings.seconds + "초"} busy={busy}
+                        <LobbyStepper title="ROUND TIME" label="시간" value={room.settings.seconds + "초"} busy={busy}
                           previous={room.settings.seconds > 15 ? Math.max(15, room.settings.seconds - 15) : null}
                           next={room.settings.seconds < 600 ? Math.min(600, room.settings.seconds + 15) : null}
                           onChange={seconds => act(`rooms/${room.code}/settings`, { ...room.settings, seconds }).catch(() => {})} />
-                        <LobbyStepper label="라운드" value={room.settings.rounds + "회"} busy={busy}
+                        <LobbyStepper title="ROUNDS" label="라운드" value={room.settings.rounds + "회"} busy={busy}
                           previous={room.settings.rounds > 1 ? room.settings.rounds - 1 : null}
                           next={room.settings.rounds < 10 ? room.settings.rounds + 1 : null}
                           onChange={rounds => act(`rooms/${room.code}/settings`, { ...room.settings, rounds }).catch(() => {})} />
@@ -739,16 +768,16 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                 ) : room.phase === "playing" && room.waiting ? (
                   <div className="gb-center"><h2>다음 라운드부터 함께해요</h2></div>
                 ) : room.phase === "playing" && !host ? (
-                  <div className="gb-question" hidden={expertExpired}>
-                    <p>{room.question?.prompt}</p>
-                    {expertSeconds > 0 && (
-                      <strong className="gb-expert-clock" role="timer">{expertSeconds}</strong>
+                  <div className="gb-question" hidden={!shownQuestion} data-question-index={shownQuestion?.index}>
+                    <p>{shownQuestion?.prompt}</p>
+                    {shownSeconds > 0 && (
+                      <strong className="gb-expert-clock" role="timer">{shownSeconds}</strong>
                     )}
-                    {room.question?.image && (
-                      <img src={room.question.image} alt="문제 이미지" />
+                    {shownQuestion?.image && (
+                      <img src={shownQuestion.image} alt="문제 이미지" />
                     )}
                     <h3>
-                      {room.question?.cue || "지도와 이미지를 보고 답해 보세요"}
+                      {shownQuestion?.cue || "지도와 이미지를 보고 답해 보세요"}
                     </h3>
                     <form onSubmit={submit}>
                       <input
@@ -760,21 +789,21 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                       <button disabled={busy}>정답 제출</button>
                     </form>
                     <button
-                      disabled={busy || room.question?.hintUsed}
+                      disabled={busy || shownQuestion?.hintUsed}
                       onClick={() =>
                         act(`rooms/${room.code}/hint`, {
-                          index: room.question.index,
+                          index: shownQuestion.index,
                         })
                       }
                     >
                       힌트
                     </button>
-                    {room.question?.hintUsed && <p>{room.question.hint}</p>}
+                    {shownQuestion?.hintUsed && <p>{shownQuestion.hint}</p>}
                     <button
                       disabled={busy || room.stats?.passesRemaining <= 0}
                       onClick={() =>
                         act(`rooms/${room.code}/pass`, {
-                          index: room.question.index,
+                          index: shownQuestion.index,
                         })
                       }
                     >
@@ -797,27 +826,28 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                   <BattleLeaderboard room={room} />}
                 {confirmExit && (
                   <div
-                    className="gb-confirm"
+                    className="gb-confirm-shade"
+                    onClick={event => { if (event.target === event.currentTarget) setConfirmExit(false); }}
                     role="alertdialog"
                     aria-label="경기 나가기 확인"
                   >
-                    <p>
-                      {host
-                        ? "경기를 종료하거나 방을 취소할까요?"
-                        : "방을 나갈까요?"}
-                    </p>
+                    <div className="gb-confirm">
+                    <small>{host ? "END BATTLE" : "LEAVE BATTLE"}</small>
+                    <h2>{host ? "경기를 종료할까요?" : "방을 나갈까요?"}</h2>
+                    <p>{host && room.phase !== "lobby" ? "현재까지 획득한 점수로 최종 순위를 표시합니다." : host ? "모든 참여자의 대항전이 종료됩니다." : "게임 코드로 다시 참여할 수 있어요."}</p>
                     <button onClick={async event => {
                       await dismiss(event.currentTarget.closest(".gb-confirm"));
                       setConfirmExit(false);
                     }}>
-                      계속하기
+                      취소
                     </button>
-                    <button onClick={async event => {
+                    <button className="gb-danger" onClick={async event => {
                       await dismiss(event.currentTarget.closest(".gb-confirm"));
                       await leave();
                     }}>
                       {host ? "종료 확인" : "나가기 확인"}
                     </button>
+                    </div>
                   </div>
                 )}
                 <footer>
@@ -828,8 +858,8 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                       다시 경기하기
                     </button>
                   )}
-                  <button onClick={() => setConfirmExit(true)}>
-                    {host ? "경기 종료 / 방 취소" : "방 나가기"}
+                  <button className={host ? "gb-danger" : undefined} onClick={() => setConfirmExit(true)}>
+                    {host ? "경기 종료" : "방 나가기"}
                   </button>
                 </footer>
               </>

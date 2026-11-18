@@ -408,3 +408,16 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 .gb-backdrop { animation-fill-mode: none; }
 .gl-app:has(.gg-battle-open) :is(.gg-ranking-open,.gg-mode-exit) { visibility: hidden; }
 .gb-question[hidden] { display: none; }
+.gb-game-picker { border: 0; background: none; }
+.gb-game-picker::after { display: none; }
+.gb-game-wheel { cursor: grab; user-select: none; mask-image: linear-gradient(transparent, #000 36%, #000 64%, transparent); }
+.gb-game-wheel button, .gb-game-wheel button[aria-pressed="true"] { border: 0; background: none; color: #fff; }
+.gb-game-wheel button[aria-pressed="false"] { opacity: .56; }
+.gb-entry-options button[aria-pressed="true"] { border-color: #ffb11a; background: #ffb11a16; }
+.gb-confirm-shade { position: fixed; inset: 0; display: grid; place-items: center; z-index: 4; background: #0009; padding: 16px; }
+.gb-confirm { width: min(440px, 100%); box-sizing: border-box; padding: 24px; text-align: center; background: #14171d; border: 1px solid #694144; border-radius: 20px; }
+.gb-confirm small { color: #ffb11a; letter-spacing: .15em; }
+.gb-modal button.gb-danger { background: #552a2d; border-color: #884347; color: #ffc6c9; }
+.gb-lobby-setting { display: grid; grid-template-columns: auto auto; }
+.gb-lobby-setting > small { grid-column: 1 / -1; color: #a7b0c0; letter-spacing: .1em; font-size: 9px; }
+.gb-create-eyebrow { color: #ffb11a; letter-spacing: .15em; }

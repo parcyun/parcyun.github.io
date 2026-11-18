@@ -1,7 +1,7 @@
 .geo-game .gb-launch {
   position: absolute;
   left: 50%;
-  bottom: 26px;
+  bottom: calc(var(--ps-footer-h, 0px) + var(--ps-brand-h, 26px) + env(safe-area-inset-bottom, 0px) + 16px);
   transform: translateX(-50%);
   z-index: 5;
   pointer-events: auto;
@@ -171,10 +171,12 @@
     transform: rotate(360deg);
   }
 }
-@media (max-width: 600px) {
+@media (max-width: 760px), (min-width: 600px) and (max-height: 500px) and (max-width: 1000px) {
   .geo-game .gb-launch {
-    bottom: 20px;
+    bottom: calc(var(--geo-dock-bottom, 44px) + 76px);
   }
+}
+@media (max-width: 600px) {
   .gb-modal {
     padding: 16px;
   }

@@ -287,6 +287,15 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     const previous = roomRef.current;
     const next = await api(`rooms/${value}`);
     if (roomRef.current !== previous) return next;
+    if (next.dailyClosed) {
+      roomRef.current = null;
+      setRoom(null);
+      setEntry(null);
+      sessionStorage.removeItem(roomKey);
+      clearInviteCode();
+      await close();
+      return next;
+    }
     if (previous?.settings.level === "expert" &&
         previous.question && !previous.nextQuestion && (previous.question.index !== next.question?.index || previous.round !== next.round)) {
       setAnswer("");

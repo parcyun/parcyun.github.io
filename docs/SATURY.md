@@ -157,3 +157,6 @@ The main baseline 53c4a81 already has a dexterity home link without data-ps-edit
 - Satury video remains unavailable: no recording is present in repository or the
   connected machine's artifact folders. Do not describe this static repair as a
   restored recording. Add an actual service recording to the map when available.
+
+### Preview recording restored (2026-11-18)
+The previously missing video is now a real 6-3 desktop Chrome recording, captured using Windows Game Bar after verifying the target window title. The existing thumbnail remains unchanged. The published H.264 file has five two-second scenes at 960x600 and contains no audio. Supersedes the earlier missing-recording limitation.

@@ -9,7 +9,10 @@ test('every registered gallery poster and video exists',()=>{
   if(item.video)assert.ok(existsSync(new URL(`public${item.video.split('?')[0]}`,root)),`${id} video`);
  }
  assert.ok(media.satury.poster.includes('satury'));
- assert.equal(media.satury.video,undefined,'do not request a recording that does not exist');
+ assert.match(media.satury.video,/satury\.mp4/,'Satury has its verified real recording');
+ const recordings=JSON.parse(readFileSync(new URL('public/videos/gallery/recordings.json',root),'utf8'));
+ assert.equal(recordings.satury.kind,'real-browser-recording');
+ assert.equal(recordings.satury.scenes.length,5);
 });
 test('gallery uses explicit media instead of inventing filenames',()=>{
  const component=readFileSync(new URL('src/components/HomeCollections.tsx',root),'utf8');

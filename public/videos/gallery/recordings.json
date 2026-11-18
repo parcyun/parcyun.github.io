@@ -486,5 +486,33 @@
       }
     ],
     "duration": 10
+  },
+  "satury": {
+    "kind": "real-browser-recording",
+    "url": "https://parcyun.github.io/satury/",
+    "recordedAt": "2026-11-18",
+    "method": "Windows Game Bar: verified Chrome window; audio removed",
+    "scenes": [
+      {
+        "label": "Search landing screen",
+        "duration": 2
+      },
+      {
+        "label": "Enter rake search and show real results",
+        "duration": 2
+      },
+      {
+        "label": "Regional dialect results",
+        "duration": 2
+      },
+      {
+        "label": "Open dictionary detail",
+        "duration": 2
+      },
+      {
+        "label": "Dictionary definition and usage example",
+        "duration": 2
+      }
+    ]
   }
 }

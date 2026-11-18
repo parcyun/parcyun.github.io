@@ -17,3 +17,6 @@ Browser-service footage is recorded in an isolated, signed-out browser. No playe
 - Capture/annotation source: https://i.loli.net/2019/09/08/72E6FutWBLQbIaX.gif
 - Floating image/resize/transparency source: https://i.loli.net/2019/09/08/gb5kBE8eGfx3IcZ.gif
 - Five brief excerpts demonstrate actual application operation, not a webpage scroll or a still-image slideshow. Historical Windows UI is shown; current versions may differ. Snipaste and source-media rights remain with their respective owners.
+
+## Satury (2026-11-18)
+Recorded from the actual public Satury Chrome window using Windows Game Bar on the owner-approved 6-3 desktop. Five two-second excerpts show the landing page, search, regional results, and dictionary details. No synthesized UI or still-image animation. Audio removed; browser chrome and other windows are absent.

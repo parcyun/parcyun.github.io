@@ -275,7 +275,14 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     try {
       await load(roomRef.current.code);
     } catch (error) {
-      failure(error);
+      if (error.status === 400 && /내보내졌|게임 코드를 확인/.test(error.message)) {
+        setRoom(null);
+        roomRef.current = null;
+        setEntry(null);
+        sessionStorage.removeItem(roomKey);
+        clearInviteCode();
+        setError(error.message);
+      } else failure(error);
     } finally {
       refreshing.current = false;
     }

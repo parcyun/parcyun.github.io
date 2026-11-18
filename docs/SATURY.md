@@ -146,3 +146,14 @@ The main baseline 53c4a81 already has a dexterity home link without data-ps-edit
 - `useResources` preserves static logo and visitor-route metadata when loading administrator content.
 - Verification: Astro production build, five existing ATLAS tests, desktop rendered cards, loaded logo assets and 390px mobile layout without horizontal overflow.
 - Follow-up: the three hover thumbnails also use the current Tuilders representative scenes (GeoWeb flag quiz, Spell Drill score feedback, satury standard/dialect results). Local WebP assets use contain fitting so key information is not cropped. Production build and visible desktop hover verified.
+
+## 2026-11-18 gallery media repair
+
+- Home gallery derived `gallery-satury-0.png` and `satury.mp4` from the resource ID,
+  but neither asset existed. The actual static poster is `satury-tuilders.webp`.
+- Added explicit gallery-media mapping with file-existence regression coverage.
+  Unrecorded items retain their poster and never request a nonexistent video or
+  hide the poster on hover/focus. Existing 18 recordings and URLs are unchanged.
+- Satury video remains unavailable: no recording is present in repository or the
+  connected machine's artifact folders. Do not describe this static repair as a
+  restored recording. Add an actual service recording to the map when available.

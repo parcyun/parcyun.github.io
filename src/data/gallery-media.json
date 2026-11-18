@@ -1,0 +1,77 @@
+{
+  "academica": {
+    "poster": "/images/resource-previews/gallery-academica-0.png",
+    "video": "/videos/gallery/academica.mp4?v=20261029-five-scenes"
+  },
+  "agentic-ai": {
+    "poster": "/images/resource-previews/gallery-agentic-ai-0.png",
+    "video": "/videos/gallery/agentic-ai.mp4?v=20261029-five-scenes"
+  },
+  "ai-class": {
+    "poster": "/images/resource-previews/gallery-ai-class-0.png",
+    "video": "/videos/gallery/ai-class.mp4?v=20261029-five-scenes"
+  },
+  "ai-edtech-tools": {
+    "poster": "/images/resource-previews/gallery-ai-edtech-tools-0.png",
+    "video": "/videos/gallery/ai-edtech-tools.mp4?v=20261029-five-scenes"
+  },
+  "edubeige": {
+    "poster": "/images/resource-previews/gallery-edubeige-0.png",
+    "video": "/videos/gallery/edubeige.mp4?v=20261029-five-scenes"
+  },
+  "home-academica": {
+    "poster": "/images/resource-previews/gallery-home-academica-0.png",
+    "video": "/videos/gallery/home-academica.mp4?v=20261029-five-scenes"
+  },
+  "home-atlas": {
+    "poster": "/images/resource-previews/gallery-home-atlas-0.png",
+    "video": "/videos/gallery/home-atlas.mp4?v=20261029-five-scenes"
+  },
+  "home-works": {
+    "poster": "/images/resource-previews/gallery-home-works-0.png?v=20261029-home",
+    "video": "/videos/gallery/home-works.mp4?v=20261029-five-scenes"
+  },
+  "kocomate": {
+    "poster": "/images/resource-previews/gallery-kocomate-0.png",
+    "video": "/videos/gallery/kocomate.mp4?v=20261029-five-scenes"
+  },
+  "llm-fundamentals": {
+    "poster": "/images/resource-previews/gallery-llm-fundamentals-0.png",
+    "video": "/videos/gallery/llm-fundamentals.mp4?v=20261029-five-scenes"
+  },
+  "math-volume": {
+    "poster": "/images/resource-previews/gallery-math-volume-0.png",
+    "video": "/videos/gallery/math-volume.mp4?v=20261029-five-scenes"
+  },
+  "notion-onboarding": {
+    "poster": "/images/resource-previews/gallery-notion-onboarding-0.png",
+    "video": "/videos/gallery/notion-onboarding.mp4?v=20261029-five-scenes"
+  },
+  "snipaste": {
+    "poster": "/images/resource-previews/gallery-snipaste-0.png",
+    "video": "/videos/gallery/snipaste.mp4?v=20261029-five-scenes"
+  },
+  "spell-drill": {
+    "poster": "/images/resource-previews/gallery-spell-drill-0.png",
+    "video": "/videos/gallery/spell-drill.mp4?v=20261029-five-scenes"
+  },
+  "world-city-research": {
+    "poster": "/images/resource-previews/gallery-world-city-research-0.png",
+    "video": "/videos/gallery/world-city-research.mp4?v=20261029-five-scenes"
+  },
+  "world-map": {
+    "poster": "/images/resource-previews/gallery-world-map-0.png",
+    "video": "/videos/gallery/world-map.mp4?v=20261029-five-scenes"
+  },
+  "yearly-life-archive": {
+    "poster": "/images/resource-previews/gallery-yearly-life-archive-0.png",
+    "video": "/videos/gallery/yearly-life-archive.mp4?v=20261029-five-scenes"
+  },
+  "zoomit": {
+    "poster": "/images/resource-previews/gallery-zoomit-0.png",
+    "video": "/videos/gallery/zoomit.mp4?v=20261029-five-scenes"
+  },
+  "satury": {
+    "poster": "/images/resource-previews/satury-tuilders.webp"
+  }
+}

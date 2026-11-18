@@ -19,7 +19,10 @@ try{
  browser=await chromium.launch({headless:true,args:['--disable-gpu']});
  const desktop=await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'reduce'});
  await desktop.route('**/game-account.js*',route=>route.fulfill({contentType:'text/javascript',body:`window.psBattleIdentity=async()=>(${JSON.stringify(identity('테스트진행자','a'))});`}));
- const host=await desktop.newPage();await host.goto(site);await host.locator('.game-entry').waitFor({timeout:60000});await host.locator('.game-entry').click();
+ const host=await desktop.newPage();await host.goto(site);await host.locator('.game-entry').waitFor({timeout:60000});
+ if(await host.locator('.update-story').isVisible())await host.locator('.update-story-card > button').first().click();
+ if(await host.locator('.guide-shade').isVisible())await host.locator('.guide-shade').click();
+ await host.locator('.game-entry').click();
  await host.locator('.gb-launch').waitFor({timeout:30000});await host.locator('.gb-launch').click();await host.getByRole('button',{name:'방 만들기'}).waitFor({timeout:15000});await host.getByRole('button',{name:'방 만들기'}).click();
  const heading=host.locator('.gb-heading small');await heading.waitFor();const code=(await heading.innerText()).match(/\d{6}/)?.[0];if(!code)throw Error('Room code missing');
  const one=await api('session',identity('테스트선수1','b'));const two=await api('session',identity('테스트선수2','c'));

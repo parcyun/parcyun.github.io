@@ -401,8 +401,8 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 .gb-map-round .gb-screen { background: linear-gradient(#111319bb, transparent 22%); }
 .gb-game-picker { position: relative; flex: none; width: clamp(104px, 16vw, 170px); border: 1px solid #ffffff30; border-radius: 12px; background: #ffffff13; }
 .gb-game-picker::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(#24262cbb, transparent 38%, transparent 62%, #24262cbb); }
-.gb-game-wheel { position: relative; height: 84px; padding: 28px 0; box-sizing: border-box; overflow-y: auto; scrollbar-width: none; scroll-snap-type: y mandatory; }
-.gb-game-wheel button { display: block; width: 100%; height: 28px; min-height: 28px; padding: 0 2px; border: 0; background: transparent; scroll-snap-align: center; color: #b0b0b5; }
+.gb-game-wheel { position: relative; height: 84px; padding: 28px 0; box-sizing: border-box; overflow: hidden; scrollbar-width: none; touch-action: none; }
+.gb-game-wheel button { display: block; width: 100%; height: 28px; min-height: 28px; padding: 0 2px; border: 0; background: transparent;  color: #b0b0b5; }
 .gb-game-wheel button[aria-pressed="true"] { color: #17191d; background: #ffffffd9; border-radius: 7px; font-weight: 800; }
 .gb-expert-clock { color: #ff7b60; text-align: center; font: 800 32px Montserrat, sans-serif; }
 .gb-backdrop { animation-fill-mode: none; }
@@ -421,3 +421,20 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 .gb-lobby-setting { display: grid; grid-template-columns: auto auto; }
 .gb-lobby-setting > small { grid-column: 1 / -1; color: #a7b0c0; letter-spacing: .1em; font-size: 9px; }
 .gb-create-eyebrow { color: #ffb11a; letter-spacing: .15em; }
+
+.gb-backdrop > .ps-battle-qr { backdrop-filter: none; -webkit-backdrop-filter: none; }
+.gb-modal .gb-player-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  width: 100%; min-height: 36px; box-sizing: border-box; text-align: left;
+  padding: 6px 8px; margin-bottom: 5px; border: 1px solid #ffffff28; border-radius: 8px;
+  color: #ebeff5; background: #18212b;
+}
+.gb-modal .gb-player-ready { border-color: #559a74; background: #19342a; color: #ddf9e7; }
+.gb-ready-check { color: #78e5a6; font-size: 17px; font-weight: 800; }
+.gb-player-card[draggable="true"] { cursor: grab; }
+.gb-roster .gb-players.gb-drop-team { outline: 2px solid #ffb11a; outline-offset: -2px; }
+.gb-confirm { position: relative; }
+.gb-confirm .gb-popup-close { position: absolute; top: 8px; right: 8px; min-height: 32px; border: 0; background: transparent; }
+.gb-confirm .gb-manage-action { display: block; width: 100%; margin: 10px 0 0; }
+.gb-player-card[draggable="true"] { touch-action: pan-y; }
+.gb-modal button.gb-ready-action { background: #1c4934; color: #a1f0bf; border-color: #36885b; }

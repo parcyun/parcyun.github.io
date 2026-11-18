@@ -27,44 +27,49 @@ const teamColors = ["#ffb11a", "#69c7b5", "#829def", "#ed89a5", "#b2cf72", "#b29
 function GamePicker({ value, onChange, busy }) {
   const list = useRef(null);
   const drag = useRef(null);
+  const wheelIdle = useRef(null);
   const index = modes.findIndex(([key]) => key === value);
+  function step(direction) {
+    const next = modes[index + direction]?.[0];
+    if (!busy && next) onChange(next);
+  }
   useEffect(() => {
     const active = list.current?.children[index];
-    if (active) list.current.scrollTop = active.offsetTop - active.offsetHeight;
+    if (active) list.current.scrollTo({ top: active.offsetTop - active.offsetHeight, behavior: "auto" });
   }, [index]);
+  useEffect(() => {
+    const wheel = list.current;
+    function handleWheel(event) {
+      if (!event.deltaY || event.ctrlKey) return;
+      event.preventDefault();
+      const first = wheelIdle.current === null;
+      clearTimeout(wheelIdle.current);
+      wheelIdle.current = setTimeout(() => { wheelIdle.current = null; }, 180);
+      if (first) step(Math.sign(event.deltaY));
+    }
+    wheel.addEventListener("wheel", handleWheel, { passive: false });
+    return () => wheel.removeEventListener("wheel", handleWheel);
+  }, [index, busy, onChange]);
+  useEffect(() => () => clearTimeout(wheelIdle.current), []);
   return (
     <div className="gb-game-picker">
       <div className="gb-game-wheel" ref={list} aria-label="게임 종류"
         onPointerDown={event => {
-          if (event.pointerType === "mouse" && event.button === 0) {
-            drag.current = { y: event.clientY, top: event.currentTarget.scrollTop, moved: false };
-          }
+          if (event.isPrimary && event.button === 0) drag.current = event.clientY;
         }}
         onPointerMove={event => {
-          const state = drag.current;
-          if (!state || !(event.buttons & 1)) return;
-          const delta = state.y - event.clientY;
-          if (!state.moved && Math.abs(delta) < 4) return;
-          state.moved = true;
-          const wheel = event.currentTarget;
-          wheel.setPointerCapture(event.pointerId);
-          wheel.style.scrollSnapType = "none";
-          wheel.scrollTop = state.top + delta;
+          if (drag.current !== null && Math.abs(drag.current - event.clientY) >= 8) {
+            event.currentTarget.setPointerCapture(event.pointerId);
+          }
         }}
         onPointerUp={event => {
-          const state = drag.current;
+          const start = drag.current;
           drag.current = null;
-          if (!state?.moved) return;
-          const wheel = event.currentTarget;
-          wheel.style.scrollSnapType = "";
-          const next = modes[Math.round(wheel.scrollTop / wheel.firstElementChild.offsetHeight)]?.[0];
-          if (!busy && next && next !== value) onChange(next);
+          if (start !== null && Math.abs(start - event.clientY) >= 8) step(Math.sign(start - event.clientY));
         }}
-        onPointerCancel={event => { drag.current = null; event.currentTarget.style.scrollSnapType = ""; }}
-        onScrollEnd={event => {
-          const wheel = event.currentTarget;
-          const next = modes[Math.round(wheel.scrollTop / wheel.firstElementChild.offsetHeight)]?.[0];
-          if (!drag.current?.moved && !busy && next && next !== value) onChange(next);
+        onPointerCancel={() => { drag.current = null; }}
+        onPointerLeave={event => {
+          if (!event.currentTarget.hasPointerCapture(event.pointerId)) drag.current = null;
         }}>
         {modes.map(([key, label]) => (
           <button key={key} type="button" aria-pressed={key === value} disabled={busy} onClick={() => onChange(key)}>{label}</button>
@@ -152,12 +157,18 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     [answer, setAnswer] = useState(""),
     [feedback, setFeedback] = useState(""),
     [clock, setClock] = useState(Date.now()),
-    [confirmExit, setConfirmExit] = useState(false);
+    [confirmExit, setConfirmExit] = useState(false),
+    [managed, setManaged] = useState(null),
+    [moveTo, setMoveTo] = useState(0),
+    [dragged, setDragged] = useState(null),
+    [dropTeam, setDropTeam] = useState(null);
   const sessionRef = useRef(null),
     roomRef = useRef(null),
     serverOffset = useRef(0),
     pending = useRef(false),
     refreshing = useRef(false),
+    touchDrag = useRef(null),
+    suppressManage = useRef(0),
     backdrop = useRef(null),
     screen = useRef(null),
     roster = useRef(null),
@@ -306,6 +317,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     }).finished.catch(() => {});
   }
   async function close() {
+    setManaged(null);
     window.psGameQr?.closeInvitation();
     await dismiss(backdrop.current);
     setOpen(false);
@@ -316,7 +328,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     try {
       const invite = await api(`rooms/${code}/qr`);
       if (backdrop.current) window.psGameQr.openInvitation({
-        image: invite.image, label: `대항전 ${code} 참여 QR 코드`, container: backdrop.current.querySelector(".gb-modal"),
+        image: invite.image, label: `대항전 ${code} 참여 QR 코드`, container: backdrop.current,
       });
     } catch (error) { setError(error.message); }
   }
@@ -461,6 +473,22 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
   const host = room?.me === room?.host,
     me = room?.players?.find((p) => p.id === room.me),
     ready = room?.players?.filter((p) => p.ready).length || 0;
+  const managedPlayer = host && room?.phase === "lobby" ? room.players.find(player => player.id === managed) : null;
+  function finishTouchDrag(event) {
+    const state = touchDrag.current;
+    if (!state) return;
+    clearTimeout(state.timer);
+    touchDrag.current = null;
+    if (!state.held) return;
+    suppressManage.current = Date.now() + 350;
+    const team = document.elementFromPoint(event.clientX, event.clientY)?.closest(".gb-roster [data-team]");
+    if (event.type !== "pointercancel" && team) movePlayer(state.playerId, Number(team.dataset.team));
+    setDragged(null);
+    setDropTeam(null);
+  }
+  function movePlayer(playerId, team) {
+    act(`rooms/${room.code}/move`, { playerId, team }).catch(() => {});
+  }
   const game = room?.settings.difficulty ?? "country";
   const levels = difficultyOptions(game);
   const levelIndex = Math.max(0, levels.findIndex(item => item.id === (room?.settings.level ?? "easy")));
@@ -695,48 +723,68 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                         ? room.teamNames.map((name, team) => ({ name, team })).filter(group => host || group.team === me?.team)
                         : [{ name: "참여자", team: null }]
                       ).map(({ name, team }) => (
-                        <section className="gb-players" key={team ?? "individual"} data-team={team ?? "individual"} style={{ "--gb-team-color": teamColors[team] }}>
+                        <section className={`gb-players ${dropTeam === team && dragged ? "gb-drop-team" : ""}`}
+                          key={team ?? "individual"} data-team={team ?? "individual"} style={{ "--gb-team-color": teamColors[team] }}
+                          onDragOver={event => {
+                            if (!host || !dragged || team === null) return;
+                            event.preventDefault();
+                            event.dataTransfer.dropEffect = "move";
+                            setDropTeam(team);
+                          }}
+                          onDragLeave={event => {
+                            if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) setDropTeam(null);
+                          }}
+                          onDrop={event => {
+                            event.preventDefault();
+                            if (host && dragged && team !== null) movePlayer(dragged, team);
+                            setDragged(null);
+                            setDropTeam(null);
+                          }}>
                           <h3>{name}</h3>
                           <div className="gb-team-members">
-                          {room.players?.filter(p => !p.isHost && (team === null || p.team === team)).map((p) => (
-                        <div key={p.id}>
-                          {p.name} {p.isHost ? "· 진행자" : ""}{" "}
-                          {p.ready ? "· 준비 완료" : ""}{" "}
-                          {!p.connected ? "· 연결 끊김" : ""}{" "}
-                          {host && !p.isHost && (
-                            <span className="gb-manage">
-                              {room.mode === "team" && (
-                                <select
-                                  aria-label={`${p.name} 팀 이동`}
-                                  value={p.team}
-                                  onChange={(e) =>
-                                    act(`rooms/${room.code}/move`, {
-                                      playerId: p.id,
-                                      team: Number(e.target.value),
-                                    })
-                                  }
-                                >
-                                  {room.teamNames.map((name, i) => (
-                                    <option value={i} key={i}>
-                                      {name}
-                                    </option>
-                                  ))}
-                                </select>
-                              )}
-                              <button
-                                disabled={p.ready}
-                                onClick={() =>
-                                  act(`rooms/${room.code}/kick`, {
-                                    playerId: p.id,
-                                  })
-                                }
-                              >
-                                내보내기
-                              </button>
-                            </span>
-                          )}
-                        </div>
-                          ))}
+                          {room.players?.filter(p => !p.isHost && (team === null || p.team === team)).map(player => {
+                            const Tag = host ? "button" : "div";
+                            return (
+                              <Tag key={player.id} type={host ? "button" : undefined}
+                                data-player={player.id} className={`gb-player-card ${player.ready ? "gb-player-ready" : ""}`}
+                                draggable={host && team !== null}
+                                onDragStart={event => {
+                                  event.dataTransfer.setData("text/plain", player.id);
+                                  event.dataTransfer.effectAllowed = "move";
+                                  setDragged(player.id);
+                                }}
+                                onDragEnd={() => { setDragged(null); setDropTeam(null); }}
+                                onPointerDown={event => {
+                                  if (event.pointerType !== "touch" || !host || team === null) return;
+                                  const target = event.currentTarget;
+                                  const pointerId = event.pointerId;
+                                  const state = { playerId: player.id, held: false };
+                                  state.timer = setTimeout(() => {
+                                    if (!target.isConnected) return;
+                                    target.setPointerCapture(pointerId);
+                                    state.held = true;
+                                    setDragged(player.id);
+                                  }, 220);
+                                  touchDrag.current = state;
+                                }}
+                                onPointerMove={event => {
+                                  if (!touchDrag.current?.held) return;
+                                  const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".gb-roster [data-team]");
+                                  setDropTeam(target ? Number(target.dataset.team) : null);
+                                }}
+                                onPointerUp={finishTouchDrag}
+                                onPointerCancel={finishTouchDrag}
+                                onClick={host ? () => {
+                                  if (Date.now() < suppressManage.current) return;
+                                  setMoveTo(player.team ?? 0);
+                                  setManaged(player.id);
+                                } : undefined}>
+                                <span>{player.name}</span>
+                                {player.ready ? <span aria-label="준비 완료" className="gb-ready-check">✓</span> :
+                                  !player.connected && <span>연결 끊김</span>}
+                              </Tag>
+                            );
+                          })}
                           </div>
                         </section>
                       ))}
@@ -756,13 +804,13 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                     )}
                     {!host && (
                       <button
-                        className="gb-primary gb-lobby-action"
+                        className={`gb-primary gb-lobby-action ${me?.ready ? "gb-ready-action" : ""}`}
                         disabled={busy}
                         onClick={() =>
                           act(`rooms/${room.code}/ready`, { ready: !me?.ready })
                         }
                       >
-                        {me?.ready ? "준비 취소" : "준비 완료"}
+                        {me?.ready ? "✓ 준비 완료 · 취소하기" : "준비 완료"}
                       </button>
                     )}
                   </>
@@ -825,6 +873,35 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                 )}
                 {["playing", "between", "finished"].includes(room.phase) &&
                   <BattleLeaderboard room={room} />}
+                {managedPlayer && (
+                  <div className="gb-confirm-shade" role="dialog" aria-modal="true" aria-label="참여자 관리"
+                    onClick={event => { if (event.target === event.currentTarget) setManaged(null); }}>
+                    <div className="gb-confirm">
+                      <small>PLAYER MANAGEMENT</small>
+                      <h2>{managedPlayer.name}</h2>
+                      <button type="button" className="gb-popup-close" aria-label="참여자 관리 닫기" onClick={() => setManaged(null)}>×</button>
+                      {room.mode === "team" && (
+                        <>
+                          <p>팀 이동 또는 내보내기를 선택하세요.</p>
+                          <label>이동할 팀{" "}
+                            <select value={moveTo} aria-label="이동할 팀" onChange={event => setMoveTo(Number(event.target.value))}>
+                              {room.teamNames.map((name, team) => <option key={team} value={team}>{team + 1}팀</option>)}
+                            </select>
+                          </label>
+                          <button type="button" className="gb-primary gb-manage-action" onClick={() => {
+                            movePlayer(managedPlayer.id, moveTo);
+                            setManaged(null);
+                          }}>선택한 팀 맨 아래로 이동</button>
+                        </>
+                      )}
+                      <button type="button" className="gb-danger gb-manage-action" disabled={busy} onClick={() => {
+                        setManaged(null);
+                        act(`rooms/${room.code}/kick`, { playerId: managedPlayer.id }).catch(() => {});
+                      }}>이 참여자 내보내기</button>
+                      <p><small>내보낸 참여자도 코드를 입력해 새로 참여할 수 있어요.</small></p>
+                    </div>
+                  </div>
+                )}
                 {confirmExit && (
                   <div
                     className="gb-confirm-shade"

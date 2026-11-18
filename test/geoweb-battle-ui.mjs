@@ -38,7 +38,9 @@ try{
  await host.getByRole('button',{name:'게임 만들기',exact:true}).click();
  // The account module is mocked for this local test, but the shared QR widget still runs.
  await host.locator('#ps-qr-popover:not([hidden])').waitFor();
- await host.locator('.ps-qr-close').click();
+ const qrClose=host.locator('.ps-qr-close');
+ assert.ok(await qrClose.evaluate(el=>el.getBoundingClientRect().height<=32));
+ await qrClose.click();
  const heading=host.locator('.gb-toolbar-code strong');await heading.waitFor();const code=(await heading.innerText()).match(/\d{6}/)?.[0];if(!code)throw Error('Room code missing');
  const cards=host.locator('.gb-roster .gb-players');
  await cards.last().waitFor();
@@ -61,7 +63,8 @@ try{
  await host.waitForFunction(()=>document.querySelector('output[aria-label="라운드"]').textContent==='4회');
  const wheel=host.locator('.gb-game-wheel');
  await wheel.hover();
- await host.mouse.wheel(0,28);
+ await host.mouse.wheel(0,240);
+ await host.mouse.wheel(0,240);
  await host.waitForFunction(()=>document.querySelector('.gb-game-wheel button[aria-pressed="true"]').textContent==='수도 이름');
  await wheel.getByRole('button',{name:'나라 이름',exact:true}).click();
  await host.waitForFunction(()=>document.querySelector('.gb-game-wheel button[aria-pressed="true"]').textContent==='나라 이름');
@@ -87,8 +90,17 @@ try{
  await player.getByRole('button',{name:'준비 완료',exact:true}).waitFor();
  await api(`rooms/${code}/join`,{},two.token);
  const initial=await api(`rooms/${code}`,undefined,one.token);
- if(initial.myTeam!==9)await api(`rooms/${code}/move`,{playerId:one.id,team:9},(await api('session',identity('테스트진행자','a'))).token);
+ const card=host.locator(`[data-player="${one.id}"]`);
  await player.getByRole('button',{name:'준비 완료',exact:true}).click();
+ await card.locator('.gb-ready-check').waitFor();
+ assert.ok(await card.evaluate(el=>el.classList.contains('gb-player-ready')));
+ const destination=initial.myTeam===9?8:9;
+ await card.dragTo(host.locator(`.gb-roster [data-team="${destination}"] h3`));
+ await host.locator(`.gb-roster [data-team="${destination}"] [data-player="${one.id}"] .gb-ready-check`).waitFor();
+ await host.locator(`[data-player="${two.id}"]`).click();
+ await host.getByRole('button',{name:'이 참여자 내보내기',exact:true}).click();
+ await host.locator(`[data-player="${two.id}"]`).waitFor({state:'hidden'});
+ await api(`rooms/${code}/join`,{},two.token);
  await api(`rooms/${code}/ready`,{ready:true},two.token);
  await host.getByRole('button',{name:/경기 시작/}).click();
  await player.locator('.gb-question input').waitFor({timeout:30000});
@@ -99,7 +111,7 @@ try{
  await host.evaluate(()=>{const animate=Element.prototype.animate;window.scoreMotions=[];Element.prototype.animate=function(...args){if(this.closest('.gb-scoreboard'))window.scoreMotions.push(this.tagName);return animate.apply(this,args);};});
  await player.locator('.gb-question input').fill(q.answers[0]);await player.getByRole('button',{name:'정답 제출'}).click();await player.getByText(/정답!/).waitFor();
  await host.waitForFunction(()=>window.scoreMotions.includes('LI')&&window.scoreMotions.includes('STRONG'));
- assert.match(await host.locator('.gb-scoreboard li').first().innerText(),new RegExp(view.teamNames[9]));
+ assert.match(await host.locator('.gb-scoreboard li').first().innerText(),new RegExp(view.teamNames[destination]));
  await mkdir(resolve(process.env.GEOWEB_QA_OUTPUT||root,'test-artifacts'),{recursive:true});
  for(const [label,page] of [['desktop',host],['mobile',player]]){
   assert.ok(await page.locator('.gb-modal').evaluate(el=>{const bounds=el.getBoundingClientRect();return innerWidth-bounds.width<=26&&innerHeight-bounds.height<=26;}));

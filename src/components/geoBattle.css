@@ -438,3 +438,5 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 .gb-confirm .gb-manage-action { display: block; width: 100%; margin: 10px 0 0; }
 .gb-player-card[draggable="true"] { touch-action: pan-y; }
 .gb-modal button.gb-ready-action { background: #1c4934; color: #a1f0bf; border-color: #36885b; }
+.gb-header-actions { grid-column: 3; justify-self: end; display: flex; align-items: center; gap: 4px; }
+.gb-modal header .gb-sound { min-height: 28px; padding: 4px 6px; font-size: 9px; white-space: nowrap; color: #ffcb73; }

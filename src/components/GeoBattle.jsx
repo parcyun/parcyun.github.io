@@ -22,6 +22,8 @@ const modes = [
   ["nature", "자연환경"],
   ["landmark", "랜드마크"],
 ];
+const battleTracks = ["aurea-carmina", "electro-cabello", "stringed-disco", "who-likes-to-party", "pure-attitude"];
+const musicKey = "ps-geoweb-battle-music";
 const teamColors = ["#ffb11a", "#69c7b5", "#829def", "#ed89a5", "#b2cf72", "#b294df", "#e99a6c", "#72bddc", "#cf8dc5", "#7ab88e"];
 
 function GamePicker({ value, onChange, busy }) {
@@ -161,7 +163,8 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     [managed, setManaged] = useState(null),
     [moveTo, setMoveTo] = useState(0),
     [dragged, setDragged] = useState(null),
-    [dropTeam, setDropTeam] = useState(null);
+    [dropTeam, setDropTeam] = useState(null),
+    [musicEnabled, setMusicEnabled] = useState(true);
   const sessionRef = useRef(null),
     roomRef = useRef(null),
     serverOffset = useRef(0),
@@ -173,6 +176,32 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     screen = useRef(null),
     roster = useRef(null),
     teamPositions = useRef(new Map());
+  const music = useRef(null);
+  const musicTrack = useRef(0);
+  useEffect(() => {
+    try { setMusicEnabled(localStorage.getItem(musicKey) !== "off"); } catch {}
+    return () => { music.current?.pause(); };
+  }, []);
+  function playMusic() {
+    if (!music.current) {
+      const audio = new Audio(`/geoweb-battle/audio/${battleTracks[musicTrack.current]}.mp3`);
+      audio.volume = 0.24;
+      audio.addEventListener("ended", () => {
+        musicTrack.current = (musicTrack.current + 1) % battleTracks.length;
+        audio.src = `/geoweb-battle/audio/${battleTracks[musicTrack.current]}.mp3`;
+        audio.play().catch(() => {});
+      });
+      music.current = audio;
+    }
+    if (music.current.paused) music.current.play().catch(() => {});
+  }
+  function toggleMusic() {
+    const enabled = !musicEnabled;
+    setMusicEnabled(enabled);
+    try { localStorage.setItem(musicKey, enabled ? "on" : "off"); } catch {}
+    if (enabled) playMusic();
+    else music.current?.pause();
+  }
   sessionRef.current = session;
   roomRef.current = room;
   async function api(path, body) {
@@ -311,7 +340,8 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
       setBusy(false);
     }
   }
-  async function enter() {
+  async function enter(event) {
+    if (event && musicEnabled) playMusic();
     setEntry(null);
     setOpen(true);
     onOpenChange?.(true);
@@ -324,6 +354,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     }).finished.catch(() => {});
   }
   async function close() {
+    music.current?.pause();
     setManaged(null);
     window.psGameQr?.closeInvitation();
     await dismiss(backdrop.current);
@@ -546,13 +577,19 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
             aria-label="지오웹 대항전"
             className="gb-modal"
             data-phase={room?.phase ?? "entry"}
+            onPointerDown={event => {
+              if (musicEnabled && !event.target.closest(".gb-sound")) playMusic();
+            }}
           >
             <header>
               <span>GEOWEB <small>LIVE BATTLE</small></span>
               {room && <div className="gb-toolbar-code"><small>GAME CODE</small><strong>{room.code}</strong></div>}
-              <button onClick={close} aria-label="대항전 닫기">
-                ×
-              </button>
+              <div className="gb-header-actions">
+                <button className="gb-sound" type="button" aria-pressed={musicEnabled} onClick={toggleMusic}>
+                  SOUND {musicEnabled ? "ON" : "OFF"}
+                </button>
+                <button onClick={close} aria-label="대항전 닫기">×</button>
+              </div>
             </header>
             <main ref={screen} className="gb-screen">
             {gate === "checking" ? (
@@ -955,7 +992,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
               </p>
             )}
             </main>
-            <div className="gb-brand">Designed by parcyun studio · <a href="https://www.instagram.com/parcyun">@parcyun</a></div>
+            <div className="gb-brand">Designed by parcyun studio · <a href="https://www.instagram.com/parcyun">@parcyun</a> · <a href="/geoweb-battle/music-credits.html" target="_blank" rel="noopener noreferrer">BGM ⓘ</a></div>
           </section>
         </div>,
         document.body,

@@ -10,6 +10,7 @@ on:
       - 'server/geoweb-battle/**'
       - 'scripts/build-geoweb-battle-corpus.mjs'
       - 'test/geoweb-battle-engine.test.mjs'
+      - 'test/geoweb-battle-ui.mjs'
       - '.github/workflows/geoweb-battle-check.yml'
 
 jobs:
@@ -26,3 +27,12 @@ jobs:
       - run: node --test test/geoweb-battle-engine.test.mjs
       - run: npm run build
       - run: docker build -f server/geoweb-battle/Dockerfile .
+      - run: npm ci --prefix server/geoweb-battle
+      - run: npm install --no-save playwright && npx playwright install chromium
+      - run: node test/geoweb-battle-ui.mjs
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: geoweb-ui-screenshots
+          path: test-artifacts/*.png
+          if-no-files-found: ignore

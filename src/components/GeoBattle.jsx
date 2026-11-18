@@ -26,6 +26,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     [error, setError] = useState(""),
     [session, setSession] = useState(null),
     [room, setRoom] = useState(null),
+    [entry, setEntry] = useState(null),
     [code, setCode] = useState(""),
     [mode, setMode] = useState("team"),
     [busy, setBusy] = useState(false),
@@ -152,6 +153,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     }
   }
   async function enter() {
+    setEntry(null);
     setOpen(true);
     onOpenChange?.(true);
     await authenticate();
@@ -189,6 +191,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
         await load(room.code);
       } else {
         setRoom(null);
+        setEntry(null);
         roomRef.current = null;
         sessionStorage.removeItem(roomKey);
         clearInviteCode();
@@ -316,40 +319,48 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
             ) : !room ? (
               <div className="gb-center">
                 <h1>함께 지리를 풀어요</h1>
-                <div className="gb-options">
-                  <button
-                    onClick={() => setMode("team")}
-                    aria-pressed={mode === "team"}
-                  >
-                    팀 대항전
-                  </button>
-                  <button
-                    onClick={() => setMode("individual")}
-                    aria-pressed={mode === "individual"}
-                  >
-                    개인 대항전
-                  </button>
-                </div>
-                <button disabled={busy} onClick={create}>
-                  방 만들기
-                </button>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    join();
-                  }}
-                >
-                  <input
-                    value={code}
-                    onChange={(e) =>
-                      setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
-                    }
-                    inputMode="numeric"
-                    placeholder="6자리 참가 코드"
-                    aria-label="참가 코드"
-                  />
-                  <button disabled={busy}>방 참가하기</button>
-                </form>
+                {!entry && (
+                  <div className="gb-options">
+                    <button onClick={() => setEntry("create")}>게임 만들기</button>
+                    <button onClick={() => setEntry("join")}>게임 참여하기</button>
+                  </div>
+                )}
+                {entry === "create" && (
+                  <>
+                    <div className="gb-options">
+                      <button onClick={() => setMode("team")} aria-pressed={mode === "team"}>
+                        팀 대항전
+                      </button>
+                      <button onClick={() => setMode("individual")} aria-pressed={mode === "individual"}>
+                        개인 대항전
+                      </button>
+                    </div>
+                    <button disabled={busy} onClick={() => create().catch(() => {})}>
+                      방 만들기
+                    </button>
+                  </>
+                )}
+                {entry === "join" && (
+                  <form onSubmit={(event) => {
+                    event.preventDefault();
+                    join().catch(() => {});
+                  }}>
+                    <input
+                      value={code}
+                      onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                      inputMode="numeric"
+                      placeholder="6자리 참가 코드"
+                      aria-label="참가 코드"
+                    />
+                    <button disabled={busy}>방 참가하기</button>
+                  </form>
+                )}
+                {entry && (
+                  <button disabled={busy} onClick={() => {
+                    setEntry(null);
+                    setError("");
+                  }}>돌아가기</button>
+                )}
               </div>
             ) : (
               <>

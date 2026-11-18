@@ -23,7 +23,15 @@ try{
  if(await host.locator('.update-story').isVisible())await host.locator('.update-story-card > button').first().click();
  if(await host.locator('.guide-shade').isVisible())await host.locator('.guide-shade').click();
  await host.locator('.game-entry').click();
- await host.locator('.gb-launch').waitFor({timeout:30000}).catch(async error=>{await mkdir(resolve(root,'test-artifacts'),{recursive:true});await host.screenshot({path:resolve(root,'test-artifacts/geoweb-desktop-failure.png')});console.error('GeoGame count',await host.locator('.geo-game').count(),'body',String(await host.locator('body').innerText()).slice(-1500));throw error;});await host.locator('.gb-launch').click();await host.getByRole('button',{name:'게임 참여하기',exact:true}).click();await host.getByRole('textbox',{name:'참가 코드'}).waitFor();await host.getByRole('button',{name:'돌아가기',exact:true}).click();await host.getByRole('button',{name:'게임 만들기',exact:true}).click();await host.getByRole('button',{name:'방 만들기'}).waitFor({timeout:15000});await host.getByRole('button',{name:'방 만들기'}).click();
+ await host.locator('.gb-launch').waitFor({timeout:30000}).catch(async error=>{await mkdir(resolve(root,'test-artifacts'),{recursive:true});await host.screenshot({path:resolve(root,'test-artifacts/geoweb-desktop-failure.png')});console.error('GeoGame count',await host.locator('.geo-game').count(),'body',String(await host.locator('body').innerText()).slice(-1500));throw error;});await host.locator('.gb-launch').click();await host.getByRole('button',{name:'게임 참여하기',exact:true}).click();await host.getByRole('textbox',{name:'참가 코드'}).waitFor();await host.getByRole('button',{name:'돌아가기',exact:true}).click();await host.getByRole('button',{name:'게임 만들기',exact:true}).click();await host.getByRole('button',{name:'방 만들기'}).waitFor({timeout:15000});const increase=host.getByRole('button',{name:'팀 개수 늘리기'});
+ const decrease=host.getByRole('button',{name:'팀 개수 줄이기'});
+ if(!await decrease.isDisabled())throw Error('Minimum team count was not enforced');
+ for(let i=2;i<10;i++)await increase.click();
+ if(!await increase.isDisabled())throw Error('Maximum team count was not enforced');
+ await host.getByRole('button',{name:'개인 대항전',exact:true}).click();
+ if(await increase.isVisible())throw Error('Individual mode showed team controls');
+ await host.getByRole('button',{name:'팀 대항전',exact:true}).click();
+ await host.getByRole('button',{name:'방 만들기'}).click();
  const heading=host.locator('.gb-heading small');await heading.waitFor();const code=(await heading.innerText()).match(/\d{6}/)?.[0];if(!code)throw Error('Room code missing');
  const one=await api('session',identity('테스트선수1','b'));const two=await api('session',identity('테스트선수2','c'));
  await api(`rooms/${code}/join`,{},one.token);await api(`rooms/${code}/join`,{},two.token);
@@ -34,7 +42,7 @@ try{
  const playerContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce'});
  await playerContext.route('**/game-account.js*',route=>route.fulfill({contentType:'text/javascript',body:`window.psBattleIdentity=async()=>(${JSON.stringify(identity('테스트선수1','b'))});`}));
  const player=await playerContext.newPage();await player.goto(`${site}?geoBattle=${code}`);await player.locator('.gb-question input').waitFor({timeout:60000});
- const view=await api(`rooms/${code}`,undefined,one.token);const corpus=JSON.parse(await readFile(resolve(root,'server/geoweb-battle/corpus.json')));const q=corpus[view.settings.difficulty].find(item=>item.id===view.question.id);
+ const view=await api(`rooms/${code}`,undefined,one.token);if(view.teamCount!==10)throw Error("Room did not use selected team count");const corpus=JSON.parse(await readFile(resolve(root,'server/geoweb-battle/corpus.json')));const q=corpus[view.settings.difficulty].find(item=>item.id===view.question.id);
  await player.locator('.gb-question input').fill(q.answers[0]);await player.getByRole('button',{name:'정답 제출'}).click();await player.getByText(/정답!/).waitFor({timeout:15000});
  await player.screenshot({path:resolve(root,'test-artifacts/geoweb-mobile.png')});
  console.log(`GeoWeb battle UI passed in isolated memory room ${code}`);

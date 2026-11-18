@@ -1,7 +1,7 @@
 import { createPortal } from "react-dom";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import "./geoBattle.css";
-import { difficultyOptions } from "./geoGameDifficulty.js";
+import { difficultyOptions, EXPERT_ANSWER_MS } from "./geoGameDifficulty.js";
 
 const base = import.meta.env.DEV
   ? "/api/geoweb-battle"
@@ -130,6 +130,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     roomRef = useRef(null),
     serverOffset = useRef(0),
     pending = useRef(false),
+    refreshing = useRef(false),
     backdrop = useRef(null),
     screen = useRef(null),
     roster = useRef(null),
@@ -216,12 +217,30 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     }
   }
   async function load(value) {
+    const previous = roomRef.current;
     const next = await api(`rooms/${value}`);
+    if (roomRef.current !== previous) return next;
+    if (previous?.settings.level === "expert" &&
+        previous.question && (previous.question.index !== next.question?.index || previous.round !== next.round)) {
+      setAnswer("");
+      setFeedback("");
+    }
     setRoom(next);
     roomRef.current = next;
     sessionStorage.setItem(roomKey, next.code);
     setGate("ready");
     return next;
+  }
+  async function refreshRoom() {
+    if (refreshing.current || pending.current || !navigator.onLine || !roomRef.current) return;
+    refreshing.current = true;
+    try {
+      await load(roomRef.current.code);
+    } catch (error) {
+      failure(error);
+    } finally {
+      refreshing.current = false;
+    }
   }
   async function act(path, body) {
     if (pending.current) return;
@@ -302,7 +321,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
   }
   async function submit(e) {
     e.preventDefault();
-    if (!answer.trim() || !room?.question) return;
+    if (!answer.trim() || !room?.question || expertExpired) return;
     try {
       const result = await act(`rooms/${room.code}/answer`, {
         answer,
@@ -327,7 +346,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     if (!open || !room) return;
     const id = setInterval(() => {
       if (document.hidden || !navigator.onLine || pending.current) return;
-      load(roomRef.current.code).catch(failure);
+      refreshRoom();
     }, 900);
     return () => clearInterval(id);
   }, [open, room?.code]);
@@ -358,6 +377,31 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
         "easy",
       );
   }, [room?.question?.id, room?.question?.index]);
+  const expertDeadline = room?.settings.level === "expert" && room?.question?.startedAt != null
+    ? room.question.startedAt + EXPERT_ANSWER_MS
+    : null;
+  const expertSeconds = expertDeadline == null ? null : Math.ceil((expertDeadline - clock - serverOffset.current) / 1000);
+  const expertExpired = expertSeconds != null && expertSeconds <= 0;
+  useEffect(() => {
+    if (!open || expertDeadline == null) return;
+    let timeout;
+    let cancelled = false;
+    async function advance() {
+      if (cancelled) return;
+      const remaining = expertDeadline - Date.now() - serverOffset.current;
+      if (remaining > 0) {
+        timeout = setTimeout(advance, remaining);
+        return;
+      }
+      setClock(Date.now());
+      if (!document.hidden) await refreshRoom();
+      if (!cancelled && roomRef.current?.question?.startedAt + EXPERT_ANSWER_MS === expertDeadline) {
+        timeout = setTimeout(advance, 100);
+      }
+    }
+    timeout = setTimeout(advance, Math.max(0, expertDeadline - Date.now() - serverOffset.current));
+    return () => { cancelled = true; clearTimeout(timeout); };
+  }, [open, expertDeadline]);
   const deadline =
     room?.phase === "starting"
       ? room.startsAt
@@ -695,10 +739,10 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                 ) : room.phase === "playing" && room.waiting ? (
                   <div className="gb-center"><h2>다음 라운드부터 함께해요</h2></div>
                 ) : room.phase === "playing" && !host ? (
-                  <div className="gb-question">
+                  <div className="gb-question" hidden={expertExpired}>
                     <p>{room.question?.prompt}</p>
-                    {room.settings.level === "expert" && room.question && (
-                      <strong className="gb-expert-clock" role="timer">{Math.max(0, Math.ceil((room.question.startedAt + 5000 - clock - serverOffset.current) / 1000))}</strong>
+                    {expertSeconds > 0 && (
+                      <strong className="gb-expert-clock" role="timer">{expertSeconds}</strong>
                     )}
                     {room.question?.image && (
                       <img src={room.question.image} alt="문제 이미지" />

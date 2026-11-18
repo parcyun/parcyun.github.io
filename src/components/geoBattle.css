@@ -407,3 +407,4 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 .gb-expert-clock { color: #ff7b60; text-align: center; font: 800 32px Montserrat, sans-serif; }
 .gb-backdrop { animation-fill-mode: none; }
 .gl-app:has(.gg-battle-open) :is(.gg-ranking-open,.gg-mode-exit) { visibility: hidden; }
+.gb-question[hidden] { display: none; }

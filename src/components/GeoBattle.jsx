@@ -1,8 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import "./geoBattle.css";
 
-const base = import.meta.env.PUBLIC_GEOWEB_BATTLE_API || "/api/geoweb-battle";
+const base = import.meta.env.DEV
+  ? "/api/geoweb-battle"
+  : "https://spell-drill-battle-1093702239224.asia-northeast3.run.app/api/geoweb-battle";
 const roomKey = "ps-geoweb-battle-room.v1";
+function clearInviteCode() {
+  const url = new URL(location.href);
+  if (url.searchParams.has("geoBattle")) {
+    url.searchParams.delete("geoBattle");
+    history.replaceState(null, "", url);
+  }
+}
 const modes = [
   ["country", "나라 이름"],
   ["capital-easy", "수도 이름"],
@@ -94,12 +103,20 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
           setRoom(joined);
           roomRef.current = joined;
           sessionStorage.setItem(roomKey, saved);
-        } catch {
+        } catch (e) {
+          if (!e.status || e.status >= 500) {
+            failure(e);
+            return;
+          }
           sessionStorage.removeItem(roomKey);
+          clearInviteCode();
         }
       }
     } catch (e) {
-      failure(e);
+      if (e?.status === 400 || e?.status === 403) {
+        setGate("unauthenticated");
+        setError(e.message);
+      } else failure(e);
     }
   }
   async function load(value) {
@@ -174,6 +191,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
         setRoom(null);
         roomRef.current = null;
         sessionStorage.removeItem(roomKey);
+        clearInviteCode();
       }
     } catch {}
   }
@@ -279,6 +297,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
               <div className="gb-center">
                 <h2>계정이 필요해요</h2>
                 <p>로그인하거나 브라우저 계정을 만들어 참가하세요.</p>
+                {error && <p role="alert" className="gb-error">{error}</p>}
                 <button
                   onClick={() =>
                     document.querySelector(".ps-account-trigger")?.click()

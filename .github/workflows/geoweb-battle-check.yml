@@ -8,6 +8,8 @@ on:
       - 'src/components/GeoGame.jsx'
       - 'src/components/GlobeLab.jsx'
       - 'server/geoweb-battle/**'
+      - 'server/spell-battle/**'
+      - 'scripts/build-spell-battle-context.mjs'
       - 'scripts/build-geoweb-battle-corpus.mjs'
       - 'test/geoweb-battle-engine.test.mjs'
       - 'test/geoweb-battle-ui.mjs'
@@ -24,10 +26,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node scripts/build-geoweb-battle-corpus.mjs && git diff --exit-code -- server/geoweb-battle/corpus.json
-      - run: node --test test/geoweb-battle-engine.test.mjs
+      - run: node --test test/geoweb-battle-engine.test.mjs test/spell-battle.test.mjs
       - run: npm run build
-      - run: docker build -f server/geoweb-battle/Dockerfile .
-      - run: npm ci --prefix server/geoweb-battle
+      - run: node scripts/build-spell-battle-context.mjs .geoweb-battle-context
+      - run: docker build -f .geoweb-battle-context/Dockerfile .geoweb-battle-context
+      - run: npm ci --prefix server/spell-battle
       - run: npm install --no-save playwright && npx playwright install chromium
       - run: node test/geoweb-battle-ui.mjs
       - uses: actions/upload-artifact@v6

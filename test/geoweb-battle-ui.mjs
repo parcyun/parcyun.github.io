@@ -4,7 +4,7 @@ import {resolve} from 'node:path';
 import {chromium} from 'playwright';
 
 const root=resolve(import.meta.dirname,'..');
-const apiBase='http://127.0.0.1:47821/api/geoweb-battle/';
+const apiBase='http://127.0.0.1:47820/api/geoweb-battle/';
 const site='http://127.0.0.1:4321/world-map/';
 const children=[];
 function run(command,args,env={}){const child=spawn(command,args,{cwd:root,env:{...process.env,...env},stdio:'inherit'});children.push(child);return child;}
@@ -13,9 +13,9 @@ async function api(path,body,token){const response=await fetch(apiBase+path,{met
 const identity=(name,version)=>({kind:'browser',name,version:version.repeat(32)});
 let browser;
 try{
- run('node',['server/geoweb-battle/server.mjs']);
+ run('node',['server/spell-battle/server.mjs']);
  run('node',['node_modules/astro/bin/astro.mjs','dev','--host','127.0.0.1','--port','4321'],{GEOWEB_LOCAL_BATTLE:'1'});
- await waitFor('http://127.0.0.1:47821/health');await waitFor(site);
+ await waitFor('http://127.0.0.1:47820/health');await waitFor(site);
  browser=await chromium.launch({headless:true,args:['--disable-gpu']});
  const desktop=await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'reduce'});
  await desktop.route('**/game-account.js*',route=>route.fulfill({contentType:'text/javascript',body:`window.psBattleIdentity=async()=>(${JSON.stringify(identity('테스트진행자','a'))});`}));

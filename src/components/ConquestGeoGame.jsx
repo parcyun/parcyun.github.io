@@ -3,6 +3,7 @@ import { GAME_MODES, matchesAnswer, scoreAnswer, scoring, shuffledDeck } from '.
 import './geoGame.css';
 import { EXPERT_ANSWER_MS, DIFFICULTIES, difficultyDeck, difficultyLabel, hasCountryDifficulty, gameRecordKey } from './geoGameDifficulty.js';
 import GeoScoreEffect from './GeoScoreEffect.jsx';
+import GeoBattle from './GeoBattle.jsx';
 import { RECORD_KEY, readRecords, updateRecord, formatTime } from './geoGameRecords.js';
 
 export default function GeoGame({ pools, onTarget, onExit, onFinish, onContribution, onQuestionReady, onMiss, mapView }) {
@@ -11,6 +12,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish, onContribut
   const difficultyDialog=useRef(null);
   const practice=false;
   const [playing,setPlaying]=useState(false);
+  const [battleOpen,setBattleOpen]=useState(false);
   const [question,setQuestion]=useState(null);
   const [answer,setAnswer]=useState('');
   const [busy,setBusy]=useState(true);
@@ -135,7 +137,8 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish, onContribut
   function finish(){cancelPending();locked.current=true;onFinish?.(mode);if(practice){returnToMenu();return;}setSummary(true);}
   function returnToMenu(){const complete=()=>{setSummary(false);setPlaying(false);setQuestion(null);setResult(null);setFormula(false);later(()=>document.querySelector('.gg-menu nav button')?.focus(),0);};if(summary)window.psModalMotion.exit(document.querySelector('.gg-summary'),complete);else complete();}
   return <section className={`geo-game ${playing?'gg-playing':''} ${playing&&mode==='flag'?'geo-game-flags':''} ${expert?'gg-expert':''}`} aria-label="지오웹 게임 모드">
-    {playing&&mapView}
+    {(playing||battleOpen)&&mapView}
+    {!playing&&<GeoBattle onOpenChange={setBattleOpen} onTarget={(target,battleMode)=>{const match=pools[battleMode]?.find(item=>item.id===target.id);if(match)onTarget(match,battleMode,'easy');}}/>}
     <aside className="gg-menu" inert={playing||undefined} aria-hidden={playing}>
       <div className="gg-eyebrow">GEOWEB / PLAY</div><h1>지구 한 바퀴</h1>
       <p>어디까지 알고 있나요?</p>

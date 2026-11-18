@@ -25,6 +25,17 @@ test('host cancellation and participant leave remain distinct',()=>{
  assert.equal(battle.end(room.code,'host').phase,'cancelled');
 });
 
+test('offline presence clears readiness and reconnect returns to the same room',()=>{
+ const battle=new Battle(corpus);const room=battle.create(identity('host'),2,'team');
+ battle.join(room.code,identity('one'));battle.ready(room.code,'one',true);
+ battle.presence(room.code,'one',false);
+ assert.equal(battle.view(room,'host').players.find(p=>p.id==='one').ready,false);
+ battle.join(room.code,identity('one'));
+ const restored=battle.view(room,'one');
+ assert.equal(restored.code,room.code);
+ assert.equal(restored.players.find(p=>p.id==='one').connected,true);
+});
+
 test('all live GeoWeb categories have playable questions without answer leakage',()=>{
  const categories=JSON.parse(readFileSync(new URL('../server/geoweb-battle/corpus.json',import.meta.url)));
  assert.deepEqual(Object.keys(categories).sort(),['country','capital-easy','capital-hard','flag','nature','landmark'].sort());

@@ -168,6 +168,14 @@
   var modal = document.getElementById('coffee-modal');
   var coffeeForm = document.getElementById('coffee-form');
   var coffeeInfo = document.getElementById('coffee-info');
+  var coffeeSubjectPrefix = window.PSServiceContext && typeof window.PSServiceContext.contactSubjectPrefix === 'function' ? window.PSServiceContext.contactSubjectPrefix(servicePath) : '';
+  if (coffeeSubjectPrefix) {
+    coffeeForm.querySelector('[name="subject"]').maxLength = 120 - coffeeSubjectPrefix.length;
+    var sourceNotice = document.createElement('p');
+    sourceNotice.className = 'coffee-notice';
+    sourceNotice.textContent = '메일 제목에 [Atlas Gears] 말머리가 자동으로 붙습니다.';
+    coffeeForm.querySelector('[name="subject"]').parentElement.appendChild(sourceNotice);
+  }
   var coffeeSending = false;
   var coffeeDraft = '';
   var coffeeRequestId = '';
@@ -188,6 +196,7 @@
     var button = document.getElementById('coffee-send');
     var fields = new FormData(coffeeForm);
     var payload = { email: String(fields.get('email')).trim(), subject: String(fields.get('subject')).trim(), message: String(fields.get('message')).trim(), website: String(fields.get('website') || '') };
+    if (window.PSServiceContext && typeof window.PSServiceContext.contactSubject === 'function') payload.subject = window.PSServiceContext.contactSubject(servicePath, payload.subject);
     var draft = JSON.stringify(payload);
     if (draft !== coffeeDraft) { coffeeDraft = draft;coffeeRequestId = new Date().toISOString().slice(0,10) + '_' + crypto.randomUUID(); }
     payload.id = coffeeRequestId;

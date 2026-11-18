@@ -38,3 +38,18 @@ test('feedback source keeps a validated reviews service context and discards unr
   assert.equal(sourcePathForFeedback('/reviews/', '?service=not-valid'), '/reviews/');
   assert.equal(sourcePathForFeedback('/atlas-gears/', '?service=home'), '/atlas-gears/');
 });
+
+const { contactSubjectPrefix, contactSubject } = globalThis.PSServiceContext;
+test('Atlas contact subjects identify the route without changing general inquiries', () => {
+  for (const path of ['/atlas-gears', '/atlas-gears/', '/atlas-gears/?x=1']) {
+    assert.equal(contactSubjectPrefix(path), '[Atlas Gears] ');
+    assert.equal(contactSubject(path, '  hello  '), '[Atlas Gears] hello');
+    assert.equal(contactSubject(path, '[Atlas Gears] hello'), '[Atlas Gears] hello');
+  }
+  for (const path of ['/', '/world-map/', '/atlas-gears-copy/', '/reviews/']) {
+    assert.equal(contactSubjectPrefix(path), '');
+    assert.equal(contactSubject(path, 'hello'), 'hello');
+  }
+  const limit = 120 - contactSubjectPrefix('/atlas-gears/').length;
+  assert.equal(contactSubject('/atlas-gears/', 'x'.repeat(limit)).length, 120);
+});

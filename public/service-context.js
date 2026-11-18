@@ -68,7 +68,20 @@
     return path + suffix;
   }
 
+  // This is a routing label, not a verified identity or proof of origin.
+  function contactSubjectPrefix(pathname) {
+    return normalizePath(pathname) === '/atlas-gears' ? '[Atlas Gears] ' : '';
+  }
+
+  function contactSubject(pathname, subject) {
+    var prefix = contactSubjectPrefix(pathname);
+    var text = String(subject || '').trim();
+    return prefix && text.toLowerCase().indexOf(prefix.trim().toLowerCase()) !== 0 ? prefix + text : text;
+  }
+
   root.PSServiceContext = {
+    contactSubjectPrefix: contactSubjectPrefix,
+    contactSubject: contactSubject,
     allowedServiceKeys: SERVICE_KEYS.slice(),
     normalizePath: normalizePath,
     resolveServiceKey: resolveServiceKey,

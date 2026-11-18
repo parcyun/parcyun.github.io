@@ -1,5 +1,5 @@
 import { createPortal } from "react-dom";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import "./geoBattle.css";
 import { difficultyOptions, EXPERT_ANSWER_MS } from "./geoGameDifficulty.js";
 
@@ -454,9 +454,10 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
       : room?.phase === "between"
         ? room.nextAt
         : room?.deadline;
-  const countdown = deadline
-    ? Math.max(0, Math.ceil((deadline - clock - serverOffset.current) / 1000))
-    : 0;
+  const localDeadline = useMemo(() => deadline ? deadline - serverOffset.current : null, [deadline]);
+  const countdown = localDeadline == null
+    ? 0
+    : Math.max(0, Math.ceil((localDeadline - clock) / 1000));
   const host = room?.me === room?.host,
     me = room?.players?.find((p) => p.id === room.me),
     ready = room?.players?.filter((p) => p.ready).length || 0;

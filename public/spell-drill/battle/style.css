@@ -68,3 +68,5 @@ body:has(#battle-launch):has(#home.active) .stage{padding-top:74px}body:has(#pla
 .leaderboard .battle-team .battle-players{max-height:76px;overflow:auto;overscroll-behavior:contain;scrollbar-width:none;align-content:flex-start}.leaderboard .battle-team.first-place .battle-players{max-height:108px}
 
 .battle-setting-stepper input{width:58px!important;text-align:center;cursor:default}.battle-setting-stepper input[name=difficulty]{width:58px!important}
+
+.battle-checking{text-align:center;display:grid;justify-items:center;gap:12px;padding-top:8vh}.battle-spinner{width:44px;height:44px;border:3px solid #ffb11a40;border-top-color:#ffb11a;border-radius:50%;animation:battle-spin .8s linear infinite}@keyframes battle-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.battle-spinner{animation-duration:2s}}

@@ -70,6 +70,10 @@ function celebrate() {
   const audio = prime();
   if (!audio) return;
   const start = audio.currentTime + .015;
+  const mix = audio.createDynamicsCompressor();
+  mix.threshold.value = -13;
+  mix.ratio.value = 5;
+  mix.connect(audio.destination);
   const noise = audio.createBuffer(1, Math.ceil(audio.sampleRate * 1.1), audio.sampleRate);
   const samples = noise.getChannelData(0);
   for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
@@ -82,44 +86,56 @@ function celebrate() {
     filter.type = "bandpass";
     filter.frequency.value = frequency;
     filter.Q.value = .8;
-    src.connect(filter).connect(gain).connect(audio.destination);
+    src.connect(filter).connect(gain).connect(mix);
     gain.gain.setValueAtTime(.0001, time);
     gain.gain.exponentialRampToValueAtTime(volume, time + .016);
     gain.gain.exponentialRampToValueAtTime(.0001, time + duration);
     src.start(time);
     src.stop(time + duration);
   }
-  for (let i = 0; i < 10; i++) {
-    const time = start + i * .038;
-    for (const frequency of [1480 + i * 77, 2380 + i * 39]) {
-      const tone = audio.createOscillator();
-      const gain = audio.createGain();
-      tone.type = "triangle";
-      tone.frequency.value = frequency;
-      tone.connect(gain).connect(audio.destination);
-      gain.gain.setValueAtTime(.042, time);
-      gain.gain.exponentialRampToValueAtTime(.0001, time + .13);
-      tone.start(time);
-      tone.stop(time + .14);
-    }
+  function bell(time, frequency, volume, decay) {
+    const tone = audio.createOscillator();
+    const gain = audio.createGain();
+    tone.type = "sine";
+    tone.frequency.value = frequency;
+    tone.connect(gain).connect(mix);
+    gain.gain.setValueAtTime(.0001, time);
+    gain.gain.linearRampToValueAtTime(volume, time + .003);
+    gain.gain.exponentialRampToValueAtTime(.0001, time + decay);
+    tone.start(time);
+    tone.stop(time + decay);
   }
-  for (let i = 0; i < 22; i++) burst(start + .16 + i * .033 + Math.random() * .025, .095, 1250 + Math.random() * 1300, .13);
-  for (let i = 0; i < 6; i++) {
-    const time = start + .18 + i * .075;
+  // A rising payout jingle resolves into a sustained major chord.
+  [523,659,784,1047,784,1047,1319].forEach((hz,i)=>bell(start+i*.105,hz,.3,.32));
+  [1047,1319,1568].forEach(hz=>bell(start+.79,hz,.23,.85));
+  for (let i = 0; i < 24; i++) {
+    const time = start + .42 + i * .05 + Math.random() * .022;
+    const hz = 1450 + Math.random() * 560;
+    bell(time,hz,.23,.19);
+    bell(time,hz*1.69,.12,.12);
+    burst(time,.04,3100,.37);
+  }
+  for (let i = 0; i < 75; i++) {
+    const time = start + .85 + i * .023 + Math.random() * .05;
+    burst(time,.09,980 + Math.random()*1400,.48);
+    burst(time+.013,.065,2200,.25);
+  }
+  for (let i = 0; i < 14; i++) {
+    const time = start + .82 + i * .055;
     const voice = audio.createOscillator();
     const filter = audio.createBiquadFilter();
     const gain = audio.createGain();
     voice.type = "sawtooth";
-    voice.frequency.setValueAtTime(220 + i * 22, time);
-    voice.frequency.linearRampToValueAtTime(326 + i * 25, time + .18);
+    voice.frequency.setValueAtTime(190 + i * 13, time);
+    voice.frequency.linearRampToValueAtTime(333 + i * 17, time + .31);
     filter.type = "bandpass";
-    filter.frequency.value = 720 + i * 90;
-    voice.connect(filter).connect(gain).connect(audio.destination);
+    filter.frequency.value = 680 + i * 48;
+    voice.connect(filter).connect(gain).connect(mix);
     gain.gain.setValueAtTime(.0001, time);
-    gain.gain.exponentialRampToValueAtTime(.032, time + .12);
-    gain.gain.exponentialRampToValueAtTime(.0001, time + .38);
+    gain.gain.exponentialRampToValueAtTime(.16, time + .15);
+    gain.gain.exponentialRampToValueAtTime(.0001, time + .86);
     voice.start(time);
-    voice.stop(time + .39);
+    voice.stop(time + .87);
   }
 }
 window.psGameSfx = {

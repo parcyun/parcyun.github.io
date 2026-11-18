@@ -88,13 +88,13 @@ export default function GeoRanking({ initialMode, initialDifficulty='easy', onCl
       <div><span className="gg-eyebrow">NEW RECORD · 미제출</span><strong>{(merging?.key===boardKey?merging.record:record).score.toLocaleString()}점 <small>· {time((merging?.key===boardKey?merging.record:record).elapsedMs)}</small></strong><small>{selectedTitle} · {difficultyLabel(boardDifficulty)}</small></div>
       <button type="button" className="gg-ranking-submit" disabled={sending||!!merging||loading||!!award} onClick={submit}>{sending?'제출 중…':merging?'제출 완료':'기록 제출'}</button>
     </div>}
+    <section ref={minePanel} tabIndex={-1} className={`gg-ranking-mine ps-best-record ${merging?.key===boardKey?'gg-ranking-mine-merge':''}`} aria-label="내 최고 기록" role="status">
+      <div className="gg-ranking-mine-label ps-best-record-label"><span className="gg-eyebrow">MY BEST RECORD</span><h3>{selectedTitle}{boardDifficulty?` · ${difficultyLabel(boardDifficulty)}`:''}</h3><span ref={mineBadge} className={`gg-ranking-renewed ${renewed===boardKey?'is-renewed':''}`} aria-hidden={renewed!==boardKey}>경신!</span>{mine&&<p>{mine.nickname} · {rankingAffiliation(mine)} · {played(mine.playedAt)}</p>}</div>
     {!record&&!merging&&last&&!loading&&<section className="ps-last-ranking">
       <small>LAST RECORD · 마지막 제출 기록</small>
       <strong>{last.score.toLocaleString()}점 · {last.estimated?'환산 ':''}{last.rank}위</strong>
       <span>소요 {time(last.elapsedMs)}</span>
     </section>}
-    <section ref={minePanel} tabIndex={-1} className={`gg-ranking-mine ps-best-record ${merging?.key===boardKey?'gg-ranking-mine-merge':''}`} aria-label="내 최고 기록" role="status">
-      <div className="gg-ranking-mine-label ps-best-record-label"><span className="gg-eyebrow">MY BEST RECORD</span><h3>{selectedTitle}{boardDifficulty?` · ${difficultyLabel(boardDifficulty)}`:''}</h3><span ref={mineBadge} className={`gg-ranking-renewed ${renewed===boardKey?'is-renewed':''}`} aria-hidden={renewed!==boardKey}>경신!</span>{mine&&<p>{mine.nickname} · {rankingAffiliation(mine)} · {played(mine.playedAt)}</p>}</div>
       {loading?<p>내 순위를 확인하고 있어요…</p>:error?<p>내 기록을 확인하지 못했어요. 다시 시도해 주세요.</p>:mine?<p className="gg-ranking-mine-score ps-best-record-score"><strong>{mine.rank}위</strong><span>최대 콤보 {mine.maxCombo==null?'—':`${mine.maxCombo}회`}</span><b>{mine.score.toLocaleString()}점</b><span>소요 {time(mine.elapsedMs)}</span></p>:<p>{signedIn?'이 게임·난이도에 제출한 기록이 없어요.':'프로필을 만들면 내 기록과 순위를 볼 수 있어요.'}</p>}
       {!loading&&!signedIn&&<button type="button" onClick={()=>{dismiss(()=>document.querySelector('.ps-account-trigger')?.click());}}>내 프로필 만들기</button>}
     </section></div>

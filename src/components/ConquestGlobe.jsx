@@ -1,3 +1,4 @@
+import useGeoMusic from "./useGeoMusic.js";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import GeoGame from './ConquestGeoGame.jsx';
 import ConquestPanel from './ConquestPanel.jsx';
@@ -309,6 +310,7 @@ function DraggablePanel({corner,onDock,otherCorner,className,children,collapsed,
 }
 
 export default function ConquestGlobe({quizView=false,question:quizQuestion=null,questionMode=null}){
+  const {musicEnabled,toggleMusic}=useGeoMusic(!quizView);
   useEffect(()=>{
     let cancelled=false,timer;const images=[];const urls=[...new Set(COUNTRIES.map(country=>country.flag).filter(Boolean))];
     const loadNext=()=>{if(cancelled||!urls.length)return;const image=new Image();images.push(image);image.decoding='async';image.fetchPriority='low';image.onload=image.onerror=()=>{if(!cancelled)timer=setTimeout(loadNext,0);};image.src=urls.shift();};
@@ -1052,6 +1054,7 @@ export default function ConquestGlobe({quizView=false,question:quizQuestion=null
       <div className={'controls'+(guide?' guide-lift':'')}>
         {view==='globe' && <button className={'ctrl northup'+(northUp?' on':'')} aria-label={T.northUp} title={T.northUp} onClick={()=>setNorthUp(v=>!v)}><span key={northUp?'on':'off'} className="nu-glyph">N</span></button>}
         <button className="ctrl game-entry" disabled={!gamePools||gameWipe} onClick={enterGame}>게임 모드</button>
+        <button className="ctrl" style={{width:"auto",padding:"0 10px",fontSize:11}} data-music-toggle aria-pressed={musicEnabled} onClick={toggleMusic}>SOUND {musicEnabled?"ON":"OFF"}</button>
         <button className="ctrl" aria-label={T.zoomIn} onClick={()=>api.current.dolly&&api.current.dolly(0.8)}>+</button>
         <button className="ctrl" aria-label={T.zoomOut} onClick={()=>api.current.dolly&&api.current.dolly(1.25)}>−</button>
         <button className="ctrl home" aria-label={T.home} onClick={()=>{setSel(null);S.current.homeReq=true;if(view==='flat')api.current.goView&&api.current.goView('flat');else setView('flat');}}>⟳</button>

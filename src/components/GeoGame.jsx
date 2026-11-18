@@ -10,7 +10,7 @@ import GeoScoreEffect from './GeoScoreEffect.jsx';
 import GeoBattle from './GeoBattle.jsx';
 import { RECORD_KEY, readRecords, updateRecord, formatTime } from './geoGameRecords.js';
 
-export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
+export default function GeoGame({ musicControls, pools, onTarget, onExit, onFinish }) {
   const [mode,setMode]=useState('country');
   const [difficulty,setDifficulty]=useState('easy'),[pendingMode,setPendingMode]=useState(null);
   const difficultyDialog=useRef(null);
@@ -155,7 +155,7 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish }) {
   function finish(){cancelPending();locked.current=true;onFinish?.(mode);if(practice){returnToMenu();return;}setSummary(true);}
   function returnToMenu(){const complete=()=>{setSummary(false);setPlaying(false);setQuestion(null);setResult(null);setFormula(false);later(()=>document.querySelector('.gg-menu nav button')?.focus(),0);};if(summary)window.psModalMotion.exit(document.querySelector('.gg-summary'),complete);else complete();}
   return <section className={`geo-game ${playing?'gg-playing':''} ${playing&&mode==='flag'?'geo-game-flags':''} ${expert?'gg-expert':''} ${battleOpen?'gg-battle-open':''}`} aria-label="지오웹 게임 모드">
-    {!playing&&<GeoBattle onOpenChange={setBattleOpen} onTarget={(target,battleMode)=>{const match=pools[battleMode]?.find(item=>item.id===target.id);if(match)onTarget(match,battleMode);}}/>}
+    {!playing&&<GeoBattle musicControls={musicControls} onOpenChange={setBattleOpen} onTarget={(target,battleMode)=>{const match=pools[battleMode]?.find(item=>item.id===target.id);if(match)onTarget(match,battleMode);}}/>}
     {playing&&mode==='flag'&&<div className="geo-game-blur"/>}
     <aside className="gg-menu" inert={playing||battleOpen||undefined} aria-hidden={playing||battleOpen}>
       <div className="gg-eyebrow">GEOWEB / PLAY</div><h1>지구 한 바퀴</h1>

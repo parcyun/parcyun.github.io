@@ -386,11 +386,11 @@
   #play.active{height:100%;min-height:0;display:grid;align-content:safe center;scrollbar-width:none}
   #play.active::-webkit-scrollbar{display:none}
   #home.active #start{position:relative;overflow:hidden;isolation:isolate}
-  #home.active #start::after{content:"";position:absolute;inset:-65%;z-index:0;pointer-events:none;background:linear-gradient(112deg,transparent 43%,#fff7 49%,#fff9 50%,transparent 56%);animation:spell-idle-shine 4.8s ease-in-out infinite}
+  #home.active #start::after{content:"";position:absolute;inset:-65%;z-index:0;pointer-events:none;background:linear-gradient(112deg,transparent 43%,#fff7 49%,#fff9 50%,transparent 56%);animation:spell-idle-shine 3s ease-in-out infinite}
   #home.active #start .start-label,#home.active #start .arrow{position:relative;z-index:1;display:inline-block}
-  #home.active #start .start-label{--spell-nudge:-7px;--spell-rebound:2px;animation:spell-idle-nudge 4.8s infinite}
-  #home.active #start .arrow{--spell-nudge:8px;--spell-rebound:-2px;animation:spell-idle-nudge 4.8s infinite}
-  #home.active .ranking-launch svg{transform-origin:center;animation:spell-idle-star 5.8s ease-in-out infinite}
+  #home.active #start .start-label{--spell-nudge:-7px;--spell-rebound:2px;animation:spell-idle-nudge 3s infinite}
+  #home.active #start .arrow{--spell-nudge:8px;--spell-rebound:-2px;animation:spell-idle-nudge 3s infinite}
+  #home.active .ranking-launch svg{transform-origin:center;animation:spell-idle-star 4s ease-in-out infinite}
   @keyframes spell-idle-shine{0%,10%{transform:translateX(-75%)}32%,100%{transform:translateX(75%)}}
   @keyframes spell-idle-nudge{0%,28%,70%,100%{transform:translateX(0)}45%{transform:translateX(var(--spell-nudge));animation-timing-function:cubic-bezier(.2,.65,.3,1)}55%{transform:translateX(var(--spell-rebound))}61%{transform:translateX(calc(var(--spell-nudge) * .15))}}
   @keyframes spell-idle-star{0%,64%{transform:rotate(0)}88%,100%{transform:rotate(360deg)}}
@@ -399,7 +399,7 @@
 <style>#spell-update-history.open{max-height:340px}</style>
 <link rel="stylesheet" href="/mobile-games.css?v=20261101-1" />
 <script src="/modal-motion.js?v=20261101-1"></script>
-<script src="/game-sfx.js?v=1"></script><link rel="stylesheet" href="/record-feedback.css?v=20261118-2"><script src="/record-feedback.js?v=20261118-2"></script>
+<script src="/game-sfx.js?v=2"></script><link rel="stylesheet" href="/record-feedback.css?v=20261118-3"><script src="/record-feedback.js?v=20261118-2"></script>
 <script src="/content-guard.js" defer></script>
 </head>
 <body>
@@ -11331,11 +11331,11 @@ document.body.append(rankingDialog);
 window.psModalMotion.bindSheet(rankingDialog,()=>rankingDialog.close(),false);
 let rankingDiff='easy',rankingMode='timer';
 const mineBox=rankingDialog.querySelector('.ranking-mine');mineBox.classList.add('ps-best-record');
-const lastRankBox=document.createElement('section');lastRankBox.className='ps-last-ranking';lastRankBox.hidden=true;mineBox.before(lastRankBox);mineBox.tabIndex=-1;
-const personalBox=document.createElement('div');personalBox.className='ranking-personal';mineBox.before(personalBox);personalBox.append(lastRankBox,mineBox);
+const lastRankBox=document.createElement('section');lastRankBox.className='ps-last-ranking';lastRankBox.hidden=true;mineBox.tabIndex=-1;
+const personalBox=document.createElement('div');personalBox.className='ranking-personal';mineBox.before(personalBox);personalBox.append(mineBox);
 const mineLabel=document.createElement('div');mineLabel.className='ps-best-record-label';mineLabel.innerHTML='<span class="ranking-mine-kicker">MY BEST RECORD</span><h3 class="ranking-mine-title"></h3>';
 const minePlayer=document.createElement('p');
-const mineBadge=document.createElement('span');mineBadge.className='gg-ranking-renewed';mineBadge.textContent='경신!';mineLabel.append(mineBadge,minePlayer);mineBox.append(mineLabel);
+const mineBadge=document.createElement('span');mineBadge.className='gg-ranking-renewed';mineBadge.textContent='경신!';mineLabel.append(mineBadge,minePlayer);mineBox.append(mineLabel,lastRankBox);
 const mineInfo=document.createElement('p');mineInfo.className='ranking-mine-info ps-best-record-score';mineBox.append(mineInfo);
 const pendingBox=document.createElement('div');pendingBox.className='ranking-pending';pendingBox.setAttribute('aria-label','미제출 기록');pendingBox.hidden=true;
 const pendingInfo=document.createElement('div');pendingInfo.innerHTML='<small>NEW RECORD · 미제출</small><strong></strong><span></span>';pendingBox.append(pendingInfo);

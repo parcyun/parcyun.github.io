@@ -7,16 +7,6 @@
 .ps-submitted-row > td { animation: ps-submitted-flash 2.1s ease-in-out 3; }
 @keyframes ps-submitted-flash { 0%,100% { background-color: transparent; } 50% { background-color: #ffb11a32; } }
 @media(prefers-reduced-motion:reduce){ .ps-submitted-row > td { animation: none; background-color: #ffb11a20; } }
-:is(.ranking-personal,.gg-ranking-personal):has(.ps-last-ranking:not([hidden])) {
-  display: grid; grid-template-columns: 1fr minmax(100px, 1fr) minmax(180px, 1.35fr); align-items: stretch; gap: 8px;
-}
-:is(.ranking-personal,.gg-ranking-personal):has(.ps-last-ranking:not([hidden])) .ps-last-ranking { grid-column: 2; }
-:is(.ranking-personal,.gg-ranking-personal):has(.ps-last-ranking:not([hidden])) :is(.ranking-mine,.gg-ranking-mine) { grid-column: 3; min-width: 0; width: auto; margin: 0; }
-@media(max-width:600px) {
-  :is(.ranking-personal,.gg-ranking-personal):has(.ps-last-ranking:not([hidden])) { grid-template-columns: minmax(0,1fr) minmax(0,1.25fr); gap: 4px; }
-  :is(.ranking-personal,.gg-ranking-personal):has(.ps-last-ranking:not([hidden])) .ps-last-ranking { grid-column: 1; padding-inline: 4px; }
-  :is(.ranking-personal,.gg-ranking-personal):has(.ps-last-ranking:not([hidden])) :is(.ranking-mine,.gg-ranking-mine) { grid-column: 2; }
-}
 :is(.ranking-sheet,.gg-ranking-dialog) .ps-best-record {
   box-sizing: border-box; display: flex; align-items: center; justify-content: space-between;
   gap: 12px; padding: 8px 14px; border: 1px solid #ffb11a66; border-radius: 12px;
@@ -34,3 +24,9 @@
   :is(.ranking-sheet,.gg-ranking-dialog) .ps-best-record { flex-wrap: wrap; gap: 5px; padding: 6px 8px; }
   :is(.ranking-sheet,.gg-ranking-dialog) .ps-best-record-score { justify-content: flex-start; }
 }
+
+:is(.ranking-sheet,.gg-ranking-dialog) .ps-best-record:has(.ps-last-ranking:not([hidden])) {
+  display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); width:100%;
+}
+.ps-best-record:has(.ps-last-ranking:not([hidden])) .ps-best-record-score {justify-content:flex-end;text-align:right}
+@media(max-width:600px){.ps-best-record .ps-last-ranking{padding:0;max-width:96px}}

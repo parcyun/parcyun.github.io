@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import "./geoBattle.css";
 import GeoScoreEffect from "./GeoScoreEffect.jsx";
 import { watchGameFocus } from "../../public/game-focus-guard.js";
-import { createMusicRotation } from "../../public/music-rotation.js";
+
 import { difficultyOptions, EXPERT_ANSWER_MS } from "./geoGameDifficulty.js";
 
 const base = import.meta.env.DEV
@@ -25,8 +25,6 @@ const modes = [
   ["nature", "자연환경"],
   ["landmark", "랜드마크"],
 ];
-const battleTracks = ["aurea-carmina", "electro-cabello", "stringed-disco", "who-likes-to-party", "pure-attitude"];
-const musicKey = "ps-geoweb-battle-music";
 const teamColors = ["#ffb11a", "#69c7b5", "#829def", "#ed89a5", "#b2cf72", "#b294df", "#e99a6c", "#72bddc", "#cf8dc5", "#7ab88e"];
 
 function GamePicker({ value, onChange, busy }) {
@@ -148,7 +146,7 @@ function BattleLeaderboard({ room }) {
   );
 }
 
-export default function GeoBattle({ onTarget, onOpenChange }) {
+export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
   const [open, setOpen] = useState(false),
     [gate, setGate] = useState("checking"),
     [error, setError] = useState(""),
@@ -168,8 +166,8 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     [managed, setManaged] = useState(null),
     [moveTo, setMoveTo] = useState(0),
     [dragged, setDragged] = useState(null),
-    [dropTeam, setDropTeam] = useState(null),
-    [musicEnabled, setMusicEnabled] = useState(true);
+    [dropTeam, setDropTeam] = useState(null);
+  const {musicEnabled,playMusic,toggleMusic}=musicControls;
   const sessionRef = useRef(null),
     roomRef = useRef(null),
     serverOffset = useRef(0),
@@ -181,32 +179,6 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     screen = useRef(null),
     roster = useRef(null),
     teamPositions = useRef(new Map());
-  const music = useRef(null);
-  const nextTrack = useRef(null);
-  useEffect(() => {
-    try { setMusicEnabled(localStorage.getItem(musicKey) !== "off"); } catch {}
-    return () => { music.current?.pause(); };
-  }, []);
-  function playMusic() {
-    if (!music.current) {
-      nextTrack.current = createMusicRotation(battleTracks);
-      const audio = new Audio(`/geoweb-battle/audio/${nextTrack.current()}.mp3`);
-      audio.volume = 0.24;
-      audio.addEventListener("ended", () => {
-        audio.src = `/geoweb-battle/audio/${nextTrack.current()}.mp3`;
-        audio.play().catch(() => {});
-      });
-      music.current = audio;
-    }
-    if (music.current.paused) music.current.play().catch(() => {});
-  }
-  function toggleMusic() {
-    const enabled = !musicEnabled;
-    setMusicEnabled(enabled);
-    try { localStorage.setItem(musicKey, enabled ? "on" : "off"); } catch {}
-    if (enabled) playMusic();
-    else music.current?.pause();
-  }
   sessionRef.current = session;
   roomRef.current = room;
   async function api(path, body) {
@@ -368,7 +340,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
     }).finished.catch(() => {});
   }
   async function close() {
-    music.current?.pause();
+
     setManaged(null);
     window.psGameQr?.closeInvitation();
     await dismiss(backdrop.current);

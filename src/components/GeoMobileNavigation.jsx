@@ -2,11 +2,11 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import './geoMobileNavigation.css';
 
-const tabs=[['map','지도'],['search','검색'],['settings','설정'],['game','게임'],['more','더보기']];
-const paths={map:<><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a17 17 0 0 1 0 18 17 17 0 0 1 0-18Z"/></>,search:<><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></>,settings:<><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></>,game:<><path d="M6 7h12a3 3 0 0 1 3 2l1 9a2 2 0 0 1-3 2l-4-3H9l-4 3a2 2 0 0 1-3-2l1-9a3 3 0 0 1 3-2Z"/><path d="M6 12h5M8.5 9.5v5M16 11h.01M19 14h.01"/></>,more:<><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></>,exit:<><path d="M9 3H4v18h5M10 12h11m-4-4 4 4-4 4"/></>,finish:<><path d="M6 21V3m0 1h13l-3 4 3 4H6"/></>,practice:<><path d="M4 4h6a3 3 0 0 1 3 3v14a4 4 0 0 0-4-3H4Zm16 0h-4a3 3 0 0 0-3 3m7-3v14h-3"/></>,ranking:<><path d="M8 3h8v7a4 4 0 0 1-8 0ZM8 5H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4M12 14v7m-5 0h10"/></>};
+const tabs=[['map','지도'],['search','검색'],['settings','설정'],['game','게임'],['sound','음악'],['more','더보기']];
+const paths={sound:<path d="M3 9h4l5-4v14l-5-4H3Zm13-1q4 4 0 8"/> ,map:<><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a17 17 0 0 1 0 18 17 17 0 0 1 0-18Z"/></>,search:<><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></>,settings:<><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></>,game:<><path d="M6 7h12a3 3 0 0 1 3 2l1 9a2 2 0 0 1-3 2l-4-3H9l-4 3a2 2 0 0 1-3-2l1-9a3 3 0 0 1 3-2Z"/><path d="M6 12h5M8.5 9.5v5M16 11h.01M19 14h.01"/></>,more:<><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></>,exit:<><path d="M9 3H4v18h5M10 12h11m-4-4 4 4-4 4"/></>,finish:<><path d="M6 21V3m0 1h13l-3 4 3 4H6"/></>,practice:<><path d="M4 4h6a3 3 0 0 1 3 3v14a4 4 0 0 0-4-3H4Zm16 0h-4a3 3 0 0 0-3 3m7-3v14h-3"/></>,ranking:<><path d="M8 3h8v7a4 4 0 0 1-8 0ZM8 5H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4M12 14v7m-5 0h10"/></>};
 function Icon({name}){return <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;}
 
-export default function GeoMobileNavigation({english=false,view,onView,onZoom,onHome,northUp,onNorthUp,regions,onRegion,onGame,onExit,gameActive,gameDisabled}){
+export default function GeoMobileNavigation({musicControls,english=false,view,onView,onZoom,onHome,northUp,onNorthUp,regions,onRegion,onGame,onExit,gameActive,gameDisabled}){
   const [panel,setPanel]=useState(null),[playing,setPlaying]=useState(false),[practice,setPractice]=useState(false);
   const root=useRef(null),opener=useRef(null),pending=useRef(null),closing=useRef(false);
   const surface=()=>panel==='settings'?root.current?.querySelector('.tools-fixed'):panel==='search'?root.current?.querySelector('.country-search-panel'):document.querySelector('.geo-mobile-surface');
@@ -43,6 +43,7 @@ export default function GeoMobileNavigation({english=false,view,onView,onZoom,on
   },[]);
   const labels=english?{map:'Map',search:'Search',settings:'Settings',game:'Play',more:'More'}:Object.fromEntries(tabs);
   const active=tabs.findIndex(([key])=>key===panel);
+  const soundButton=<button key="sound" type="button" data-music-toggle aria-pressed={musicControls.musicEnabled} onClick={musicControls.toggleMusic}><Icon name="sound"/><span>SOUND {musicControls.musicEnabled?"ON":"OFF"}</span></button>;
   return <>
     <a className="geo-mobile-earth" href="https://earth.google.com/web/" target="_blank" rel="noopener"><Icon name="map"/><span>{english?'Google Earth':'구글 어스'}</span><span aria-hidden="true">↗</span></a>
     {(panel==='map'||panel==='more')&&<section key={panel} className="geo-mobile-surface" aria-label={panel==='map'?(english?'Map menu':'지도 메뉴'):(english?'More menu':'더보기 메뉴')}>
@@ -60,8 +61,9 @@ export default function GeoMobileNavigation({english=false,view,onView,onZoom,on
       {gameActive?<>
         <button type="button" onClick={()=>activate(playing?'.gg-finish':'.gg-ranking-open')}><Icon name={playing?'finish':'ranking'}/><span>{playing?'게임 마치기':'랭킹'}</span></button>
         <button type="button" aria-pressed={practice} onClick={()=>activate(playing?'.gg-play-title .gg-practice-toggle':'.gg-menu>.gg-practice-toggle')}><Icon name="practice"/><span>{practice?'연습 켜짐':'연습 모드'}</span></button>
+        {soundButton}
         <button type="button" onClick={onExit}><Icon name="exit"/><span>지도로</span></button>
-      </>:tabs.map(([key,label])=><button key={key} type="button" aria-label={english?labels[key]+' menu':key==='game'?'게임 모드':label+' 메뉴'} aria-expanded={key==='game'?undefined:panel===key} disabled={key==='game'&&gameDisabled} onClick={event=>{opener.current=event.currentTarget;key==='game'?changePanel(null,onGame):changePanel(panel===key?null:key);}}><Icon name={key}/><span>{labels[key]}</span></button>)}
+      </>:tabs.map(([key,label])=>key==="sound"?soundButton:<button key={key} type="button" aria-label={english?labels[key]+' menu':key==='game'?'게임 모드':label+' 메뉴'} aria-expanded={key==='game'?undefined:panel===key} disabled={key==='game'&&gameDisabled} onClick={event=>{opener.current=event.currentTarget;key==='game'?changePanel(null,onGame):changePanel(panel===key?null:key);}}><Icon name={key}/><span>{labels[key]}</span></button>)}
     </nav>
   </>;
 }

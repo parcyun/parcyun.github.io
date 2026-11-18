@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import "./geoBattle.css";
 
 const base = import.meta.env.DEV
@@ -20,6 +20,50 @@ const modes = [
   ["nature", "자연환경"],
   ["landmark", "랜드마크"],
 ];
+function BattleLeaderboard({ room }) {
+  const list = useRef(null);
+  const previous = useRef(new Map());
+  const entries = room.mode === "individual"
+    ? room.standings ?? []
+    : (room.teamTotals ?? []).map((score, id) => ({ id, score, name: room.teamNames[id] }));
+  const ranked = [...entries].sort((a, b) => b.score - a.score);
+  useLayoutEffect(() => {
+    const next = new Map();
+    const animate = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+    for (const row of list.current.children) {
+      const { key, score } = row.dataset;
+      const top = row.offsetTop;
+      const old = previous.current.get(key);
+      next.set(key, { top, score });
+      if (!animate || !old) continue;
+      if (top !== old.top) {
+        row.getAnimations().forEach(animation => animation.cancel());
+        row.animate([{ transform: `translateY(${old.top - top}px)` }, { transform: "none" }],
+          { duration: 320, easing: "cubic-bezier(.2,.75,.2,1)" });
+      }
+      if (score !== old.score) row.lastElementChild.animate(
+        [{ color: "#fff", textShadow: "0 0 14px #fff" }, { color: "#ffcb73", textShadow: "none" }],
+        { duration: 340 },
+      );
+    }
+    previous.current = next;
+  });
+  return (
+    <section className="gb-scoreboard" aria-label="순위표">
+      <h3>{room.phase === "finished" ? "최종 순위" : "실시간 순위"}</h3>
+      <ol ref={list}>
+        {ranked.map(({ id, name, score }) => (
+          <li key={id} data-key={id} data-score={score}>
+            <span>{ranked.findIndex(entry => entry.score === score) + 1}위</span>
+            <span>{name}</span>
+            <strong>{score.toLocaleString()}점</strong>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 export default function GeoBattle({ onTarget, onOpenChange }) {
   const [open, setOpen] = useState(false),
     [gate, setGate] = useState("checking"),
@@ -299,7 +343,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
       {open && (
         <div
           ref={backdrop}
-          className={`gb-backdrop ${room?.phase === "playing" ? "gb-live" : ""}`}
+          className={`gb-backdrop ${room?.phase === "playing" && !host ? "gb-live" : ""}`}
         >
           <section
             role="dialog"
@@ -450,13 +494,13 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                   </div>
                 )}
                 {["starting", "playing", "between"].includes(room.phase) && (
-                  <p role="timer">
+                  <p role="timer" className="gb-clock">
                     {room.phase === "starting"
                       ? "시작까지"
                       : room.phase === "between"
                         ? "다음 라운드까지"
                         : "남은 시간"}{" "}
-                    {countdown}초
+                    <strong key={countdown}>{countdown}</strong>
                   </p>
                 )}
                 {room.phase === "lobby" ? (
@@ -615,6 +659,8 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                       </button>
                     )}
                   </>
+                ) : room.phase === "playing" && room.waiting ? (
+                  <div className="gb-center"><h2>다음 라운드부터 함께해요</h2></div>
                 ) : room.phase === "playing" && !host ? (
                   <div className="gb-question">
                     <p>{room.question?.prompt}</p>
@@ -656,7 +702,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                     </button>
                     <p role="status">{feedback}</p>
                   </div>
-                ) : (
+                ) : host && room.phase === "playing" ? null : (
                   <div className="gb-center">
                     <p>
                       {room.phase === "finished"
@@ -667,20 +713,8 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                     </p>
                   </div>
                 )}
-                <div className="gb-players">
-                  <h3>점수</h3>
-                  {room.mode === "individual"
-                    ? room.standings?.map((p) => (
-                        <div key={p.id}>
-                          {p.name} · {p.score}점
-                        </div>
-                      ))
-                    : room.teamTotals?.map((score, i) => (
-                        <div key={i}>
-                          {room.teamNames?.[i]} · {score}점
-                        </div>
-                      ))}
-                </div>
+                {["playing", "between", "finished"].includes(room.phase) &&
+                  <BattleLeaderboard room={room} />}
                 {confirmExit && (
                   <div
                     className="gb-confirm"

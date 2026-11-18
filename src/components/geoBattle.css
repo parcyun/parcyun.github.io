@@ -304,3 +304,25 @@
   .gb-backdrop, .gb-modal, .gb-invite, .gb-confirm, .gb-team-count { animation: none; }
   .gb-entry-options button { transition: none; }
 }
+
+.gb-scoreboard { margin: 16px 0; }
+.gb-scoreboard h3 { margin: 0 0 8px; font-size: 14px; }
+.gb-scoreboard ol { position: relative; display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.gb-scoreboard li {
+  display: grid; grid-template-columns: 30px minmax(0,1fr) auto; align-items: center;
+  gap: 8px; min-height: 40px; padding: 6px 10px; border: 1px solid #3d4a55;
+  border-radius: 10px; background: #182431; box-sizing: border-box;
+}
+.gb-scoreboard li:first-child { min-height: 48px; border-color: #ffb11a88; background: #302819; }
+.gb-scoreboard li span:first-child { color: #bac6d2; font-size: 12px; }
+.gb-scoreboard li span:nth-child(2) { overflow-wrap: anywhere; }
+.gb-scoreboard strong { color: #ffcb73; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.gb-clock { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 8px 0; }
+.gb-clock strong { color: #ffcb73; font: 800 32px Montserrat, sans-serif; animation: gb-rise-in .24s ease-out; }
+.gb-modal > header { position: sticky; top: -24px; z-index: 2; background: #141b25; }
+@media (max-width: 760px), (min-width: 600px) and (max-height: 500px) and (max-width: 1000px) {
+  .gl-app:has(.gg-battle-open) .geo-mobile-dock { visibility: hidden; }
+  .gb-live { padding-bottom: calc(var(--ps-brand-h, 26px) + env(safe-area-inset-bottom, 0px) + 12px); }
+  .gb-modal > header { top: -16px; }
+}
+@media (prefers-reduced-motion: reduce) { .gb-clock strong { animation: none; } }

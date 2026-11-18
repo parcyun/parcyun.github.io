@@ -187,26 +187,6 @@
     align-items: flex-start;
   }
 }
-.gb-live {
-  place-items: end;
-  background: transparent;
-  pointer-events: none;
-}
-.gb-live .gb-modal {
-  width: min(380px, 100%);
-  max-height: calc(100dvh - 32px);
-  pointer-events: auto;
-  background: #141b25f5;
-}
-@media (max-width: 600px) {
-  .gb-live {
-    align-items: end;
-  }
-  .gb-live .gb-modal {
-    max-height: 58dvh;
-    width: 100%;
-  }
-}
 .gb-invite {
   display: grid;
   justify-items: center;
@@ -319,10 +299,72 @@
 .gb-scoreboard strong { color: #ffcb73; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .gb-clock { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 8px 0; }
 .gb-clock strong { color: #ffcb73; font: 800 32px Montserrat, sans-serif; animation: gb-rise-in .24s ease-out; }
-.gb-modal > header { position: sticky; top: -24px; z-index: 2; background: #141b25; }
 @media (max-width: 760px), (min-width: 600px) and (max-height: 500px) and (max-width: 1000px) {
   .gl-app:has(.gg-battle-open) .geo-mobile-dock { visibility: hidden; }
-  .gb-live { padding-bottom: calc(var(--ps-brand-h, 26px) + env(safe-area-inset-bottom, 0px) + 12px); }
-  .gb-modal > header { top: -16px; }
 }
 @media (prefers-reduced-motion: reduce) { .gb-clock strong { animation: none; } }
+
+.gb-backdrop { z-index: 9800; padding: 12px; }
+.gb-backdrop .gb-modal {
+  display: flex; flex-direction: column; width: 100%; height: 100%; max-height: none;
+  overflow: hidden; padding: 0; border-radius: 24px; background: #0d1015;
+  font: 14px/1.5 Pretendard, sans-serif;
+}
+.gb-modal > header {
+  position: relative; top: auto; display: grid; grid-template-columns: 1fr auto 1fr;
+  min-height: 62px; padding: 8px 24px; box-sizing: border-box; background: #0d1015;
+}
+.gb-modal > header > span small { margin-left: 6px; color: #a7b0c0; }
+.gb-modal > header > button { grid-column: 3; justify-self: end; }
+.gb-toolbar-code { display: grid; text-align: center; }
+.gb-toolbar-code small { color: #a7b0c0; font-size: 9px; }
+.gb-toolbar-code strong { font: 800 26px Montserrat, sans-serif; letter-spacing: .06em; }
+.gb-screen {
+  flex: 1; min-height: 0; overflow: auto; scrollbar-width: none; padding: 24px;
+  box-sizing: border-box;
+}
+.gb-modal[data-phase="entry"] .gb-screen { display: grid; place-content: center; }
+.gb-modal[data-phase="entry"] .gb-center { width: min(520px, calc(100vw - 64px)); }
+.gb-entry-options button { min-height: 110px; }
+.gb-entry-options strong { font-size: clamp(15px, 3vw, 22px); }
+.gb-screen .gb-heading { margin: 0 0 16px; }
+.gb-heading > div { margin-right: auto; }
+.gb-heading button { white-space: nowrap; }
+.gb-settings { padding: 14px; border: 1px solid #354453; border-radius: 14px; background: #151d28; }
+.gb-screen .gb-lobby-action { display: block; margin: 16px auto; }
+.gb-screen > footer { justify-content: end; margin-top: 14px; }
+.gb-screen .gb-question, .gb-screen .gb-scoreboard { width: min(960px, 100%); margin-inline: auto; }
+.gb-screen .gb-question { padding: 18px; box-sizing: border-box; border: 1px solid #394354; border-radius: 18px; background: #141b26; }
+.gb-question > p, .gb-question > h3 { margin: 0; }
+.gb-question > form > button { background: #ffb11a; color: #17130d; font-weight: 800; white-space: nowrap; }
+.gb-brand { flex: none; padding: 6px 16px; text-align: right; color: #a7b0c0; background: #0d1015; border-top: 1px solid #29313d; font-size: 10px; }
+.gb-brand a { color: inherit; }
+.gb-map-round { background: transparent; }
+.gb-map-round .gb-modal { background: transparent; }
+.gb-map-round .gb-screen { background: linear-gradient(#0d1015ee, transparent 22%); }
+.gb-map-round .gb-question { margin-top: clamp(120px, 28vh, 320px); }
+.gb-map-round .gb-scoreboard { padding: 12px; box-sizing: border-box; border-radius: 14px; background: #141b26; }
+@media (max-width: 760px) {
+  .gb-backdrop { padding: 5px; }
+  .gb-backdrop .gb-modal { border-radius: 16px; }
+  .gb-modal > header { min-height: 54px; padding: 5px 12px; gap: 5px; }
+  .gb-modal > header > span small { display: block; margin: 0; font-size: 8px; }
+  .gb-toolbar-code strong { font-size: 21px; }
+  .gb-screen { padding: 12px; }
+  .gb-heading { gap: 6px; }
+  .gb-heading h2 { font-size: 18px; margin: 4px 0; }
+  .gb-heading button { padding-inline: 8px; font-size: 11px; }
+  .gb-screen .gb-question { padding: 12px; }
+  .gb-map-round .gb-question { margin-top: clamp(92px, 27vh, 240px); }
+}
+.gb-roster { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 18px 0; }
+.gb-roster .gb-players { margin: 0; min-height: 100px; background: #141b26; }
+.gb-roster .gb-players h3 { margin: 0 0 8px; color: #ffcb73; }
+.gb-roster[data-teams="6"], .gb-roster[data-teams="7"], .gb-roster[data-teams="8"], .gb-roster[data-teams="9"], .gb-roster[data-teams="10"] { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 980px) {
+  .gb-roster[data-teams] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gb-roster[data-teams="1"] { grid-template-columns: minmax(0, 1fr); }
+}
+body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
+.gb-roster .gb-players, .gb-roster .gb-manage { min-width: 0; overflow-wrap: anywhere; }
+.gb-roster .gb-manage select { max-width: 100%; }

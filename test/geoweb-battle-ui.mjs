@@ -33,7 +33,7 @@ try{
  if(await increase.isVisible())throw Error('Individual mode showed team controls');
  await host.getByRole('button',{name:'팀 대항전',exact:true}).click();
  await host.getByRole('button',{name:'방 만들기'}).click();
- const heading=host.locator('.gb-heading small');await heading.waitFor();const code=(await heading.innerText()).match(/\d{6}/)?.[0];if(!code)throw Error('Room code missing');
+ const heading=host.locator('.gb-toolbar-code strong');await heading.waitFor();const code=(await heading.innerText()).match(/\d{6}/)?.[0];if(!code)throw Error('Room code missing');
  const one=await api('session',identity('테스트선수1','b'));const two=await api('session',identity('테스트선수2','c'));
  const players=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
  await players.route('**/game-account.js*',route=>route.fulfill({contentType:'text/javascript',body:`window.psBattleIdentity=async()=>(${JSON.stringify(identity('테스트선수1','b'))});`}));
@@ -66,6 +66,7 @@ try{
  assert.match(await host.locator('.gb-scoreboard li').first().innerText(),new RegExp(view.teamNames[9]));
  await mkdir(resolve(process.env.GEOWEB_QA_OUTPUT||root,'test-artifacts'),{recursive:true});
  for(const [label,page] of [['desktop',host],['mobile',player]]){
+  assert.ok(await page.locator('.gb-modal').evaluate(el=>{const bounds=el.getBoundingClientRect();return innerWidth-bounds.width<=26&&innerHeight-bounds.height<=26;}));
   await page.screenshot({path:resolve(process.env.GEOWEB_QA_OUTPUT||root,'test-artifacts',`geoweb-${label}.png`)});
   await page.evaluate(()=>{const el=document.querySelector('.gb-backdrop'),animate=el.animate;window.closeMotion=false;el.animate=function(...args){window.closeMotion=true;return animate.apply(this,args);};});
   await page.getByRole('button',{name:'대항전 닫기'}).click();

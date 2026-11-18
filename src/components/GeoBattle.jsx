@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import "./geoBattle.css";
 
@@ -340,24 +341,26 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
           대항전 시작하기
         </button>
       )}
-      {open && (
+      {open && createPortal(
         <div
           ref={backdrop}
-          className={`gb-backdrop ${room?.phase === "playing" && !host ? "gb-live" : ""}`}
+          className={`gb-backdrop ${room?.question && !host && !room.question.image ? "gb-map-round" : ""}`}
         >
           <section
             role="dialog"
             aria-modal="true"
             aria-label="지오웹 대항전"
             className="gb-modal"
+            data-phase={room?.phase ?? "entry"}
           >
             <header>
-              <span>GEOWEB / LIVE BATTLE</span>
+              <span>GEOWEB <small>LIVE BATTLE</small></span>
+              {room && <div className="gb-toolbar-code"><small>GAME CODE</small><strong>{room.code}</strong></div>}
               <button onClick={close} aria-label="대항전 닫기">
                 ×
               </button>
             </header>
-            <div ref={screen} className="gb-screen">
+            <main ref={screen} className="gb-screen">
             {gate === "checking" ? (
               <div className="gb-center" role="status">
                 <span className="gb-spinner" />
@@ -456,8 +459,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                 <div className="gb-heading">
                   <div>
                     <small>
-                      ROOM {room.code} /{" "}
-                      {room.mode === "team" ? "TEAM" : "INDIVIDUAL"}
+                      {room.mode === "team" ? "TEAM BATTLE" : "INDIVIDUAL BATTLE"}
                     </small>
                     <h2>
                       {room.phase === "lobby"
@@ -580,15 +582,18 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                         </>
                       )}
                     </div>
-                    <div className="gb-players">
-                      {room.players?.map((p) => (
+                    <div className="gb-roster" data-teams={room.mode === "team" ? (host ? room.teamCount : 1) : undefined}>
+                      {(room.mode === "team"
+                        ? room.teamNames.map((name, team) => ({ name, team })).filter(group => host || group.team === me?.team)
+                        : [{ name: "참여자", team: null }]
+                      ).map(({ name, team }) => (
+                        <section className="gb-players" key={team ?? "individual"}>
+                          <h3>{name}</h3>
+                          {room.players?.filter(p => !p.isHost && (team === null || p.team === team)).map((p) => (
                         <div key={p.id}>
                           {p.name} {p.isHost ? "· 진행자" : ""}{" "}
                           {p.ready ? "· 준비 완료" : ""}{" "}
                           {!p.connected ? "· 연결 끊김" : ""}{" "}
-                          {room.mode === "team" &&
-                            !p.isHost &&
-                            `· ${room.teamNames[p.team]}`}{" "}
                           {host && !p.isHost && (
                             <span className="gb-manage">
                               {room.mode === "team" && (
@@ -622,6 +627,8 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                             </span>
                           )}
                         </div>
+                          ))}
+                        </section>
                       ))}
                     </div>
                     {!host && room.mode === "team" && (
@@ -639,6 +646,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                     )}
                     {host ? (
                       <button
+                        className="gb-primary gb-lobby-action"
                         disabled={
                           busy ||
                           room.participantCount < 2 ||
@@ -650,6 +658,7 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                       </button>
                     ) : (
                       <button
+                        className="gb-primary gb-lobby-action"
                         disabled={busy}
                         onClick={() =>
                           act(`rooms/${room.code}/ready`, { ready: !me?.ready })
@@ -759,9 +768,11 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                 {error}
               </p>
             )}
-            </div>
+            </main>
+            <div className="gb-brand">Designed by parcyun studio · <a href="https://www.instagram.com/parcyun">@parcyun</a></div>
           </section>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

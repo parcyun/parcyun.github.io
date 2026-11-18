@@ -71,6 +71,21 @@ service cloud.firestore {
         && request.resource.data.submittedAt == request.time;
       allow delete: if ownsRequest() && resource.data.status == 'pending';
     }
+    match /profiles/{uid}/{kind}/{board} {
+      function googleOwner() {
+        return request.auth != null && request.auth.uid == uid
+          && request.auth.token.firebase.sign_in_provider == 'google.com';
+      }
+      allow read, delete: if googleOwner() && kind in ['spellHistory','geoHistory','lastSubmissions'];
+      allow create, update: if googleOwner() && (
+        (kind == 'spellHistory' && board.matches('(ko|en)_(easy|med|hard|mix)_(practice|timer|custom)')
+          && request.resource.data.keys().hasOnly(['runs']) && request.resource.data.runs is list && request.resource.data.runs.size() <= 10)
+        || (kind == 'geoHistory' && request.resource.data.keys().hasOnly(['best'])
+          && request.resource.data.best.keys().hasOnly(['score','seconds'])
+          && request.resource.data.best.score is int && request.resource.data.best.seconds is int)
+        || (kind == 'lastSubmissions' && request.resource.data.keys().hasOnly(['score','elapsedMs','playedAt'])
+          && request.resource.data.score is int && request.resource.data.elapsedMs is int && request.resource.data.playedAt is int));
+    }
     match /profiles/{uid} {
       allow get, delete: if request.auth != null && request.auth.uid == uid;
       allow create, update: if request.auth != null && request.auth.uid == uid

@@ -1,8 +1,9 @@
+import {accountRecords} from './personal-records.js';
 import './modal-motion.js?v=20261030-2';
 import {createStudioMenu} from './studio-menu.js?v=20261116-1';
 const CONFIG = { apiKey: 'AIzaSyBjkzvcIjyfnOU0TBF5VasoaQz3Xgw1C9I', authDomain: 'parcyun.firebaseapp.com', projectId: 'parcyun', appId: '1:1093702239224:web:021018208e667b21e7cc0d' };
 const MASCOT = '/images/dexter-base-character-01.png';
-import {createLeaderboard,rankingAffiliation,isReservedNickname,isDeveloperUser,compareRankingEfficiency} from './spell-leaderboard.js?v=20261118-last-record';
+import {createLeaderboard,rankingAffiliation,isReservedNickname,isDeveloperUser,compareRankingEfficiency} from './spell-leaderboard.js?v=20261118-account-record';
 import {createBrowserProfileStore,normalizeSchool} from './browser-profile.js?v=20261117-logout-1';
 import {searchSchools,schoolMark,SCHOOL_REGIONS} from './school-directory.js?v=20261029-1';
 import {optimizeSchoolMark,submitSchoolMarkRequest} from './school-mark-request.js?v=20261029-1';
@@ -199,7 +200,7 @@ function install() {
 }
 new MutationObserver(install).observe(document.body, { childList: true, subtree: true });
 install();
-loadSdk().catch(() => {});
+loadSdk().then(s=>{if(/^\/(spell-drill|world-map)(\/|$)/.test(location.pathname))window.psPersonalRecords=accountRecords(s,location.pathname.startsWith('/spell-drill')?'spell':'geo');}).catch(()=>{});
 let anonymousLogin;
 async function ensureBrowserIdentity(){const s=await loadSdk();await s.auth.authStateReady();if(!s.auth.currentUser&&localProfiles.current()){if(!anonymousLogin)anonymousLogin=s.authApi.signInAnonymously(s.auth).finally(()=>{anonymousLogin=null;});await anonymousLogin;}return s;}
 const rankingContext=async()=>{const s=await ensureBrowserIdentity();const value=s.auth.currentUser;let saved={},entryId;

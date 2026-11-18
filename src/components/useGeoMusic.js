@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState} from "react";
 import {createMusicRotation} from "../../public/music-rotation.js";
-const battleTracks = ["aurea-carmina", "electro-cabello", "stringed-disco", "who-likes-to-party", "pure-attitude"];
+const geoTracks = ["blue-hour", "glass-coast", "afterglow", "lunar-tide", "daybreak-drive"];
 const musicKey = "ps-geoweb-battle-music";
 export default function useGeoMusic(active=true){
   const [musicEnabled,setMusicEnabled]=useState(()=>{try{return localStorage.getItem(musicKey)!=="off";}catch{return true;}});
@@ -11,7 +11,7 @@ export default function useGeoMusic(active=true){
   }, []);
   function playMusic() {
     if (!music.current) {
-      nextTrack.current = createMusicRotation(battleTracks);
+      nextTrack.current = createMusicRotation(geoTracks);
       const audio = new Audio(`/geoweb-battle/audio/${nextTrack.current()}.mp3`);
       audio.volume = 0.24;
       audio.addEventListener("ended", () => {

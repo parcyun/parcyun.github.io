@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <title>스펠 드릴 Spell Drill — 무료 한글 맞춤법·영어 문법 게임 | parcyun studio</title>
 <meta name="description" content="스펠 드릴(Spell Drill)은 틀린 문장을 바르게 고쳐 입력하는 무료 한글 맞춤법·영어 문법 게임입니다. 초급·중급·고급·믹스, 연습·타이머·커스텀 모드와 힌트·콤보·랭킹으로 교실과 가정에서 연습하세요.">
@@ -378,7 +378,7 @@
     transition:background .15s linear}
   .report-copy:hover{background:var(--amber-bright)}
   .spell-onboarding{position:fixed;inset:0;z-index:100100;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.82);backdrop-filter:blur(9px)}
-  .spell-onboarding[hidden]{display:none}.spell-onboarding-card{width:min(510px,100%);max-height:calc(100vh - 40px);overflow:auto;padding:30px;border:1px solid rgba(255,177,26,.34);border-radius:24px;background:rgba(12,12,12,.98);box-shadow:0 30px 100px rgba(0,0,0,.7),0 0 48px rgba(255,177,26,.08);animation:spellOnboardingIn .42s cubic-bezier(.16,1,.3,1)}
+  .spell-onboarding[hidden]{display:none}.spell-onboarding-card{width:min(510px,100%);max-height:calc(100dvh - 40px);overflow:auto;padding:30px;border:1px solid rgba(255,177,26,.34);border-radius:24px;background:rgba(12,12,12,.98);box-shadow:0 30px 100px rgba(0,0,0,.7),0 0 48px rgba(255,177,26,.08);animation:spellOnboardingIn .42s cubic-bezier(.16,1,.3,1)}
   @keyframes spellOnboardingIn{from{opacity:0;transform:translateY(15px) scale(.97)}to{opacity:1;transform:none}}.spell-onboarding-kicker{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.22em}.spell-onboarding h2{margin:8px 0 13px;font-size:23px;line-height:1.35}.spell-onboarding p,.spell-onboarding li{color:rgba(255,255,255,.68);font-size:13px;font-weight:300;line-height:1.7}.spell-onboarding ul{display:grid;gap:6px;margin:16px 0;padding:0;list-style:none}.spell-onboarding li{position:relative;padding-left:17px}.spell-onboarding li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;background:var(--amber)}.spell-onboarding li b{color:#fff;font-weight:600}.spell-onboarding-sign{color:rgba(255,255,255,.43)!important}.spell-onboarding-start{width:100%;margin-top:18px;padding:12px;border:0;border-radius:12px;background:var(--amber);color:#050505;font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;cursor:pointer}.spell-update-toggle{display:flex;width:100%;align-items:center;justify-content:center;gap:7px;margin-top:8px;padding:5px;border:0;background:transparent;color:rgba(255,255,255,.38);font-family:Pretendard,sans-serif;font-size:10.5px;cursor:pointer}.spell-update-history{max-height:0;overflow:hidden;opacity:0;transition:max-height .42s cubic-bezier(.16,1,.3,1),opacity .24s ease,margin .42s cubic-bezier(.16,1,.3,1)}.spell-update-history.open{max-height:250px;margin-top:8px;opacity:1}.spell-update-history>div{padding:9px 0;border-top:1px solid rgba(255,255,255,.08)}.spell-update-history b{color:rgba(255,255,255,.58);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em}.spell-update-history p{margin:3px 0 0;color:rgba(255,255,255,.4);font-size:10.5px;line-height:1.55}
 </style>
 <style>
@@ -10881,6 +10881,7 @@ function updateScoreDifficulty(difficulty=state.diff){
   $('#score-formula-trigger').setAttribute('aria-label',`${t.scoreLabel}: ${label}. ${t.scoreInfoLabel}`);
 }
 function loadRecords(){
+  const synced=window.psPersonalRecords?.read();if(synced)return synced;
   let rec;
   try{ rec = JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ rec = {}; }
   if(!rec.ko && !rec.en){
@@ -11214,11 +11215,13 @@ function endGame(){
   const clearTime = fmtTime(elapsedMs);
   const rec = loadRecords();
   const arr = rec[state.lang][state.diff] || [];
-  arr.push({score:state.score,correct:state.correctCount,total:state.totalCount,combo:state.bestCombo,time:clearTime,elapsedMs,mode:state.mode,date:Date.now()});
+  const run={score:state.score,correct:state.correctCount,total:state.totalCount,combo:state.bestCombo,time:clearTime,elapsedMs,mode:state.mode,date:Date.now()};
+  arr.push(run);
   arr.sort(compareRankRecords);
   const modeCounts={};
   rec[state.lang][state.diff] = arr.filter(r=>{const mode=r.mode||'practice';modeCounts[mode]=(modeCounts[mode]||0)+1;return modeCounts[mode]<=10});
-  saveRecords(rec);
+  if(window.psPersonalRecords?.active)window.psPersonalRecords.save([state.lang,state.diff,state.mode].join("_"),run).catch(()=>alert("기록을 계정에 저장하지 못했어요. 연결 상태를 확인해 주세요."));
+  else saveRecords(rec);
   $('#final-score').textContent = state.score;
   $('#r-correct').textContent = state.correctCount;
   $('#r-total').textContent = state.totalCount;
@@ -11349,6 +11352,7 @@ rankingButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m1
 rankingButton.onclick=openRanking;soundStack.append(rankingButton);
 
 $$('#rank .rank-tab').forEach(c=>c.addEventListener('click',()=>{$$('#rank .rank-tab').forEach(x=>x.classList.remove('on'));c.classList.add('on');renderRank(c.dataset.rl)}));
+window.addEventListener('ps-personal-records',()=>{renderBest();if($('#rank.active'))renderRank($('#rank .rank-tab.on')?.dataset.rl||state.diff);});
 function renderRank(diff){
   const rec = loadRecords(); const arr = [...(rec[state.lang][diff] || [])].sort(window.psCompareRanking||compareRankRecords);
   const t = $('#rank-table');
@@ -11356,7 +11360,7 @@ function renderRank(diff){
   t.innerHTML = `<thead><tr><th>RANK</th><th>SCORE</th><th>ACC</th><th>COMBO</th><th>MODE</th></tr></thead>` +
     '<tbody>'+arr.map((r,i)=>`<tr><td class="rn">${String(i+1).padStart(2,'0')}</td><td class="sc">${r.score}</td><td>${r.correct||0}/${r.total||0}</td><td>×${r.combo||0}</td><td style="color:var(--muted)">${r.mode==='timer'?'TIMER':'PRACTICE'}</td></tr>`).join('')+'</tbody>';
 }
-$('#rank-clear').addEventListener('click',()=>{ if(confirm(I18N[state.lang].confirmClear)){const rec=loadRecords();rec[state.lang]={};saveRecords(rec);renderRank($$('#rank .rank-tab.on')[0].dataset.rl);renderBest()} });
+$('#rank-clear').addEventListener('click',()=>{ if(confirm(I18N[state.lang].confirmClear)){if(window.psPersonalRecords?.active){window.psPersonalRecords.clear(state.lang).catch(()=>alert('기록 삭제에 실패했어요.'));return;}const rec=loadRecords();rec[state.lang]={};saveRecords(rec);renderRank($$('#rank .rank-tab.on')[0].dataset.rl);renderBest()} });
 $('#rank-back').addEventListener('click',()=>{renderBest();show('home')});
 
 /* ── 버그·개선 아이디어 제보 팝업 (메일 앱 실행 없이 주소만 표시·복사) ── */
@@ -11589,7 +11593,7 @@ function setLanguage(lang){
 </script>
 <script src="../share-widget.js?v=20261103-qr-clean" defer></script>
 <script src="/service-guide.js?v=20261101-1" defer></script>
-<script type="module" src="/game-account.js?v=20261118-last-record"></script>
+<script type="module" src="/game-account.js?v=20261118-account-record"></script>
 <script src="../visitor-counter.js?v=20261116-hierarchy-1" defer></script>
 <a data-ps-edit-id="ps-spell-072" data-ps-design-id="ps-spell-072" id="ps-back-btn" href="/atlas-gears/" aria-label="아틀라스 기어즈로 이동" title="아틀라스 기어즈로 이동" style="position:fixed;top:14px;left:14px;z-index:99999;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:100px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#8C8C8C;cursor:pointer;padding:0" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.28)'" onmouseout="this.style.color='#8C8C8C';this.style.borderColor='rgba(255,255,255,.12)'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9.5 20v-6h5v6"/></svg></a>
 <style>

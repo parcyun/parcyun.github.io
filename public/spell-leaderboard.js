@@ -40,10 +40,10 @@ export function createLeaderboard(context, game='spell') {
     return `${lang}_${diff}_${mode}`;
   };
   const lastKey = (filters, owner) => `ps-last-submission:${collectionName}:${boardId(filters)}:${owner}`;
-  function lastSubmission(filters, owner, rows, mine) {
+  function lastSubmission(filters, owner, rows, mine, saved) {
     if (!owner || !mine) return null;
     try {
-      const record = JSON.parse(localStorage.getItem(lastKey(filters, owner)));
+      const record = saved ?? JSON.parse(localStorage.getItem(lastKey(filters, owner)));
       if (!Number.isFinite(record?.score) || !Number.isFinite(record?.elapsedMs)) return null;
       const sameRecord = record.playedAt === mine.playedAt?.toMillis?.();
       return { ...record, estimated: !sameRecord, rank: sameRecord ? mine.rank :
@@ -66,7 +66,8 @@ export function createLeaderboard(context, game='spell') {
       const start=first<0?rows.length:first,page=rows.slice(start,start+50);
       const own=user?rows.find(row=>row.id===(entryId||user.uid)):null;
       const mine=own?{...own,rank:1+rows.findIndex(row=>compareRankingEfficiency(row,own)===0)}:null;
-      return {rows:page,cursor:page.at(-1),more:start+page.length<rows.length,mine,last:lastSubmission(filters,user&&(entryId||user.uid),rows,mine),signedIn:!!user};
+      const saved = mine && user?.providerData?.some(p=>p.providerId==="google.com") ? (await d.getDocFromServer(d.doc(s.db,"profiles",user.uid,"lastSubmissions",collectionName+"_"+boardId(filters)))).data() : null;
+      return {rows:page,cursor:page.at(-1),more:start+page.length<rows.length,mine,last:lastSubmission(filters,user&&(entryId||user.uid),rows,mine,saved),signedIn:!!user};
     },
     async submit(record) {
       const {s,user,profile,nickname,entryId}=await context();if(!user)throw new Error('프로필을 먼저 만들어 주세요. Google 로그인 없이 브라우저 프로필로도 제출할 수 있어요.');
@@ -76,6 +77,7 @@ export function createLeaderboard(context, game='spell') {
       if(Number.isInteger(record.maxCombo)&&record.maxCombo>=0)next.maxCombo=record.maxCombo;
       const result=await d.runTransaction(s.db,async transaction=>{
         const previous=await transaction.get(ref);
+        if(user.providerData?.some(p=>p.providerId==="google.com"))transaction.set(d.doc(s.db,"profiles",user.uid,"lastSubmissions",collectionName+"_"+boardId(record)),{score:next.score,elapsedMs:next.elapsedMs,playedAt:record.playedAt});
         if(previous.exists()){const p=previous.data();if(p.score>next.score||(p.score===next.score&&p.elapsedMs<=next.elapsedMs))return {improved:false};}
         transaction.set(ref,next);
         return {improved:true};

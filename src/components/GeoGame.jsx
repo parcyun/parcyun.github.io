@@ -26,6 +26,11 @@ export default function GeoGame({ musicControls, pools, onTarget, onExit, onFini
   const [mediaReady,setMediaReady]=useState(false);
   const [leaving,setLeaving]=useState(false);
   const [records,setRecords]=useState(()=>{try{return readRecords(window.localStorage);}catch{return {};}});
+  useEffect(()=>{
+    const restore=()=>setRecords(window.psPersonalRecords?.read()??readRecords(window.localStorage));
+    restore();window.addEventListener('ps-personal-records',restore);
+    return ()=>window.removeEventListener('ps-personal-records',restore);
+  },[]);
   const [storageError,setStorageError]=useState(false);
   const [elapsed,setElapsed]=useState(0);
   const [countdown,setCountdown]=useState(null),deadline=useRef(0);
@@ -88,6 +93,10 @@ export default function GeoGame({ musicControls, pools, onTarget, onExit, onFini
     const seconds=(gameNow()-roundStarted.current)/1000;
     const record={maxCombo,mode,diff:hasGameDifficulty(mode)?difficulty:undefined,score,elapsedMs:Math.max(1000,Math.round(seconds*1000)),playedAt:Date.now()};
     try{savePendingRecord(window.localStorage,record);}catch{setStorageError(true);}
+    if(window.psPersonalRecords?.active){
+      window.psPersonalRecords.save(gameRecordKey(mode,difficulty),{score,seconds:Math.round(seconds)}).catch(()=>setStorageError(true));
+      return;
+    }
     setRecords(previous=>{
       const next=updateRecord(previous,gameRecordKey(mode,difficulty),score,seconds);
       try{window.localStorage.setItem(RECORD_KEY,JSON.stringify(next));}catch{setStorageError(true);}

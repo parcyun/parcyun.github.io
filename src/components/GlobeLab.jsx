@@ -793,7 +793,7 @@ export default function GlobeLab(){
       const onResize=()=>{const W=mount.clientWidth,H=mount.clientHeight,a=W/H;camera.left=-a;camera.right=a;camera.top=1;camera.bottom=-1;
         if(S.current.view==='flat'&&!tr){const zs=flatSafeZmin();controls.minZoom=zs;if(camera.zoom<zs)camera.zoom=zs;} // 리사이즈로 aspect가 넓어지면 seam 안전 zmin도 즉시 재계산(#2)
         camera.updateProjectionMatrix();renderer.setSize(W,H);uRes.value.set(W,H);uScreen.value.set(renderer.domElement.width,renderer.domElement.height);};
-      window.addEventListener('resize',onResize);
+      const sizeObserver=new ResizeObserver(onResize);sizeObserver.observe(mount);
       const clock=new THREE.Clock(),v3=new THREE.Vector3();
       const reducedStars=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const loop=()=>{if(disposed)return;raf=requestAnimationFrame(loop);const dt=clock.getDelta();const st=S.current;
@@ -875,7 +875,7 @@ export default function GlobeLab(){
           gl.el.style.display='block';gl.el.style.left=((p.x*0.5+0.5)*mount.clientWidth)+'px';gl.el.style.top=((-p.y*0.5+0.5)*mount.clientHeight)+'px';}
       };
       loop();setStatus('');
-      cleanupFn=()=>{window.removeEventListener('pointerup',endGhostDrag);window.removeEventListener('resize',onResize);cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
+      cleanupFn=()=>{window.removeEventListener('pointerup',endGhostDrag);sizeObserver.disconnect();cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
       if(disposed)cleanupFn();
     })().catch(e=>{console.error('GLOBE_MOUNT_ERROR',e);});
     return ()=>{disposed=true;cancelAnimationFrame(raf);if(cleanupFn)cleanupFn();};
@@ -1078,7 +1078,7 @@ export default function GlobeLab(){
       </div>}
       {satBusy && <div className="sat-busy"><div className="sat-busy-bar"><div className="sat-busy-fill" style={{width:satBusy.pct+'%'}} /></div><div className="sat-busy-lbl">{satBusy.label} {satBusy.pct}%</div></div>}
       <style>{`
-        .gl-app{--ps-primary:#FFB11A;--bg:#04060B;--surface-1:#101319;--surface-2:#191D26;--border:#2A2F3A;--text:#fff;--text-2:#8C93A1;--font-kr:'Pretendard Variable','Pretendard','Montserrat',system-ui,sans-serif;--font-en:'Montserrat',sans-serif;--font-sig:'Covered By Your Grace',cursive;--ease:cubic-bezier(0.16,1,0.3,1);position:fixed;inset:0;background:var(--bg);color:var(--text);font-family:var(--font-kr);user-select:none;overflow:hidden}
+        .gl-app{--ps-primary:#FFB11A;--bg:#04060B;--surface-1:#101319;--surface-2:#191D26;--border:#2A2F3A;--text:#fff;--text-2:#8C93A1;--font-kr:'Pretendard Variable','Pretendard','Montserrat',system-ui,sans-serif;--font-en:'Montserrat',sans-serif;--font-sig:'Covered By Your Grace',cursive;--ease:cubic-bezier(0.16,1,0.3,1);position:fixed;inset:0;height:100dvh;background:var(--bg);color:var(--text);font-family:var(--font-kr);user-select:none;overflow:hidden}
         .gl-canvas{position:absolute;inset:0}.gl-labels{position:absolute;inset:0;pointer-events:none}#stage{position:absolute;inset:0;cursor:grab}
         .gl-lbl{position:absolute;transform:translate(-50%,-50%);letter-spacing:.02em;text-shadow:0 0 3px #000,0 0 3px #000,0 1px 4px #000;white-space:nowrap;text-align:center}
         .gl-lbl.cont{font-weight:600;color:#fff}

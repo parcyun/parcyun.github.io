@@ -415,7 +415,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
         answer,
         index: shownQuestion.index,
       });
-      window.psGameSfx?.answer(result.correct);
+      window.psGameSfx?.answer(result.correct,undefined,result.details?.speedTag);
       if (result.correct && result.details) setScoreEffect({ ...result.details, id: performance.now() });
       setFeedback(
         result.correct ? `정답! +${result.points}점` : "다시 생각해 보세요.",

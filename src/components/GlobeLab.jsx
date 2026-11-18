@@ -1056,7 +1056,7 @@ export default function GlobeLab(){
           <button onClick={closeUpdateStory}>시작하기</button>
           <button className="update-history-toggle" aria-expanded={showUpdateHistory} onClick={()=>setShowUpdateHistory(value=>!value)}>업데이트 내역 보기 <span>{showUpdateHistory?'−':'+'}</span></button>
           <div className={'update-history'+(showUpdateHistory?' open':'')}>
-            <div><b>2026.11 · v1.3.4</b><p>지도 탐색부터 혼자 하기와 대항전까지 배경음악 다섯 곡이 이어져요. 게임 모드 옆 SOUND ON/OFF로 음악을 켜고 끌 수 있어요.</p><p>랭킹 하단 호박색 상자 가운데에서 마지막 제출 점수와 순위를, 오른쪽에서 내 최고 기록을 확인하세요. 미제출 기록은 녹색 제출 상자에 표시돼요. 최고 기록을 경신하면 슬롯머신 당첨음에 동전이 떨어지는 소리와 박수·함성이 이어져요.</p></div>
+            <div><b>2026.11 · v1.3.4</b><p>지도 탐색부터 혼자 하기와 대항전까지 배경음악 다섯 곡이 이어져요. 게임 모드 옆 SOUND ON/OFF로 음악을 켜고 끌 수 있어요. 정답을 빠르게 맞히면 LIGHTNING은 천둥소리, FAST는 빠르게 스치는 소리가 나며 QUICK은 기본 정답음이 울려요.</p><p>랭킹 하단 호박색 상자 가운데에서 마지막 제출 점수와 순위를, 오른쪽에서 내 최고 기록을 확인하세요. 미제출 기록은 녹색 제출 상자에 표시돼요. 최고 기록을 경신하면 슬롯머신 당첨음에 동전이 떨어지는 소리와 박수·함성이 이어져요.</p></div>
             <div><b>2026.11 · v1.3.3</b><p>대항전 설정과 참여자 관리를 개선했어요. 화면을 처음 벗어나면 경고 후 다시 시작할 수 있고, 두 번째에는 해당 플레이가 끝나요.</p></div>
             <div><b>2026.10</b><p>나라·수도·국기·자연환경·랜드마크를 맞히는 6가지 게임을 추가했어요. 정답을 이어 가며 스펠 드릴과 같은 콤보·속도 점수를 쌓아 보세요.</p></div>
             <div><b>2026.09</b><p>지형마다 이름을 표시하고, 고원·평원·사막의 대표 범위를 넓혔어요. 기후대도 각각 켜고 끌 수 있어요.</p></div>

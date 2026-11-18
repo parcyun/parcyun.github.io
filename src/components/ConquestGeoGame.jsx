@@ -119,10 +119,12 @@ export default function GeoGame({ pools, onTarget, onExit, onFinish, onContribut
       let receipt;try{receipt=await onContribution?.(answer);}catch(error){receipt={failed:true,message:error.message};}
       if(token!==serial.current)return;
       if(receipt?.failed){locked.current=false;setBusy(false);setResult({good:false,text:'연결을 확인한 뒤 같은 답을 다시 제출해 주세요. 점수는 중복 반영되지 않아요.'});input.current?.focus();return;}
+      window.psGameSfx?.answer(true,undefined,gain.speedTag);
       recordScore(stats.score+gain.total,Math.max(stats.bestCombo,combo));
       setStats(s=>({score:s.score+gain.total,combo,bestCombo:Math.max(combo,s.bestCombo),correct:s.correct+1,attempts:s.attempts+1}));
       advance({good:true,text:`${question.name} · 정답!`,gain,combo,id:performance.now()});
     }else{
+      window.psGameSfx?.answer(false);
       rememberMiss();wrongTries.current++;onMiss?.();setStats(s=>({...s,combo:0,attempts:s.attempts+1}));
       setResult({good:false,text:wrongTries.current>=2?`힌트: 첫 글자는 ‘${[...question.name][0]}’입니다. 마친 뒤 이 문제를 복습할 수 있어요.`:'한 번 더 생각해 보세요. 이 문제는 복습 목록에 담았어요.'});
       input.current?.focus();input.current?.select();

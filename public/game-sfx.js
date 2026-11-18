@@ -47,6 +47,54 @@ function wrong(audioCtx){
     osc.stop(t + 0.12);
   });
 }
+function makeNoise(audioCtx,dur){
+  const n = Math.floor(audioCtx.sampleRate * dur);
+  const buf = audioCtx.createBuffer(1, n, audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for(let i=0;i<n;i++) d[i] = Math.random()*2 - 1;
+  return buf;
+}
+// LIGHTNING — bright crack (highpassed noise) + low rumbling boom
+function playLightning(audioCtx){
+  const now = audioCtx.currentTime;
+  const src = audioCtx.createBufferSource(); src.buffer = makeNoise(audioCtx,0.5);
+  const hp = audioCtx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=1100;
+  const g = audioCtx.createGain();
+  src.connect(hp).connect(g).connect(audioCtx.destination);
+  g.gain.setValueAtTime(0.5, now);
+  g.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+  src.start(now); src.stop(now + 0.5);
+  const o = audioCtx.createOscillator(); const og = audioCtx.createGain();
+  o.type='sine';
+  o.frequency.setValueAtTime(130, now);
+  o.frequency.exponentialRampToValueAtTime(42, now + 0.6);
+  o.connect(og).connect(audioCtx.destination);
+  og.gain.setValueAtTime(0.5, now);
+  og.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+  o.start(now); o.stop(now + 0.75);
+}
+// FAST — quick upward whoosh (bandpass noise sweep) + zip tone
+function playFast(audioCtx){
+  const now = audioCtx.currentTime;
+  const src = audioCtx.createBufferSource(); src.buffer = makeNoise(audioCtx,0.35);
+  const bp = audioCtx.createBiquadFilter(); bp.type='bandpass'; bp.Q.value=1.2;
+  bp.frequency.setValueAtTime(400, now);
+  bp.frequency.exponentialRampToValueAtTime(3600, now + 0.3);
+  const g = audioCtx.createGain();
+  src.connect(bp).connect(g).connect(audioCtx.destination);
+  g.gain.setValueAtTime(0, now);
+  g.gain.linearRampToValueAtTime(0.32, now + 0.05);
+  g.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
+  src.start(now); src.stop(now + 0.4);
+  const o = audioCtx.createOscillator(); const og = audioCtx.createGain();
+  o.type='sawtooth';
+  o.frequency.setValueAtTime(320, now);
+  o.frequency.exponentialRampToValueAtTime(1500, now + 0.18);
+  o.connect(og).connect(audioCtx.destination);
+  og.gain.setValueAtTime(0.11, now);
+  og.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+  o.start(now); o.stop(now + 0.25);
+}
 let context;
 function prime() {
   try {
@@ -140,10 +188,13 @@ function celebrate() {
 }
 window.psGameSfx = {
   prime,
-  answer(ok, existing) {
+  answer(ok, existing, speedTag) {
     if (!enabled()) return;
     const audio = existing || prime();
-    if (audio) (ok ? correct : wrong)(audio);
+    if (!audio) return;
+    (ok ? correct : wrong)(audio);
+    if (ok && speedTag === "LIGHTNING") playLightning(audio);
+    if (ok && speedTag === "FAST") playFast(audio);
   },
   celebrate,
 };

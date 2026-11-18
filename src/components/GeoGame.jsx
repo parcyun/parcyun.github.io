@@ -122,14 +122,15 @@ export default function GeoGame({ musicControls, pools, onTarget, onExit, onFini
     if(pausedAt.current!==null||practice||locked.current||composing.current||!answer.trim()||summary)return;
     if(expert&&deadline.current&&gameNow()>=deadline.current){expireQuestion();return;}
     const correct=matchesAnswer(answer,question);
-    window.psGameSfx?.answer(correct);
     if(correct){
       const combo=stats.combo+1;
       const gain=scoreAnswer(answer,(gameNow()-started.current)/1000,tier,combo);
+      window.psGameSfx?.answer(true,undefined,gain.speedTag);
       recordScore(stats.score+gain.total,Math.max(stats.bestCombo,combo));
       setStats(s=>({score:s.score+gain.total,combo,bestCombo:Math.max(combo,s.bestCombo),correct:s.correct+1,attempts:s.attempts+1}));
       advance({good:true,text:`${question.name} · 정답!`,gain,combo,id:gameNow()});
     }else{
+      window.psGameSfx?.answer(false);
       setStats(s=>({...s,combo:0,attempts:s.attempts+1}));
       setResult({good:false,text:'다시 생각해 보세요. 콤보가 초기화됐어요.'});
       input.current?.focus();input.current?.select();

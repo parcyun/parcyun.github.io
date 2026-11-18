@@ -6,7 +6,7 @@ const world=JSON.parse(await readFile(new URL('world.json',root)));
 const landforms=JSON.parse(await readFile(new URL('geoweb-landforms.json',root)));
 const pools=buildGamePools(world,landforms);
 const questions=Object.fromEntries(GAME_MODES.map(mode=>[mode.id,pools[mode.id].map(q=>({
- id:q.id,mode:mode.id,prompt:mode.prompt||mode.title,answers:q.answers,
+ id:q.id,mode:mode.id,difficulty:q.difficulty||'easy',iso2:q.country?.iso2||'',prompt:mode.prompt||mode.title,answers:q.answers,
  country:q.country?.name?.ko||'',image:mode.id==='flag'?q.country?.flag:q.image||'',
  coordinates:q.coordinates||null,name:q.name,
 }))]));

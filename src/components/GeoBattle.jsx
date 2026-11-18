@@ -1,6 +1,7 @@
 import { createPortal } from "react-dom";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import "./geoBattle.css";
+import { difficultyOptions } from "./geoGameDifficulty.js";
 
 const base = import.meta.env.DEV
   ? "/api/geoweb-battle"
@@ -22,6 +23,29 @@ const modes = [
   ["landmark", "랜드마크"],
 ];
 const teamColors = ["#ffb11a", "#69c7b5", "#829def", "#ed89a5", "#b2cf72", "#b294df", "#e99a6c", "#72bddc", "#cf8dc5", "#7ab88e"];
+
+function GamePicker({ value, onChange, busy }) {
+  const list = useRef(null);
+  const index = modes.findIndex(([key]) => key === value);
+  useEffect(() => {
+    const active = list.current?.children[index];
+    if (active) list.current.scrollTop = active.offsetTop - active.offsetHeight;
+  }, [index]);
+  return (
+    <div className="gb-game-picker">
+      <div className="gb-game-wheel" ref={list} aria-label="게임 종류"
+        onScrollEnd={event => {
+          const wheel = event.currentTarget;
+          const next = modes[Math.round(wheel.scrollTop / wheel.firstElementChild.offsetHeight)]?.[0];
+          if (!busy && next && next !== value) onChange(next);
+        }}>
+        {modes.map(([key, label]) => (
+          <button key={key} type="button" aria-pressed={key === value} disabled={busy} onClick={() => onChange(key)}>{label}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function LobbyStepper({ label, value, previous, next, onChange, busy }) {
   return (
@@ -346,6 +370,9 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
   const host = room?.me === room?.host,
     me = room?.players?.find((p) => p.id === room.me),
     ready = room?.players?.filter((p) => p.ready).length || 0;
+  const game = room?.settings.difficulty ?? "country";
+  const levels = difficultyOptions(game);
+  const levelIndex = Math.max(0, levels.findIndex(item => item.id === (room?.settings.level ?? "easy")));
   const phase = room?.phase;
   const round = room?.round;
   useEffect(() => {
@@ -405,7 +432,8 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
             {gate === "checking" ? (
               <div className="gb-center" role="status">
                 <span className="gb-spinner" />
-                계정 정보를 확인 중입니다
+                <p>계정 정보 확인 중</p>
+                <button disabled>로그인 또는 브라우저 계정 만들기</button>
               </div>
             ) : gate === "unauthenticated" ? (
               <div className="gb-center">
@@ -512,6 +540,11 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                             : `라운드 ${room.round} / ${room.settings.rounds}`}
                     </h2>
                   </div>
+                  {room.phase === "lobby" && (host ? (
+                    <GamePicker value={game} busy={busy} onChange={difficulty => {
+                      if (difficulty !== game) act(`rooms/${room.code}/settings`, { ...room.settings, difficulty, level: "easy" }).catch(() => {});
+                    }} />
+                  ) : <span>{modes.find(([key]) => key === game)?.[1]} · {levels[levelIndex]?.label}</span>)}
                   <button
                     onClick={() => navigator.clipboard.writeText(room.code)}
                   >
@@ -567,10 +600,10 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                           previous={room.teamCount > 2 ? room.teamCount - 1 : null}
                           next={room.teamCount < 10 ? room.teamCount + 1 : null}
                           onChange={teamCount => act(`rooms/${room.code}/teams`, { teamCount }).catch(() => {})} />}
-                        <LobbyStepper label="난이도" value={modes.find(([key]) => key === room.settings.difficulty)?.[1]} busy={busy}
-                          previous={modes[modes.findIndex(([key]) => key === room.settings.difficulty) - 1]?.[0]}
-                          next={modes[modes.findIndex(([key]) => key === room.settings.difficulty) + 1]?.[0]}
-                          onChange={difficulty => act(`rooms/${room.code}/settings`, { ...room.settings, difficulty }).catch(() => {})} />
+                        <LobbyStepper label="난이도" value={levels[levelIndex]?.label} busy={busy}
+                          previous={levels[levelIndex - 1]?.id}
+                          next={levels[levelIndex + 1]?.id}
+                          onChange={level => act(`rooms/${room.code}/settings`, { ...room.settings, level }).catch(() => {})} />
                         <LobbyStepper label="시간" value={room.settings.seconds + "초"} busy={busy}
                           previous={room.settings.seconds > 15 ? Math.max(15, room.settings.seconds - 15) : null}
                           next={room.settings.seconds < 600 ? Math.min(600, room.settings.seconds + 15) : null}
@@ -664,6 +697,9 @@ export default function GeoBattle({ onTarget, onOpenChange }) {
                 ) : room.phase === "playing" && !host ? (
                   <div className="gb-question">
                     <p>{room.question?.prompt}</p>
+                    {room.settings.level === "expert" && room.question && (
+                      <strong className="gb-expert-clock" role="timer">{Math.max(0, Math.ceil((room.question.startedAt + 5000 - clock - serverOffset.current) / 1000))}</strong>
+                    )}
                     {room.question?.image && (
                       <img src={room.question.image} alt="문제 이미지" />
                     )}

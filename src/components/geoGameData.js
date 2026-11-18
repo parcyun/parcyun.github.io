@@ -70,10 +70,4 @@ export function shuffledDeck(pool, previousId, random=Math.random,previousCountr
 }
 export function contentDeck(pool,difficulty,previous,random=Math.random){return shuffledDeck(pool.filter(q=>q.difficulty===difficulty),previous?.id,random,previous?.country?.iso2);}
 
-export function scoreAnswer(answer, elapsedSeconds, tier, comboCount) {
-  let strokes=0;for(const ch of answer)strokes+=/[가-힣]/.test(ch)?2.5:1;
-  const ratio=elapsedSeconds/(strokes/6+1.5);
-  const speedBonus=ratio<=.9?100:ratio<=1.15?50:ratio<=1.5?20:0;
-  return {...scoring.calculateCorrectGain({baseScore:scoring.baseScoreForDifficulty(tier),speedBonus,comboCount}),
-    speedTag:speedBonus===100?'LIGHTNING':speedBonus===50?'FAST':speedBonus===20?'QUICK':''};
-}
+export { scoreAnswer } from '../../public/spell-drill/geo-scoring.js';

@@ -54,3 +54,32 @@ test('all live GeoWeb categories have playable questions without answer leakage'
   assert.equal(Object.hasOwn(view.question,'name'),false);
  }
 });
+
+test('game-specific difficulty changes reset readiness and reject unsupported levels', ()=>{
+ const source=JSON.parse(readFileSync(new URL('../server/geoweb-battle/corpus.json',import.meta.url)));
+ let now=1000;
+ const battle=new Battle(source,{now:()=>now}),room=battle.create(identity('host'),2,'individual');
+ for(const id of ['one','two']){battle.join(room.code,identity(id));battle.ready(room.code,id,true);}
+ assert.throws(()=>battle.configure(room.code,'host',{difficulty:'nature',level:'expert',seconds:60,rounds:1}));
+ battle.configure(room.code,'host',{difficulty:'nature',level:'hard',seconds:60,rounds:1});
+ assert.equal(battle.member(room,'one').ready,false);
+ for(const id of ['one','two'])battle.ready(room.code,id,true);
+ battle.start(room.code,'host');now+=3001;
+ battle.view(room,'one');
+ const q=battle.question(room,battle.member(room,'one'));
+ assert.equal(q.difficulty,'hard');
+ assert.equal(battle.answer(room.code,'one',q.answers[0],0).details.baseScore,globalThis.SpellScoring.baseScoreForDifficulty('hard'));
+});
+
+test('expert expires a question after five seconds without granting points', ()=>{
+ let now=1000;
+ const battle=new Battle(corpus,{now:()=>now}),room=battle.create(identity('host'),2,'individual');
+ battle.configure(room.code,'host',{difficulty:'country',level:'expert',seconds:60,rounds:1});
+ for(const id of ['one','two']){battle.join(room.code,identity(id));battle.ready(room.code,id,true);}
+ battle.start(room.code,'host');now+=3000;
+ assert.equal(battle.view(room,'one').question.index,0);
+ now+=5000;
+ const state=battle.view(room,'one');
+ assert.equal(state.question.index,1);
+ assert.equal(state.standings.find(player=>player.id==='one').score,0);
+});

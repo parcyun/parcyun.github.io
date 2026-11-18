@@ -19,12 +19,15 @@ try{
  await waitFor('http://127.0.0.1:47820/health');await waitFor(site);
  browser=await chromium.launch({headless:true,args:['--disable-gpu'],executablePath:process.env.GEOWEB_QA_CHROME});
  const desktop=await browser.newContext({viewport:{width:1440,height:900}});
- await desktop.route('**/game-account.js*',route=>route.fulfill({contentType:'text/javascript',body:`window.psBattleIdentity=async()=>(${JSON.stringify(identity('테스트진행자','a'))});`}));
+ await desktop.route('**/game-account.js*',route=>route.fulfill({contentType:'text/javascript',body:`window.psBattleIdentity=async()=>{await new Promise(resolve=>setTimeout(resolve,750));return (${JSON.stringify(identity('테스트진행자','a'))});};`}));
  const host=await desktop.newPage();host.on('pageerror',error=>console.error('HOST PAGE ERROR',error));await host.goto(site);await host.locator('.game-entry').waitFor({timeout:60000});
  if(await host.locator('.update-story').isVisible())await host.locator('.update-story-card > button').first().click();
  if(await host.locator('.guide-shade').isVisible())await host.locator('.guide-shade').click();
  await host.locator('.game-entry').click();
- await host.locator('.gb-launch').waitFor({timeout:30000}).catch(async error=>{await mkdir(resolve(root,'test-artifacts'),{recursive:true});await host.screenshot({path:resolve(root,'test-artifacts/geoweb-desktop-failure.png')});console.error('GeoGame count',await host.locator('.geo-game').count(),'body',String(await host.locator('body').innerText()).slice(-1500));throw error;});await host.locator('.gb-launch').click();assert.equal(await host.locator('.gb-backdrop').evaluate(el=>getComputedStyle(el).animationName),'gb-fade-in');await host.getByRole('button',{name:'게임 참여하기',exact:true}).click();await host.getByRole('textbox',{name:'참가 코드'}).waitFor();await host.getByRole('button',{name:'돌아가기',exact:true}).click();await host.getByRole('button',{name:'게임 만들기',exact:true}).click();await host.getByRole('button',{name:'방 만들기'}).waitFor({timeout:15000});const increase=host.getByRole('button',{name:'팀 개수 늘리기'});
+ await host.locator('.gb-launch').waitFor({timeout:30000}).catch(async error=>{await mkdir(resolve(root,'test-artifacts'),{recursive:true});await host.screenshot({path:resolve(root,'test-artifacts/geoweb-desktop-failure.png')});console.error('GeoGame count',await host.locator('.geo-game').count(),'body',String(await host.locator('body').innerText()).slice(-1500));throw error;});await host.locator('.gb-launch').click();
+ assert.ok(await host.getByRole('button',{name:'로그인 또는 브라우저 계정 만들기',exact:true}).isDisabled());
+ await host.getByText('계정 정보 확인 중',{exact:true}).waitFor();
+ assert.equal(await host.locator('.gb-backdrop').evaluate(el=>getComputedStyle(el).animationName),'gb-fade-in');await host.getByRole('button',{name:'게임 참여하기',exact:true}).click();await host.getByRole('textbox',{name:'참가 코드'}).waitFor();await host.getByRole('button',{name:'돌아가기',exact:true}).click();await host.getByRole('button',{name:'게임 만들기',exact:true}).click();await host.getByRole('button',{name:'방 만들기'}).waitFor({timeout:15000});const increase=host.getByRole('button',{name:'팀 개수 늘리기'});
  const decrease=host.getByRole('button',{name:'팀 개수 줄이기'});
  if(!await decrease.isDisabled())throw Error('Minimum team count was not enforced');
  for(let i=2;i<10;i++)await increase.click();
@@ -53,6 +56,12 @@ try{
  await host.waitForFunction(()=>document.querySelector('output[aria-label="시간"]').textContent==='75초');
  await host.getByRole('button',{name:'라운드 다음',exact:true}).click();
  await host.waitForFunction(()=>document.querySelector('output[aria-label="라운드"]').textContent==='4회');
+ const wheel=host.locator('.gb-game-wheel');
+ await wheel.hover();
+ await host.mouse.wheel(0,28);
+ await host.waitForFunction(()=>document.querySelector('.gb-game-wheel button[aria-pressed="true"]').textContent==='수도 이름');
+ await wheel.getByRole('button',{name:'나라 이름',exact:true}).click();
+ await host.waitForFunction(()=>document.querySelector('.gb-game-wheel button[aria-pressed="true"]').textContent==='나라 이름');
  const difficultyBefore=await host.locator('output[aria-label=난이도]').textContent();
  await host.getByRole('button',{name:'난이도 다음',exact:true}).click();
  await host.waitForFunction(old=>document.querySelector('output[aria-label="난이도"]').textContent!==old,difficultyBefore);
@@ -60,7 +69,7 @@ try{
  await host.waitForFunction(old=>document.querySelector('output[aria-label="난이도"]').textContent===old,difficultyBefore);
  const one=await api('session',identity('테스트선수1','b'));const two=await api('session',identity('테스트선수2','c'));
  const players=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
- await players.route('**/game-account.js*',route=>route.fulfill({contentType:'text/javascript',body:`window.psBattleIdentity=async()=>(${JSON.stringify(identity('테스트선수1','b'))});`}));
+ await players.route('**/game-account.js*',route=>route.fulfill({contentType:'text/javascript',body:`window.psBattleIdentity=async()=>{await new Promise(resolve=>setTimeout(resolve,750));return (${JSON.stringify(identity('테스트선수1','b'))});};`}));
  const player=await players.newPage();
  await player.goto(site);
  await player.getByRole('button',{name:'게임 모드',exact:true}).waitFor({timeout:60000});
@@ -92,10 +101,15 @@ try{
  for(const [label,page] of [['desktop',host],['mobile',player]]){
   assert.ok(await page.locator('.gb-modal').evaluate(el=>{const bounds=el.getBoundingClientRect();return innerWidth-bounds.width<=26&&innerHeight-bounds.height<=26;}));
   await page.screenshot({path:resolve(process.env.GEOWEB_QA_OUTPUT||root,'test-artifacts',`geoweb-${label}.png`)});
+ }
+ await host.getByRole('button',{name:'경기 종료 / 방 취소'}).click();
+ await host.getByRole('button',{name:'종료 확인'}).click();
+ for(const page of [host,player]){
+  await page.getByRole('heading',{name:'최종 순위'}).waitFor();
   await page.evaluate(()=>{const el=document.querySelector('.gb-backdrop'),animate=el.animate;window.closeMotion=false;el.animate=function(...args){window.closeMotion=true;return animate.apply(this,args);};});
   await page.getByRole('button',{name:'대항전 닫기'}).click();
   await page.locator('.gb-modal').waitFor({state:'hidden'});
   assert.ok(await page.evaluate(()=>window.closeMotion));
  }
- console.log('Desktop and mobile: code join, 10-team match, answer, leaderboard movement and exit transitions passed');
+ console.log('Desktop and mobile: code join, 10-team match, answer, leaderboard movement, results and exit transitions passed');
 }finally{await browser?.close();for(const child of children)child.kill();}

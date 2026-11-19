@@ -14,11 +14,14 @@ test('Works publishes the Titan tools as descriptive external links', () => {
     'https://github.com/parcyun/pre-design',
     'https://github.com/parcyun/authentic-web-design',
     'https://github.com/Yeachan-Heo/oh-my-codex/blob/main/skills/deep-interview/SKILL.md',
+    'https://prompt-motion.com/',
+    'https://www.pixellab.ai/',
+    'https://liberatedpixelcup.github.io/Universal-LPC-Spritesheet-Character-Generator/',
   ]) {
     assert.match(source, new RegExp(url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
-  assert.equal((source.match(/class="titan-item"/g) || []).length, 7);
-  assert.equal((source.match(/target="_blank" rel="noopener noreferrer"/g) || []).length >= 7, true);
+  assert.equal((source.match(/class="titan-item"/g) || []).length, 10);
+  assert.equal((source.match(/target="_blank" rel="noopener noreferrer"/g) || []).length >= 10, true);
   const titles = [...source.matchAll(/class="titan-title">([^<]+)</g)].map((match) => match[1]);
   assert.deepEqual(titles, [
     'Pre-design',
@@ -28,6 +31,9 @@ test('Works publishes the Titan tools as descriptive external links', () => {
     '우로보로스',
     '기업 홈페이지 디자인 소스 훔쳐오기',
     'Meta 개발자들의 디자인 컴포넌트 훔쳐쓰기',
+    'Prompt Motion',
+    'PixelLab',
+    'Universal LPC 캐릭터 생성기',
   ]);
 });
 

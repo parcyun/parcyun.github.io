@@ -127,3 +127,11 @@
 
 ### 참고: 오탐 1건 (조치 불필요)
 - 자동 감사가 "방문자 카운터가 브랜드 pill의 left를 써서 우하단으로 밀려 겹친다"고 지적했으나, 이는 **사용자가 명시적으로 요청한 정렬**("방문자 카운터를 우측 플로팅 푸터 좌측 정렬에 맞춰")이며 실측 겹침 0을 확인함. 의도된 레이아웃이라 유지.
+
+## 2026-11-19 · Works creative asset references
+
+- Added Prompt Motion, PixelLab and Universal LPC as the final three Titan tools, preserving the existing design filter, layout and external-link behavior.
+- Each entry includes a Korean description, detailed hover tooltip and screenshot of the official site. PixelLab links to pixellab.ai; LPC uses the current LiberatedPixelCup generator and includes per-part credit/license guidance.
+- Production build, six existing Works/Titan tests, rendered desktop tooltip and 390px mobile search/no-overflow verification passed.
+- Related Tuilders assets published: keep-awake (own utility), grill-me and Ouroboros (other creators' skills), getdesign.md, Astryx, PixelLab official MCP repo and Universal LPC. Prompt Motion remains unregistered on Tuilders because its official public GitHub repository has not been established and the assets API requires one. Evidence under Downloads/Codex/Artifacts/tuilders-skills-20261119.
+- keep-awake repository renamed, branding removed and public visibility explicitly authorized. Windows runtime remains untested on this Mac; existing README was corrected to disclose periodic F15 input. No license is specified for keep-awake.

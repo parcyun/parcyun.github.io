@@ -32,7 +32,7 @@ const structuredData = {
 <header class="dexterity-header"><h1 style="margin:0;font:inherit"><a class="dexterity-logo" href="/dexterity/">parcyun dexterity</a></h1></header>
 <main aria-label="parcyun dexterity">
 {categories.filter(category => posts.some(post => post.category === category)).map(category => (
-<section aria-label={category} id={category==='가이드북'?'guidebooks':undefined}>
+<section aria-label={category} id={category==='가이드북'?'guidebooks':`category-${categories.indexOf(category)}`} data-category-section>
 <h2>{category}</h2>
 <div class="gallery">
 {posts.filter(post => post.category === category).map(post => (
@@ -45,9 +45,34 @@ const structuredData = {
 </section>
 ))}
 </main>
+<nav class="category-position" aria-label="카테고리 이동">
+{categories.filter(category=>posts.some(post=>post.category===category)).map((category,index)=><a href={category==='가이드북'?'#guidebooks':`#category-${categories.indexOf(category)}`} aria-label={category} aria-current={index===0?'location':undefined}><span>{category}</span><i aria-hidden="true"></i></a>)}
+</nav>
+<script>
+const sections=Array.from(document.querySelectorAll('[data-category-section]'));
+const markers=Array.from(document.querySelectorAll('.category-position a'));
+let scheduled=false;
+function updateCategory(){
+  let current=0;
+  sections.forEach((section,index)=>{if(section.getBoundingClientRect().top<=window.innerHeight*.25)current=index;});
+  if(window.scrollY>0 && window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-2)current=sections.length-1;
+  markers.forEach((marker,index)=>{if(index===current)marker.setAttribute('aria-current','location');else marker.removeAttribute('aria-current');});
+  scheduled=false;
+}
+function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(updateCategory);}}
+window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule);updateCategory();
+</script>
 </body>
 </html>
 <style is:global>
+html{scrollbar-width:none;scroll-behavior:smooth}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+.category-position{position:fixed;right:12px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;gap:2px}
+.category-position a{display:flex;align-items:center;justify-content:flex-end;position:relative;width:36px;height:32px;text-decoration:none;color:#fff}
+.category-position i{width:20px;height:2px;border-radius:2px;background:#969696;transition:background .2s,width .2s}
+.category-position a[aria-current] i{background:#fff;width:28px}
+.category-position span{position:absolute;right:44px;white-space:nowrap;font-size:13px;background:rgba(0,0,0,.85);border-radius:8px;padding:6px 10px;opacity:0;visibility:hidden;transition:opacity .15s;pointer-events:none}
+.category-position a:hover span,.category-position a:focus-visible span{opacity:1;visibility:visible}.category-position a:focus-visible{outline:1px solid #fff;outline-offset:2px;border-radius:4px}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.category-position i,.category-position span{transition:none}}
 *{box-sizing:border-box}html,body{margin:0;background:#000;color:#fff}
 body{font-family:'Pretendard Variable',sans-serif;word-break:keep-all}
 main{max-width:1200px;margin:auto;padding:64px 32px 96px}

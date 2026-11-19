@@ -6,7 +6,7 @@ export const dexterityAuthor = {
   name: '박윤', alternateName: 'parcyun', url: 'https://parcyun.github.io/',
 };
 export const dexterityPosts = [{
-  slug: 'hyangmisa', title: '경주체육관 간판 아래, 향미사', category: '맛집',
+  slug: 'hyangmisa', title: '경주체육관 간판 아래, 향미사', category: '카페',
   description: '경주 카페 향미사에서 따뜻한 아메리카노를 테이크아웃하고 케냐 캄완기 AA TOP 워시드 원두를 구매한 기록. 경주체육관 간판과 매대 앞 바 좌석, 방문 당시 메뉴를 사진 9장과 함께 담았습니다.',
   href: '/dexterity/hyangmisa/', image: '/images/dexterity/hyangmisa/hyangmisa-exterior.png',
   imageAlt: '경주체육관 간판이 남아 있는 경주 카페 향미사 입구',

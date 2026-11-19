@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState} from "react";
 import {createMusicRotation} from "../../public/music-rotation.js";
-const geoTracks = ["blue-hour", "glass-coast", "afterglow", "lunar-tide", "daybreak-drive"];
+const geoTracks = ["brain-dance", "newer-wave", "neon-laser-horizon", "cloud-dancer", "tech-live"];
 const musicKey = "ps-geoweb-battle-music";
 export default function useGeoMusic(active=true){
   const [musicEnabled,setMusicEnabled]=useState(()=>{try{return localStorage.getItem(musicKey)!=="off";}catch{return true;}});

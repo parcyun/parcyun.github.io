@@ -1,3 +1,4 @@
+import {createJoinNotice} from "../../public/battle-join-notice.js";
 import GeoAnswerArea from "./GeoAnswerArea.jsx";
 import { createPortal } from "react-dom";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -165,9 +166,9 @@ function BattleResult({room,host}) {
   return <section className="gb-results">
     <div className="gb-winning-score"><small>1위 · {sorted[0]?.name} · {room.phase==="finished"?"합산 점수":"라운드 점수"}</small><strong>{(sorted[0]?.score||0).toLocaleString()}</strong></div>
     <small>{room.phase==="finished"?"MATCH COMPLETE":"ROUND COMPLETE"}</small>
-    <h1>{host?"대항전 종료":(room.mode==="individual"?"내 순위 ":"우리 팀 ")+rank+"위"}</h1>
-    {own&&<p>최종 합산 점수 <b>{own.score.toLocaleString()}점</b></p>}
-    <p>{room.endedEarly?"진행자가 경기를 종료했어요. 지금까지의 점수로 순위를 정했어요.":"함께해서 더 멋진 경기였어요."}</p>
+    <h1>{host?(room.phase==="finished"?"대항전 종료":room.round+"라운드 종료"):(room.mode==="individual"?"내 순위 ":"우리 팀 ")+rank+"위"}</h1>
+    {own&&<p>{room.phase==="finished"?"최종 합산 점수":"이번 라운드 점수"} <b>{own.score.toLocaleString()}점</b></p>}
+    <p>{room.phase==="between"?"":room.endedEarly?"진행자가 경기를 종료했어요. 지금까지의 점수로 순위를 정했어요.":"함께해서 더 멋진 경기였어요."}</p>
   </section>;
 }
 
@@ -193,6 +194,9 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
     [dragged, setDragged] = useState(null),
     [dropTeam, setDropTeam] = useState(null);
   const {musicEnabled,playMusic,toggleMusic}=musicControls;
+  const joinNotice=useRef(null);
+  useEffect(()=>{if(!open||!backdrop.current)return;joinNotice.current=createJoinNotice(backdrop.current);return()=>{joinNotice.current?.dispose();joinNotice.current=null;};},[open]);
+  useEffect(()=>{joinNotice.current?.update(room);},[room]);
   const answerInput=useRef(null), answerComposing=useRef(false);
   const sessionRef = useRef(null),
     roomRef = useRef(null),
@@ -579,6 +583,11 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
   const game = room?.settings.difficulty ?? "country";
   const levels = difficultyOptions(game);
   const levelIndex = Math.max(0, levels.findIndex(item => item.id === (room?.settings.level ?? "easy")));
+  useEffect(()=>{
+    if(room?.phase==="playing"&&!busy&&!room.waiting&&!focusPaused){
+      answerInput.current?.focus({preventScroll:true});
+    }
+  },[room?.phase,room?.round,shownQuestion?.index,busy,shownQuestion?.hintUsed,focusPaused]);
   const phase = room?.phase;
   const round = room?.round;
   useEffect(() => {
@@ -783,7 +792,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                 </div>
                 {["starting", "playing", "between"].includes(room.phase) && (
                   <p role="timer" className={`gb-clock ${host?"gb-host-clock":""}`}>
-                    {room.phase !== "playing"&&<small>{room.phase==="starting"?"시작까지":"다음 라운드까지"}</small>}
+
                     <strong key={countdown}>{countdown}</strong>
                   </p>
                 )}
@@ -919,13 +928,13 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                       skip={()=>{if(room.stats?.passesRemaining>0)act(`rooms/${room.code}/pass`,{index:shownQuestion.index});}} busy={busy} mediaError={false} summary={false}/>
                   </div>,backdrop.current
                 ) : host && room.phase === "playing" ? null : (
-                  room.phase==="finished"?<BattleResult room={room} host={host}/>:<div className="gb-center">
+                  ["finished","between"].includes(room.phase)?<BattleResult room={room} host={host}/>:<div className="gb-center">
                     <p>
                       {room.phase === "finished"
                         ? "최종 점수를 확인하세요."
                         : room.phase === "cancelled"
                           ? "진행자가 경기를 취소했습니다."
-                          : "다른 참가자를 기다리는 중입니다."}
+                          : ""}
                     </p>
                   </div>
                 )}

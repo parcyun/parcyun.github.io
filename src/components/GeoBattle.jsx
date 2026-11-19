@@ -122,6 +122,7 @@ function BattleLeaderboard({ room }) {
         row.getAnimations().forEach(animation => animation.cancel());
         row.animate([{ transform: `translateY(${old.top - top}px)` }, { transform: "none" }],
           { duration: 320, easing: "cubic-bezier(.2,.75,.2,1)" });
+        row.animate([{boxShadow:"0 0 0 2px #ffffff99"},{boxShadow:"0 0 0 0px #ffffff00"}],{duration:600});
       }
       if (score !== old.score) row.lastElementChild.animate(
         [{ color: "#fff", textShadow: "0 0 14px #fff" }, { color: "#ffcb73", textShadow: "none" }],
@@ -134,16 +135,30 @@ function BattleLeaderboard({ room }) {
     <section className="gb-scoreboard" aria-label="순위표">
       <h3>{room.phase === "finished" ? "최종 순위" : "실시간 순위"}</h3>
       <ol ref={list}>
-        {ranked.map(({ id, name, score }) => (
-          <li key={id} data-key={id} data-score={score}>
+        {ranked.map(({ id, name, score, photo, connected }) => (
+          <li key={id} className={score===ranked[0]?.score?"gb-first-place":""} style={{"--team-color":teamColors[Number(id)%teamColors.length]||"#ffb11a"}} data-key={id} data-score={score}>
             <span>{ranked.findIndex(entry => entry.score === score) + 1}위</span>
-            <span>{name}</span>
+            <span>{room.mode==="individual"&&<img src={photo||"/images/dexter-base-character-01.png"} alt="" referrerPolicy="no-referrer"/>}{name}{connected===false&&<small> · 연결 끊김</small>}</span>
             <strong>{score.toLocaleString()}점</strong>
           </li>
         ))}
       </ol>
     </section>
   );
+}
+
+function BattleResult({room,host}) {
+  const entries=room.mode==="individual"?room.standings:(room.teamTotals||[]).map((score,id)=>({id,score,name:room.teamNames[id]}));
+  const sorted=[...entries].sort((a,b)=>b.score-a.score);
+  const own=entries.find(p=>p.id===(room.mode==="individual"?room.me:room.myTeam));
+  const rank=own?1+entries.filter(p=>p.score>own.score).length:1;
+  return <section className="gb-results">
+    <div className="gb-winning-score"><small>1위 · {sorted[0]?.name} · {room.phase==="finished"?"합산 점수":"라운드 점수"}</small><strong>{(sorted[0]?.score||0).toLocaleString()}</strong></div>
+    <small>{room.phase==="finished"?"MATCH COMPLETE":"ROUND COMPLETE"}</small>
+    <h1>{host?"대항전 종료":(room.mode==="individual"?"내 순위 ":"우리 팀 ")+rank+"위"}</h1>
+    {own&&<p>최종 합산 점수 <b>{own.score.toLocaleString()}점</b></p>}
+    <p>{room.endedEarly?"진행자가 경기를 종료했어요. 지금까지의 점수로 순위를 정했어요.":"함께해서 더 멋진 경기였어요."}</p>
+  </section>;
 }
 
 export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
@@ -588,7 +603,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
       {open && createPortal(
         <div
           ref={backdrop}
-          className={`gb-backdrop ${room?.question && !host && !room.question.image ? "gb-map-round" : ""}`}
+          className={`gb-backdrop ${room?.phase === "playing" && !host && !room.waiting ? "gb-map-round" : ""}`}
         >
           <section
             role="dialog"
@@ -601,13 +616,14 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
             }}
           >
             <header>
-              <span>GEOWEB <small>LIVE BATTLE</small></span>
-              {room && <div className="gb-toolbar-code"><small>GAME CODE</small><strong>{room.code}</strong></div>}
+              <span>GEOWEB <small>{room?.phase === "playing" ? `ROUND ${room.round} / ${room.settings.rounds}` : "LIVE BATTLE"}</small></span>
+              {room && <button className="gb-toolbar-code" onClick={()=>showInvite(room.code)}><small>GAME CODE · QR</small><strong>{room.code}</strong></button>}
               <div className="gb-header-actions">
                 <button className="gb-sound" type="button" aria-pressed={musicEnabled} onClick={toggleMusic}>
                   SOUND {musicEnabled ? "ON" : "OFF"}
                 </button>
                 <button onClick={close} aria-label="대항전 닫기">×</button>
+                {room && <button onClick={()=>setConfirmExit(true)}>방 나가기</button>}
               </div>
             </header>
             {room?.phase === "playing" && scoreEffect && !host && <GeoScoreEffect key={scoreEffect.id} gain={scoreEffect} combo={scoreEffect.combo} />}
@@ -692,6 +708,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                     join().catch(() => {});
                   }}>
                     <input
+                      autoFocus
                       value={code}
                       onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
                       inputMode="numeric"
@@ -880,7 +897,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                   </>
                 ) : room.phase === "playing" && room.waiting ? (
                   <div className="gb-center"><h2>다음 라운드부터 함께해요</h2></div>
-                ) : room.phase === "playing" && !host ? (
+                ) : room.phase === "playing" && !host ? createPortal(
                   <div className="gb-question" hidden={!shownQuestion} data-question-index={shownQuestion?.index}>
                     <p>{shownQuestion?.prompt}</p>
                     {shownSeconds > 0 && (
@@ -923,9 +940,9 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                       패스 · {room.stats?.passesRemaining}
                     </button>
                     <p role="status">{feedback}</p>
-                  </div>
+                  </div>,backdrop.current
                 ) : host && room.phase === "playing" ? null : (
-                  <div className="gb-center">
+                  room.phase==="finished"?<BattleResult room={room} host={host}/>:<div className="gb-center">
                     <p>
                       {room.phase === "finished"
                         ? "최종 점수를 확인하세요."
@@ -935,7 +952,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                     </p>
                   </div>
                 )}
-                {["playing", "between", "finished"].includes(room.phase) &&
+                {host && ["playing", "between", "finished"].includes(room.phase) &&
                   <BattleLeaderboard room={room} />}
                 {managedPlayer && (
                   <div className="gb-confirm-shade" role="dialog" aria-modal="true" aria-label="참여자 관리"

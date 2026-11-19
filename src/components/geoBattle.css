@@ -440,3 +440,58 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 .gb-modal button.gb-ready-action { background: #1c4934; color: #a1f0bf; border-color: #36885b; }
 .gb-header-actions { grid-column: 3; justify-self: end; display: flex; align-items: center; gap: 4px; }
 .gb-modal header .gb-sound { min-height: 28px; padding: 4px 6px; font-size: 9px; white-space: nowrap; color: #ffcb73; }
+
+.gb-modal > header {transition:border-radius .35s ease,margin .35s ease,background .35s ease;}
+.gb-map-round .gb-modal {background:transparent;box-shadow:none;border-color:transparent;backdrop-filter:none;pointer-events:none}
+.gb-map-round .gb-modal > header {margin:12px;border-radius:24px;background:#181a20bb;backdrop-filter:blur(20px);pointer-events:auto}
+.gb-map-round .gb-screen {background:transparent;pointer-events:none}
+.gb-map-round .gb-heading,.gb-map-round .gb-brand,.gb-map-round .gb-scoreboard {display:none}
+.gb-map-round .gb-question {position:absolute;bottom:calc(var(--ps-footer-h,0px) + var(--ps-brand-h,30px) + 24px);left:50%;transform:translateX(-50%);margin:0;width:min(520px,calc(100% - 24px));border-radius:24px;background:#111319cc;backdrop-filter:blur(16px);pointer-events:auto;padding:12px;box-sizing:border-box}
+.gb-map-round .gb-question img {max-height:24dvh;object-fit:contain}
+.gb-map-round .gb-clock {position:absolute;top:82px;right:24px;pointer-events:none}
+.gb-map-round .gb-confirm-shade {pointer-events:auto}
+@media(prefers-reduced-motion:reduce){.gb-modal > header{transition:none}}
+
+.gb-scoreboard ol {display:grid;gap:10px;align-content:start}
+.gb-scoreboard li {border:1px solid var(--team-color);border-radius:20px;background:color-mix(in srgb,var(--team-color) 12%,#12151c);min-height:62px;transition:min-height .32s ease,background .32s ease;font-size:17px}
+.gb-scoreboard li.gb-first-place{min-height:92px;border-color:#ffb11a;background:#ffb11a24;font-size:22px}
+.gb-scoreboard li img{width:36px;height:36px;border-radius:50%;vertical-align:middle;margin-right:12px}
+.gb-results{text-align:center;margin:auto;padding:24px}
+.gb-results h1{font-size:clamp(32px,7vw,60px)}
+.gb-winning-score strong{display:block;color:#ffb11a;font-size:clamp(48px,9vw,88px)}
+.gb-results b{font-size:28px;color:#ffb11a}
+.gb-map-round .gb-screen>footer{display:none}
+
+.gb-map-round {pointer-events:none}
+.gb-map-round .gb-modal>header,.gb-map-round .gb-question,.gb-map-round .ps-qr-popover{pointer-events:auto}
+.gb-map-round .gb-screen {overflow:visible}
+.gb-map-round .gb-modal {position:relative}
+/* The sheet contracts upward while the playing controls stay anchored to the viewport. */
+.gb-backdrop {align-items:start}
+.gb-backdrop .gb-modal {
+  transition:height .48s cubic-bezier(.22,1,.36,1),border-radius .48s cubic-bezier(.22,1,.36,1),background .35s ease;
+}
+.gb-backdrop.gb-map-round .gb-modal {
+  height:72px;min-height:0;overflow:visible;border-radius:28px;
+}
+.gb-map-round .gb-modal > header {
+  margin:0;min-height:72px;box-sizing:border-box;border-radius:28px;
+}
+.gb-map-round .gb-screen {position:static;flex:none;overflow:visible}
+.gb-map-round .gb-question {position:fixed}
+.gb-map-round .gb-clock {position:fixed;top:94px}
+@media(max-width:760px){
+ .gb-backdrop.gb-map-round .gb-modal,.gb-map-round .gb-modal > header{height:64px;min-height:64px}
+ .gb-map-round .gb-clock{top:82px}
+}
+@media(prefers-reduced-motion:reduce){
+ .gb-backdrop .gb-modal{transition:none}
+}
+
+.gb-map-round > .gb-question {color:white;font:14px/1.5 Pretendard,sans-serif;max-height:calc(100dvh - 180px);overflow:auto}
+.gb-map-round > .gb-question form{display:flex;gap:8px;margin:10px 0}
+.gb-map-round > .gb-question input{flex:1;min-width:0;padding:12px;border-radius:12px;border:1px solid #ffffff44;background:#11151c;color:white;font:inherit}
+.gb-map-round > .gb-question button{padding:10px;border-radius:12px;border:1px solid #ffffff44;background:#252c36;color:white;cursor:pointer}
+.gb-map-round > .gb-question form button{background:#ffb11a;color:#17130d;font-weight:700}
+.gb-modal > header > .gb-toolbar-code{grid-column:2;justify-self:center}
+.gb-header-actions{grid-column:3}

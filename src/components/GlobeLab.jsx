@@ -1,3 +1,5 @@
+import {DENSITY_TEXTURE_URL,DENSITY_CLASSES,DENSITY_MISSING_COLOR} from './globeDensity.js';
+import {POPULATION_CARTOGRAM_URL,populationPoint,populationFeature,densifyPopulation,populationVertexKey,populationContains} from './globePopulation.js';
 import useGeoMusic from "./useGeoMusic.js";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import GeoGame from './GeoGame.jsx';
@@ -318,7 +320,7 @@ export default function GlobeLab(){
     const idle=window.requestIdleCallback?.(start,{timeout:1500});if(idle===undefined)timer=setTimeout(start,500);
     return()=>{cancelled=true;clearTimeout(timer);if(idle!==undefined)window.cancelIdleCallback(idle);for(const image of images)image.onload=image.onerror=null;};
   },[]);
-  const mountRef=useRef(null),labelRef=useRef(null),api=useRef({});
+  const mountRef=useRef(null),labelRef=useRef(null),api=useRef({}),toolsRef=useRef(null),toolsSize=useRef(null),toolsAnimation=useRef(null);
   const [gameActive,setGameActive]=useState(false),[gameWipe,setGameWipe]=useState(false),[gamePools,setGamePools]=useState(null);
   useEffect(()=>gamePools?preloadPhotoCatalog(gamePools):undefined,[gamePools]);
   const gameSnapshot=useRef(null),gameTimers=useRef([]);
@@ -330,6 +332,8 @@ export default function GlobeLab(){
   const [sat,setSat]=useState(false); // #2 위성 사진 보기
   const [climate,setClimate]=useState(false); // 초등 학습용 6개 기후대 오버레이
   const [climateZones,setClimateZones]=useState(()=>({...ALL_CLIMATE_SELECTION}));
+  const [density,setDensity]=useState(false),[densityReady,setDensityReady]=useState(false);
+  const [population,setPopulation]=useState(false),[populationCompare,setPopulationCompare]=useState(false),[populationReady,setPopulationReady]=useState(false),[populationStats,setPopulationStats]=useState({});
   const [terrain,setTerrain]=useState(false); // 초등 사회 수업용 주요 지형 레이어
   const [terrainLayers,setTerrainLayers]=useState(()=>({...EMPTY_LANDFORM_SELECTION}));
   const [satBusy,setSatBusy]=useState(null); // {pct,label} 위성 타일 로딩 진행 or null
@@ -339,6 +343,16 @@ export default function GlobeLab(){
   const [toolsCollapsed,setToolsCollapsed]=useState(()=>typeof window!=='undefined'&&window.matchMedia('(max-width:760px)').matches); // 도구 상자 접힘
   const [legendCollapsed,setLegendCollapsed]=useState(()=>typeof window!=='undefined'&&window.matchMedia('(max-width:760px)').matches); // 대륙/대양 상자 접힘
   const [lang,setLang]=useState('ko'); // #10 언어 토글(한국어/영어)
+  useLayoutEffect(()=>{
+    const node=toolsRef.current;if(!node)return;
+    const current=toolsAnimation.current?node.getBoundingClientRect():toolsSize.current;
+    toolsAnimation.current?.cancel();
+    const target=node.getBoundingClientRect();toolsSize.current={width:target.width,height:target.height};
+    if(!current||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const animation=node.animate([{width:`${current.width}px`,height:`${current.height}px`},{width:`${target.width}px`,height:`${target.height}px`}],{duration:360,easing:'cubic-bezier(.22,1,.36,1)'});
+    toolsAnimation.current=animation;animation.finished.then(()=>{if(toolsAnimation.current===animation)toolsAnimation.current=null;}).catch(()=>{});
+  },[climate,terrain,lang,toolsCollapsed]);
+  useEffect(()=>()=>toolsAnimation.current?.cancel(),[]);
   const [northUp,setNorthUp]=useState(false); // #2 정북 고정(지구본에서 북극이 항상 위)
   const [hint,setHint]=useState(true); // 힌트=일시 온보딩(원본과 동일): 7초 또는 첫 조작 시 사라짐, 뷰 전환 시 잠깐 재표시
   useEffect(()=>{setHint(true);const t=setTimeout(()=>setHint(false),7000);return()=>clearTimeout(t);},[view]);
@@ -372,6 +386,8 @@ export default function GlobeLab(){
   useEffect(()=>{if(api.current.onDN)api.current.onDN(dayNight);},[dayNight]);
   useEffect(()=>{S.current.sat=sat;if(api.current.applySat)api.current.applySat(sat);},[sat]);
   useEffect(()=>{S.current.climate=climate;S.current.climateZones=climateZones;if(api.current.applySel)api.current.applySel(S.current.sel);},[climate,climateZones]);
+  useEffect(()=>{S.current.density=density;if(api.current.applySel)api.current.applySel(S.current.sel);},[density]);
+  useEffect(()=>{S.current.population=population;S.current.populationCompare=populationCompare;},[population,populationCompare]);
   useEffect(()=>{S.current.terrain=terrain;S.current.terrainLayers=terrainLayers;if(api.current.applySel)api.current.applySel(S.current.sel);},[terrain,terrainLayers]);
   useEffect(()=>{S.current.trueSize=trueSize;if(api.current.refreshTrueSize)api.current.refreshTrueSize();},[trueSize,sel,view]);
   useEffect(()=>{S.current.northUp=northUp;if(api.current.applyNorthUp)api.current.applyNorthUp(northUp);},[northUp,view]);
@@ -427,12 +443,16 @@ export default function GlobeLab(){
       const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture(),transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,opacity:0.9}));glow.scale.set(2.7,2.7,1);glow.renderOrder=-1;scene.add(glow);
 
       setStatus('지형 데이터 로딩…');
-      const [world,oceans,oceansFill,climateImage,landforms]=await Promise.all([fetch('/lab-data/world.json').then(r=>r.json()),fetch('/lab-data/oceans.json').then(r=>r.json()),fetch('/lab-data/oceans-fill.json').then(r=>r.json()).catch(()=>({})),loadTileImg(CLIMATE_TEXTURE_URL),fetch(LANDFORM_DATA_URL).then(r=>r.json())]);
+      const [world,oceans,oceansFill,climateImage,landforms,populationData,densityData]=await Promise.all([fetch('/lab-data/world.json').then(r=>r.json()),fetch('/lab-data/oceans.json').then(r=>r.json()),fetch('/lab-data/oceans-fill.json').then(r=>r.json()).catch(()=>({})),loadTileImg(CLIMATE_TEXTURE_URL),fetch(LANDFORM_DATA_URL).then(r=>r.json()),fetch(POPULATION_CARTOGRAM_URL).then(r=>{if(!r.ok)throw Error('Population data unavailable');return r.json();}).catch(()=>null),loadTileImg(DENSITY_TEXTURE_URL).catch(()=>null)]);
       if(disposed)return;
+      setDensityReady(!!densityData);
+      const countryIndices=new Map([...new Set(world.features.map(f=>f.properties.n))].map((name,i)=>[name,i+1]));
+      const renderWorld=populationData?.features?.length?populationData:world;setPopulationReady(renderWorld!==world);if(populationData)setPopulationStats(Object.fromEntries(populationData.features.map(f=>[f.properties?.n||f.name,{population:f.properties?.population??f.population,year:2023}])));
       const gameData=buildGamePools(world,landforms);
       if(disposed)return;
       const vDay=buildBase({world,night:false}),vNight=buildBase({world,night:true});
-      const U={morph:{value:VIEW.flat.morph},lens:{value:VIEW.flat.lens},uRotY:{value:VIEW.flat.rotY},uRotX:{value:0},uLon0:{value:0},uLat0:{value:0},uLonC:{value:0}}; // uLonC=메르카토 중앙자오선(rad, seam=uLonC+π)
+      const densityTex={value:rawTex(densityData||document.createElement('canvas'))};
+      const U={uDensity:{value:0},uPopulation:{value:0},morph:{value:VIEW.flat.morph},lens:{value:VIEW.flat.lens},uRotY:{value:VIEW.flat.rotY},uRotX:{value:0},uLon0:{value:0},uLat0:{value:0},uLonC:{value:0}}; // uLonC=메르카토 중앙자오선(rad, seam=uLonC+π)
       const uRes={value:new THREE.Vector2(mount.clientWidth,mount.clientHeight)}; // 화면공간 fat-line용(CSS px)
       const uScreen={value:new THREE.Vector2(renderer.domElement.width,renderer.domElement.height)}; // gl_FragCoord용(디바이스 px) — 화면공간 oceanGrad
       const uCloneAmt={value:1}; // 클론 타일 알파(정상상태 평면 무한스크롤 전용 — 전환 중엔 seam이 뷰 대척점에 파킹돼 마스킹 불필요)
@@ -440,10 +460,10 @@ export default function GlobeLab(){
       // 초기엔 1×1 회색 플레이스홀더(로딩 전 uSat=0이라 실제로 샘플되진 않지만 유효 텍스처 필요).
       const phCv=document.createElement('canvas');phCv.width=phCv.height=1;{const pc=phCv.getContext('2d');pc.fillStyle='#0a0f18';pc.fillRect(0,0,1,1);}
       const satTexU={value:rawTex(phCv)};const uSat={value:0};
-      let overlayTex=buildOverlay({sel:null,world,oceans,climate:S.current.climate,climateImage,climateZones:S.current.climateZones,landforms,terrain:S.current.terrain,terrainLayers:S.current.terrainLayers});
+      let overlayTex=buildOverlay({sel:null,world,oceans,climate:S.current.climate&&!S.current.density,climateImage,climateZones:S.current.climateZones,landforms,terrain:S.current.terrain&&!S.current.density,terrainLayers:S.current.terrainLayers});
       const overlayOpacity={value:1},fillOpacity={value:1};
       const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');
-      const u={uOverlayOpacity:overlayOpacity,dayTex:{value:vDay},nightTex:{value:vNight},overlayTex:{value:overlayTex},satTex:satTexU,uSat,...U,sunLon:{value:S.current.sunLon},sunLat:{value:solarDeclDeg(6)},nightBoost:{value:1},dayNightOn:{value:0},uScreen};
+      const u={uPopulation:U.uPopulation,uOverlayOpacity:overlayOpacity,dayTex:{value:vDay},nightTex:{value:vNight},overlayTex:{value:overlayTex},satTex:satTexU,uSat,...U,sunLon:{value:S.current.sunLon},sunLat:{value:solarDeclDeg(6)},nightBoost:{value:1},dayNightOn:{value:0},uScreen};
       const mesh=new THREE.Mesh(morphGeom(180,90),new THREE.ShaderMaterial({vertexShader:meshVert,fragmentShader:meshFrag,uniforms:u,side:THREE.DoubleSide}));
       mesh.frustumCulled=false; // 커스텀 회전 셰이더 공통 규칙(아래 grat/border와 동일 이유) — 전체 구 형상이라 우연히 안 걸렸을 뿐, 명시적으로 방지
       scene.add(mesh);
@@ -456,7 +476,7 @@ export default function GlobeLab(){
       bgMesh.frustumCulled=false;bgMesh.renderOrder=-3;bgMesh.visible=false;scene.add(bgMesh);
       // 평면 좌우 순환용 클론 타일(±월드폭)
       const cloneMat=(off)=>new THREE.ShaderMaterial({vertexShader:cloneVert,fragmentShader:cloneFrag,side:THREE.DoubleSide,transparent:true,
-        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,uOverlayOpacity:overlayOpacity,satTex:satTexU,uSat,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},uCloneAmt,uScreen}});
+        uniforms:{uDensity:U.uDensity,uPopulation:U.uPopulation,dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,uOverlayOpacity:overlayOpacity,satTex:satTexU,uSat,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},uCloneAmt,uScreen}});
       const tileL=new THREE.Mesh(mesh.geometry,cloneMat(-WORLD_W)),tileR=new THREE.Mesh(mesh.geometry,cloneMat(WORLD_W));
       tileL.frustumCulled=tileR.frustumCulled=false;tileL.visible=tileR.visible=false;scene.add(tileL,tileR);
       let borderClones=null,fillClones=null; // 국경·벡터채움의 ±WORLD_W 클론(아래서 채워짐) — 클론 타일 영역에서도 크리스프 렌더 유지
@@ -469,7 +489,7 @@ export default function GlobeLab(){
       const patchU=Object.assign({},u,{uLonC:uLonCPatch});
       const meshPatch=new THREE.Mesh(mesh.geometry,new THREE.ShaderMaterial({vertexShader:meshVert,fragmentShader:meshFrag,uniforms:patchU,side:THREE.DoubleSide}));
       const clonePatchMat=(off)=>new THREE.ShaderMaterial({vertexShader:cloneVert,fragmentShader:cloneFrag,side:THREE.DoubleSide,transparent:true,
-        uniforms:{dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,uOverlayOpacity:overlayOpacity,satTex:satTexU,uSat,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:uLonCPatch,uOffsetX:{value:off},uCloneAmt,uScreen}});
+        uniforms:{uDensity:U.uDensity,uPopulation:U.uPopulation,dayTex:u.dayTex,nightTex:u.nightTex,overlayTex:u.overlayTex,uOverlayOpacity:overlayOpacity,satTex:satTexU,uSat,sunLon:u.sunLon,sunLat:u.sunLat,nightBoost:u.nightBoost,dayNightOn:u.dayNightOn,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:uLonCPatch,uOffsetX:{value:off},uCloneAmt,uScreen}});
       const tileLp=new THREE.Mesh(mesh.geometry,clonePatchMat(-WORLD_W)),tileRp=new THREE.Mesh(mesh.geometry,clonePatchMat(WORLD_W));
       meshPatch.frustumCulled=tileLp.frustumCulled=tileRp.frustumCulled=false;meshPatch.visible=tileLp.visible=tileRp.visible=false;scene.add(meshPatch,tileLp,tileRp);
 
@@ -487,21 +507,22 @@ export default function GlobeLab(){
       // #4 줌 적응형 국경·해안선 디테일: 격자(applyGrid)와 동일한 log2 줌레벨 방식으로, 확대 단계가 오를 때마다
       // 세분 간격(maxStep)을 절반으로(=정점밀도 2배) 줄여 bg/fg geometry를 재생성 — geometry 객체 참조는 그대로 유지한 채
       // setAttribute만 교체하므로 bls/blsL/blsR/blsPatch 등 이를 공유하는 모든 메쉬가 자동으로 새 디테일을 반영.
-      const buildBorderArrays=(maxStep)=>{const pos=[],geo=[],geoB=[];const addRing=(ring)=>{for(let i=0;i<ring.length-1;i++){const a=ring[i],b=ring[i+1];if(Math.abs(a[0]-b[0])>180)continue;
+      const buildBorderArrays=(maxStep)=>{const pos=[],geo=[],geoB=[],popGeo=[],popGeoB=[],countryIndex=[];let featureId=0;const addRing=(ring)=>{for(let i=0;i<ring.length-1;i++){const a=ring[i],b=ring[i+1];if(Math.abs(a[0]-b[0])>180)continue;
           const n=Math.max(1,Math.ceil(Math.max(Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1]))/maxStep)); // 원본 정점 간격이 넓은 구간(사막 한가운데 직선 국경 등) 세분 — 딥줌에서 직선 각짐(저해상도) 방지
-          let pa=a;for(let j=1;j<=n;j++){const pb=j===n?b:[a[0]+(b[0]-a[0])*j/n,a[1]+(b[1]-a[1])*j/n];
-            const va=lonLatToVec3(pa[0],pa[1],1.0045),vb=lonLatToVec3(pb[0],pb[1],1.0045);pos.push(va.x,va.y,va.z,vb.x,vb.y,vb.z);geo.push(pa[0],pa[1],pb[0],pb[1]);geoB.push(pb[0],pb[1],pa[0],pa[1]);pa=pb;}
+          let pa=a;for(let j=1;j<=n;j++){const pb=j===n?b:a.map((v,k)=>v+(b[k]-v)*j/n);
+            const va=lonLatToVec3(pa[0],pa[1],1.0045),vb=lonLatToVec3(pb[0],pb[1],1.0045);pos.push(va.x,va.y,va.z,vb.x,vb.y,vb.z);geo.push(pa[0],pa[1],pb[0],pb[1]);geoB.push(pb[0],pb[1],pa[0],pa[1]);countryIndex.push(featureId,featureId);popGeo.push(...populationPoint(pa),...populationPoint(pb));popGeoB.push(...populationPoint(pb),...populationPoint(pa));pa=pb;}
         }}; // aGeoB=짝 끝점 → seam 걸친 세그먼트 셰이더 붕괴(러시아·피지 등 lon180 횡단 스미어 방지)
-        for(const f of world.features){const g=f.geometry,polys=g.type==='Polygon'?[g.coordinates]:g.coordinates;for(const poly of polys)for(const ring of poly)addRing(ring);}
-        return {pos,geo,geoB};};
-      const borderMat=(()=>{const {pos,geo,geoB}=buildBorderArrays(2);
+        for(const f of renderWorld.features){featureId=countryIndices.get(f.properties.n);const g=f.geometry,polys=g.type==='Polygon'?[g.coordinates]:g.coordinates;for(const poly of polys)for(const ring of poly)addRing(ring);}
+        return {pos,geo,geoB,popGeo,popGeoB,countryIndex};};
+      const borderMat=(()=>{const {pos,geo,geoB,popGeo,popGeoB,countryIndex}=buildBorderArrays(2);
         const bg=new THREE.BufferGeometry();bg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));bg.setAttribute('aGeo',new THREE.Float32BufferAttribute(geo,2));bg.setAttribute('aGeoB',new THREE.Float32BufferAttribute(geoB,2));
+        bg.setAttribute('aCountryIndex',new THREE.Float32BufferAttribute(countryIndex,1));bg.setAttribute('aPopGeo',new THREE.Float32BufferAttribute(popGeo,2));bg.setAttribute('aPopGeoB',new THREE.Float32BufferAttribute(popGeoB,2));
         borderGeoRef=bg;
-        const bm=new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:0},uColor:{value:new THREE.Color(0x04060B)},uOp:{value:0.42}},vertexShader:lineVert,fragmentShader:lineFrag});
+        const bm=new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,uniforms:{uDensity:U.uDensity,uPopulation:U.uPopulation,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:0},uColor:{value:new THREE.Color(0x04060B)},uOp:{value:0.42}},vertexShader:lineVert,fragmentShader:lineFrag});
         const bls=new THREE.LineSegments(bg,bm);bls.renderOrder=1;bls.frustumCulled=false;scene.add(bls);
         // 평면 좌우 무한스크롤 클론 타일(±WORLD_W)에도 벡터 국경 복제 — 없으면 클론 타일 영역(팬 위치에 따라 항상 보일 수 있음)에서
         // 텍스처 폴백(저해상도)만 남아 "한쪽만 해상도가 낮다"는 버그가 됨. geometry는 공유, uOffsetX만 다른 재질.
-        const cloneBorderMat=(off)=>new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},uColor:{value:new THREE.Color(0x04060B)},uOp:{value:0.42}},vertexShader:lineVert,fragmentShader:lineFrag});
+        const cloneBorderMat=(off)=>new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,uniforms:{uDensity:U.uDensity,uPopulation:U.uPopulation,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},uColor:{value:new THREE.Color(0x04060B)},uOp:{value:0.42}},vertexShader:lineVert,fragmentShader:lineFrag});
         const blsL=new THREE.LineSegments(bg,cloneBorderMat(-WORLD_W)),blsR=new THREE.LineSegments(bg,cloneBorderMat(WORLD_W));
         blsL.renderOrder=blsR.renderOrder=1;blsL.frustumCulled=blsR.frustumCulled=false;blsL.visible=blsR.visible=false;scene.add(blsL,blsR);
         borderClones={blsL,blsR};
@@ -511,31 +532,33 @@ export default function GlobeLab(){
       // #4 국경과 동일하게 densify(maxStep)로 링을 먼저 세분한 뒤 삼각분할 — 이미 직선인 변을 나누는 것 자체는
       // 모양을 바꾸지 않지만, project()가 매 정점을 구면/렌즈로 휘게 투영하므로 정점이 촘촘할수록 그 곡률이 매끈해짐
       // (국경 라인과 같은 이유로 딥줌에서 해안선이 각지지 않게).
-      const buildFillArrays=(maxStep)=>{const aGeo=[],aCol=[],aTri=[],aTriLat=[],tmp=new THREE.Color();
-        for(const f of world.features){const col=(CONT[f.properties.c]||{}).color||'#888';tmp.set(col);
+      const buildFillArrays=(maxStep)=>{const aGeo=[],aCol=[],aTri=[],aTriLat=[],popGeo=[],popTri=[],popTriLat=[],populationKnown=[],countryIndex=[],tmp=new THREE.Color();
+        for(const f of renderWorld.features){const col=(CONT[f.properties.c]||{}).color||'#888';tmp.set(col);
           const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
           for(const poly of polys){const outer0=poly[0];if(!outer0||outer0.length<4)continue;
             let mn=180,mx=-180;for(const p of outer0){if(p[0]<mn)mn=p[0];if(p[0]>mx)mx=p[0];}
             if(mx-mn>180)continue; // 반자오선 횡단 폴리곤 스킵(삼각분할 왜곡 방지 — 딥줌에선 텍스처 폴백)
-            const outer=densify(outer0,maxStep);
+            const outer=densifyPopulation(outer0,maxStep),targets=new Map(outer.map(p=>[populationVertexKey(p[0],p[1]),populationPoint(p)]));
             const shape=new THREE.Shape(outer.map(p=>new THREE.Vector2(p[0],p[1])));
-            for(let h=1;h<poly.length;h++){const r0=poly[h];if(r0&&r0.length>=4){const r=densify(r0,maxStep);shape.holes.push(new THREE.Path(r.map(p=>new THREE.Vector2(p[0],p[1]))));}}
-            let sg;try{sg=new THREE.ShapeGeometry(shape);if(spherical){const original=sg;sg=new TessellateModifier(0.1,8).modify(original);original.dispose();}}catch(e){continue;}
+            for(let h=1;h<poly.length;h++){const r0=poly[h];if(r0&&r0.length>=4){const r=densifyPopulation(r0,maxStep);for(const p of r)targets.set(populationVertexKey(p[0],p[1]),populationPoint(p));shape.holes.push(new THREE.Path(r.map(p=>new THREE.Vector2(p[0],p[1]))));}}
+            let sg;try{sg=new THREE.ShapeGeometry(shape);}catch(e){continue;}
             const ps=sg.attributes.position.array,ix=sg.index?sg.index.array:null;if(!ix){sg.dispose();continue;}
             for(let i=0;i<ix.length;i+=3){const i0=ix[i],i1=ix[i+1],i2=ix[i+2],l0=ps[i0*3]*D2R,l1=ps[i1*3]*D2R,l2=ps[i2*3]*D2R; // aTriLon=삼각형 세 꼭짓점 경도(rad, 세 정점 동일) → straddle 붕괴
               const a0=ps[i0*3+1]*D2R,a1=ps[i1*3+1]*D2R,a2=ps[i2*3+1]*D2R; // aTriLat=세 꼭짓점 위도(rad) → 렌즈 대척점 사전 붕괴(#4)
-              for(const vi of [i0,i1,i2]){aGeo.push(ps[vi*3],ps[vi*3+1]);aCol.push(tmp.r,tmp.g,tmp.b);aTri.push(l0,l1,l2);aTriLat.push(a0,a1,a2);}}
+              const pt=[i0,i1,i2].map(vi=>targets.get(populationVertexKey(ps[vi*3],ps[vi*3+1]))||[ps[vi*3],ps[vi*3+1]]);
+              let pi=0;for(const vi of [i0,i1,i2]){countryIndex.push(countryIndices.get(f.properties.n));populationKnown.push(f.properties.population===null?0:1);popGeo.push(...pt[pi++]);popTri.push(...pt.map(p=>p[0]*D2R));popTriLat.push(...pt.map(p=>p[1]*D2R));aGeo.push(ps[vi*3],ps[vi*3+1]);aCol.push(tmp.r,tmp.g,tmp.b);aTri.push(l0,l1,l2);aTriLat.push(a0,a1,a2);}}
             sg.dispose();}}
         const pos=new Float32Array(aGeo.length/2*3);for(let i=0;i<aGeo.length/2;i++){const v=lonLatToVec3(aGeo[i*2],aGeo[i*2+1],1);pos[i*3]=v.x;pos[i*3+1]=v.y;pos[i*3+2]=v.z;}
-        return {aGeo,aCol,aTri,aTriLat,pos};};
-      (()=>{const {aGeo,aCol,aTri,aTriLat,pos}=buildFillArrays(2);
+        return {aGeo,aCol,aTri,aTriLat,pos,popGeo,popTri,popTriLat,populationKnown,countryIndex};};
+      (()=>{const {aGeo,aCol,aTri,aTriLat,pos,popGeo,popTri,popTriLat,populationKnown,countryIndex}=buildFillArrays(2);
         const fg=new THREE.BufferGeometry();fg.setAttribute('aGeo',new THREE.Float32BufferAttribute(aGeo,2));fg.setAttribute('aColor',new THREE.Float32BufferAttribute(aCol,3));fg.setAttribute('aTriLon',new THREE.Float32BufferAttribute(aTri,3));fg.setAttribute('aTriLat',new THREE.Float32BufferAttribute(aTriLat,3));
         fg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+        fg.setAttribute('aCountryIndex',new THREE.Float32BufferAttribute(countryIndex,1));fg.setAttribute('aPopulationKnown',new THREE.Float32BufferAttribute(populationKnown,1));fg.setAttribute('aPopGeo',new THREE.Float32BufferAttribute(popGeo,2));fg.setAttribute('aPopTriLon',new THREE.Float32BufferAttribute(popTri,3));fg.setAttribute('aPopTriLat',new THREE.Float32BufferAttribute(popTriLat,3));
         fillGeoRef=fg;
-        const fm=new THREE.ShaderMaterial({side:THREE.DoubleSide,transparent:true,depthWrite:false,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:0},overlayTex:u.overlayTex,uOverlayOpacity:overlayOpacity,uFillOpacity:fillOpacity,sunLon:u.sunLon,sunLat:u.sunLat,dayNightOn:u.dayNightOn},vertexShader:fillVert,fragmentShader:fillFrag});
+        const fm=new THREE.ShaderMaterial({side:THREE.DoubleSide,transparent:true,depthTest:false,depthWrite:false,uniforms:{uDensity:U.uDensity,uPopulation:U.uPopulation,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:0},densityTex,overlayTex:u.overlayTex,uOverlayOpacity:overlayOpacity,uFillOpacity:fillOpacity,sunLon:u.sunLon,sunLat:u.sunLat,dayNightOn:u.dayNightOn},vertexShader:fillVert,fragmentShader:fillFrag});
         const fmesh=new THREE.Mesh(fg,fm);fmesh.frustumCulled=false;fmesh.renderOrder=0.5;scene.add(fmesh);fillMain=fmesh;
         // 클론 타일용 벡터 대륙 채움 복제(국경과 동일 이유 — 클론 영역에서 텍스처 폴백만 남는 저해상도 버그 방지)
-        const cloneFillMat=(off)=>new THREE.ShaderMaterial({side:THREE.DoubleSide,transparent:true,depthWrite:false,uniforms:{morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},overlayTex:u.overlayTex,uOverlayOpacity:overlayOpacity,uFillOpacity:fillOpacity,sunLon:u.sunLon,sunLat:u.sunLat,dayNightOn:u.dayNightOn},vertexShader:fillVert,fragmentShader:fillFrag});
+        const cloneFillMat=(off)=>new THREE.ShaderMaterial({side:THREE.DoubleSide,transparent:true,depthTest:false,depthWrite:false,uniforms:{uDensity:U.uDensity,uPopulation:U.uPopulation,morph:U.morph,lens:U.lens,uRotY:U.uRotY,uRotX:U.uRotX,uLon0:U.uLon0,uLat0:U.uLat0,uLonC:U.uLonC,uOffsetX:{value:off},densityTex,overlayTex:u.overlayTex,uOverlayOpacity:overlayOpacity,uFillOpacity:fillOpacity,sunLon:u.sunLon,sunLat:u.sunLat,dayNightOn:u.dayNightOn},vertexShader:fillVert,fragmentShader:fillFrag});
         const fmeshL=new THREE.Mesh(fg,cloneFillMat(-WORLD_W)),fmeshR=new THREE.Mesh(fg,cloneFillMat(WORLD_W));
         fmeshL.frustumCulled=fmeshR.frustumCulled=false;fmeshL.renderOrder=fmeshR.renderOrder=0.5;fmeshL.visible=fmeshR.visible=false;scene.add(fmeshL,fmeshR);
         fillClones={fmeshL,fmeshR};
@@ -564,15 +587,21 @@ export default function GlobeLab(){
       const detailStep=()=>{const z0={flat:0.74,globe:0.92,lens:0.285}[S.current.view]||0.74;
         const lv=THREE.MathUtils.clamp(Math.floor(Math.log2(Math.max(1,camera.zoom/z0))),0,3);return 2/Math.pow(2,lv);};
       const applyDetail=()=>{const d=detailStep();if(d===curDetailStep)return;curDetailStep=d;
-        if(borderGeoRef){const {pos,geo,geoB}=buildBorderArrays(d);
-          borderGeoRef.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));borderGeoRef.setAttribute('aGeo',new THREE.Float32BufferAttribute(geo,2));borderGeoRef.setAttribute('aGeoB',new THREE.Float32BufferAttribute(geoB,2));}
-        if(fillGeoRef){const {aGeo,aCol,aTri,aTriLat,pos}=buildFillArrays(d);
-          fillGeoRef.setAttribute('aGeo',new THREE.Float32BufferAttribute(aGeo,2));fillGeoRef.setAttribute('aColor',new THREE.Float32BufferAttribute(aCol,3));fillGeoRef.setAttribute('aTriLon',new THREE.Float32BufferAttribute(aTri,3));fillGeoRef.setAttribute('aTriLat',new THREE.Float32BufferAttribute(aTriLat,3));fillGeoRef.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));}};
+        if(borderGeoRef){const {pos,geo,geoB,popGeo,popGeoB,countryIndex}=buildBorderArrays(d);
+          borderGeoRef.setAttribute('aCountryIndex',new THREE.Float32BufferAttribute(countryIndex,1));borderGeoRef.setAttribute('aPopGeo',new THREE.Float32BufferAttribute(popGeo,2));borderGeoRef.setAttribute('aPopGeoB',new THREE.Float32BufferAttribute(popGeoB,2));borderGeoRef.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));borderGeoRef.setAttribute('aGeo',new THREE.Float32BufferAttribute(geo,2));borderGeoRef.setAttribute('aGeoB',new THREE.Float32BufferAttribute(geoB,2));}
+        if(fillGeoRef){const {aGeo,aCol,aTri,aTriLat,pos,popGeo,popTri,popTriLat,populationKnown,countryIndex}=buildFillArrays(d);
+          fillGeoRef.setAttribute('aCountryIndex',new THREE.Float32BufferAttribute(countryIndex,1));fillGeoRef.setAttribute('aPopulationKnown',new THREE.Float32BufferAttribute(populationKnown,1));fillGeoRef.setAttribute('aPopGeo',new THREE.Float32BufferAttribute(popGeo,2));fillGeoRef.setAttribute('aPopTriLon',new THREE.Float32BufferAttribute(popTri,3));fillGeoRef.setAttribute('aPopTriLat',new THREE.Float32BufferAttribute(popTriLat,3));fillGeoRef.setAttribute('aGeo',new THREE.Float32BufferAttribute(aGeo,2));fillGeoRef.setAttribute('aColor',new THREE.Float32BufferAttribute(aCol,3));fillGeoRef.setAttribute('aTriLon',new THREE.Float32BufferAttribute(aTri,3));fillGeoRef.setAttribute('aTriLat',new THREE.Float32BufferAttribute(aTriLat,3));fillGeoRef.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));}};
 
+      const comparisonIndex={value:-1},comparisonMorph={value:0},comparisonAlpha={value:0};let comparisonName=null;
+      const comparisonFragment=fillFrag.replace('void main(){','varying float vCountryIndex;uniform float uCountryIndex,uComparisonAlpha;void main(){if(abs(vCountryIndex-uCountryIndex)>.1)discard;').replace('gl_FragColor=vec4(mix(base,ov.rgb,ov.a),uFillOpacity);','gl_FragColor=vec4(vec3(0.35,0.9,0.65),uComparisonAlpha*.62);');
+      const populationOverlays=[0,-WORLD_W,WORLD_W].map(off=>{
+        const material=fillMain.material.clone();Object.assign(material.uniforms,{...U,uPopulation:comparisonMorph,uCountryIndex:comparisonIndex,uComparisonAlpha:comparisonAlpha,uOffsetX:{value:off},densityTex,overlayTex:u.overlayTex,uOverlayOpacity:overlayOpacity,uFillOpacity:fillOpacity,sunLon:u.sunLon,sunLat:u.sunLat,dayNightOn:u.dayNightOn});material.fragmentShader=comparisonFragment;material.depthTest=false;
+        const mesh=new THREE.Mesh(fillGeoRef,material);mesh.frustumCulled=false;mesh.renderOrder=4;mesh.visible=false;scene.add(mesh);return mesh;
+      });
       const oceanLblEls=[]; // 대양 라벨 활성/딤 상태용(원본 .ocean-label.active/.dim)
       // 같은 CanvasTexture를 다시 그려 GPU 텍스처 교체 때 생기던 빈 프레임(화면 깜빡임)을 없앤다.
       let pendingOverlay=null;
-      const paintSelection=(s)=>{buildOverlay({sel:s,world,oceans,oceansFill,climate:S.current.climate,climateImage,climateZones:S.current.climateZones,terrain:S.current.terrain,terrainLayers:S.current.terrainLayers,landforms,targetTexture:overlayTex});
+      const paintSelection=(s)=>{buildOverlay({sel:s,world,oceans,oceansFill,climate:S.current.climate&&!S.current.density,climateImage,climateZones:S.current.climateZones,terrain:S.current.terrain&&!S.current.density,terrainLayers:S.current.terrainLayers,landforms,targetTexture:overlayTex});
         if(S.current.gameQuestion?.features){const q=S.current.gameQuestion;paintLandforms(overlayTex.image.getContext('2d'),{features:q.features},{[q.category]:true},false);overlayTex.needsUpdate=true;}
         const oc=!!s&&s.type==='ocean';
         for(const {el,o} of oceanLblEls){el.classList.toggle('active',oc&&o===s.key);el.classList.toggle('dim',oc&&o!==s.key);}};
@@ -695,7 +724,7 @@ export default function GlobeLab(){
           move:(wx,wy)=>{if(tsDragging)updateGhost(wx,wy);},end:()=>{tsDragging=false;},active:()=>tsDragging},
         pickContinent:(k)=>setSel(sameSel(S.current.sel,{type:'continent',key:k})?null:{type:'continent',key:k}),
         pickOcean:(k)=>setSel(sameSel(S.current.sel,{type:'ocean',key:k})?null:{type:'ocean',key:k}),
-        focusCountry:(nextCountry)=>{S.current.focusReq={lon:nextCountry.coordinates[0],lat:nextCountry.coordinates[1]};goView(S.current.view);}};
+        focusCountry:(nextCountry)=>{const feature=renderWorld.features.find(f=>f.properties.n===nextCountry.boundaryName);const coords=feature&&S.current.population&&!S.current.populationCompare?geoCentroid(populationFeature(feature)):nextCountry.coordinates;S.current.focusReq={lon:coords[0],lat:coords[1]};goView(S.current.view);}};
       api.current.enterGameLobby=()=>{
         Object.assign(S.current,{game:true,gameMode:null,gameQuestion:null,view:'globe',homeReq:true,focusReq:{lon:135,lat:0},grat:false,eq:false,prime:false,dateline:false,climate:false,terrain:false,trueSize:false,sat:false,northUp:false,dayNight:false});
         applyGrid();removeGhost();applySat(false);onDN(false);applySel(null);goView('globe');
@@ -784,8 +813,8 @@ export default function GlobeLab(){
             lon=R2D*(lo0+Math.atan2(X*sc, rho*Math.cos(la0)*cc-Y*Math.sin(la0)*sc));}
           lon=((lon+180)%360+360)%360-180;}
         const cur=S.current.sel;
-        const c=world.features.find(f=>geoContains(f,[lon,lat]));
-        if(c){const ns=S.current.country?{type:'country',name:c.properties.n,key:c.properties.c}:{type:'continent',key:c.properties.c};setSel(sameSel(cur,ns)?null:ns);return;} // 재선택=해제
+        const c=U.uPopulation.value>.001?renderWorld.features.find(f=>populationContains(f,[lon,lat],U.uPopulation.value)):world.features.find(f=>geoContains(f,[lon,lat]));
+        if(c){setSelectedCountry(null);setSearchQuery('');const ns=S.current.country?{type:'country',name:c.properties.n,key:c.properties.c}:{type:'continent',key:c.properties.c};setSel(sameSel(cur,ns)?null:ns);return;} // 재선택=해제
         if(S.current.country){setSel(null);return;} // 국가 모드: 물 클릭=선택 해제(원본과 동일, 대양 선택 안 함)
         let ok=null;for(const k of OCEAN_PRIORITY)if(oceans[k]&&geoContains({type:'Feature',geometry:oceans[k]},[lon,lat])){ok=k;break;}
         const ns=ok?{type:'ocean',key:ok}:null;setSel(ns&&sameSel(cur,ns)?null:ns);});
@@ -834,7 +863,13 @@ export default function GlobeLab(){
         // 슬라이드 아티팩트를 막고, 들어올 때만 0.25초 페이드로 settle 순간의 딱딱한 팝인을 부드럽게.
         if(!tr&&st.view==='flat')cloneFadeT=Math.min(1,cloneFadeT+dt/0.25);else cloneFadeT=0;
         uCloneAmt.value=cloneFadeT;
-        const satWant=(st.sat&&satReady)?1:0;uSat.value+=(satWant-uSat.value)*fade;fillOpacity.value=1-uSat.value; // 위성 크로스페이드(#2)
+        const densityTarget=st.density&&!st.game?1:0;U.uDensity.value=motionPreference.matches?densityTarget:U.uDensity.value+(densityTarget-U.uDensity.value)*(1-Math.exp(-dt*7));if(Math.abs(U.uDensity.value-densityTarget)<.001)U.uDensity.value=densityTarget;
+        const populationTarget=st.population&&!st.populationCompare&&!st.game?1:0;
+        const selectedPopulation=st.population&&st.populationCompare&&st.sel?.type==='country'&&!st.game?st.sel.name:null;
+        if(selectedPopulation!==comparisonName){comparisonName=selectedPopulation;comparisonIndex.value=countryIndices.get(selectedPopulation)??-1;comparisonMorph.value=0;comparisonAlpha.value=0;}
+        const compareWant=selectedPopulation?1:0;comparisonMorph.value=motionPreference.matches?compareWant:comparisonMorph.value+(compareWant-comparisonMorph.value)*fade;comparisonAlpha.value=motionPreference.matches?compareWant:comparisonAlpha.value+(compareWant-comparisonAlpha.value)*fade;
+        populationOverlays.forEach((mesh,i)=>mesh.visible=comparisonAlpha.value>.001&&(i===0||uCloneAmt.value>.004));U.uPopulation.value=motionPreference.matches?populationTarget:U.uPopulation.value+(populationTarget-U.uPopulation.value)*(1-Math.exp(-dt*5));if(Math.abs(U.uPopulation.value-populationTarget)<.001)U.uPopulation.value=populationTarget;
+        const satWant=(st.sat&&satReady&&!st.population&&!st.density)?1:0;uSat.value+=(satWant-uSat.value)*fade;fillOpacity.value=1-uSat.value; // 위성 크로스페이드(#2)
         const isFlat=st.view==='flat'&&!tr;tileL.visible=tileR.visible=uCloneAmt.value>0.004;gridFlat.visible=isFlat;
         const satShown=uSat.value>.999; // 위성 모드 절반 이상: 솔리드 대륙 채움 숨겨 실사 위성 육지 노출(#2). 국경·라벨·선택 강조는 유지.
         if(borderClones)borderClones.blsL.visible=borderClones.blsR.visible=tileL.visible;
@@ -856,7 +891,7 @@ export default function GlobeLab(){
         uLonCPatch.value=U.uLonC.value+Math.PI; // patch를 매 프레임 "center uLonC + π"로 동기화 — 전환 중·정상상태 모두, seam이 어디로 움직이든 두 사본이 항상 서로의 빈틈을 덮음
         renderer.render(scene,camera);
         const globeish=U.morph.value<0.5&&U.lens.value<0.5;
-        for(const key in labels){const {el,anchor}=labels[key];const w3=projectJS(anchor[0],anchor[1]);let faceOk=true;
+        for(const key in labels){const {el,anchor}=labels[key];if(U.uPopulation.value>.1||U.uDensity.value>.1){el.style.display='none';continue;}const w3=projectJS(anchor[0],anchor[1]);let faceOk=true;
           if(globeish){const nrm=rotX(rotY(lonLatToVec3(anchor[0],anchor[1],1),U.uRotY.value),U.uRotX.value);faceOk=nrm.dot(v3.copy(camera.position).sub(w3).normalize())>0.02;}
           const p=w3.clone().project(camera);
           if(!faceOk||p.z>1||Math.abs(p.x)>1.06||Math.abs(p.y)>1.06){el.style.display='none';continue;}
@@ -874,7 +909,7 @@ export default function GlobeLab(){
           if(!faceOk||p.z>1||Math.abs(p.x)>1.02||Math.abs(p.y)>1.02){gl.el.style.display='none';continue;}
           gl.el.style.display='block';gl.el.style.left=((p.x*0.5+0.5)*mount.clientWidth)+'px';gl.el.style.top=((-p.y*0.5+0.5)*mount.clientHeight)+'px';}
       };
-      loop();setStatus('');
+      goView(S.current.view);applySel(S.current.sel);loop();setStatus('');
       cleanupFn=()=>{window.removeEventListener('pointerup',endGhostDrag);sizeObserver.disconnect();cancelAnimationFrame(raf);controls.dispose();renderer.dispose();if(dom.parentNode)dom.parentNode.removeChild(dom);if(labelRef.current)labelRef.current.innerHTML='';};
       if(disposed)cleanupFn();
     })().catch(e=>{console.error('GLOBE_MOUNT_ERROR',e);});
@@ -896,7 +931,7 @@ export default function GlobeLab(){
         sub:staticData?.officialName[lang]||(d?d.official:sel.name),
         contLabel:EN?(contEn?`${contEn} · `:''):(contKo?`${contKo} · `:''),
         langs:d?d.langs:[],
-        capital:staticData?.capital[lang]||'',population:staticData?.population||0,populationYear:staticData?.populationYear,
+        capital:staticData?.capital[lang]||'',population:population?populationStats[sel.name]?.population:staticData?.population||0,populationYear:population?2023:staticData?.populationYear,
         politicalSystem:staticData?.politicalSystem||'',economicSystem:staticData?.economicSystem||'',
         desc:d?d.desc:(EN?(cont.en?`A country in ${cont.en.split(' ')[0]}.`:''):(cont.ko?`${cont.ko} 대륙의 나라예요.`:''))};
     }
@@ -914,21 +949,21 @@ export default function GlobeLab(){
       <div id="stage" onPointerDownCapture={()=>setHint(false)}><div ref={mountRef} className="gl-canvas" /><div ref={labelRef} className="gl-labels" /></div>
       {status && <div className="gl-status">{status}</div>}
       {/* #4 도구 상자: 좌상단 고정, 접힘/펼침만(드래그 제거) */}
-      <div className={'floaty grid-panel tools-fixed'+(toolsCollapsed?' collapsed':'')+(guide?' guide-lift':'')}>
+      <div ref={toolsRef} className={'floaty grid-panel tools-fixed'+(toolsCollapsed?' collapsed':'')+(guide?' guide-lift':'')}>
         <div className="floaty-head" onClick={()=>setToolsCollapsed(v=>!v)} title="클릭하면 접기/펼치기"><div className="drag-grip"><span/><span/></div><span className="collapse-chev">{toolsCollapsed?'▸':'▾'}</span></div>
         <div className="panel-body">
-        <h4>{T.gridTitle}</h4>
-        <label className="tg"><input type="checkbox" checked={grat} onChange={e=>setGrat(e.target.checked)} /><span>{T.grat}</span></label>
+        <div className="grid-spacing-row"><label className="tg"><input type="checkbox" checked={grat} onChange={e=>setGrat(e.target.checked)} /><span>{T.grat}</span></label><div className="step"><span>{T.interval}</span><input aria-label={T.interval} type="number" min="5" max="90" step="5" value={step} onChange={e=>setStep(e.target.value)} /><span>°</span></div></div>
         <label className="tg"><input type="checkbox" checked={eq} onChange={e=>setEq(e.target.checked)} /><span>{T.equator}</span></label>
         <label className="tg"><input type="checkbox" checked={prime} onChange={e=>setPrime(e.target.checked)} /><span>{T.prime}</span></label>
         <label className="tg"><input type="checkbox" checked={dateline} onChange={e=>setDateline(e.target.checked)} /><span>{T.dateline}</span></label>
-        <div className="step"><span>{T.interval}</span><input type="number" min="5" max="90" step="5" value={step} onChange={e=>setStep(e.target.value)} /><span>°</span></div>
-        <label className="tg tg-sep"><input type="checkbox" checked={country} onChange={e=>{setCountry(e.target.checked);setSel(null);}} /><span>{T.pickCountry}</span></label>
-        <label className="tg"><input type="checkbox" checked={trueSize} onChange={e=>setTrueSize(e.target.checked)} /><span>{T.trueSize}<button className="ts-info-btn" onClick={e=>{e.preventDefault();setTsInfo(v=>!v);}} title={T.tsTitle}>!</button></span></label>
+        <label className="tg tg-sep" style={{visibility:population?'hidden':'visible'}}><input type="checkbox" checked={country} onChange={e=>{setCountry(e.target.checked);setSel(null);}} /><span>{T.pickCountry}</span></label>
+        <label className="tg"><input type="checkbox" checked={trueSize} disabled={population||density} onChange={e=>setTrueSize(e.target.checked)} /><span>{T.trueSize}<button className="ts-info-btn" onClick={e=>{e.preventDefault();setTsInfo(v=>!v);}} title={T.tsTitle}>!</button></span></label>
         <div className="layer-toggle-row tg-sep">
           <label className="tg"><input type="checkbox" checked={climate} onChange={e=>setClimate(e.target.checked)} /><span>{T.climate}</span></label>
           <label className="tg"><input type="checkbox" checked={terrain} onChange={e=>setTerrain(e.target.checked)} /><span>{T.terrain}</span></label>
         </div>
+        <div className="layer-toggle-row population-toggle-row"><label className="tg"><input type="checkbox" checked={population} disabled={!populationReady} onChange={e=>{setPopulation(e.target.checked);setPopulationCompare(false);setSel(null);if(e.target.checked){setSat(false);setTrueSize(false);setCountry(true);}}} /><span>{EN?'World population':'세계의 인구'}</span></label><label className="tg"><input type="checkbox" checked={density} disabled={!densityReady} onChange={e=>{setDensity(e.target.checked);if(e.target.checked){setSat(false);setTrueSize(false);setLegendCollapsed(false);setCountry(true);}}}/><span>{EN?'Density':'인구 밀도'}</span></label><label className="tg" style={{visibility:population?'visible':'hidden'}}><input type="checkbox" checked={populationCompare} onChange={e=>{setPopulationCompare(e.target.checked);setCountry(true);setSel(null);}}/><span>{T.pickCountry}</span></label></div>
+
         {climate && <div className="climate-legend" role="region" aria-label={T.climateLegend}>
           <div className="climate-legend-title">{T.climateLegend}</div>
           <div className="climate-legend-grid">{CLIMATE_ZONE_ORDER.map(key=>{
@@ -938,7 +973,6 @@ export default function GlobeLab(){
               <span style={{background:item.color}} />{EN?item.en:item.ko}
             </label>;
           })}</div>
-          <p>{T.climateSimplified} <a href="/lab-data/GEOWEB_CLIMATE_ATTRIBUTION.txt" target="_blank" rel="noopener">{T.climateSource} ↗</a></p>
         </div>}
         {terrain && <div className="terrain-legend" role="region" aria-label={T.terrainLegend}>
           <div className="climate-legend-title">{T.terrainLegend}</div>
@@ -949,9 +983,8 @@ export default function GlobeLab(){
               <span style={{background:item.color}} />{EN?item.en:item.ko}
             </label>;
           })}</div>
-          <p>{T.terrainSimplified} <a href="/lab-data/GEOWEB_LANDFORMS_ATTRIBUTION.txt" target="_blank" rel="noopener">{T.terrainSource} ↗</a></p>
         </div>}
-        <label className="tg tg-sep"><input type="checkbox" checked={sat} onChange={e=>setSat(e.target.checked)} /><span>{T.sat}</span></label>
+        <label className="tg tg-sep"><input type="checkbox" checked={sat} disabled={population||density} onChange={e=>setSat(e.target.checked)} /><span>{T.sat}</span></label>
         <label className="tg"><input type="checkbox" checked={dayNight} onChange={e=>setDayNight(e.target.checked)} /><span>{T.dayNight}</span></label>
         <div className="lang-seg tg-sep"><span className="lang-lbl">{T.langLabel}</span><div className="lang-btns"><button className={lang==='ko'?'on':''} onClick={()=>setLang('ko')}>한국어</button><button className={lang==='en'?'on':''} onClick={()=>setLang('en')}>ENG</button></div></div>
         <a className="earth-link tg-sep" href="https://earth.google.com/web/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18"/></svg><span>{T.earth}</span><span className="earth-ext">↗</span></a>
@@ -962,10 +995,12 @@ export default function GlobeLab(){
         <div className={'floaty legend'+(legendCollapsed?' collapsed':'')}>
           <div className="floaty-head legend-head" onClick={()=>setLegendCollapsed(v=>!v)} title="클릭하면 접기/펼치기"><div className="drag-grip"><span/><span/></div><span className="collapse-chev">{legendCollapsed?'▸':'▾'}</span></div>
           <div className="panel-body">
+          {density?<div className="density-legend" role="region" aria-label={EN?'Population density legend':'인구 밀도 범례'}><h4>{EN?'PEOPLE / km² · 2020':'인구 밀도 · 명/㎢ · 2020'}</h4>{DENSITY_CLASSES.map(item=><div key={item.label} className="density-key"><span style={{background:item.color}}/><b>{EN?item.en:item.label}</b></div>)}<div className="density-key missing"><span style={{background:DENSITY_MISSING_COLOR}}/>{EN?'No data':'자료 없음'}</div></div>:<>
           <div className="legend-cols">
           <div className="legend-col"><h4>{T.contHead}</h4>{CONT_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='continent'&&sel.key===k?' on':'')} onClick={()=>api.current.pickContinent&&api.current.pickContinent(k)}><span className="dot" style={{background:CONT[k].color}} /><span>{EN?CONT[k].en.split(' ')[0]:CONT[k].ko}</span><small>{EN?'':CONT[k].en.split(' ')[0]}</small></button>))}</div>
           <div className="legend-col"><h4>{T.oceanHead}</h4>{OCEAN_ORDER.map(k=>(<button key={k} className={'chip'+(sel&&sel.type==='ocean'&&sel.key===k?' on':'')} onClick={()=>api.current.pickOcean&&api.current.pickOcean(k)}><span className="dot" style={{background:OCEAN[k].color}} /><span>{EN?OCEAN[k].en.split(' ')[0]:OCEAN[k].ko}</span><small>{EN?'':OCEAN[k].en.split(' ')[0]}</small></button>))}</div>
-        </div><div className="note">{T.antarcticaNote}</div></div>
+        </div></>}
+          </div>
         </div>
         <div className="floaty country-search-panel">
           <div className={'country-search'+(searchQuery.trim()?' open':'')}>
@@ -983,7 +1018,7 @@ export default function GlobeLab(){
             {selectedCountry && <div className="country-search-fact">
               <div><img src={selectedCountry.flag} alt="" /><strong>{selectedCountry.name[lang]}</strong></div>
               <p><span>{T.capitalLabel}</span>{selectedCountry.capital[lang]}</p>
-              <p><span>{T.populationLabel}</span>{T.approximate} {formatPopulation(selectedCountry.population,lang)} <small>({selectedCountry.populationYear})</small></p>
+              <p><span>{T.populationLabel}</span>{T.approximate} {formatPopulation(population?(populationStats[selectedCountry.boundaryName]?.population??selectedCountry.population):selectedCountry.population,lang)} <small>({population?2023:selectedCountry.populationYear})</small></p>
             </div>}
           </div>
         </div>
@@ -1098,7 +1133,7 @@ export default function GlobeLab(){
         .kicker{font-family:var(--font-en);font-size:10px;letter-spacing:.28em;color:var(--ps-primary);font-weight:600;text-transform:uppercase}
         .title{font-size:19px;font-weight:600;letter-spacing:-.01em;margin-top:3px}.title .en{font-family:var(--font-en);color:var(--text-2);font-weight:300;font-size:13px;margin-left:8px}
         .floaty{z-index:30}
-        .tools-fixed{position:fixed;left:20px;top:64px;z-index:31}
+        .tools-fixed{box-sizing:border-box;overflow:hidden;position:fixed;left:20px;top:64px;z-index:31}
         .right-stack{position:fixed;right:20px;top:64px;z-index:30;display:flex;flex-direction:column;gap:10px;align-items:stretch;width:340px;max-width:calc(100vw - 40px)}
         .drag-grip{display:flex;flex-direction:column;align-items:center;gap:2px;opacity:.4;transition:opacity .2s;flex-shrink:0}
         .floaty:hover .drag-grip{opacity:.7}.drag-grip span{width:22px;height:2px;border-radius:2px;background:var(--text-2)}
@@ -1169,6 +1204,9 @@ export default function GlobeLab(){
         .grid-panel h4{font-family:var(--font-en);font-size:9px;letter-spacing:.22em;color:var(--text-2);font-weight:600;text-transform:uppercase;margin-bottom:2px}
         .grid-panel .tg{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text);font-weight:300;cursor:pointer}
         .grid-panel .tg small{color:var(--text-2)}.tg-sep{margin-top:8px;border-top:1px solid var(--border);padding-top:9px}
+        .tools-fixed .panel-body{max-height:calc(100dvh - 150px);overflow-y:auto;scrollbar-width:none}.tools-fixed .panel-body::-webkit-scrollbar{display:none}
+        .population-toggle-row{grid-template-columns:max-content max-content!important}.population-toggle-row>.tg:last-child{grid-column:1 / -1}.density-legend{min-width:210px;display:flex;flex-direction:column;gap:8px}.density-legend h4{font-size:11px;color:var(--text-2);margin:0 0 4px}.density-key{display:flex;align-items:center;gap:12px;font-size:12px}.density-key>span{width:36px;height:17px;border-radius:4px;border:1px solid #ffffff20}.density-key b{font-weight:400}.density-key.missing{font-size:10px;color:var(--text-2);margin-top:3px}
+        .population-note{max-width:260px;font-size:10px;line-height:1.6;color:var(--text-2)}.population-note a{color:var(--ps-primary)}
         .layer-toggle-row{display:grid;grid-template-columns:max-content max-content;gap:9px}.layer-toggle-row .tg{gap:6px;font-size:11.5px;white-space:nowrap}
         .grid-panel .tg input[type=checkbox]{appearance:none;width:30px;height:17px;border-radius:9999px;background:var(--surface-2);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
         .grid-panel .tg input[type=checkbox]::after{content:"";position:absolute;top:1.5px;left:1.5px;width:12px;height:12px;border-radius:50%;background:#8C93A1;transition:all .2s}
@@ -1184,9 +1222,9 @@ export default function GlobeLab(){
         .terrain-key{display:flex;align-items:center;gap:5px;min-width:0;color:#9BA3B0;font-size:10px;font-weight:400;cursor:pointer;white-space:nowrap}
         .terrain-key input{position:absolute;opacity:0;pointer-events:none}.terrain-key>span{width:12px;height:9px;border:1px solid rgba(255,255,255,.26);border-radius:3px;opacity:.42;flex:none;transition:opacity .16s,box-shadow .16s}.terrain-key.on{color:#E9ECF1}.terrain-key.on>span{opacity:1;box-shadow:0 0 0 2px rgba(255,255,255,.08)}
         .terrain-legend p{margin:8px 0 0;color:#777F8D;font-size:9px;line-height:1.45;word-break:keep-all}.terrain-legend p a{color:#AEB5C2;text-decoration:underline;text-decoration-color:rgba(174,181,194,.38);text-underline-offset:2px}
-        .grid-panel .step{display:flex;align-items:center;gap:6px;margin-top:3px;border-top:1px solid var(--border);padding-top:8px}
+        .grid-spacing-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.grid-spacing-row>.tg{white-space:nowrap}.grid-panel .step{display:flex;align-items:center;gap:4px}.grid-panel .step>span:first-child{display:none}
         .grid-panel .step span{font-size:12px;color:var(--text-2);font-weight:300}
-        .grid-panel .step input[type=number]{width:50px;background:var(--surface-1);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font-en);font-size:12px;padding:4px 6px;text-align:center}
+        .grid-panel .step input[type=number]{width:40px;background:var(--surface-1);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font-en);font-size:12px;padding:4px 6px;text-align:center}
         .daynight-ctl{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:28;display:flex;align-items:center;gap:12px;padding:9px 16px;background:rgba(16,19,25,.82);backdrop-filter:blur(14px);border:1px solid rgba(255,177,26,.22);border-radius:100px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
         .dn-btn{width:28px;height:26px;border:1px solid var(--border);border-radius:8px;background:var(--surface-1);color:var(--text-2);cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;transition:all .16s var(--ease);flex-shrink:0}
         .dn-btn.on{border-color:var(--ps-primary);color:var(--ps-primary);background:rgba(255,177,26,.12)}

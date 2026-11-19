@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "year": 2020,
+  "unit": "people/km²",
+  "geography": "Actual gridded regional population density; country borders and original geographic positions remain unchanged.",
+  "model": "WorldPop Global1 top-down unconstrained population density, Random Forest-based dasymetric redistribution",
+  "sourceResolutionArcSeconds": 30,
+  "sourceApproximateResolution": "1 km at the equator",
+  "width": 4096,
+  "height": 2048,
+  "extent": [
+    -180,
+    -90,
+    180,
+    90
+  ],
+  "crs": "EPSG:4326",
+  "sourceNoDataSentinel": 3.4e+38,
+  "rowOrder": "north-to-south",
+  "columns": "west-to-east",
+  "displayResampling": "ArcGIS exportImage bilinear interpolation of numeric float32 density to 4096×2048; not a national-average map",
+  "classes": [
+    {
+      "min": 0,
+      "max": 1,
+      "rgba": [
+        255,
+        245,
+        240,
+        12
+      ]
+    },
+    {
+      "min": 1,
+      "max": 10,
+      "rgba": [
+        253,
+        208,
+        193,
+        45
+      ]
+    },
+    {
+      "min": 10,
+      "max": 100,
+      "rgba": [
+        252,
+        160,
+        130,
+        95
+      ]
+    },
+    {
+      "min": 100,
+      "max": 1000,
+      "rgba": [
+        239,
+        90,
+        67,
+        165
+      ]
+    },
+    {
+      "min": 1000,
+      "max": null,
+      "rgba": [
+        183,
+        25,
+        43,
+        230
+      ]
+    }
+  ],
+  "classification": "GeoWeb five display classes, not official WorldPop categories; no-data is fully transparent.",
+  "source": {
+    "service": "https://worldpop.arcgis.com/arcgis/rest/services/WorldPop_Population_Density_1km/ImageServer",
+    "item": "https://www.arcgis.com/home/item.html?id=38b7672a1977426caa6cf4c62e37b777",
+    "doi": "https://doi.org/10.5258/SOTON/WP00674",
+    "dataYear": 2020,
+    "timeParameter": 1577836800000,
+    "exportRequest": "https://worldpop.arcgis.com/arcgis/rest/services/WorldPop_Population_Density_1km/ImageServer/exportImage?f=json&bbox=-180%2C-90%2C180%2C90&bboxSR=4326&imageSR=4326&size=4096%2C2048&format=tiff&pixelType=F32&time=1577836800000&renderingRule=%7B%22rasterFunction%22%3A+%22None%22%7D&interpolation=RSP_BilinearInterpolation&noDataInterpretation=esriNoDataMatchAny",
+    "citation": "WorldPop and Center for International Earth Science Information Network (CIESIN), Columbia University (2018). Global High Resolution Population Denominators Project. WorldPop, Esri service.",
+    "license": "CC BY 4.0",
+    "licenseURL": "https://creativecommons.org/licenses/by/4.0/",
+    "accessed": "2026-11-19",
+    "rawTiffSha256": "6647dc887d98f65d93c72e4f85d2e211730fbf14ea5c8615584c74f650657eb8",
+    "serviceRetirementNotice": "Official item marks mature support from August 2026 and planned retirement December 2027. Local exported snapshot does not depend on runtime service availability."
+  },
+  "quality": {
+    "validPixels": 1984428,
+    "classPixelCounts": [
+      1167386,
+      387895,
+      293579,
+      118530,
+      17038
+    ],
+    "numericMin": 0.0,
+    "numericMax": 92288.375,
+    "samplePeoplePerKm2": {
+      "Seoul": 9540.884765625,
+      "Delhi": 2242.931396484375,
+      "Tokyo": 26841.046875,
+      "NewYork": 9055.576171875,
+      "KoreaMountainRural": 16.74724769592285,
+      "MongoliaRural": 0.7522077560424805,
+      "Sahara": 0.20123213529586792
+    }
+  },
+  "textureSha256": "42c064112a5d3c88519c097f7a4fcef151e95b98063a17202575362a2be9f523"
+}

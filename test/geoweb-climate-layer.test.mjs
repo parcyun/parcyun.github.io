@@ -87,12 +87,12 @@ test('GeoWeb provides a left-toolbox toggle, map overlay, and individually selec
   assert.match(globe, /checked=\{climate\}/);
   assert.match(globe, /setClimate\(e\.target\.checked\)/);
   assert.match(globe, /loadTileImg\(CLIMATE_TEXTURE_URL\)/);
-  assert.match(globe, /buildOverlay\(\{sel:s,world,oceans,oceansFill,climate:S\.current\.climate,climateImage,climateZones:S\.current\.climateZones,terrain:S\.current\.terrain,terrainLayers:S\.current\.terrainLayers,landforms,targetTexture:overlayTex\}\)/);
+  assert.match(globe, /buildOverlay\(\{sel:s,world,oceans,oceansFill,climate:S\.current\.climate&&!S\.current\.density,climateImage,climateZones:S\.current\.climateZones,terrain:S\.current\.terrain&&!S\.current\.density,terrainLayers:S\.current\.terrainLayers,landforms,targetTexture:overlayTex\}\)/);
   assert.match(globe, /className="climate-legend"/);
   assert.match(globe, /CLIMATE_ZONE_ORDER\.map/);
   assert.match(globe, /setClimateZones\(current=>\(\{\.\.\.current,\[key\]:event\.target\.checked\}\)\)/);
-  assert.match(globe, /T\.climateSimplified/);
-  assert.match(globe, /GEOWEB_CLIMATE_ATTRIBUTION\.txt/);
+  assert.doesNotMatch(globe, /T\.climateSimplified/);
+  assert.doesNotMatch(globe, /href="[^"]*GEOWEB_CLIMATE_ATTRIBUTION/);
 });
 
 test('climate colors fully replace continent colors instead of blending with them', async () => {

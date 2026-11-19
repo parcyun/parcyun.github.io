@@ -1,0 +1,13 @@
+GeoWeb gridded regional population-density texture, 2020 model estimates.
+WorldPop (University of Southampton; University of Louisville; Universite de Namur) and Center for International Earth Science Information Network (CIESIN), Columbia University (2018).
+Global High Resolution Population Denominators Project.
+Original population-density data: https://doi.org/10.5258/SOTON/WP00674
+Service: https://worldpop.arcgis.com/arcgis/rest/services/WorldPop_Population_Density_1km/ImageServer
+Official item (WorldPop_Project): https://www.arcgis.com/home/item.html?id=38b7672a1977426caa6cf4c62e37b777
+WorldPop, Esri.
+License: Creative Commons Attribution 4.0 International.
+https://creativecommons.org/licenses/by/4.0/
+Accessed 2026-11-19.
+
+Adaptation: numeric 2020 gridded density (people/km²) exported to a 4096×2048 EPSG:4326 display texture; five red/opacity classes chosen for GeoWeb. NoData is transparent. Output is resampled from native 30-arc-second data and does not retain every 1km detail.
+Country boundaries and geographic positions must remain unchanged. This is not national-average density or density computed from cartogram area. Model estimates are not direct observation of every cell.

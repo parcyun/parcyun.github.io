@@ -848,7 +848,7 @@ export default function GlobeLab(){
           camera.position.lerpVectors(nuAnim.fromPos,nuAnim.toPos,k);camera.up.set(0,1,0);camera.lookAt(nuAnim.tgt);
           if(nuAnim.t>=1){nuAnim=null;if(S.current.view==='globe')controls.enabled=true;} }
         const fade=motionPreference.matches?1:1-Math.exp(-dt*12);
-        const targets={grat:st.grat,eq:st.eq,pm:st.prime,dl:st.dateline};
+        const targets={grat:st.grat&&!st.population,eq:st.eq&&!st.population,pm:st.prime,dl:st.dateline&&!st.population};
         for(const key of Object.keys(gridFade))gridFade[key]+=(Number(targets[key])-gridFade[key])*fade;
         setGridVis();
         u.dayNightOn.value+=(Number(st.dayNight)-u.dayNightOn.value)*fade;
@@ -952,11 +952,11 @@ export default function GlobeLab(){
       <div ref={toolsRef} className={'floaty grid-panel tools-fixed'+(toolsCollapsed?' collapsed':'')+(guide?' guide-lift':'')}>
         <div className="floaty-head" onClick={()=>setToolsCollapsed(v=>!v)} title="클릭하면 접기/펼치기"><div className="drag-grip"><span/><span/></div><span className="collapse-chev">{toolsCollapsed?'▸':'▾'}</span></div>
         <div className="panel-body">
-        <div className="grid-spacing-row"><label className="tg"><input type="checkbox" checked={grat} onChange={e=>setGrat(e.target.checked)} /><span>{T.grat}</span></label><div className="step"><span>{T.interval}</span><input aria-label={T.interval} type="number" min="5" max="90" step="5" value={step} onChange={e=>setStep(e.target.value)} /><span>°</span></div></div>
-        <label className="tg"><input type="checkbox" checked={eq} onChange={e=>setEq(e.target.checked)} /><span>{T.equator}</span></label>
+        <div className="grid-spacing-row"><label className="tg"><input type="checkbox" checked={grat&&!population} disabled={population} onChange={e=>setGrat(e.target.checked)} /><span>{T.grat}</span></label><div className="step"><span>{T.interval}</span><input aria-label={T.interval} disabled={population} type="number" min="5" max="90" step="5" value={step} onChange={e=>setStep(e.target.value)} /><span>°</span></div></div>
+        <label className="tg"><input type="checkbox" checked={eq&&!population} disabled={population} onChange={e=>setEq(e.target.checked)} /><span>{T.equator}</span></label>
         <label className="tg"><input type="checkbox" checked={prime} onChange={e=>setPrime(e.target.checked)} /><span>{T.prime}</span></label>
-        <label className="tg"><input type="checkbox" checked={dateline} onChange={e=>setDateline(e.target.checked)} /><span>{T.dateline}</span></label>
-        <label className="tg tg-sep"><input type="checkbox" checked={country} onChange={e=>{setCountry(e.target.checked);if(population)setPopulationCompare(e.target.checked);setSel(current=>!e.target.checked&&current?.type==='country'?{type:'continent',key:current.key}:null);setSelectedCountry(null);setSearchQuery('');}} /><span>{T.pickCountry}</span></label>
+        <label className="tg"><input type="checkbox" checked={dateline&&!population} disabled={population} onChange={e=>setDateline(e.target.checked)} /><span>{T.dateline}</span></label>
+        <label className="tg tg-sep"><input type="checkbox" checked={country} onChange={e=>{setCountry(e.target.checked);setPopulationCompare(false);setSel(current=>e.target.checked&&current?.name?{type:'country',name:current.name,key:current.key}:!e.target.checked&&current?.type==='country'?{type:'continent',key:current.key,name:current.name}:null);setSelectedCountry(null);setSearchQuery('');}} /><span>{T.pickCountry}</span></label>
         <label className="tg"><input type="checkbox" checked={trueSize} disabled={population||density} onChange={e=>setTrueSize(e.target.checked)} /><span>{T.trueSize}<button className="ts-info-btn" onClick={e=>{e.preventDefault();setTsInfo(v=>!v);}} title={T.tsTitle}>!</button></span></label>
         <div className="layer-toggle-row tg-sep">
           <label className="tg"><input type="checkbox" checked={climate} onChange={e=>setClimate(e.target.checked)} /><span>{T.climate}</span></label>

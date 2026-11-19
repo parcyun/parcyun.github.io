@@ -18,7 +18,7 @@ export function createJoinNotice(container) {
           item.style.cssText='padding:12px 18px;border-radius:18px;border:1px solid #71d99b;background:#174b35ee;color:#dcffe9;font:700 14px/1.5 Pretendard,sans-serif;box-shadow:0 8px 24px #0004;overflow-wrap:anywhere';
           layer.append(item);
           if(!matchMedia('(prefers-reduced-motion: reduce)').matches)item.animate([{opacity:0,transform:'translateY(-8px)'},{opacity:1,transform:'none'}],{duration:240});
-          const timer=setTimeout(()=>{item.remove();timers.delete(timer);},4500);timers.add(timer);
+          const timer=setTimeout(async()=>{timers.delete(timer);if(item.isConnected&&!matchMedia('(prefers-reduced-motion: reduce)').matches)await item.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translateY(-6px)'}],{duration:240,easing:'ease-in',fill:'forwards'}).finished.catch(()=>{});item.remove();},4500);timers.add(timer);
         }
       }
       code=room.code;seen=next;

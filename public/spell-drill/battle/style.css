@@ -75,3 +75,9 @@ body:has(#battle-launch):has(#home.active) .stage{padding-top:74px}body:has(#pla
 #battle-launch .battle-spinner{display:inline-block;width:14px;height:14px;border-width:2px;vertical-align:middle;margin-right:8px}#battle-launch:disabled{cursor:default;opacity:.7}
 
 #battle-toolbar-code[hidden]{display:none!important}
+
+.battle-team{position:relative}.battle-member-count{position:absolute;top:8px;right:12px;font:600 10px Pretendard,sans-serif;color:#aeb8c8}.battle-team>header{padding-top:12px}
+
+.battle-teams.leaderboard{flex:1;min-height:0;grid-auto-rows:minmax(0,1fr);overflow:auto;align-content:stretch}
+#battle .leaderboard .battle-team,#battle .leaderboard .battle-team.first-place{min-height:0;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.leaderboard .battle-team>header,.leaderboard .battle-team>footer{flex:none}.leaderboard .battle-players{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:none}

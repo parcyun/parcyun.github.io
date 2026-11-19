@@ -559,3 +559,11 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 .gb-modal[data-phase=finished] .gb-results>p{font-weight:400;color:#9ba8ba}
 .gb-modal[data-phase=finished] .gb-scoreboard h3{display:none}
 @media(max-width:700px){.gb-modal[data-phase=finished] .gb-board-team li{grid-template-columns:24px minmax(0,1fr) auto}.gb-modal[data-phase=finished] .gb-team-scores{grid-column:1/-1}}
+
+.gb-players,.gb-scoreboard li{position:relative}.gb-member-count{position:absolute;top:8px;right:12px;font:600 10px Pretendard,sans-serif;color:#aeb8c8}.gb-roster .gb-players h3{padding-right:40px}.gb-scoreboard li:has(.gb-member-count){padding-top:26px}
+
+.gb-screen .gb-scoreboard.gb-board-team{display:flex;flex-direction:column;overflow:hidden}
+.gb-scoreboard.gb-board-team ol{flex:1;min-height:0;grid-template-columns:1fr;grid-template-rows:repeat(var(--gb-team-count),minmax(0,1fr));overflow:auto}
+.gb-modal .gb-board-team li,.gb-modal .gb-board-team li.gb-first-place{min-height:0;height:100%;align-content:stretch;overflow:hidden}
+.gb-board-team .gb-team-scores{min-height:0;max-height:100%;overflow:auto;overscroll-behavior:contain}
+.gb-modal[data-phase=finished] .gb-board-team li,.gb-modal[data-phase=finished] .gb-board-team li.gb-first-place{min-height:0;height:100%}

@@ -14,7 +14,8 @@
     "AE",
     "UAE",
     "Emirates",
-    "아랍에미리트 연합국"
+    "아랍에미리트 연합국",
+    "아랍에미리트연합"
   ],
   "AF": [
     "Afghanistan",
@@ -29,7 +30,9 @@
   "AG": [
     "Antigua and Barbuda",
     "앤티가 바부다",
-    "AG"
+    "AG",
+    "앤티가",
+    "Antigua"
   ],
   "AL": [
     "Albania",
@@ -102,7 +105,9 @@
     "보스니아 헤르체고비나",
     "BA",
     "Bosnia-Herzegovina",
-    "Босна и Херцеговина"
+    "Босна и Херцеговина",
+    "보스니아",
+    "Bosnia"
   ],
   "BB": [
     "Barbados",
@@ -277,7 +282,9 @@
     "킨샤사 콩고",
     "자이르",
     "Zaire",
-    "Zaïre"
+    "Zaïre",
+    "콩고민주공화국",
+    "민주콩고"
   ],
   "CF": [
     "Central African Republic",
@@ -285,14 +292,19 @@
     "CF",
     "République centrafricaine",
     "Republique centrafricaine",
-    "중앙아프리카"
+    "중앙아프리카",
+    "중앙아공",
+    "Central Africa",
+    "CAR"
   ],
   "CG": [
     "Republic of the Congo",
     "콩고",
     "CG",
     "Congo",
-    "Congo-Brazzaville"
+    "Congo-Brazzaville",
+    "콩고공화국",
+    "콩고브라자빌"
   ],
   "CH": [
     "Switzerland",
@@ -383,7 +395,8 @@
     "카보베르데 공화국",
     "CV",
     "República de Cabo Verde",
-    "Republica de Cabo Verde"
+    "Republica de Cabo Verde",
+    "케이프베르데"
   ],
   "CY": [
     "Cyprus",
@@ -637,7 +650,8 @@
     "République de Guinée équatoriale",
     "Republique de Guinee equatoriale",
     "República da Guiné Equatorial",
-    "Republica da Guine Equatorial"
+    "Republica da Guine Equatorial",
+    "적도기니"
   ],
   "GR": [
     "Greece",
@@ -864,7 +878,10 @@
     "Federation of Saint Christopher and Nevis",
     "세인트키츠 네비스",
     "세인트키츠 네비스 연방",
-    "KN"
+    "KN",
+    "세인트키츠",
+    "Saint Kitts",
+    "St Kitts"
   ],
   "KP": [
     "North Korea",
@@ -1055,7 +1072,10 @@
     "마셜 제도 공화국",
     "MH",
     "Aolepān Aorōkin M̧ajeļ",
-    "Aolepan Aorokin Majel"
+    "Aolepan Aorokin Majel",
+    "마셜",
+    "마샬",
+    "마샬제도"
   ],
   "MK": [
     "North Macedonia",
@@ -1279,7 +1299,8 @@
     "파푸아뉴기니",
     "파푸아뉴기니 독립국",
     "PG",
-    "Independen Stet bilong Papua Niugini"
+    "Independen Stet bilong Papua Niugini",
+    "PNG"
   ],
   "PH": [
     "Philippines",
@@ -1403,12 +1424,15 @@
     "Saudi",
     "SA",
     "Al-Mamlakah al-‘Arabiyyah as-Su‘ūdiyyah",
-    "Al-Mamlakah al-‘Arabiyyah as-Su‘udiyyah"
+    "Al-Mamlakah al-‘Arabiyyah as-Su‘udiyyah",
+    "사우디"
   ],
   "SB": [
     "Solomon Islands",
     "솔로몬 제도",
-    "SB"
+    "SB",
+    "솔로몬",
+    "Solomons"
   ],
   "SC": [
     "Seychelles",
@@ -1528,7 +1552,10 @@
     "상투메 프린시페 민주 공화국",
     "ST",
     "República Democrática de São Tomé e Príncipe",
-    "Republica Democratica de Sao Tome e Principe"
+    "Republica Democratica de Sao Tome e Principe",
+    "상투메",
+    "Sao Tome",
+    "São Tomé"
   ],
   "SV": [
     "El Salvador",
@@ -1663,7 +1690,9 @@
     "Republic of Trinidad and Tobago",
     "트리니다드 토바고",
     "트리니다드 토바고 공화국",
-    "TT"
+    "TT",
+    "트리니다드",
+    "Trinidad"
   ],
   "TV": [
     "Tuvalu",
@@ -1738,7 +1767,11 @@
   "VC": [
     "Saint Vincent and the Grenadines",
     "세인트빈센트 그레나딘",
-    "VC"
+    "VC",
+    "세인트빈센트",
+    "세인트빈센트그레나딘스",
+    "Saint Vincent",
+    "St Vincent"
   ],
   "VE": [
     "Venezuela",

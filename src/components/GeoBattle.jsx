@@ -145,13 +145,14 @@ function BattleLeaderboard({ room }) {
   return (
     <section className={`gb-scoreboard gb-board-${room.mode}`} aria-label="순위표">
       <h3>{room.phase === "finished" ? "최종 순위" : "실시간 순위"}</h3>
-      <ol ref={list}>
+      <ol ref={list} style={{"--gb-team-count":ranked.length}}>
         {ranked.map(({ id, name, score, photo, connected }) => (
           <li key={id} className={id===ranked[0]?.id?"gb-first-place":""} style={{"--team-color":teamColors[Number(id)%teamColors.length]||"#ffb11a"}} data-key={id} data-score={score}>
             <span>{ranked.findIndex(entry => entry.score === score) + 1}위</span>
             <span>{room.mode==="individual"&&(<img src={photo||"/images/dexter-base-character-01.png"} alt="" referrerPolicy="no-referrer"/>)}{name}{connected===false&&<small> · 연결 끊김</small>}</span>
             <strong>{score.toLocaleString()}<small>점</small></strong>
             {room.mode==="team"&&<div className="gb-team-scores">{room.players.filter(p=>p.team===id).sort((a,b)=>b.score-a.score).map(p=><div key={p.id}>{<img src={p.photo||"/images/dexter-base-character-01.png"} alt="" referrerPolicy="no-referrer"/>}<span>{p.name}</span><b>{p.score.toLocaleString()}점</b></div>)}</div>}
+            {room.mode==="team"&&<small className="gb-member-count">{room.players.filter(p=>!p.isHost&&!p.left&&p.team===id).length}명</small>}
           </li>
         ))}
       </ol>
@@ -871,7 +872,7 @@ export default function GeoBattle({ pools, onTarget, onOpenChange, musicControls
                             setDragged(null);
                             setDropTeam(null);
                           }}>
-                          <h3>{name}</h3>
+                          <h3>{name}{team!==null&&<small className="gb-member-count">{room.players.filter(p=>!p.isHost&&!p.left&&p.team===team).length}명</small>}</h3>
                           <div className="gb-team-members">
                           {room.players?.filter(p => !p.isHost && (team === null || p.team === team)).map(player => {
                             const Tag = host ? "button" : "div";

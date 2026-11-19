@@ -1,3 +1,4 @@
+import GeoAnswerArea from "./GeoAnswerArea.jsx";
 import {savePendingRecord} from './geoPendingRecords.js';
 import {watchGameFocus} from '../../public/game-focus-guard.js';
 import { useEffect, useRef, useState } from 'react';
@@ -201,16 +202,7 @@ export default function GeoGame({ musicControls, pools, onTarget, onExit, onFini
     </figure>}
 
     {practice&&question&&<div className="gg-practice-answer" role="status">{question.name}</div>}
-    <div className="gg-answer">
-      {!practice&&<div className="gg-feedback" role="status" aria-live="polite">{result&&!result.skipped&&!result.gain&&<span>{result.text}</span>}</div>}
-      {!practice&&mode!=='country'&&<label htmlFor="gg-input">{config.prompt}</label>}
-      {!practice&&<form onSubmit={submit}>
-        <input ref={input} id="gg-input" aria-label={config.label} value={answer} onChange={e=>setAnswer(e.target.value)} onCompositionStart={()=>{composing.current=true;}} onCompositionEnd={()=>{composing.current=false;}} onKeyDown={e=>{if(e.key==='Enter'&&e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();if(!e.repeat&&!composing.current&&!e.nativeEvent.isComposing&&e.nativeEvent.keyCode!==229)skip();return;}if(e.key==='Enter'&&(e.nativeEvent.isComposing||e.nativeEvent.keyCode===229))e.preventDefault();}} placeholder={busy?'지도를 살펴보세요…':`${config.label} 입력`} autoComplete="off" spellCheck={false} readOnly={busy||(mediaError&&mode!=='nature')||summary}/>
-        <button type="submit" disabled={busy||(mediaError&&mode!=='nature')||summary||!answer.trim()}><span>확인</span><small>ENTER</small></button>
-        <button type="button" className="gg-skip" disabled={(busy&&!mediaError)||summary} onClick={skip}><span>넘기기</span><small>SHIFT+ENTER</small></button>
-      </form>}
-      {practice&&<button ref={nextButton} type="button" className="gg-practice-next" disabled={(busy&&!mediaError)||summary} onClick={skip} onKeyDown={e=>{if(e.key==='Enter'&&e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();if(!e.repeat)skip();}}}><span>넘기기</span><small>SHIFT+ENTER</small></button>}
-    </div>
+    <GeoAnswerArea practice={practice} result={result} mode={mode} config={config} submit={submit} input={input} answer={answer} setAnswer={setAnswer} composing={composing} skip={skip} busy={busy} mediaError={mediaError} summary={summary} nextButton={nextButton}/>
     {summary&&<div className="gg-summary" onClick={event=>{if(event.target===event.currentTarget)returnToMenu();}} role="dialog" aria-modal="true" aria-labelledby="gg-summary-title" onKeyDown={e=>{if(e.key==='Escape')returnToMenu();if(e.key==='Tab'){const buttons=[...e.currentTarget.querySelectorAll('button')];const index=buttons.indexOf(document.activeElement);e.preventDefault();buttons[(index+(e.shiftKey?-1:1)+buttons.length)%buttons.length].focus();}}}><div><div className="gg-eyebrow">ROUND COMPLETE</div><h2 id="gg-summary-title">오늘의 지구 탐험</h2>{finishReason&&<p role="status">{finishReason}</p>}<strong>{stats.score.toLocaleString()}<small>점</small></strong><p>정답 {stats.correct}개 · 최고 콤보 {stats.bestCombo} · {formatTime(elapsed)}</p><div className="gg-summary-actions"><button autoFocus onClick={returnToMenu}>게임 선택으로</button><button className="gg-mode-exit" onClick={()=>window.psModalMotion.exit(document.querySelector('.gg-summary'),onExit)}>게임모드 종료 ↗</button></div><div className="gg-summary-submit"><button type="button" onClick={openRanking}>랭킹 · 기록 제출</button></div></div></div>}
     </>}
   </section>;

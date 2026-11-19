@@ -1,3 +1,4 @@
+import GeoAnswerArea from "./GeoAnswerArea.jsx";
 import { createPortal } from "react-dom";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import "./geoBattle.css";
@@ -146,8 +147,9 @@ function BattleLeaderboard({ room }) {
         {ranked.map(({ id, name, score, photo, connected }) => (
           <li key={id} className={score===ranked[0]?.score?"gb-first-place":""} style={{"--team-color":teamColors[Number(id)%teamColors.length]||"#ffb11a"}} data-key={id} data-score={score}>
             <span>{ranked.findIndex(entry => entry.score === score) + 1}위</span>
-            <span>{room.mode==="individual"&&<img src={photo||"/images/dexter-base-character-01.png"} alt="" referrerPolicy="no-referrer"/>}{name}{connected===false&&<small> · 연결 끊김</small>}</span>
+            <span>{room.mode==="individual"&&(<img src={photo||"/images/dexter-base-character-01.png"} alt="" referrerPolicy="no-referrer"/>)}{name}{connected===false&&<small> · 연결 끊김</small>}</span>
             <strong>{score.toLocaleString()}점</strong>
+            {room.mode==="team"&&<div className="gb-team-scores">{room.players.filter(p=>p.team===id).sort((a,b)=>b.score-a.score).map(p=><div key={p.id}>{<img src={p.photo||"/images/dexter-base-character-01.png"} alt="" referrerPolicy="no-referrer"/>}<span>{p.name}</span><b>{p.score.toLocaleString()}점</b></div>)}</div>}
           </li>
         ))}
       </ol>
@@ -191,6 +193,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
     [dragged, setDragged] = useState(null),
     [dropTeam, setDropTeam] = useState(null);
   const {musicEnabled,playMusic,toggleMusic}=musicControls;
+  const answerInput=useRef(null), answerComposing=useRef(false);
   const sessionRef = useRef(null),
     roomRef = useRef(null),
     serverOffset = useRef(0),
@@ -250,6 +253,12 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
         setGate("unauthenticated");
         return;
       }
+      if(identity.photo?.startsWith("data:")&&identity.photo.length>8000){
+        const image=new Image();image.src=identity.photo;await image.decode();
+        const canvas=document.createElement("canvas");canvas.width=canvas.height=48;
+        canvas.getContext("2d").drawImage(image,0,0,48,48);
+        identity.photo=canvas.toDataURL("image/webp",.65);
+      }
       const next = await api("session", identity);
       if (sessionRef.current?.id && sessionRef.current.id !== next.id) {
         setRoom(null);
@@ -264,7 +273,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
         : sessionStorage.getItem(roomKey);
       if (saved) {
         try {
-          const joined = await api(`rooms/${saved}/join`, {});
+          const joined = await api(`rooms/${saved}/join`, {photo:next.photo||""});
           setRoom(joined);
           roomRef.current = joined;
           sessionStorage.setItem(roomKey, saved);
@@ -381,7 +390,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
     } catch (error) { setError(error.message); }
   }
   async function create() {
-    const next = await act("rooms", { mode, teamCount });
+    const next = await act("rooms", { mode, teamCount, photo:session?.photo||"" });
     if (next) {
       sessionStorage.setItem(roomKey, next.code);
       setRoom(next);
@@ -393,7 +402,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
       setError("여섯 자리 참가 코드를 입력해 주세요.");
       return;
     }
-    const next = await act(`rooms/${code}/join`, {});
+    const next = await act(`rooms/${code}/join`, {photo:session?.photo||""});
     if (next) {
       sessionStorage.setItem(roomKey, code);
       setRoom(next);
@@ -635,6 +644,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                 {room && <button onClick={()=>setConfirmExit(true)}>방 나가기</button>}
               </div>
             </header>
+            {room?.phase === "playing" && !host && <h2 className="gb-game-title">{modes.find(([key])=>key===game)?.[1]}</h2>}
             {room?.phase === "playing" && scoreEffect && !host && <GeoScoreEffect key={scoreEffect.id} gain={scoreEffect} combo={scoreEffect.combo} />}
             <main ref={screen} className="gb-screen">
             {gate === "checking" ? (
@@ -775,12 +785,8 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                   )}
                 </div>
                 {["starting", "playing", "between"].includes(room.phase) && (
-                  <p role="timer" className="gb-clock">
-                    {room.phase === "starting"
-                      ? "시작까지"
-                      : room.phase === "between"
-                        ? "다음 라운드까지"
-                        : "남은 시간"}{" "}
+                  <p role="timer" className={`gb-clock ${host?"gb-host-clock":""}`}>
+                    {room.phase !== "playing"&&<small>{room.phase==="starting"?"시작까지":"다음 라운드까지"}</small>}
                     <strong key={countdown}>{countdown}</strong>
                   </p>
                 )}
@@ -907,48 +913,13 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                 ) : room.phase === "playing" && room.waiting ? (
                   <div className="gb-center"><h2>다음 라운드부터 함께해요</h2></div>
                 ) : room.phase === "playing" && !host ? createPortal(
-                  <div className="gb-question" hidden={!shownQuestion} data-question-index={shownQuestion?.index}>
-                    <p>{shownQuestion?.prompt}</p>
-                    {shownSeconds > 0 && (
-                      <strong className="gb-expert-clock" role="timer">{shownSeconds}</strong>
-                    )}
-                    {shownQuestion?.image && (
-                      <img src={shownQuestion.image} alt="문제 이미지" />
-                    )}
-                    <h3>
-                      {shownQuestion?.cue || "지도와 이미지를 보고 답해 보세요"}
-                    </h3>
-                    <form onSubmit={submit}>
-                      <input
-                        value={answer}
-                        onChange={(e) => setAnswer(e.target.value)}
-                        aria-label="정답"
-                        autoComplete="off"
-                      />
-                      <button disabled={busy}>정답 제출</button>
-                    </form>
-                    <button
-                      disabled={busy || shownQuestion?.hintUsed}
-                      onClick={() =>
-                        act(`rooms/${room.code}/hint`, {
-                          index: shownQuestion.index,
-                        })
-                      }
-                    >
-                      힌트
-                    </button>
-                    {shownQuestion?.hintUsed && <p>{shownQuestion.hint}</p>}
-                    <button
-                      disabled={busy || room.stats?.passesRemaining <= 0}
-                      onClick={() =>
-                        act(`rooms/${room.code}/pass`, {
-                          index: shownQuestion.index,
-                        })
-                      }
-                    >
-                      패스 · {room.stats?.passesRemaining}
-                    </button>
-                    <p role="status">{feedback}</p>
+                  <div className="geo-game gg-playing gb-game-surface gb-question" data-question-index={shownQuestion?.index}>
+                    {shownSeconds>0&&<div className="gg-expert-countdown" role="timer"><span key={shownSeconds} style={{"--gg-clock-color":["","#ff263b","#ff514d","#ff7844","#ff9638","#ffb11a"][shownSeconds]}}>{shownSeconds}</span></div>}
+                    {shownQuestion?.image&&<figure className={`gg-media ${game==="flag"?"gg-flag":game==="landmark"?"gg-landmark":"gg-nature"}`}><img src={shownQuestion.image} alt="문제 이미지"/></figure>}
+                    {shownQuestion?.cue&&<aside className="gg-country"><h2>{shownQuestion.cue}</h2></aside>}
+                    <div className="gg-right-cards"><div className="gg-hud"><div className="gg-score"><span>SCORE</span><strong>{(room.players.find(p=>p.id===room.me)?.score||0).toLocaleString()}</strong></div><div className="gg-combo"><span>COMBO</span><strong>{room.stats?.combo||0}</strong></div></div></div>
+                    <GeoAnswerArea tools={<div className="gb-answer-tools"><button type="button" disabled={busy||shownQuestion?.hintUsed} onClick={()=>act(`rooms/${room.code}/hint`,{index:shownQuestion.index})}>HINT</button>{shownQuestion?.hintUsed&&<span>{shownQuestion.hint}</span>}<span>PASS · {room.stats?.passesRemaining||0}</span></div>} practice={false} result={feedback?{text:feedback}:null} mode={game} config={{prompt:shownQuestion?.prompt,label:"정답"}} submit={submit} input={answerInput} answer={answer} setAnswer={setAnswer} composing={answerComposing}
+                      skip={()=>{if(room.stats?.passesRemaining>0)act(`rooms/${room.code}/pass`,{index:shownQuestion.index});}} busy={busy} mediaError={false} summary={false}/>
                   </div>,backdrop.current
                 ) : host && room.phase === "playing" ? null : (
                   room.phase==="finished"?<BattleResult room={room} host={host}/>:<div className="gb-center">

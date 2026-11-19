@@ -88,3 +88,18 @@ test('expert expires a question after five seconds without granting points', ()=
  assert.equal(state.question.startedAt,initial.nextQuestion.startedAt);
  assert.equal(state.standings.find(player=>player.id==='one').score,0);
 });
+
+test('players receive independent decks, stable previews and no deck disclosure',()=>{
+ const pool=Array.from({length:20},(_,i)=>({...corpus.country[0],id:String(i),iso2:'KR'}));
+ const battle=new Battle({country:pool},{now:()=>1000});
+ const room=battle.create(identity('host'),2,'individual');
+ battle.join(room.code,identity('one'));battle.join(room.code,identity('two'));
+ battle.nextRound(room);
+ const one=room.players.find(p=>p.id==='one'),two=room.players.find(p=>p.id==='two');
+ assert.notDeepEqual(one.deck,two.deck);
+ assert.deepEqual([...one.deck].sort(),[...two.deck].sort());
+ const preview=battle.questionPreview(room,{...one,index:one.index+1});
+ one.index++;
+ assert.equal(battle.questionPreview(room,one).id,preview.id);
+ assert.ok(battle.view(room,'host').players.every(p=>!('deck' in p)));
+});

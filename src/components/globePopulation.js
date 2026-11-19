@@ -1,4 +1,4 @@
-export const POPULATION_CARTOGRAM_URL='/lab-data/geoweb-population-cartogram.json';
+export const POPULATION_CARTOGRAM_URL='/lab-data/geoweb-population-cartogram.json?v=2';
 export function populationPoint(point,amount=1){return [point[0]+((point[2]??point[0])-point[0])*amount,point[1]+((point[3]??point[1])-point[1])*amount];}
 export function populationFeature(feature,amount=1){const ring=r=>r.map(p=>populationPoint(p,amount)),geometry=feature.geometry;return {...feature,geometry:{...geometry,coordinates:geometry.type==='Polygon'?geometry.coordinates.map(ring):geometry.coordinates.map(poly=>poly.map(ring))}};}
 export function densifyPopulation(points,maxStep=2){const out=[points[0]];for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],n=Math.max(1,Math.ceil(Math.max(Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1]))/maxStep));for(let j=1;j<=n;j++)out.push(a.map((value,k)=>value+(b[k]-value)*j/n));}return out;}

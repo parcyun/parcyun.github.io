@@ -122,6 +122,7 @@ async function loadSdk() {
 }
 function renderTrigger() {
   if (!trigger) return;
+  trigger.disabled=!accountReady;
   trigger.replaceChildren();
   if(!accountReady){trigger.innerHTML='<span class="ps-auth-spinner" aria-hidden="true"></span>';trigger.setAttribute('aria-label','계정 정보 확인 중');return;}
   if ((user&&!user.isAnonymous)||localProfiles.current()) { const img = document.createElement('img'); img.src = profile.photo || user?.photoURL || MASCOT; img.alt = ''; img.referrerPolicy = 'no-referrer'; trigger.append(img); }

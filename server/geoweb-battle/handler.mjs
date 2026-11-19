@@ -1,3 +1,4 @@
+import {issueRound,syncRound} from '../spell-battle/offline-round.mjs';
 import {setPlayerFocus} from "../spell-battle/player-focus.mjs";
 import {readFile} from 'node:fs/promises';
 import {storage} from './storage.mjs';
@@ -22,6 +23,8 @@ export async function handleGeoWeb(req,res,{url,cloud,lan,port,json,body,mascot}
  const result=await store.run(code,identity.id,(battle,room)=>{
   if(req.method==='GET'){battle.member(room,identity.id);return;}
   switch(action){
+   case 'offline':return issueRound(battle,room,identity.id,'geo');
+   case 'sync':return syncRound(battle,room,identity.id,input);
    case 'join':battle.join(code,store.withPhoto(identity,input.photo));break;
    case 'presence':battle.presence(code,identity.id,input.connected);return {presenceUpdated:true};
    case 'end':battle.end(code,identity.id);break;
@@ -48,5 +51,5 @@ export async function handleGeoWeb(req,res,{url,cloud,lan,port,json,body,mascot}
   const link=(cloud?'https://parcyun.github.io':`http://${lan}:${port}`)+'/world-map/?geoBattle='+code;
   return json(res,200,{link,image:inviteQr(link,mascot)});
  }
- return json(res,200,['answer','leave','pass','presence'].includes(action)?result:result.room);
+ return json(res,200,['answer','leave','pass','presence','offline','sync'].includes(action)?result:result.room);
 }

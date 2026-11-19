@@ -1,3 +1,4 @@
+import {createOfflineBattle} from '../../public/battle-offline.js';
 import {createJoinNotice} from "../../public/battle-join-notice.js";
 import GeoAnswerArea from "./GeoAnswerArea.jsx";
 import { createPortal } from "react-dom";
@@ -142,14 +143,14 @@ function BattleLeaderboard({ room }) {
     previous.current = next;
   });
   return (
-    <section className="gb-scoreboard" aria-label="순위표">
+    <section className={`gb-scoreboard gb-board-${room.mode}`} aria-label="순위표">
       <h3>{room.phase === "finished" ? "최종 순위" : "실시간 순위"}</h3>
       <ol ref={list}>
         {ranked.map(({ id, name, score, photo, connected }) => (
-          <li key={id} className={score===ranked[0]?.score?"gb-first-place":""} style={{"--team-color":teamColors[Number(id)%teamColors.length]||"#ffb11a"}} data-key={id} data-score={score}>
+          <li key={id} className={id===ranked[0]?.id?"gb-first-place":""} style={{"--team-color":teamColors[Number(id)%teamColors.length]||"#ffb11a"}} data-key={id} data-score={score}>
             <span>{ranked.findIndex(entry => entry.score === score) + 1}위</span>
             <span>{room.mode==="individual"&&(<img src={photo||"/images/dexter-base-character-01.png"} alt="" referrerPolicy="no-referrer"/>)}{name}{connected===false&&<small> · 연결 끊김</small>}</span>
-            <strong>{score.toLocaleString()}점</strong>
+            <strong>{score.toLocaleString()}<small>점</small></strong>
             {room.mode==="team"&&<div className="gb-team-scores">{room.players.filter(p=>p.team===id).sort((a,b)=>b.score-a.score).map(p=><div key={p.id}>{<img src={p.photo||"/images/dexter-base-character-01.png"} alt="" referrerPolicy="no-referrer"/>}<span>{p.name}</span><b>{p.score.toLocaleString()}점</b></div>)}</div>}
           </li>
         ))}
@@ -167,7 +168,7 @@ function BattleResult({room,host}) {
     <div className="gb-winning-score"><small>1위 · {sorted[0]?.name} · {room.phase==="finished"?"합산 점수":"라운드 점수"}</small><strong>{(sorted[0]?.score||0).toLocaleString()}</strong></div>
     <small>{room.phase==="finished"?"MATCH COMPLETE":"ROUND COMPLETE"}</small>
     <h1>{host?(room.phase==="finished"?"대항전 종료":room.round+"라운드 종료"):(room.mode==="individual"?"내 순위 ":"우리 팀 ")+rank+"위"}</h1>
-    {own&&<p>{room.phase==="finished"?"최종 합산 점수":"이번 라운드 점수"} <b>{own.score.toLocaleString()}점</b></p>}
+    {own&&<p className="gb-final-total">{room.phase==="finished"?"최종 합산 점수":"이번 라운드 점수"} <b>{own.score.toLocaleString()}점</b></p>}
     <p>{room.phase==="between"?"":room.endedEarly?"진행자가 경기를 종료했어요. 지금까지의 점수로 순위를 정했어요.":"함께해서 더 멋진 경기였어요."}</p>
   </section>;
 }
@@ -211,7 +212,10 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
     teamPositions = useRef(new Map());
   sessionRef.current = session;
   roomRef.current = room;
-  async function api(path, body) {
+  const offlineBattle=useRef(null);
+  if(!offlineBattle.current)offlineBattle.current=createOfflineBattle("geo");
+  async function api(path,body){return offlineBattle.current.request(path,body,networkApi);}
+  async function networkApi(path, body) {
     const response = await fetch(`${base}/${path}`, {
       method: body ? "POST" : "GET",
       headers: {
@@ -257,7 +261,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
         setGate("unauthenticated");
         return;
       }
-      if(identity.photo?.startsWith("data:")&&identity.photo.length>8000){
+      if(identity.photo?.startsWith("data:")&&(!identity.photo.startsWith("data:image/webp;")||identity.photo.length>8000)){
         const image=new Image();image.src=identity.photo;await image.decode();
         const canvas=document.createElement("canvas");canvas.width=canvas.height=48;
         canvas.getContext("2d").drawImage(image,0,0,48,48);
@@ -288,6 +292,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
           }
           sessionStorage.removeItem(roomKey);
           clearInviteCode();
+          setRoom(null);roomRef.current=null;setEntry(null);await close();
         }
       }
     } catch (e) {
@@ -322,7 +327,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
     return next;
   }
   async function refreshRoom() {
-    if (refreshing.current || pending.current || !navigator.onLine || !roomRef.current) return;
+    if (refreshing.current || pending.current || !roomRef.current) return;
     refreshing.current = true;
     try {
       await load(roomRef.current.code);
@@ -457,9 +462,10 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
       if (result.correct) setAnswer("");
     } catch {}
   }
+  useEffect(()=>{if(room?.code){const url=new URL(location.href);url.searchParams.set("geoBattle",room.code);history.replaceState(null,"",url);}},[room?.code]);
   useEffect(() => {
     const inviteCode = new URLSearchParams(location.search).get("geoBattle");
-    if (inviteCode && /^\d{6}$/.test(inviteCode)) enter();
+    if ((inviteCode && /^\d{6}$/.test(inviteCode)) || sessionStorage.getItem(roomKey)) enter();
   }, []);
   useEffect(() => {
     if (!open) return;
@@ -469,18 +475,19 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
   useEffect(() => {
     if (!open || !room) return;
     const id = setInterval(() => {
-      if (document.hidden || !navigator.onLine || pending.current) return;
+      if (document.hidden || pending.current) return;
       refreshRoom();
     }, 900);
     return () => clearInterval(id);
   }, [open, room?.code]);
   useEffect(() => {
     const off = () => {
+      if(roomRef.current?.phase==="playing"){refreshRoom();return;}
       setGate("offline");
       setError("네트워크 연결이 끊어졌습니다. 연결 후 다시 시도해 주세요.");
     };
     const on = () => {
-      if (open) authenticate();
+      if (open) {if(roomRef.current)refreshRoom();else authenticate();}
     };
     window.addEventListener("offline", off);
     window.addEventListener("online", on);
@@ -680,9 +687,10 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                 <button onClick={authenticate}>다시 시도</button>
               </div>
             ) : !room ? (
-              <div className="gb-center">
+              <div className={`gb-center ${entry === "join" ? "gb-join-screen" : ""}`}>
+                {entry === "join" && <small className="gb-create-eyebrow">JOIN A GAME</small>}
                 {entry === "create" && <small className="gb-create-eyebrow">CREATE A GAME</small>}
-                <h1>{entry === "create" ? "어떻게 겨뤄 볼까요?" : entry === "join" ? "게임 참여하기" : "함께 지리를 풀어요"}</h1>
+                <h1>{entry === "create" ? "어떻게 겨뤄 볼까요?" : entry === "join" ? "게임 코드로 만나요." : "함께 지리를 풀어요"}</h1>
                 {!entry && (
                   <div className="gb-entry-options">
                     <button aria-label="게임 만들기" onClick={() => setEntry("create")}>
@@ -728,20 +736,24 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                   </>
                 )}
                 {entry === "join" && (
-                  <form onSubmit={(event) => {
+                  <><p>진행자가 보여 주는 QR을 휴대폰 카메라로 촬영하세요.<br/>또는 여섯 자리 코드를 입력하세요. QR을 촬영하면 참여 코드가 자동으로 입력돼요.</p><form onSubmit={(event) => {
                     event.preventDefault();
                     join().catch(() => {});
                   }}>
-                    <input
+                    <label className="gb-code-label">게임 코드<input
                       autoFocus
                       value={code}
                       onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
                       inputMode="numeric"
-                      placeholder="6자리 참가 코드"
+                      placeholder="000000"
+                      maxLength={6}
+                      pattern="[0-9]{6}"
+                      required
+                      autoComplete="off"
                       aria-label="참가 코드"
-                    />
-                    <button className="gb-primary" disabled={busy}>방 참가하기</button>
-                  </form>
+                    /></label>
+                    <button className="gb-primary" disabled={busy}>게임 참여하기</button>
+                  </form></>
                 )}
                 {entry && (
                   <button disabled={busy} onClick={() => {
@@ -772,10 +784,10 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                       if (difficulty !== game) act(`rooms/${room.code}/settings`, { ...room.settings, difficulty, level: "easy" }).catch(() => {});
                     }} />
                   ) : <span>{modes.find(([key]) => key === game)?.[1]} · {levels[levelIndex]?.label}</span>)}
-                  <button onClick={() => {
+                  {room.phase === "lobby" && <button onClick={() => {
                     navigator.clipboard?.writeText(room.code).catch(() => {});
                     showInvite(room.code);
-                  }}>코드 {room.code} · QR</button>
+                  }}>코드 {room.code} · QR</button>}
                   {host && room.phase === "lobby" && (
                       <button
                         className="gb-primary gb-lobby-action"
@@ -998,11 +1010,12 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                 <footer>
                   {host && room.phase === "finished" && (
                     <button
-                      onClick={() => act(`rooms/${room.code}/rematch`, {})}
+                      className="gb-primary" onClick={() => room.mode==="team"?act(`rooms/${room.code}/rematch`, {}):leave()}
                     >
                       다시 경기하기
                     </button>
                   )}
+                  {!host && room.phase === "finished" && <button className="gb-primary" onClick={leave}>다시하기</button>}
                   {host&&<button className="gb-danger" onClick={() => setConfirmExit(true)}>경기 종료</button>}
                 </footer>
               </>

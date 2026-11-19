@@ -359,7 +359,7 @@ export default function GlobeLab(){
     gameTimers.current.push(setTimeout(()=>{api.current.enterGameLobby?.();setGameActive(true);},delay));
     gameTimers.current.push(setTimeout(()=>setGameWipe(false),delay?680:0));
   };
-  useEffect(()=>{if(gamePools&&new URLSearchParams(location.search).has('geoBattle'))enterGame();},[gamePools]);
+  useEffect(()=>{if(gamePools&&(new URLSearchParams(location.search).has('geoBattle')||sessionStorage.getItem('ps-geoweb-battle-room.v1')))enterGame();},[gamePools]);
   const exitGame=()=>{
     if(gameSnapshot.current){Object.assign(S.current,gameSnapshot.current,{game:false,gameQuestion:null});api.current.restoreGame?.();}
     setGameActive(false);setTimeout(()=>document.querySelector('.game-entry')?.focus(),0);

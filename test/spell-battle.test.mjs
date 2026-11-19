@@ -104,3 +104,14 @@ test('host can move a ready player and rematch retains one roster while clearing
  const g=new Battle(corpus),r=g.create(person(1),2);for(const id of[2,3]){g.join(r.code,person(id));g.ready(r.code,String(id),true);}
  const p=g.member(r,'2');g.move(r.code,'1','2',1-p.team);assert.equal(p.ready,true);g.start(r.code,'1');r.startsAt=g.now();g.room(r.code);p.score=123;g.end(r.code,'1');assert.equal(p.totalScore,123);g.rematch(r.code,'1');assert.equal(r.phase,'lobby');assert.equal(r.players.length,3);assert.equal(r.round,0);assert.equal(p.totalScore,0);assert.equal(p.score,0);assert.equal(p.ready,false);assert.throws(()=>g.rematch(r.code,'2'),/진행자/);
 });
+
+test('each participant has a private persistent question order and refreshed WebP avatar',()=>{
+ const pool=Array.from({length:40},(_,i)=>({wrong:`오답${i}`,correct:`정답${i}`}));
+ const game=new Battle({ko:{easy:pool,med:pool,hard:pool}}),r=game.create(person(1));
+ game.join(r.code,person(2));game.join(r.code,person(3));game.nextRound(r);
+ const a=r.players[1],b=r.players[2];assert.notDeepEqual(a.deck,b.deck);
+ assert.deepEqual([...a.deck].sort(),[...b.deck].sort());
+ const original=[...a.deck];game.join(r.code,{...person(2),photo:'data:image/webp;base64,dGVzdA=='});
+ assert.deepEqual(a.deck,original);assert.equal(a.photo,'data:image/webp;base64,dGVzdA==');
+ const view=game.view(r,'2');assert.ok(view.players.every(p=>!('deck' in p)));assert.equal(view.question.wrong,pool[a.deck[0]].wrong);
+});

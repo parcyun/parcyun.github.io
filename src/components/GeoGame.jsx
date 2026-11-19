@@ -163,6 +163,7 @@ export default function GeoGame({ musicControls, pools, onTarget, onExit, onFini
   function finish(){cancelPending();locked.current=true;onFinish?.(mode);if(practice){returnToMenu();return;}setSummary(true);}
   function returnToMenu(){const complete=()=>{setSummary(false);setPlaying(false);setQuestion(null);setResult(null);setFormula(false);later(()=>document.querySelector('.gg-menu nav button')?.focus(),0);};if(summary)window.psModalMotion.exit(document.querySelector('.gg-summary'),complete);else complete();}
   return <section className={`geo-game ${playing?'gg-playing':''} ${playing&&mode==='flag'?'geo-game-flags':''} ${expert?'gg-expert':''} ${battleOpen?'gg-battle-open':''}`} aria-label="지오웹 게임 모드">
+    {!battleOpen&&<button className="gg-sound" type="button" data-music-toggle aria-pressed={musicControls.musicEnabled} onClick={musicControls.toggleMusic}>SOUND {musicControls.musicEnabled?"ON":"OFF"}</button>}
     {!playing&&<GeoBattle musicControls={musicControls} onOpenChange={setBattleOpen} pools={pools} onTarget={onTarget}/>}
     <aside className="gg-menu" inert={playing||battleOpen||undefined} aria-hidden={playing||battleOpen}>
       <div className="gg-eyebrow">GEOWEB / PLAY</div><h1>지구 한 바퀴</h1>

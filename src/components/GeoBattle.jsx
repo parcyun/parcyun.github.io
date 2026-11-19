@@ -31,6 +31,7 @@ function GamePicker({ value, onChange, busy }) {
   const list = useRef(null);
   const drag = useRef(null);
   const wheelIdle = useRef(null);
+  const positioned = useRef(false);
   const index = modes.findIndex(([key]) => key === value);
   function step(direction) {
     const next = modes[index + direction]?.[0];
@@ -38,7 +39,11 @@ function GamePicker({ value, onChange, busy }) {
   }
   useEffect(() => {
     const active = list.current?.children[index];
-    if (active) list.current.scrollTo({ top: active.offsetTop - active.offsetHeight, behavior: "auto" });
+    if (active) {
+      list.current.scrollTo({top:active.offsetTop-active.offsetHeight,
+        behavior:positioned.current&&!matchMedia("(prefers-reduced-motion: reduce)").matches?"smooth":"auto"});
+      positioned.current=true;
+    }
   }, [index]);
   useEffect(() => {
     const wheel = list.current;

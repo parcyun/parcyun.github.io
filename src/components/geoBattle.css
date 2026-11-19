@@ -495,3 +495,7 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 .gb-map-round > .gb-question form button{background:#ffb11a;color:#17130d;font-weight:700}
 .gb-modal > header > .gb-toolbar-code{grid-column:2;justify-self:center}
 .gb-header-actions{grid-column:3}
+
+.gb-game-wheel button{transition:opacity .24s ease,text-shadow .24s ease}
+.gb-game-wheel button[aria-pressed="true"]{text-shadow:0 0 12px #ffffff44}
+@media(prefers-reduced-motion:reduce){.gb-game-wheel button{transition:none}}

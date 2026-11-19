@@ -551,3 +551,11 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 .gb-scoreboard li.gb-first-place{border-color:#ffb11a88}
 @media(max-width:700px){.gb-modal[data-phase=finished] .gb-winning-score strong{font-size:56px}.gb-modal[data-phase=finished] .gb-results h1{font-size:30px}}
 @media(max-height:600px){.gb-modal[data-phase=finished] .gb-winning-score{margin:0}.gb-modal[data-phase=finished] .gb-winning-score strong{font-size:36px}.gb-modal[data-phase=finished] .gb-results h1{font-size:24px;margin:4px 0}.gb-modal[data-phase=finished] .gb-results>p{margin:3px 0}}
+
+.gb-modal[data-phase=finished] .gb-board-team ol{grid-template-columns:1fr;gap:12px}
+.gb-modal[data-phase=finished] .gb-board-team li{min-height:124px;grid-template-columns:24px minmax(0,1fr) auto minmax(120px,40%);align-content:center;padding:16px}
+.gb-modal[data-phase=finished] .gb-board-team li.gb-first-place{min-height:154px}
+.gb-modal[data-phase=finished] .gb-team-scores{grid-column:auto;max-height:90px}
+.gb-modal[data-phase=finished] .gb-results>p{font-weight:400;color:#9ba8ba}
+.gb-modal[data-phase=finished] .gb-scoreboard h3{display:none}
+@media(max-width:700px){.gb-modal[data-phase=finished] .gb-board-team li{grid-template-columns:24px minmax(0,1fr) auto}.gb-modal[data-phase=finished] .gb-team-scores{grid-column:1/-1}}

@@ -1,9 +1,9 @@
 ---
 import SeoHead from '../../components/SeoHead.astro';
 import { dexterityPosts, dexterityAuthor } from '../../data/dexterity';
-const categories = ['일상', '여행', '맛집', '생각', '인사이트', 'AI', '디지털', '디자인', '건축'];
+const categories = ['가이드북', '일상', '여행', '맛집', '생각', '인사이트', 'AI', '디지털', '디자인', '건축'];
 const posts = dexterityPosts;
-const description = 'parcyun(박윤)의 일상·여행·카페 기록과 디자인 관찰. 직접 경험하고 사진으로 담은 장소와 생각을 parcyun dexterity에 기록합니다.';
+const description = 'parcyun(박윤)의 일상·여행·카페 기록, 디자인 관찰과 직접 만든 서비스의 가이드북을 parcyun dexterity에 기록합니다.';
 const structuredData = {
   '@context': 'https://schema.org', '@type': 'Blog', '@id': 'https://parcyun.github.io/dexterity/#blog',
   name: 'parcyun dexterity', url: 'https://parcyun.github.io/dexterity/', description,
@@ -19,7 +19,7 @@ const structuredData = {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<SeoHead title="parcyun dexterity | 박윤의 일상·여행·카페 기록" description={description}
+<SeoHead title="parcyun dexterity | 박윤의 기록과 서비스 가이드북" description={description}
   siteName="parcyun dexterity" image={new URL(posts[0].image, 'https://parcyun.github.io').href}
   imageAlt={posts[0].imageAlt} structuredData={structuredData} />
 <link rel="alternate" type="application/rss+xml" title="parcyun dexterity" href="/dexterity/feed.xml" />
@@ -32,11 +32,11 @@ const structuredData = {
 <header class="dexterity-header"><h1 style="margin:0;font:inherit"><a class="dexterity-logo" href="/dexterity/">parcyun dexterity</a></h1></header>
 <main aria-label="parcyun dexterity">
 {categories.filter(category => posts.some(post => post.category === category)).map(category => (
-<section aria-label={category}>
+<section aria-label={category} id={category==='가이드북'?'guidebooks':undefined}>
 <h2>{category}</h2>
 <div class="gallery">
 {posts.filter(post => post.category === category).map(post => (
-<a href={post.href} class="entry">
+<a href={post.href} class="entry" data-category={category}>
 <img src={post.image} alt="" width="1086" height="1448" />
 <h3>{post.title}</h3>
 </a>
@@ -57,7 +57,7 @@ section+section{margin-top:64px}h2{font-size:22px;font-weight:500;margin:0 0 24p
 .entry img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .entry::after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.85))}
 h3{position:absolute;left:24px;right:24px;bottom:24px;margin:0;z-index:1;font-size:28px;font-weight:800;line-height:1.25;letter-spacing:-.04em}
-.entry:focus-visible{outline:3px solid #FFB11A;outline-offset:5px}
+.entry[data-category="가이드북"]{border-radius:24px}.entry[data-category="가이드북"] img{object-fit:contain;background:#101114}.entry:focus-visible{outline:3px solid #FFB11A;outline-offset:5px}
 @media(max-width:900px){.gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:540px){main{padding:40px 20px 64px}.gallery{grid-template-columns:1fr}h2{font-size:20px;margin-bottom:20px}h3{font-size:28px}}
 </style>

@@ -41,3 +41,9 @@
 - Browser checked flat, Focus Lens and globe population rendering, country-only India overlay, West Africa selection, climate/landform and language toggles. Globe holes were reproduced before the fill-depth fix and visually absent afterwards. Targeted tests23/23 and production build21pages passed. Screenshots and logs are stored separately in the local population verification artifacts.
 - Final clean-session verification also covered the India-only overlay in Focus Lens and full-map globe rendering after the depth correction; both were captured without the previously observed large land holes. A real West-African map click returned Côte d'Ivoire and its2023 population rather than Norway. Source/map selection now clears the old search-country fact panel.
 - Morph follow-up: removed the opacity cross-fade of the stationary raster base/overlay. As soon as country vertices start moving, only the opaque vector country faces and their matching moving borders remain; the identical raster fallback returns only after the geometry has fully returned to its original positions. Forward/backward local transitions were checked;23 targeted tests and the21-page build still pass.
+
+## 북아시아 극지 왜곡 수정
+
+후속 검수에서 CEA 역변환 asin(Y) 다음 Mercator 표시가 atanh(Y)를 만들어 고위도 변화를 증폭하는 문제가 확인되었다. 전체 국가에 공통으로 targetLat=atan(sinh(Y))를 사용해 평면 렌더링이 계산 평면 Y를 정확히 복원하도록 수정했다. QA도 실제 표시 평면의 Mercator 역복호화 좌표로 계산한다. 러시아만 별도로 압축하지 않아 공유 경계와 국가 간 비례를 유지한다. 세부 원문 근거는 `2026-11-19-geoweb-cartogram-north-review.md` 참조.
+
+인구 보기 활성화 시 위쪽 국가 선택과 개별 국가 비교 모드를 자동으로 켠다. 국가 선택을 끄면 전체 인구 지도 및 대륙 정보 선택으로 돌아간다. 로컬 실제 UI에서 자동 켜짐, 세 가지 뷰, 밀도 겹침을 확인했고 극지 회귀 검사 포함 21개 및 빌드를 통과했다.

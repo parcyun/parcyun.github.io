@@ -49,3 +49,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+2026-11-19 polar-display correction: equal-area solver coordinates are encoded with inverse Mercator target latitude atan(sinh(Y)). Flat Mercator rendering now recovers the original proportional solver plane, avoiding the previous asin(Y) poleward stretching. Lens/globe remain compatibility projections with non-exact screen-area ratios. All countries share the same transformation; no country-specific squashing is applied.

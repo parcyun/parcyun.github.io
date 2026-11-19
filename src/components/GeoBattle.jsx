@@ -1030,10 +1030,10 @@ export default function GeoBattle({ pools, onTarget, onOpenChange, musicControls
                     <button
                       className="gb-primary" onClick={() => room.mode==="team"?act(`rooms/${room.code}/rematch`, {}):leave()}
                     >
-                      다시 경기하기
+                      다시하기
                     </button>
                   )}
-                  {!host && room.phase === "finished" && <button className="gb-primary" onClick={leave}>다시하기</button>}
+                  {!host && room.phase === "finished" && <button onClick={leave}>대항전 나가기</button>}
                   {host&&<button className="gb-danger" onClick={() => setConfirmExit(true)}>경기 종료</button>}
                 </footer>
               </>

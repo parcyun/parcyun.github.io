@@ -538,3 +538,16 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 
 .gb-modal .gb-header-actions button{white-space:nowrap;flex:none;letter-spacing:0;padding:6px}
 @media(max-width:760px){.gb-modal>header{padding-inline:10px;gap:4px}.gb-modal header .gb-toolbar-code{padding:4px}.gb-modal .gb-header-actions{gap:0}.gb-modal .gb-header-actions button{padding:4px;font-size:11px}.gb-modal .gb-header-actions .gb-sound{font-size:8px}.gb-toolbar-code small{font-size:8px}}
+
+/* Match Spell Drill's result hierarchy, reserving leaderboard amber for the winner. */
+.gb-modal[data-phase=finished] .gb-results{padding:0;text-align:center}
+.gb-modal[data-phase=finished] .gb-winning-score{margin:0 0 8px}
+.gb-modal[data-phase=finished] .gb-winning-score strong{display:block;font:800 74px/1.2 Montserrat,sans-serif}
+.gb-modal[data-phase=finished] .gb-results h1{font-size:40px;line-height:1.2;margin:10px 0}
+.gb-modal[data-phase=finished] .gb-results>p{margin:10px 0}
+.gb-modal[data-phase=finished] .gb-final-total b{color:#f3f4f6}
+.gb-scoreboard li:not(.gb-first-place){background:#ffffff06;border-color:#ffffff24;color:#e8edf5}
+.gb-scoreboard li:not(.gb-first-place) :is(strong,b,span){color:inherit}
+.gb-scoreboard li.gb-first-place{border-color:#ffb11a88}
+@media(max-width:700px){.gb-modal[data-phase=finished] .gb-winning-score strong{font-size:56px}.gb-modal[data-phase=finished] .gb-results h1{font-size:30px}}
+@media(max-height:600px){.gb-modal[data-phase=finished] .gb-winning-score{margin:0}.gb-modal[data-phase=finished] .gb-winning-score strong{font-size:36px}.gb-modal[data-phase=finished] .gb-results h1{font-size:24px;margin:4px 0}.gb-modal[data-phase=finished] .gb-results>p{margin:3px 0}}

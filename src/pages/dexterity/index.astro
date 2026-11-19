@@ -82,7 +82,7 @@ section+section{margin-top:64px;border-top:1px solid rgba(255,255,255,.18);paddi
 .entry{transition:transform .25s ease,box-shadow .25s ease}.entry img{transition:transform .35s ease;position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .entry::after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.85))}
 h3{position:absolute;left:24px;right:24px;bottom:24px;margin:0;z-index:1;font-size:28px;font-weight:800;line-height:1.25;letter-spacing:-.04em}
-.entry[data-category="가이드북"]{border-radius:24px}.entry[data-category="가이드북"] img{object-fit:contain;background:#101114}.entry:focus-visible{outline:3px solid #FFB11A;outline-offset:5px}
+.entry[data-category="가이드북"]{border-radius:24px;border:1px solid rgba(255,255,255,.18)}.entry[data-category="가이드북"] img{object-fit:cover;object-position:center;background:#000}.entry:focus-visible{outline:3px solid #FFB11A;outline-offset:5px}
 @media(hover:hover){.entry:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(255,177,26,.14)}.entry:hover img{transform:scale(1.035)}}
 @media(prefers-reduced-motion:reduce){.entry,.entry img{transition:none}.entry:hover,.entry:hover img{transform:none}}
 @media(max-width:900px){.gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}

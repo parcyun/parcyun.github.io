@@ -31,6 +31,7 @@ function GamePicker({ value, onChange, busy }) {
   const list = useRef(null);
   const drag = useRef(null);
   const wheelIdle = useRef(null);
+  const wheelDirection = useRef(0);
   const positioned = useRef(false);
   const index = modes.findIndex(([key]) => key === value);
   function step(direction) {
@@ -50,7 +51,9 @@ function GamePicker({ value, onChange, busy }) {
     function handleWheel(event) {
       if (!event.deltaY || event.ctrlKey) return;
       event.preventDefault();
-      const first = wheelIdle.current === null;
+      const direction=Math.sign(event.deltaY);
+      const first = wheelIdle.current === null || direction !== wheelDirection.current;
+      wheelDirection.current=direction;
       clearTimeout(wheelIdle.current);
       wheelIdle.current = setTimeout(() => { wheelIdle.current = null; }, 180);
       if (first) step(Math.sign(event.deltaY));

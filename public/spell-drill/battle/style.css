@@ -73,3 +73,5 @@ body:has(#battle-launch):has(#home.active) .stage{padding-top:74px}body:has(#pla
 #battle-body[data-phase=playing]>.battle-lobby-actions,.battle-result-actions:has(#battle-end){justify-content:center}
 
 #battle-launch .battle-spinner{display:inline-block;width:14px;height:14px;border-width:2px;vertical-align:middle;margin-right:8px}#battle-launch:disabled{cursor:default;opacity:.7}
+
+#battle-toolbar-code[hidden]{display:none!important}

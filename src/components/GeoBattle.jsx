@@ -244,7 +244,8 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
       if (!window.psBattleIdentity) {
         await new Promise((resolve) => setTimeout(resolve, 250));
       }
-      const identity = await window.psBattleIdentity?.();
+      if(!window.psBattleIdentity)throw Error('계정 서버 연결을 준비하지 못했어요. 다시 시도해 주세요.');
+      const identity = await window.psBattleIdentity();
       if (!identity) {
         setGate("unauthenticated");
         return;

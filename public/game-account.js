@@ -87,6 +87,7 @@ schoolBody.querySelector('input').oninput=()=>{clearTimeout(schoolTimer);schoolT
 schoolBody.querySelector('select').onchange=findSchools;
 schoolDialog.addEventListener('close',()=>{clearTimeout(schoolTimer);schoolAbort?.abort();schoolRequest++;});
 style.textContent+='.ps-account-dialog .ps-local-start{width:100%;min-height:44px;padding:12px;border:1px solid #ffb11a66;border-radius:12px;background:#ffb11a12;color:#ffcf78;cursor:pointer}.ps-device-note{padding:12px;border:1px solid #ffb11a44;border-radius:12px;background:#ffb11a0c;line-height:1.7}.ps-account-dialog #ps-school{cursor:pointer}.ps-selected-school{display:flex;align-items:center;gap:12px;margin-top:10px;padding:12px;border:1px solid #ffffff24;border-radius:12px}.ps-selected-school[hidden]{display:none}.ps-selected-school img{width:36px;height:36px;object-fit:contain;border-radius:8px;flex:none}.ps-selected-school span{flex:1;min-width:0;overflow-wrap:anywhere;font-size:13px;color:#fff}.ps-selected-school button,.ps-school-query-row button{flex:none;min-height:40px;border:1px solid #ffb11a55;border-radius:10px;background:#ffb11a12;color:#ffcf78;padding:8px 12px;cursor:pointer}.ps-school-dialog{width:min(560px,calc(100vw - 32px))}.ps-school-query-row{display:flex;gap:8px;align-items:center}.ps-school-query-row input{min-width:0;flex:1}.ps-school-query-row button{margin-top:5px}.ps-school-search select{box-sizing:border-box;width:100%;padding:10px;margin-top:5px;border:1px solid #ffffff30;border-radius:10px;background:#080a0f;color:#fff;font:inherit}.ps-school-results{display:grid;gap:8px;max-height:42dvh;overflow:auto;overscroll-behavior:contain;margin-bottom:16px}.ps-school-results button{padding:14px;text-align:left;border:1px solid #ffffff24;border-radius:12px;background:#171c24;color:#fff;cursor:pointer}.ps-school-results button:hover{border-color:#ffb11a}.ps-school-results b,.ps-school-results span{display:block}.ps-school-results b{font-size:14px}.ps-school-results span{margin-top:4px;font-size:12px;line-height:1.6;color:#aeb5c3}.ps-school-status{font-size:12px;color:#ffcf78;line-height:1.7}';
+let accountReady=false,authGeneration=0;
 let sdk, sdkPromise, user = null, profile = {}, photo = '', trigger;
 function message(text) { const node = body.querySelector('.ps-message'); if (node) node.textContent = text; }
 async function loadSdk() {
@@ -100,13 +101,19 @@ async function loadSdk() {
     sdk = { authApi: auth, dbApi: db, auth: auth.getAuth(firebase), db: db.getFirestore(firebase) };
     await auth.setPersistence(sdk.auth, auth.browserLocalPersistence);
     auth.onAuthStateChanged(sdk.auth, async value => {
+      const generation=++authGeneration;
+      accountReady=false;
       const keepGuestDraft=(!user||user.isAnonymous)&&(!value||value.isAnonymous)&&account.open&&!!body.querySelector('#ps-save-profile');
       user = value;if(!keepGuestDraft){profile = {}; photo = '';}
-      if (user&&!user.isAnonymous) {
-        try { const snap = await db.getDoc(db.doc(sdk.db, 'profiles', user.uid)); profile = snap.exists() ? snap.data() : {}; }
-        catch { profile = {}; }
+      renderTrigger();if(account.open&&!keepGuestDraft)renderAccount();
+      let loadedProfile={};
+      if (value&&!value.isAnonymous) {
+        try { const snap = await db.getDoc(db.doc(sdk.db, 'profiles', value.uid)); loadedProfile = snap.exists() ? snap.data() : {}; }
+        catch { loadedProfile = {}; }
       }
-      if(!user||user.isAnonymous)profile=localProfiles.current()||{};
+      if(generation!==authGeneration||sdk.auth.currentUser?.uid!==value?.uid)return;
+      profile=value&&!value.isAnonymous?loadedProfile:localProfiles.current()||{};
+      accountReady=true;
       if(!keepGuestDraft)renderAccount(); renderTrigger();
     });
     return sdk;
@@ -116,6 +123,7 @@ async function loadSdk() {
 function renderTrigger() {
   if (!trigger) return;
   trigger.replaceChildren();
+  if(!accountReady){trigger.innerHTML='<span class="ps-auth-spinner" aria-hidden="true"></span>';trigger.setAttribute('aria-label','계정 정보 확인 중');return;}
   if ((user&&!user.isAnonymous)||localProfiles.current()) { const img = document.createElement('img'); img.src = profile.photo || user?.photoURL || MASCOT; img.alt = ''; img.referrerPolicy = 'no-referrer'; trigger.append(img); }
   else trigger.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg>';
   trigger.setAttribute('aria-label', (user&&!user.isAnonymous)||localProfiles.current() ? '내 프로필 열기' : '로그인 및 내 프로필 만들기');
@@ -127,6 +135,7 @@ function randomNickname() {
   return first[Math.floor(Math.random() * first.length)] + second[Math.floor(Math.random() * second.length)];
 }
 function renderAccount() {
+  if(!accountReady){body.innerHTML='<div role="status"><span class="ps-auth-spinner"></span> 계정 정보 확인 중</div><button class="ps-primary" disabled>로그인 또는 브라우저 계정 만들기</button>';return;}
   if ((!user||user.isAnonymous)&&!localProfiles.current()&&!creatingLocal) {
     body.innerHTML = '<p>Google 계정으로 로그인하면 별명과 프로필을 다른 기기에서도 사용할 수 있어요.</p><p class="ps-muted">개인 기록은 브라우저에 저장돼요. 스펠 드릴에서 기록 제출을 누르면 별명과 최고 기록이 전체 랭킹에 공개돼요. 게임은 로그인 없이도 이용할 수 있어요.</p><button type="button" class="ps-primary" id="ps-google-login">Google 계정으로 로그인</button><button type="button" class="ps-local-start" id="ps-local-start">회원가입 없이 내 프로필 만들기</button><p class="ps-muted">브라우저 프로필은 현재 기기·브라우저에서만 확인할 수 있어요. 프로필을 만든 뒤 랭킹에 기록을 제출할 수 있어요.</p><p class="ps-message" role="status"></p>' + legalLinks() + `
       <p class="ps-school-note">학교 학생 계정은 기관 설정에 따라 Google 로그인에 관리자 승인이 필요할 수 있어요.</p>
@@ -222,3 +231,5 @@ style.textContent+='.ps-school-results button{display:flex;align-items:center;ga
 style.textContent+='.ps-school-mark-request{border-top:1px solid #ffffff24;margin-top:16px;padding-top:12px}.ps-school-mark-request summary{color:#ffcf78;cursor:pointer;font-weight:600;padding:6px 0}.ps-school-mark-request select{box-sizing:border-box;width:100%;padding:10px;margin-top:5px;border:1px solid #ffffff30;border-radius:10px;background:#080a0f;color:#fff;font:inherit}.ps-mark-preview{display:block;width:96px;height:96px;object-fit:contain;background:#fff;border-radius:12px;margin:12px 0}.ps-mark-preview[hidden]{display:none}.ps-account-dialog .ps-mark-consent{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.7}.ps-mark-consent input{flex:none;margin-top:5px}.ps-mark-message{font-size:12px;line-height:1.7;color:#ffcf78}.ps-school-mark-request .ps-primary{margin-top:12px}';
 
 window.psBattleIdentity=async()=>{const local=localProfiles.current();const isLocal=['localhost','127.0.0.1'].includes(location.hostname)||location.port==='47820';if(isLocal&&local&&(!user||user.isAnonymous))return {kind:'browser',name:local.nickname,version:local.version,photo:local.photo||''};const s=await ensureBrowserIdentity();await s.auth.authStateReady();const u=s.auth.currentUser;if(!u)return null;if(u.isAnonymous){if(!local)return null;return {kind:'browser',name:local.nickname,version:local.version,photo:local.photo||'',idToken:await u.getIdToken()};}const snap=await s.dbApi.getDoc(s.dbApi.doc(s.db,'profiles',u.uid)),p=snap.exists()?snap.data():{};return {kind:'google',name:p.nickname||u.displayName,photo:p.photo||u.photoURL||'',idToken:await u.getIdToken()};};
+
+style.textContent+='.ps-auth-spinner{display:inline-block;width:18px;height:18px;border:2px solid #ffffff30;border-top-color:#ffb11a;border-radius:50%;animation:ps-auth-spin .7s linear infinite}@keyframes ps-auth-spin{to{transform:rotate(360deg)}}';

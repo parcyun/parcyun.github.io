@@ -567,3 +567,11 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 .gb-modal .gb-board-team li,.gb-modal .gb-board-team li.gb-first-place{min-height:0;height:100%;align-content:stretch;overflow:hidden}
 .gb-board-team .gb-team-scores{min-height:0;max-height:100%;overflow:auto;overscroll-behavior:contain}
 .gb-modal[data-phase=finished] .gb-board-team li,.gb-modal[data-phase=finished] .gb-board-team li.gb-first-place{min-height:0;height:100%}
+
+/* Constrain the host board before dividing its rows; only member lists scroll. */
+.gb-modal[data-phase=playing] .gb-screen{display:flex;flex-direction:column;overflow:hidden}
+.gb-modal .gb-board-team ol{height:0;flex:1;overflow:hidden}
+.gb-modal .gb-board-team li{grid-template-rows:auto minmax(0,1fr)}
+.gb-modal .gb-board-team .gb-team-scores{align-content:start;overflow:auto;min-height:0}
+.gb-modal[data-phase=finished] .gb-board-team li{grid-template-rows:minmax(0,1fr)}
+@media(max-width:700px){.gb-modal[data-phase=finished] .gb-board-team li{grid-template-rows:auto minmax(0,1fr)}}

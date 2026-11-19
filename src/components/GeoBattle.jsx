@@ -414,15 +414,12 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
     const host = room.me === room.host;
     try {
       await act(`rooms/${room.code}/${host ? "end" : "leave"}`, {});
-      if (host && room.phase !== "lobby") {
-        await load(room.code);
-      } else {
-        setRoom(null);
-        setEntry(null);
-        roomRef.current = null;
-        sessionStorage.removeItem(roomKey);
-        clearInviteCode();
-      }
+      setRoom(null);
+      setEntry(null);
+      roomRef.current = null;
+      sessionStorage.removeItem(roomKey);
+      clearInviteCode();
+      window.psGameQr?.closeInvitation();
     } catch {}
   }
   const expertDeadline = room?.settings.level === "expert" && room?.question?.startedAt != null
@@ -997,9 +994,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                       다시 경기하기
                     </button>
                   )}
-                  <button className={host ? "gb-danger" : undefined} onClick={() => setConfirmExit(true)}>
-                    {host ? "경기 종료" : "방 나가기"}
-                  </button>
+                  {host&&<button className="gb-danger" onClick={() => setConfirmExit(true)}>경기 종료</button>}
                 </footer>
               </>
             )}

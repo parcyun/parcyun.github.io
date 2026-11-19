@@ -70,3 +70,4 @@ body:has(#battle-launch):has(#home.active) .stage{padding-top:74px}body:has(#pla
 .battle-setting-stepper input{width:58px!important;text-align:center;cursor:default}.battle-setting-stepper input[name=difficulty]{width:58px!important}
 
 .battle-checking{text-align:center;display:grid;justify-items:center;gap:12px;padding-top:8vh}.battle-spinner{width:44px;height:44px;border:3px solid #ffb11a40;border-top-color:#ffb11a;border-radius:50%;animation:battle-spin .8s linear infinite}@keyframes battle-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.battle-spinner{animation-duration:2s}}
+#battle-body[data-phase=playing]>.battle-lobby-actions,.battle-result-actions:has(#battle-end){justify-content:center}

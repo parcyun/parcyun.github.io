@@ -511,3 +511,6 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 .gb-answer-tools{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px;color:white;font-size:12px}
 .gb-answer-tools button{border:0;background:none;color:#ff685d;font-weight:800;cursor:pointer}
 .gb-team-scores img{width:32px;height:32px;border-radius:50%;object-fit:cover}
+
+.gb-screen > footer{justify-content:center}
+.gb-screen > footer:empty{display:none}

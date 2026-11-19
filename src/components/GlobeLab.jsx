@@ -848,7 +848,7 @@ export default function GlobeLab(){
           camera.position.lerpVectors(nuAnim.fromPos,nuAnim.toPos,k);camera.up.set(0,1,0);camera.lookAt(nuAnim.tgt);
           if(nuAnim.t>=1){nuAnim=null;if(S.current.view==='globe')controls.enabled=true;} }
         const fade=motionPreference.matches?1:1-Math.exp(-dt*12);
-        const targets={grat:st.grat&&!st.population,eq:st.eq&&!st.population,pm:st.prime,dl:st.dateline&&!st.population};
+        const targets={grat:st.grat&&!st.population,eq:st.eq&&!st.population,pm:st.prime&&!st.population,dl:st.dateline&&!st.population};
         for(const key of Object.keys(gridFade))gridFade[key]+=(Number(targets[key])-gridFade[key])*fade;
         setGridVis();
         u.dayNightOn.value+=(Number(st.dayNight)-u.dayNightOn.value)*fade;
@@ -954,7 +954,7 @@ export default function GlobeLab(){
         <div className="panel-body">
         <div className="grid-spacing-row"><label className="tg"><input type="checkbox" checked={grat&&!population} disabled={population} onChange={e=>setGrat(e.target.checked)} /><span>{T.grat}</span></label><div className="step"><span>{T.interval}</span><input aria-label={T.interval} disabled={population} type="number" min="5" max="90" step="5" value={step} onChange={e=>setStep(e.target.value)} /><span>°</span></div></div>
         <label className="tg"><input type="checkbox" checked={eq&&!population} disabled={population} onChange={e=>setEq(e.target.checked)} /><span>{T.equator}</span></label>
-        <label className="tg"><input type="checkbox" checked={prime} onChange={e=>setPrime(e.target.checked)} /><span>{T.prime}</span></label>
+        <label className="tg"><input type="checkbox" checked={prime&&!population} disabled={population} onChange={e=>setPrime(e.target.checked)} /><span>{T.prime}</span></label>
         <label className="tg"><input type="checkbox" checked={dateline&&!population} disabled={population} onChange={e=>setDateline(e.target.checked)} /><span>{T.dateline}</span></label>
         <label className="tg tg-sep"><input type="checkbox" checked={country} onChange={e=>{setCountry(e.target.checked);setPopulationCompare(false);setSel(current=>e.target.checked&&current?.name?{type:'country',name:current.name,key:current.key}:!e.target.checked&&current?.type==='country'?{type:'continent',key:current.key,name:current.name}:null);setSelectedCountry(null);setSearchQuery('');}} /><span>{T.pickCountry}</span></label>
         <label className="tg"><input type="checkbox" checked={trueSize} disabled={population||density} onChange={e=>setTrueSize(e.target.checked)} /><span>{T.trueSize}<button className="ts-info-btn" onClick={e=>{e.preventDefault();setTsInfo(v=>!v);}} title={T.tsTitle}>!</button></span></label>
@@ -1223,7 +1223,7 @@ export default function GlobeLab(){
         .terrain-key input{position:absolute;opacity:0;pointer-events:none}.terrain-key>span{width:12px;height:9px;border:1px solid rgba(255,255,255,.26);border-radius:3px;opacity:.42;flex:none;transition:opacity .16s,box-shadow .16s}.terrain-key.on{color:#E9ECF1}.terrain-key.on>span{opacity:1;box-shadow:0 0 0 2px rgba(255,255,255,.08)}
         .terrain-legend p{margin:8px 0 0;color:#777F8D;font-size:9px;line-height:1.45;word-break:keep-all}.terrain-legend p a{color:#AEB5C2;text-decoration:underline;text-decoration-color:rgba(174,181,194,.38);text-underline-offset:2px}
         .grid-spacing-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.grid-spacing-row>.tg{white-space:nowrap}.grid-panel .step{display:flex;align-items:center;gap:4px}.grid-panel .step>span:first-child{display:none}
-        .grid-panel .step span{font-size:12px;color:var(--text-2);font-weight:300}
+        .grid-panel .step input:disabled{opacity:.35;cursor:not-allowed}.grid-panel .step span{font-size:12px;color:var(--text-2);font-weight:300}
         .grid-panel .step input[type=number]{width:40px;background:var(--surface-1);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font-en);font-size:12px;padding:4px 6px;text-align:center}
         .daynight-ctl{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:28;display:flex;align-items:center;gap:12px;padding:9px 16px;background:rgba(16,19,25,.82);backdrop-filter:blur(14px);border:1px solid rgba(255,177,26,.22);border-radius:100px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
         .dn-btn{width:28px;height:26px;border:1px solid var(--border);border-radius:8px;background:var(--surface-1);color:var(--text-2);cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;transition:all .16s var(--ease);flex-shrink:0}

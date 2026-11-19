@@ -1,10 +1,10 @@
 import {createOfflineBattle} from '../../public/battle-offline.js';
 import {createJoinNotice} from "../../public/battle-join-notice.js";
-import GeoAnswerArea from "./GeoAnswerArea.jsx";
+import GeoGamePlay from "./GeoGamePlay.jsx";
+import {GAME_MODES} from "./geoGameData.js";
 import { createPortal } from "react-dom";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import "./geoBattle.css";
-import GeoScoreEffect from "./GeoScoreEffect.jsx";
 import { watchGameFocus } from "../../public/game-focus-guard.js";
 
 import { difficultyOptions, EXPERT_ANSWER_MS } from "./geoGameDifficulty.js";
@@ -173,7 +173,7 @@ function BattleResult({room,host}) {
   </section>;
 }
 
-export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
+export default function GeoBattle({ pools, onTarget, onOpenChange, musicControls }) {
   const [open, setOpen] = useState(false),
     [gate, setGate] = useState("checking"),
     [error, setError] = useState(""),
@@ -188,6 +188,9 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
     [focusPaused, setFocusPaused] = useState(false),
     [feedback, setFeedback] = useState(""),
     [scoreEffect, setScoreEffect] = useState(null),
+    [skipEffect,setSkipEffect]=useState(null),
+    [formula,setFormula]=useState(false),
+    [media,setMedia]=useState({}),
     [clock, setClock] = useState(Date.now()),
     [confirmExit, setConfirmExit] = useState(false),
     [managed, setManaged] = useState(null),
@@ -306,13 +309,14 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
     const previous = roomRef.current;
     const next = await api(`rooms/${value}`);
     if (roomRef.current !== previous) return next;
-    if (next.dailyClosed) {
+    if (next.dailyClosed || next.phase === "cancelled") {
       roomRef.current = null;
       setRoom(null);
       setEntry(null);
       sessionStorage.removeItem(roomKey);
       clearInviteCode();
-      await close();
+      setError("");setScoreEffect(null);setSkipEffect(null);window.psGameQr?.closeInvitation();
+      if(next.dailyClosed)await close();
       return next;
     }
     if (previous?.settings.level === "expert" &&
@@ -440,6 +444,16 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
   const shownSeconds = expertExpired && shownQuestion
     ? Math.ceil((shownQuestion.startedAt + EXPERT_ANSWER_MS - clock - serverOffset.current) / 1000)
     : expertSeconds;
+  const game = room?.settings.difficulty ?? "country";
+  const questionKey=`${room?.code}-${room?.round}-${shownQuestion?.index}`;
+  const playQuestion=useMemo(()=>shownQuestion?(pools[game]?.find(item=>item.id===shownQuestion.id)||{...shownQuestion,name:shownQuestion.cue,photos:shownQuestion.image?[shownQuestion]:[]}):null,[pools,game,shownQuestion?.id]);
+  const playConfig=GAME_MODES.find(item=>item.id===game);
+  const playTier=room?.settings.level==='expert'?'hard':room?.settings.level||playConfig?.tier||'easy';
+  const mediaReady=media.key===questionKey&&media.ready,mediaError=media.key===questionKey&&media.error;
+  useEffect(()=>{setAnswer("");},[questionKey]);
+  useEffect(()=>{if(!skipEffect)return;const timer=setTimeout(()=>setSkipEffect(null),1400);return()=>clearTimeout(timer);},[skipEffect]);
+  async function skipQuestion(){if(room.stats?.passesRemaining<=0)return;const name=playQuestion?.name;await act(`rooms/${room.code}/pass`,{index:shownQuestion.index});setScoreEffect(null);setSkipEffect({skipped:true,text:name,id:performance.now()});setAnswer("");}
+  useEffect(()=>{if(!scoreEffect)return;const timer=setTimeout(()=>setScoreEffect(null),2200);return()=>clearTimeout(timer);},[scoreEffect]);
   useEffect(() => {
     if (!room?.nextQuestion?.image) return;
     const image = new Image();
@@ -450,12 +464,13 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
     e.preventDefault();
     if (focusPaused || !answer.trim() || !shownQuestion || (shownSeconds != null && shownSeconds <= 0)) return;
     try {
+      setSkipEffect(null);
       const result = await act(`rooms/${room.code}/answer`, {
         answer,
         index: shownQuestion.index,
       });
       window.psGameSfx?.answer(result.correct,undefined,result.details?.speedTag);
-      if (result.correct && result.details) setScoreEffect({ ...result.details, id: performance.now() });
+      setScoreEffect(result.correct && result.details?{ ...result.details, id: performance.now() }:null);
       setFeedback(
         result.correct ? `정답! +${result.points}점` : "다시 생각해 보세요.",
       );
@@ -496,11 +511,6 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
       window.removeEventListener("online", on);
     };
   }, [open]);
-  useLayoutEffect(() => {
-    if (!shownQuestion) return;
-    onTarget?.({ id: shownQuestion.id, coordinates: shownQuestion.coordinates, mode: shownQuestion.mode },
-      shownQuestion.mode, room.settings.level ?? "easy");
-  }, [shownQuestion?.id, shownQuestion?.index, room?.round]);
   useEffect(() => {
     if (!open || focusPaused || expertDeadline == null) return;
     let timeout;
@@ -587,7 +597,6 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
       },
     });
   }, [focusGuardActive, room?.code]);
-  const game = room?.settings.difficulty ?? "country";
   const levels = difficultyOptions(game);
   const levelIndex = Math.max(0, levels.findIndex(item => item.id === (room?.settings.level ?? "easy")));
   useEffect(()=>{
@@ -624,6 +633,15 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
     teamPositions.current = positions;
   });
 
+  useEffect(() => {
+    if (!open) return;
+    const viewport = window.visualViewport;
+    const resize = () => backdrop.current?.style.setProperty('--geo-keyboard-inset', `${viewport ? Math.max(0, innerHeight - viewport.height - viewport.offsetTop) : 0}px`);
+    resize();
+    viewport?.addEventListener('resize', resize);
+    return () => viewport?.removeEventListener('resize', resize);
+  }, [open]);
+
   return (
     <>
       {!open && (
@@ -658,7 +676,6 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
               </div>
             </header>
             {room?.phase === "playing" && !host && <h2 className="gb-game-title">{modes.find(([key])=>key===game)?.[1]}</h2>}
-            {room?.phase === "playing" && scoreEffect && !host && <GeoScoreEffect key={scoreEffect.id} gain={scoreEffect} combo={scoreEffect.combo} />}
             <main ref={screen} className="gb-screen">
             {gate === "checking" ? (
               <div className="gb-center" role="status">
@@ -931,13 +948,14 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                 ) : room.phase === "playing" && room.waiting ? (
                   <div className="gb-center"><h2>다음 라운드부터 함께해요</h2></div>
                 ) : room.phase === "playing" && !host ? createPortal(
-                  <div className="geo-game gg-playing gb-game-surface gb-question" data-question-index={shownQuestion?.index}>
-                    {shownSeconds>0&&<div className="gg-expert-countdown" role="timer"><span key={shownSeconds} style={{"--gg-clock-color":["","#ff263b","#ff514d","#ff7844","#ff9638","#ffb11a"][shownSeconds]}}>{shownSeconds}</span></div>}
-                    {shownQuestion?.image&&<figure className={`gg-media ${game==="flag"?"gg-flag":game==="landmark"?"gg-landmark":"gg-nature"}`}><img src={shownQuestion.image} alt="문제 이미지"/></figure>}
-                    {shownQuestion?.cue&&<aside className="gg-country"><h2>{shownQuestion.cue}</h2></aside>}
-                    <div className="gg-right-cards"><div className="gg-hud"><div className="gg-score"><span>SCORE</span><strong>{(room.players.find(p=>p.id===room.me)?.score||0).toLocaleString()}</strong></div><div className="gg-combo"><span>COMBO</span><strong>{room.stats?.combo||0}</strong></div></div></div>
-                    <GeoAnswerArea tools={<div className="gb-answer-tools"><button type="button" disabled={busy||shownQuestion?.hintUsed} onClick={()=>act(`rooms/${room.code}/hint`,{index:shownQuestion.index})}>HINT</button>{shownQuestion?.hintUsed&&<span>{shownQuestion.hint}</span>}<span>PASS · {room.stats?.passesRemaining||0}</span></div>} practice={false} result={feedback?{text:feedback}:null} mode={game} config={{prompt:shownQuestion?.prompt,label:"정답"}} submit={submit} input={answerInput} answer={answer} setAnswer={setAnswer} composing={answerComposing}
-                      skip={()=>{if(room.stats?.passesRemaining>0)act(`rooms/${room.code}/pass`,{index:shownQuestion.index});}} busy={busy} mediaError={false} summary={false}/>
+                  <div className={`geo-game gg-playing gb-game-surface ${game==='flag'?'geo-game-flags':''} ${room.settings.level==='expert'?'gg-expert':''}`} data-question-index={shownQuestion?.index}>
+                    <GeoGamePlay question={playQuestion} questionKey={questionKey} mode={game} expert={room.settings.level==='expert'} countdown={shownSeconds} onTarget={onTarget}
+                      config={playConfig} tier={playTier} stats={{score:me?.score||0,combo:room.stats?.combo||0}} elapsed={Math.max(0,room.settings.seconds-countdown)} formula={formula} setFormula={setFormula}
+                      result={skipEffect|| (scoreEffect?{gain:scoreEffect,combo:scoreEffect.combo,id:scoreEffect.id}:feedback?{text:feedback}:null)}
+                      mediaReady={mediaReady} mediaError={mediaError} mediaLoaded={()=>setMedia({key:questionKey,ready:true})} mediaFailed={()=>setMedia({key:questionKey,error:true})}
+                      tools={<div className="gb-answer-tools"><button type="button" disabled={busy||shownQuestion?.hintUsed} onClick={()=>act(`rooms/${room.code}/hint`,{index:shownQuestion.index})}>HINT</button>{shownQuestion?.hintUsed&&<span>{shownQuestion.hint}</span>}<span>PASS · {room.stats?.passesRemaining||0}</span></div>}
+                      submit={submit} input={answerInput} answer={answer} setAnswer={setAnswer} composing={answerComposing}
+                      skip={skipQuestion} busy={busy}/>
                   </div>,backdrop.current
                 ) : host && room.phase === "playing" ? null : (
                   ["finished","between"].includes(room.phase)?<BattleResult room={room} host={host}/>:<div className="gb-center">
@@ -991,7 +1009,7 @@ export default function GeoBattle({ onTarget, onOpenChange, musicControls }) {
                     <div className="gb-confirm">
                     <small>{host ? "END BATTLE" : "LEAVE BATTLE"}</small>
                     <h2>{host ? "경기를 종료할까요?" : "방을 나갈까요?"}</h2>
-                    <p>{host && room.phase !== "lobby" ? "현재까지 획득한 점수로 최종 순위를 표시합니다." : host ? "모든 참여자의 대항전이 종료됩니다." : "게임 코드로 다시 참여할 수 있어요."}</p>
+                    <p>{host ? "방을 종료하고 모든 참여자를 대항전 처음으로 돌려보냅니다." : "게임 코드로 다시 참여할 수 있어요."}</p>
                     <button onClick={async event => {
                       await dismiss(event.currentTarget.closest(".gb-confirm"));
                       setConfirmExit(false);

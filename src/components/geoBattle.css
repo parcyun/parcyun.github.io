@@ -523,3 +523,18 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 @media(max-height:600px){.gb-winning-score strong{font-size:38px}.gb-results h1{font-size:24px;margin:6px 0}.gb-results>p{margin:6px 0}.gb-modal[data-phase=between] .gb-clock strong{font-size:40px}}
 
 .gb-header-actions button{font-size:12px;font-weight:600}.gb-header-actions button[aria-label="대항전 닫기"]{font-size:24px}.gb-header-actions .gb-sound{font-size:9px}
+
+/* The round bar is battle chrome; the play surface below uses the solo game unchanged. */
+.gb-map-round .gb-modal{z-index:2}.gb-map-round>.gb-game-surface{z-index:1}
+.gb-map-round .gb-clock{top:94px;left:50%;right:auto;transform:translateX(-50%);margin:0}
+.gb-map-round .gb-clock strong{font-size:clamp(40px,5vw,64px)}
+.gb-game-title{left:24px;top:98px;transform:none;max-width:36vw;font-size:clamp(16px,2.4vw,28px);text-align:left}
+.gb-game-surface .gg-right-cards{top:98px}
+.gb-game-surface .gg-expert-countdown{top:170px}
+@media(max-width:760px){.gb-game-title{left:16px;top:84px;font-size:16px;max-width:36vw}.gb-map-round .gb-clock{top:82px}.gb-map-round .gb-clock strong{font-size:40px}}
+@media(max-width:760px){body .geo-game.gb-game-surface .gg-right-cards{top:152px}body .geo-game.gb-game-surface.gg-expert .gg-right-cards{top:220px}.gb-game-surface .gg-expert-countdown{top:138px}}
+
+.gb-game-surface{font-family:'Pretendard Variable','Pretendard',system-ui,sans-serif}.gb-game-surface button,.gb-game-surface input{font-family:inherit}.gb-game-surface .gb-answer-tools button{background:none;border:0;color:#ff685d;padding:4px 8px;font-weight:800}.gb-modal .gb-header-actions button{font-size:12px}.gb-modal .gb-header-actions button[aria-label="대항전 닫기"]{font-size:24px}.gb-modal .gb-header-actions .gb-sound{font-size:9px}
+
+.gb-modal .gb-header-actions button{white-space:nowrap;flex:none;letter-spacing:0;padding:6px}
+@media(max-width:760px){.gb-modal>header{padding-inline:10px;gap:4px}.gb-modal header .gb-toolbar-code{padding:4px}.gb-modal .gb-header-actions{gap:0}.gb-modal .gb-header-actions button{padding:4px;font-size:11px}.gb-modal .gb-header-actions .gb-sound{font-size:8px}.gb-toolbar-code small{font-size:8px}}

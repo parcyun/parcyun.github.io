@@ -1,13 +1,11 @@
-import GeoAnswerArea from "./GeoAnswerArea.jsx";
+import GeoGamePlay from "./GeoGamePlay.jsx";
 import {savePendingRecord} from './geoPendingRecords.js';
 import {watchGameFocus} from '../../public/game-focus-guard.js';
 import { useEffect, useRef, useState } from 'react';
-import { GAME_MODES, matchesAnswer, scoreAnswer, scoring, shuffledDeck, contentDeck } from './geoGameData.js';
+import { GAME_MODES, matchesAnswer, scoreAnswer, shuffledDeck, contentDeck } from './geoGameData.js';
 import './geoGame.css';
 import { EXPERT_ANSWER_MS, DIFFICULTIES, difficultyDeck, difficultyLabel, hasCountryDifficulty, gameRecordKey,hasGameDifficulty,hasContentDifficulty,difficultyOptions } from './geoGameDifficulty.js';
 import GeoRanking from './GeoRanking.jsx';
-import GeoPhotoCarousel from './GeoPhotoCarousel.jsx';
-import GeoScoreEffect from './GeoScoreEffect.jsx';
 import GeoBattle from './GeoBattle.jsx';
 import { RECORD_KEY, readRecords, updateRecord, formatTime } from './geoGameRecords.js';
 
@@ -18,7 +16,7 @@ export default function GeoGame({ musicControls, pools, onTarget, onExit, onFini
   const [practice,setPractice]=useState(false);
   const [playing,setPlaying]=useState(false);
   const [battleOpen,setBattleOpen]=useState(false);
-  const [question,setQuestion]=useState(null);
+  const [question,setQuestion]=useState(null),[questionSequence,setQuestionSequence]=useState(0);
   const [answer,setAnswer]=useState('');
   const [busy,setBusy]=useState(true);
   const [result,setResult]=useState(null);
@@ -73,8 +71,7 @@ export default function GeoGame({ musicControls, pools, onTarget, onExit, onFini
     const pool=pools[activeMode];
     if(!deck.current.length)deck.current=hasCountryDifficulty(activeMode)?difficultyDeck(pool,difficulty,current.current?.id):hasContentDifficulty(activeMode)?contentDeck(pool,difficulty,current.current):shuffledDeck(pool,current.current?.id);
     const next=deck.current.shift();current.current=next;
-    locked.current=true;setBusy(true);setLeaving(false);setAnswer('');setMediaError(false);setMediaReady(false);setQuestion(next);
-    onTarget(next,activeMode);
+    locked.current=true;setBusy(true);setLeaving(false);setAnswer('');setMediaError(false);setMediaReady(false);setQuestion(next);setQuestionSequence(value=>value+1);
     const token=serial.current;
     if(!['flag','landmark','nature'].includes(activeMode)||(activeMode==='nature'&&!next.image))later(()=>{if(serial.current===token)ready();},reduced()?60:850);
   }
@@ -166,8 +163,7 @@ export default function GeoGame({ musicControls, pools, onTarget, onExit, onFini
   function finish(){cancelPending();locked.current=true;onFinish?.(mode);if(practice){returnToMenu();return;}setSummary(true);}
   function returnToMenu(){const complete=()=>{setSummary(false);setPlaying(false);setQuestion(null);setResult(null);setFormula(false);later(()=>document.querySelector('.gg-menu nav button')?.focus(),0);};if(summary)window.psModalMotion.exit(document.querySelector('.gg-summary'),complete);else complete();}
   return <section className={`geo-game ${playing?'gg-playing':''} ${playing&&mode==='flag'?'geo-game-flags':''} ${expert?'gg-expert':''} ${battleOpen?'gg-battle-open':''}`} aria-label="지오웹 게임 모드">
-    {!playing&&<GeoBattle musicControls={musicControls} onOpenChange={setBattleOpen} onTarget={(target,battleMode)=>{const match=pools[battleMode]?.find(item=>item.id===target.id);if(match)onTarget(match,battleMode);}}/>}
-    {playing&&mode==='flag'&&<div className="geo-game-blur"/>}
+    {!playing&&<GeoBattle musicControls={musicControls} onOpenChange={setBattleOpen} pools={pools} onTarget={onTarget}/>}
     <aside className="gg-menu" inert={playing||battleOpen||undefined} aria-hidden={playing||battleOpen}>
       <div className="gg-eyebrow">GEOWEB / PLAY</div><h1>지구 한 바퀴</h1>
       <button type="button" className="gg-practice-toggle" aria-pressed={practice} onClick={()=>setPractice(v=>!v)}>{practice?'연습 모드 켜짐':'연습 모드'}</button>
@@ -186,23 +182,7 @@ export default function GeoGame({ musicControls, pools, onTarget, onExit, onFini
     {rankingOpen&&<GeoRanking initialMode={mode} initialDifficulty={difficulty} onClose={closeRanking}/>}
     {!playing&&!summary&&<button className="gg-mode-exit" onClick={onExit}>게임모드 종료 ↗</button>}
     {playing&&<><header className="gg-play-title"><span>{expert?'GEOWEB · 전문가':`GEOWEB PLAY · ${hasCountryDifficulty(mode)?'국가 출제 ':''}${difficultyLabel(tier)}`}</span><h1>{config.title}</h1><button type="button" className="gg-practice-toggle" aria-pressed={practice} onClick={()=>{setPractice(v=>!v);setSummary(false);}}>연습 모드 {practice?'켜짐':'꺼짐'}</button></header>
-    {expert&&!practice&&!summary&&!busy&&countdown>0&&<div className="gg-expert-countdown" role="timer" aria-label={`${countdown}초 남음`}><span key={`${question.id}-${countdown}`} style={{'--gg-clock-color':['','#ff263b','#ff514d','#ff7844','#ff9638','#ffb11a'][countdown]}}>{countdown}</span></div>}
-    {!practice&&!summary&&result?.gain&&<GeoScoreEffect key={result.id} gain={result.gain} combo={result.combo}/>}
-    {!practice&&!summary&&result?.skipped&&<div key={result.id} className="gg-skip-answer" role="status">{result.text}</div>}
-    <button className="gg-finish" disabled={summary} onClick={finish}>게임 마치기</button>
-    {!practice&&<div className="gg-right-cards"><div className="gg-hud">
-      <button className="gg-score" disabled={summary} onClick={()=>setFormula(v=>!v)} aria-expanded={formula} aria-controls="gg-formula"><span>SCORE ⓘ <small>{({easy:'초급',med:'중급',hard:'고급'})[tier]} · 기본 {scoring.baseScoreForDifficulty(tier)}점</small></span><strong>{stats.score.toLocaleString()}</strong><small>플레이 {formatTime(elapsed)}</small></button>
-      <div className="gg-combo"><span>COMBO</span><strong>{stats.combo}<small> ×{scoring.comboMultiplier(stats.combo)}</small></strong></div>
-      {formula&&<div id="gg-formula" className="gg-formula"><b>(기본점수 + 속도점수 + 콤보 횟수 × 10점) × 콤보 배율</b><p>LIGHTNING +100 · FAST +50 · QUICK +20<br/>콤보 3회 ×1.5 / 6회 ×2 / 9회 ×3 / 12회 ×4 / 15회 ×5<br/>오답·넘기기는 콤보를 초기화해요.</p></div>}
-    </div>
-    {mode==='capital-easy'&&question&&<aside className="gg-country" aria-label="국가 정보"><img src={question.country.flag} alt=""/><h2>{question.country.name.ko}</h2><p>{question.country.officialName.ko}</p><p>{question.country.continent} · 인구 {question.country.population.toLocaleString()}명</p>{!practice&&<small>수도는 직접 떠올려 보세요.</small>}</aside>}
-    </div>}
-    {question&&['flag','landmark','nature'].includes(mode)&&(mode!=='nature'||question.image)&&<figure key={`${mode}-${question.id}`} className={`gg-media ${mode==='flag'?'gg-flag':mode==='landmark'?'gg-landmark':'gg-nature'} ${leaving?'gg-leaving':''} ${!mediaReady&&!mediaError?'gg-loading':''}`}>
-      {mode==='flag'?<><img src={question.country.flag} alt="맞혀야 할 국기" onLoad={mediaLoaded} onError={mediaFailed}/>{mediaError&&<div className="gg-media-error">사진을 불러오지 못했어요.<button onClick={skip}>다음 문제로</button></div>}</>:<GeoPhotoCarousel photos={question.photos?.length?question.photos:[question]} paused={summary||leaving} onLoad={mediaLoaded} onError={mediaFailed} kind={mode}/>}
-    </figure>}
-
-    {practice&&question&&<div className="gg-practice-answer" role="status">{question.name}</div>}
-    <GeoAnswerArea practice={practice} result={result} mode={mode} config={config} submit={submit} input={input} answer={answer} setAnswer={setAnswer} composing={composing} skip={skip} busy={busy} mediaError={mediaError} summary={summary} nextButton={nextButton}/>
+    <GeoGamePlay {...{question,mode,expert,practice,summary,busy,countdown,result,stats,tier,formula,setFormula,elapsed,leaving,mediaReady,mediaError,mediaLoaded,mediaFailed,skip,submit,input,answer,setAnswer,composing,nextButton,finish,config,onTarget}} questionKey={`${mode}-${questionSequence}`}/>
     {summary&&<div className="gg-summary" onClick={event=>{if(event.target===event.currentTarget)returnToMenu();}} role="dialog" aria-modal="true" aria-labelledby="gg-summary-title" onKeyDown={e=>{if(e.key==='Escape')returnToMenu();if(e.key==='Tab'){const buttons=[...e.currentTarget.querySelectorAll('button')];const index=buttons.indexOf(document.activeElement);e.preventDefault();buttons[(index+(e.shiftKey?-1:1)+buttons.length)%buttons.length].focus();}}}><div><div className="gg-eyebrow">ROUND COMPLETE</div><h2 id="gg-summary-title">오늘의 지구 탐험</h2>{finishReason&&<p role="status">{finishReason}</p>}<strong>{stats.score.toLocaleString()}<small>점</small></strong><p>정답 {stats.correct}개 · 최고 콤보 {stats.bestCombo} · {formatTime(elapsed)}</p><div className="gg-summary-actions"><button autoFocus onClick={returnToMenu}>게임 선택으로</button><button className="gg-mode-exit" onClick={()=>window.psModalMotion.exit(document.querySelector('.gg-summary'),onExit)}>게임모드 종료 ↗</button></div><div className="gg-summary-submit"><button type="button" onClick={openRanking}>랭킹 · 기록 제출</button></div></div></div>}
     </>}
   </section>;

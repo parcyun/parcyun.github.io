@@ -35,7 +35,7 @@ test('leaving a running match preserves the score and rejects further answers',(
  const g=new Battle(corpus),r=g.create(person(1),2);for(const id of [2,3]){g.join(r.code,person(id));g.ready(r.code,String(id),true);}g.start(r.code,'1');g.rooms.get(r.code).startsAt=g.now();g.room(r.code);
  g.view(r,'2');g.answer(r.code,'2','됐다.',0);const before=g.view(r,'1').teamTotals;g.leave(r.code,'2');
  assert.deepEqual(g.view(r,'1').teamTotals,before);assert.equal(g.view(r,'1').participantCount,1);assert.equal(g.view(r,'1').players.find(p=>p.id==='2').connected,false);
- assert.throws(()=>g.answer(r.code,'2','됐다.',1),/참여/);g.join(r.code,person(2));assert.equal(g.view(r,'2').stats.combo,1);g.end(r.code,'1');assert.equal(r.phase,'finished');assert.deepEqual(g.view(r,'1').teamTotals,before);
+ assert.throws(()=>g.answer(r.code,'2','됐다.',1),/참여/);g.join(r.code,person(2));assert.equal(g.view(r,'2').stats.combo,1);g.end(r.code,'1');assert.equal(r.phase,'cancelled');assert.deepEqual(g.view(r,'1').teamTotals,before);
 });
 
 test('storage can acknowledge leaving without requesting a view for the removed player',async()=>{
@@ -52,7 +52,7 @@ test('server-issued question time, hint penalty, combo multiplier and early fini
  now=2000;const hinted=g.answer(r.code,'2','됐다.',0);assert.equal(hinted.points,160);assert.equal(hinted.details.speedTag,'LIGHTNING');assert.equal(hinted.details.elapsedMs,1000);assert.equal(hinted.details.baseScore,50);
  g.view(r,'2');now=3000;assert.equal(g.answer(r.code,'2','됐다.',1).points,220);g.view(r,'2');now=4000;const third=g.answer(r.code,'2','됐다.',2);assert.equal(third.points,345);assert.equal(third.details.multiplier,1.5);assert.equal(g.view(r,'2').stats.maxCombo,3);
  g.answer(r.code,'2','오답',3);assert.equal(g.view(r,'2').stats.combo,0);g.leave(r.code,'2');assert.throws(()=>g.answer(r.code,'2','됐다.',3),/참여/);g.join(r.code,person(2));assert.equal(g.view(r,'2').players.find(p=>p.id==='2').score,715);
- const before=g.view(r,'1').teamTotals;g.end(r.code,'1');assert.equal(r.phase,'finished');assert.equal(g.view(r,'2').endedEarly,true);assert.deepEqual(g.view(r,'1').teamTotals,before);assert.throws(()=>g.answer(r.code,'2','됐다.',3),/지금/);
+ const before=g.view(r,'1').teamTotals;g.end(r.code,'1');assert.equal(r.phase,'cancelled');assert.equal(g.view(r,'2').endedEarly,true);assert.deepEqual(g.view(r,'1').teamTotals,before);assert.throws(()=>g.answer(r.code,'2','됐다.',3),/지금/);
 });
 
 test('wrong-answer and pass penalties, remaining passes and earned passes follow solo rules',()=>{
@@ -102,7 +102,7 @@ test('start countdown gates answers, late arrivals wait until next round, and ki
 
 test('host can move a ready player and rematch retains one roster while clearing scores and readiness',()=>{
  const g=new Battle(corpus),r=g.create(person(1),2);for(const id of[2,3]){g.join(r.code,person(id));g.ready(r.code,String(id),true);}
- const p=g.member(r,'2');g.move(r.code,'1','2',1-p.team);assert.equal(p.ready,true);g.start(r.code,'1');r.startsAt=g.now();g.room(r.code);p.score=123;g.end(r.code,'1');assert.equal(p.totalScore,123);g.rematch(r.code,'1');assert.equal(r.phase,'lobby');assert.equal(r.players.length,3);assert.equal(r.round,0);assert.equal(p.totalScore,0);assert.equal(p.score,0);assert.equal(p.ready,false);assert.throws(()=>g.rematch(r.code,'2'),/진행자/);
+ const p=g.member(r,'2');g.move(r.code,'1','2',1-p.team);assert.equal(p.ready,true);g.start(r.code,'1');r.startsAt=g.now();g.room(r.code);p.score=123;g.commitRound(r);r.phase='finished';assert.equal(p.totalScore,123);g.rematch(r.code,'1');assert.equal(r.phase,'lobby');assert.equal(r.players.length,3);assert.equal(r.round,0);assert.equal(p.totalScore,0);assert.equal(p.score,0);assert.equal(p.ready,false);assert.throws(()=>g.rematch(r.code,'2'),/진행자/);
 });
 
 test('each participant has a private persistent question order and refreshed WebP avatar',()=>{

@@ -25,7 +25,9 @@ test('gallery omits descriptions and aligns the compact view count beside the ti
  assert.equal(cards.length,4);
  assert.doesNotMatch(cards.at(-1)[1],/entry-description/);
  assert.equal((html.match(/class="entry-caption"/g)||[]).length,4);
- assert.match(read('src/pages/dexterity/index.astro'),/align-items:flex-end/);
+ assert.match(read('src/pages/dexterity/index.astro'),/h3\{display:inline/);
+ for(const title of ['지오웹 · 세계 지도와 지리 퀴즈','스펠 드릴 · 맞춤법 퀴즈','사투리 · 지역별 방언 찾기','경주 향미사 · 커피와 원두']) assert.ok(html.replace(/<[^>]*>/g,'').replace(/\s+/g,' ').includes(title));
+ assert.equal((html.match(/class="entry-tail"/g)||[]).length,4);
 });
 test('local learning and battle music attribution remain accessible but excluded from indexing',()=>{
  const sitemap=read('dist/sitemap.xml');

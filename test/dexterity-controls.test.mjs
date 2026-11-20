@@ -43,6 +43,6 @@ test('gallery reads actual page totals once without bumping visits on card expos
  assert.match(gallery,/data-visit-path=\{post.href\}/);
  assert.match(gallery,/class="entry-views"/);
  assert.match(gallery,/linear-gradient\(180deg,transparent/);
- assert.match(gallery,/align-items:flex-end/);
+ assert.match(gallery,/h3\{display:inline/);
  assert.doesNotMatch(gallery,/bump_visit|bump_resource/);
 });

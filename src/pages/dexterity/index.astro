@@ -4,6 +4,12 @@ import SeoHead from '../../components/SeoHead.astro';
 import { dexterityPosts, dexterityAuthor } from '../../data/dexterity';
 const categories = ['가이드북', '일상', '여행', '카페', '생각', '인사이트', 'AI', '디지털', '디자인', '건축'];
 const posts = dexterityPosts;
+const cardTitles: Record<string,string> = {
+  'hyangmisa': '경주 향미사 · 커피와 원두',
+  'guidebook/geoweb': '지오웹 · 세계 지도와 지리 퀴즈',
+  'guidebook/spell-drill': '스펠 드릴 · 맞춤법 퀴즈',
+  'guidebook/satury': '사투리 · 지역별 방언 찾기',
+};
 const description = 'parcyun(박윤)의 일상·여행·카페 기록, 디자인 관찰과 직접 만든 서비스의 가이드북을 parcyun dexterity에 기록합니다.';
 const structuredData = {
   '@context': 'https://schema.org', '@type': 'Blog', '@id': 'https://parcyun.github.io/dexterity/#blog',
@@ -36,14 +42,17 @@ const structuredData = {
 <section aria-label={category} id={category==='가이드북'?'guidebooks':`category-${categories.indexOf(category)}`} data-category-section>
 <h2>{category}</h2>
 <div class="gallery">
-{posts.filter(post => post.category === category).map(post => (
+{posts.filter(post => post.category === category).map(post => {
+const title = cardTitles[post.slug] ?? post.title;
+const lastSpace = title.lastIndexOf(' ');
+return (
 <a href={post.href} class="entry" data-category={category} data-visit-path={post.href}>
 <img src={post.image} alt="" width="1086" height="1448" />
-<div class="entry-caption"><h3>{post.title}</h3>
+<div class="entry-caption"><h3>{lastSpace < 0 ? '' : title.slice(0,lastSpace)} <span class="entry-tail">{title.slice(lastSpace+1)}
 <span class="entry-views" role="img" aria-label="누적 조회수 불러오는 중"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span data-card-view-value>—</span></span>
-</div>
+</span></h3></div>
 </a>
-))}
+);})}
 </div>
 </section>
 ))}
@@ -109,9 +118,10 @@ section+section{margin-top:64px;border-top:1px solid rgba(255,255,255,.18);paddi
 .entry{position:relative;display:block;aspect-ratio:1;overflow:hidden;color:white;text-decoration:none;background:#141414}
 .entry{transition:transform .25s ease,box-shadow .25s ease}.entry img{transition:transform .35s ease;position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .entry::after{content:"";position:absolute;inset:30% 0 0;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.3) 40%,rgba(0,0,0,.88) 100%);pointer-events:none;z-index:1}
-.entry-caption{position:absolute;left:24px;right:24px;bottom:24px;z-index:2;display:flex;align-items:flex-end;gap:16px}
-h3{flex:1;min-width:0;margin:0;font-size:28px;font-weight:800;line-height:1.25;letter-spacing:-.04em}
-.entry-views{flex:none;display:inline-flex;align-items:center;gap:6px;color:#eee;font-size:12px;line-height:16px;font-variant-numeric:tabular-nums}.entry-views svg{flex:none}
+.entry-caption{position:absolute;left:24px;right:24px;bottom:24px;z-index:2;font-size:28px;line-height:1.25}
+h3{display:inline;margin:0;font-size:inherit;font-weight:800;line-height:inherit;letter-spacing:-.04em}
+.entry-tail{white-space:nowrap}
+.entry-views{display:inline-flex;vertical-align:baseline;margin-left:12px;align-items:center;gap:6px;white-space:nowrap;color:#eee;font-size:12px;line-height:16px;font-variant-numeric:tabular-nums}.entry-views svg{flex:none}
 .entry[data-category="가이드북"]{border-radius:24px;border:1px solid rgba(255,255,255,.18)}.entry[data-category="가이드북"] img{object-fit:cover;object-position:center;background:#000}.entry:focus-visible{outline:3px solid #FFB11A;outline-offset:5px}
 @media(hover:hover){.entry:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(255,177,26,.14)}.entry:hover img{transform:scale(1.035)}}
 @media(prefers-reduced-motion:reduce){.entry,.entry img{transition:none}.entry:hover,.entry:hover img{transform:none}}

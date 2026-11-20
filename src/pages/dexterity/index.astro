@@ -64,6 +64,18 @@ return (
 import {sbRpc} from '../../lib/supabase';
 const viewCards=Array.from(document.querySelectorAll<HTMLAnchorElement>('.entry[data-visit-path]'));
 const visitPaths=[...new Set(viewCards.map(card=>card.dataset.visitPath!))];
+function alignViewCounts(){
+  viewCards.forEach(card=>{
+    const count=card.querySelector<HTMLElement>('.entry-views')!;
+    count.style.setProperty('--views-shift','0px');
+    const right=card.querySelector('.entry-caption')!.getBoundingClientRect().right;
+    count.style.setProperty('--views-shift',`${Math.max(0,right-count.getBoundingClientRect().right)}px`);
+  });
+}
+const countLayout=new ResizeObserver(alignViewCounts);
+viewCards.forEach(card=>{countLayout.observe(card.querySelector('.entry-caption')!);countLayout.observe(card.querySelector('.entry-views')!);});
+document.fonts.ready.then(alignViewCounts);
+alignViewCounts();
 sbRpc<Array<{path:string;total:number}>>('list_page_visit_totals',{p_paths:visitPaths}).then(rows=>{
   const totals=new Map((rows||[]).map(row=>[row.path,Number(row.total)||0]));
   viewCards.forEach(card=>{
@@ -121,7 +133,7 @@ section+section{margin-top:64px;border-top:1px solid rgba(255,255,255,.18);paddi
 .entry-caption{position:absolute;left:24px;right:24px;bottom:24px;z-index:2;font-size:28px;line-height:1.25}
 h3{display:inline;margin:0;font-size:inherit;font-weight:800;line-height:inherit;letter-spacing:-.04em}
 .entry-tail{white-space:nowrap}
-.entry-views{display:inline-flex;vertical-align:baseline;margin-left:12px;align-items:center;gap:6px;white-space:nowrap;color:#eee;font-size:12px;line-height:16px;font-variant-numeric:tabular-nums}.entry-views svg{flex:none}
+.entry-views{display:inline-flex;vertical-align:baseline;margin-left:12px;align-items:center;gap:6px;white-space:nowrap;color:#eee;font-size:12px;line-height:16px;font-variant-numeric:tabular-nums;transform:translateX(var(--views-shift,0px))}.entry-views svg{flex:none}
 .entry[data-category="가이드북"]{border-radius:24px;border:1px solid rgba(255,255,255,.18)}.entry[data-category="가이드북"] img{object-fit:cover;object-position:center;background:#000}.entry:focus-visible{outline:3px solid #FFB11A;outline-offset:5px}
 @media(hover:hover){.entry:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(255,177,26,.14)}.entry:hover img{transform:scale(1.035)}}
 @media(prefers-reduced-motion:reduce){.entry,.entry img{transition:none}.entry:hover,.entry:hover img{transform:none}}

@@ -3,8 +3,6 @@
 .dexterity-logo:hover{opacity:.75}
 .dexterity-header{max-width:1200px;margin:auto;padding:24px 32px 0}
 .dexterity-logo:focus-visible{outline:2px solid #FFB11A;outline-offset:5px}
-#visitor-stats.article-visits{display:flex;justify-content:flex-end;gap:24px;min-height:18px;margin-bottom:24px;font-size:12px}
-#visitor-stats.article-visits .ps-visits-item{display:inline-flex;gap:6px}
 .prose .pause{font-size:22px;font-weight:600}
 article img.photo-square{aspect-ratio:1/1;width:100%;height:auto;object-fit:cover}
 .photo-viewer{position:fixed;inset:0;width:100%;max-width:none;height:100%;max-height:none;margin:0;padding:16px;border:0;background:rgba(0,0,0,.94);overflow:hidden}

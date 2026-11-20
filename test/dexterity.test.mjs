@@ -7,12 +7,13 @@ test('home exposes a direct dexterity entry', () => {
   assert.match(html, /href="\/dexterity\/"[^>]*>parcyun dexterity/);
 });
 
-test('gallery leads to the published cafe article without exposing counters', () => {
+test('gallery leads to the published cafe article and includes shared page tools', () => {
   assert.ok(existsSync('dist/dexterity/index.html'), 'gallery route must be built');
   const html = readFileSync('dist/dexterity/index.html', 'utf8');
   assert.match(html, /href="\/dexterity\/hyangmisa\/"/);
-  assert.doesNotMatch(html, /visitor-counter|dexterity-comments|noindex/);
-  assert.match(html, /맛집/);
+  assert.match(html, /visitor-counter/);
+  assert.doesNotMatch(html, /dexterity-comments|noindex/);
+  assert.match(html, /카페/);
 });
 
 test('article publishes nine safe assets with canonical and internal-only discussion', () => {

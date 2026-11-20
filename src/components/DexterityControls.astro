@@ -1,0 +1,52 @@
+---
+import PsFooter from './PsFooter.astro';
+---
+<aside class="dexterity-dock" aria-label="페이지 도구">
+  <div class="dexterity-dock-row">
+    <div id="visitor-stats" class="ps-visits dexterity-dock-visits" aria-live="polite"></div>
+    <button type="button" class="dexterity-to-top" aria-label="상단으로 이동" title="상단으로 이동">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>
+    </button>
+  </div>
+  <PsFooter showLinks={false} showFeedback={false} showReview={false}/>
+</aside>
+<script>
+const dock=document.querySelector<HTMLElement>('.dexterity-dock');
+dock?.querySelector('.dexterity-to-top')?.addEventListener('click',()=>{
+  window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
+});
+const slot=dock?.closest<HTMLElement>('[data-dexterity-footer-slot]');
+if(dock&&slot){
+  let frame=0;
+  const sync=()=>{
+    frame=0;
+    slot.style.height=dock.offsetHeight+'px';
+    const inset=parseFloat(getComputedStyle(slot.parentElement!).paddingBottom)||12;
+    dock.classList.toggle('is-docked',slot.getBoundingClientRect().bottom<=innerHeight-inset+1);
+  };
+  const schedule=()=>{if(!frame)frame=requestAnimationFrame(sync);};
+  window.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('resize',schedule);
+  const observer=new ResizeObserver(schedule);observer.observe(dock);sync();
+}
+</script>
+<script is:inline src="/visitor-counter.js?v=20261120-dexterity-1" defer></script>
+<style is:global>
+html:has(.dexterity-dock),body:has(.dexterity-dock),body:has(.dexterity-dock) *{scrollbar-width:none}
+body:has(.dexterity-dock)::-webkit-scrollbar,html:has(.dexterity-dock)::-webkit-scrollbar,body:has(.dexterity-dock) *::-webkit-scrollbar{display:none}
+body:has(.dexterity-dock){padding-bottom:144px}
+.dexterity-dock{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));z-index:9989;display:flex;flex-direction:column;align-items:flex-end;gap:12px;max-width:calc(100vw - 24px - env(safe-area-inset-left) - env(safe-area-inset-right));pointer-events:none}
+.dexterity-dock>*{pointer-events:auto}
+.dexterity-home:has(.dexterity-dock){padding-bottom:0}
+.dexterity-dock.is-docked{position:absolute;right:0;bottom:0}
+.dexterity-dock-row{display:flex;align-items:center;justify-content:flex-end;gap:12px;max-width:100%}
+.dexterity-dock #visitor-stats{display:inline-flex;flex-wrap:wrap;gap:16px;margin:0;padding:8px 12px;border:1px solid #ffffff26;border-radius:999px;background:#000c;color:#aaa;font-size:11px;line-height:1.5;min-height:0}
+.dexterity-dock #visitor-stats:empty{display:none}
+.dexterity-dock .dexterity-to-top{display:grid;place-items:center;flex:none;width:48px;height:48px;min-height:48px;padding:0;border:1px solid #ffffff40;border-radius:50%;background:#111;color:#FFB11A;cursor:pointer;transition:background .18s,border-color .18s}
+.dexterity-to-top svg{display:block}
+.dexterity-dock .dexterity-to-top:hover{background:#222;border-color:#FFB11A}
+.dexterity-dock .dexterity-to-top:focus-visible{outline:2px solid #FFB11A;outline-offset:4px}
+.dexterity-dock #ps-footer-root .ps-brand-fixed{position:static;left:auto;right:auto;bottom:auto;max-width:100%;margin:0;box-sizing:border-box}
+.dexterity-dock #ps-footer-root{max-width:100%;min-width:0}
+@media(prefers-reduced-motion:reduce){html:has(.dexterity-dock){scroll-behavior:auto}.dexterity-dock .dexterity-to-top{transition:none}}
+</style>

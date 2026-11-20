@@ -1,4 +1,5 @@
 ---
+import DexterityControls from "../../components/DexterityControls.astro";
 import SeoHead from '../../components/SeoHead.astro';
 import { dexterityPosts, dexterityAuthor } from '../../data/dexterity';
 const post = dexterityPosts.find(post => post.slug === 'hyangmisa')!;
@@ -53,7 +54,7 @@ main{padding:64px 24px 120px;max-width:1000px;margin:auto}.heading,.prose,.notes
 <body>
 <header><a class="brand dexterity-logo" href="/dexterity/">parcyun dexterity</a><button id="theme" aria-label="밝은 화면으로 전환" aria-pressed="true">밝은 화면</button></header>
 <main><article>
-<div class="heading"><div id="visitor-stats" class="ps-visits article-visits" aria-live="polite"></div><p class="eyebrow">GYEONGJU · COFFEE</p><h1>경주체육관 간판 아래,<br>향미사</h1><div class="meta"><a href="/#parcyun" rel="author">글 · parcyun(박윤)</a><time datetime={post.datePublished}>2026.11.15</time><span>사진 9장</span></div></div>
+<div class="heading"><p class="eyebrow">GYEONGJU · COFFEE</p><h1>경주체육관 간판 아래,<br>향미사</h1><div class="meta"><a href="/#parcyun" rel="author">글 · parcyun(박윤)</a><time datetime={post.datePublished}>2026.11.15</time><span>사진 9장</span></div></div>
 <figure><a href="/images/dexterity/hyangmisa/hyangmisa-exterior.png" aria-label="경주체육관 외관 사진 크게 보기"><img class="photo-square" style="object-position:50% 75%" src="/images/dexterity/hyangmisa/hyangmisa-exterior.png" fetchpriority="high" width="1086" height="1448" alt="밝은 타일 외벽에 경주체육관 간판이 남아 있는 향미사 입구."></a></figure>
 <div class="prose">
 <p>미팅이 있어 경주에 들렀다. 전날은 하루 종일 비가 쏟아졌고, 다음 날 오전이 되어서야 비가 그쳤다. 미팅에 함께 참석한 동료와 걷다가 향미사에 들렀다.</p>
@@ -88,9 +89,8 @@ main{padding:64px 24px 120px;max-width:1000px;margin:auto}.heading,.prose,.notes
 </div>
 <p id="article-action-status" role="status" aria-live="polite"></p>
 </section></main>
-<footer class="ps-footer">Designed by <span class="ps-signature">parcyun studio</span><a class="ps-ig" href="https://www.instagram.com/parcyun"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1"/></svg>@parcyun</a></footer>
+<DexterityControls/>
 <script is:inline>document.getElementById('theme').addEventListener('click',function(){const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';this.textContent=dark?'밝은 화면':'어두운 화면';this.setAttribute('aria-pressed',String(dark));this.setAttribute('aria-label',dark?'밝은 화면으로 전환':'어두운 화면으로 전환')});</script>
-<script is:inline src="/visitor-counter.js?v=20261116-hierarchy-1" defer></script>
 <script is:inline src="/dexterity-actions.js?v=20261116-3" defer></script>
 <script is:inline src="/dexterity-map.js?v=20261116-1" defer></script>
 <script is:inline src="/dexterity-place.js?v=20261116-1" defer></script>

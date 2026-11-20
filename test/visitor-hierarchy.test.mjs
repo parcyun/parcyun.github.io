@@ -23,6 +23,7 @@ for(const returning of [false,true]) {
     '/atlas-gears/':['/atlas-gears/','/satury/','/world-map/','/spell-drill/','/math-solid-volume/'],
     '/academica/':['/academica/','/llm-fundamentals/','/academica-parcyun-studio/'],
     '/works/':['/works/','/works/masterclass/','/works/mdbf/','/works/002-i-am-serif/'],
+    '/dexterity/':['/dexterity/','/dexterity/hyangmisa/','/dexterity/guidebook/geoweb/','/dexterity/guidebook/spell-drill/','/dexterity/guidebook/satury/'],
   })) test(`${parent} aggregates descendants on ${returning?'repeat':'first'} visit`,async()=>{
     const {calls,html}=await run(parent,returning);
     const paths=calls.find(c=>c.url.endsWith('get_visit_totals'))?.p_paths;

@@ -1,4 +1,5 @@
 ---
+import DexterityControls from "../../components/DexterityControls.astro";
 import SeoHead from '../../components/SeoHead.astro';
 import { dexterityPosts, dexterityAuthor } from '../../data/dexterity';
 const categories = ['가이드북', '일상', '여행', '카페', '생각', '인사이트', 'AI', '디지털', '디자인', '건축'];
@@ -28,17 +29,18 @@ const structuredData = {
 <link rel="stylesheet" href="/dexterity.css?v=20261116-1" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 </head>
-<body>
-<header class="dexterity-header"><h1 style="margin:0;font:inherit"><a class="dexterity-logo" href="/dexterity/">parcyun dexterity</a></h1></header>
+<body class="dexterity-home">
+<header class="dexterity-header"><h1 style="margin:0;font:inherit"><a class="dexterity-logo" href="/dexterity/">parcyun dexterity</a></h1><a class="dexterity-home-link" href="/" aria-label="parcyun studio 메인홈으로 이동" title="parcyun studio 메인홈"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3Z"/><path d="M9 20v-7h6v7"/></svg></a></header>
 <main aria-label="parcyun dexterity">
 {categories.filter(category => posts.some(post => post.category === category)).map(category => (
 <section aria-label={category} id={category==='가이드북'?'guidebooks':`category-${categories.indexOf(category)}`} data-category-section>
 <h2>{category}</h2>
 <div class="gallery">
 {posts.filter(post => post.category === category).map(post => (
-<a href={post.href} class="entry" data-category={category}>
+<a href={post.href} class="entry" data-category={category} data-visit-path={post.href}>
 <img src={post.image} alt="" width="1086" height="1448" />
 <h3>{post.title}</h3>
+<span class="entry-views" role="img" aria-label="누적 조회수 불러오는 중"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span data-card-view-value>—</span></span>
 </a>
 ))}
 </div>
@@ -49,6 +51,20 @@ const structuredData = {
 {categories.filter(category=>posts.some(post=>post.category===category)).map((category,index)=><a href={category==='가이드북'?'#guidebooks':`#category-${categories.indexOf(category)}`} aria-label={category} aria-current={index===0?'location':undefined}><span>{category}</span><i aria-hidden="true"></i></a>)}
 </nav>
 <script>
+import {sbRpc} from '../../lib/supabase';
+const viewCards=Array.from(document.querySelectorAll<HTMLAnchorElement>('.entry[data-visit-path]'));
+const visitPaths=[...new Set(viewCards.map(card=>card.dataset.visitPath!))];
+sbRpc<Array<{path:string;total:number}>>('list_page_visit_totals',{p_paths:visitPaths}).then(rows=>{
+  const totals=new Map((rows||[]).map(row=>[row.path,Number(row.total)||0]));
+  viewCards.forEach(card=>{
+    const count=totals.get(card.dataset.visitPath!)||0;
+    const text=new Intl.NumberFormat('ko-KR').format(count);
+    card.querySelector('[data-card-view-value]')!.textContent=text;
+    card.querySelector('.entry-views')!.setAttribute('aria-label',`누적 조회수 ${text}회`);
+  });
+}).catch(()=>{
+  viewCards.forEach(card=>card.querySelector('.entry-views')!.setAttribute('aria-label','누적 조회수를 불러오지 못했습니다.'));
+});
 const sections=Array.from(document.querySelectorAll('[data-category-section]'));
 const markers=Array.from(document.querySelectorAll('.category-position a'));
 let scheduled=false;
@@ -62,10 +78,21 @@ function updateCategory(){
 function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(updateCategory);}}
 window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule);updateCategory();
 </script>
+<footer class="dexterity-home-footer" aria-label="Dexterity 하단 푸터">
+ <div class="dexterity-footer-inner"><a class="dexterity-logo" href="/">parcyun studio</a><nav aria-label="스튜디오 바로가기"><a href="/">메인홈</a><a href="/atlas-gears/">아틀라스 기어즈</a><a href="/academica/">아카데미카</a></nav></div>
+ <div class="dexterity-footer-slot" data-dexterity-footer-slot><DexterityControls/></div>
+</footer>
 </body>
 </html>
 <style is:global>
 html{scrollbar-width:none;scroll-behavior:smooth}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+.dexterity-home .dexterity-header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.dexterity-home-link{display:grid;place-items:center;flex:none;width:48px;height:48px;border:1px solid #ffffff40;border-radius:50%;background:#111;color:#fff;transition:color .18s,border-color .18s}
+.dexterity-home-link:hover{color:#FFB11A;border-color:#FFB11A}.dexterity-home-link:focus-visible{outline:2px solid #FFB11A;outline-offset:4px}
+.dexterity-home-footer{border-top:1px solid #ffffff26;margin-top:32px;padding:48px max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.dexterity-footer-inner{max-width:1136px;margin:0 auto 40px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:24px}
+.dexterity-footer-inner nav{display:flex;flex-wrap:wrap;gap:24px}.dexterity-footer-inner nav a{color:#aaa;font-size:14px;text-decoration:none}.dexterity-footer-inner nav a:hover{color:#FFB11A}
+.dexterity-footer-slot{position:relative;min-height:96px}
 .category-position{position:fixed;right:12px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;gap:2px}
 .category-position a{display:flex;align-items:center;justify-content:flex-end;position:relative;width:36px;height:32px;text-decoration:none;color:#fff}
 .category-position i{width:20px;height:2px;border-radius:2px;background:#969696;transition:background .2s,width .2s}
@@ -80,8 +107,9 @@ section+section{margin-top:64px;border-top:1px solid rgba(255,255,255,.18);paddi
 .gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
 .entry{position:relative;display:block;aspect-ratio:1;overflow:hidden;color:white;text-decoration:none;background:#141414}
 .entry{transition:transform .25s ease,box-shadow .25s ease}.entry img{transition:transform .35s ease;position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.entry::after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.85))}
-h3{position:absolute;left:24px;right:24px;bottom:24px;margin:0;z-index:1;font-size:28px;font-weight:800;line-height:1.25;letter-spacing:-.04em}
+.entry::after{content:"";position:absolute;inset:30% 0 0;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.3) 40%,rgba(0,0,0,.88) 100%);pointer-events:none;z-index:1}
+h3{position:absolute;left:24px;right:24px;bottom:56px;margin:0;z-index:2;font-size:28px;font-weight:800;line-height:1.25;letter-spacing:-.04em}
+.entry-views{position:absolute;right:24px;bottom:20px;z-index:2;display:inline-flex;align-items:center;gap:6px;color:#eee;font-size:12px;line-height:16px;font-variant-numeric:tabular-nums}.entry-views svg{flex:none}
 .entry[data-category="가이드북"]{border-radius:24px;border:1px solid rgba(255,255,255,.18)}.entry[data-category="가이드북"] img{object-fit:cover;object-position:center;background:#000}.entry:focus-visible{outline:3px solid #FFB11A;outline-offset:5px}
 @media(hover:hover){.entry:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(255,177,26,.14)}.entry:hover img{transform:scale(1.035)}}
 @media(prefers-reduced-motion:reduce){.entry,.entry img{transition:none}.entry:hover,.entry:hover img{transform:none}}

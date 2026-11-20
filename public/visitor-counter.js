@@ -24,12 +24,14 @@
   var atlasPaths = ['/atlas-gears/', '/spell-drill/', '/world-map/', '/satury/', '/math-solid-volume/'];
   var lecturePaths = ['/academica/', '/academica-parcyun-studio/', '/llm-fundamentals/'];
   var worksPaths = ['/works/', '/works/002-i-am-serif/', '/works/masterclass/', '/works/mdbf/'];
+  var dexterityPaths = ['/dexterity/', '/dexterity/hyangmisa/', '/dexterity/guidebook/geoweb/', '/dexterity/guidebook/spell-drill/', '/dexterity/guidebook/satury/'];
   var parentScopes = {
     '/atlas-gears/': atlasPaths,
     '/academica/': lecturePaths,
     '/works/': worksPaths,
-    '/': ['/'].concat(atlasPaths, lecturePaths, worksPaths, [
-      '/reviews/', '/studio/', '/dexterity/hyangmisa/', '/spell-drill/about/',
+    '/dexterity/': dexterityPaths,
+    '/': ['/'].concat(atlasPaths, lecturePaths, worksPaths, dexterityPaths, [
+      '/reviews/', '/studio/', '/spell-drill/about/',
       '/world-map/about/', '/satury/about/', '/terms/', '/privacy/', '/library/', '/arcade/',
       '/mongdang-production-schedule.html', '/dashboard.html'
     ])

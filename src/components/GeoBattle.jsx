@@ -322,7 +322,6 @@ export default function GeoBattle({ pools, onTarget, onOpenChange, musicControls
     }
     if (previous?.settings.level === "expert" &&
         previous.question && !previous.nextQuestion && (previous.question.index !== next.question?.index || previous.round !== next.round)) {
-      setAnswer("");
       setFeedback("");
     }
     setRoom(next);
@@ -451,7 +450,8 @@ export default function GeoBattle({ pools, onTarget, onOpenChange, musicControls
   const playConfig=GAME_MODES.find(item=>item.id===game);
   const playTier=room?.settings.level==='expert'?'hard':room?.settings.level||playConfig?.tier||'easy';
   const mediaReady=media.key===questionKey&&media.ready,mediaError=media.key===questionKey&&media.error;
-  useEffect(()=>{setAnswer("");},[questionKey]);
+  // Clear before the new question paints; delayed deadline refreshes must preserve its input.
+  useLayoutEffect(()=>{setAnswer("");answerComposing.current=false;},[questionKey]);
   useEffect(()=>{if(!skipEffect)return;const timer=setTimeout(()=>setSkipEffect(null),1400);return()=>clearTimeout(timer);},[skipEffect]);
   async function skipQuestion(){if(room.stats?.passesRemaining<=0)return;const name=playQuestion?.name;await act(`rooms/${room.code}/pass`,{index:shownQuestion.index});setScoreEffect(null);setSkipEffect({skipped:true,text:name,id:performance.now()});setAnswer("");}
   useEffect(()=>{if(!scoreEffect)return;const timer=setTimeout(()=>setScoreEffect(null),2200);return()=>clearTimeout(timer);},[scoreEffect]);
@@ -526,7 +526,6 @@ export default function GeoBattle({ pools, onTarget, onOpenChange, musicControls
       }
       if (!expired) {
         expired = true;
-        setAnswer("");
         setFeedback("");
         setClock(Date.now());
       }

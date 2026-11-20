@@ -1,5 +1,7 @@
 # parcyun.github.io 전체 사이트 구조 점검
 
+후속 반영(2026-11-20): 사용자 결정에 따라 `/web-learning/`과 `/geoweb-battle/music-credits.html`에 robots noindex를 추가했다. URL·내용·출처 링크는 유지하고 사이트맵 제외도 유지한다. 아래 원시 점검과 권고는 변경 전 스냅샷이며 현재 미결정 항목이 아니다. 실제 검색 결과 삭제 시점은 검색엔진 재수집에 달려 있으며 확인하지 않았다.
+
 확인: 2026-11-20. 기준 소스: `142b1c7` 및 이번 Dexterity 푸터 수정. [원시 점검 결과](2026-11-20-sitemap-audit.json), [레퍼런스·구성요소 검토](2026-11-20-dexterity-reference-review.md).
 
 ## 결과

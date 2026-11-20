@@ -11,4 +11,4 @@ export const dexterityPosts = [{
   href: '/dexterity/hyangmisa/', image: '/images/dexterity/hyangmisa/hyangmisa-exterior.png',
   imageAlt: '경주체육관 간판이 남아 있는 경주 카페 향미사 입구',
   datePublished: '2026-11-15T13:26:30+09:00', dateModified: '2026-11-17T12:31:19+09:00',
-}, ...gameGuides.map(guide=>({slug:'guidebook/'+guide.id,title:guide.title,category:'가이드북',description:guide.description,href:`/dexterity/guidebook/${guide.id}/`,image:guide.thumbnail,imageAlt:`${guide.name} 가이드북`,datePublished:'2026-11-19',dateModified:'2026-11-19'}))];
+}, ...gameGuides.map(guide=>({slug:'guidebook/'+guide.id,title:guide.title,category:'가이드북',description:guide.description,href:`/dexterity/guidebook/${guide.id}/`,image:guide.thumbnail,imageAlt:`${guide.name} 가이드북`,datePublished:'2026-11-19',dateModified:'2026-11-20'}))];

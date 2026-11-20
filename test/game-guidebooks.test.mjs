@@ -5,3 +5,15 @@ test('guide category, feed and sitemap contain all three guides without changing
 test('shared footer exposes only matching guide links and uses native sheet dismissal and focus restoration',()=>{const footer=read('public/ps-footer.js'),sheet=read('public/game-guidebook.js');assert.match(footer,/data-guidebook-href/);assert.match(footer,/guideNames/);assert.match(sheet,/showModal\(\)/);assert.match(sheet,/addEventListener\('cancel'/);assert.match(sheet,/returnFocus\.focus/);assert.match(sheet,/data-guidebook-content/);assert.doesNotMatch(sheet,/innerHTML\s*=\s*await response\.text/);assert.match(read('public/game-guidebooks.css'),/prefers-reduced-motion/);});
 
 test('guide search metadata is crawlable with matching article and breadcrumb URLs',()=>{for(const id of ['geoweb','spell-drill','satury']){const html=read(`dist/dexterity/guidebook/${id}/index.html`);assert.doesNotMatch(html, /content="[^"]*noindex/);assert.match(html, /사용법/);const json=JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);assert.equal(json['@graph'][0]['@type'],'BlogPosting');assert.equal(json['@graph'][1]['@type'],'BreadcrumbList');assert.equal(json['@graph'][1].itemListElement[1].item,json['@graph'][0].url);}});
+
+test('game guides place public ranking immediately after profile and keep map tools before games',()=>{
+ for(const id of ['geoweb','spell-drill']){
+  const html=read(`dist/dexterity/guidebook/${id}/index.html`);
+  const profile=html.indexOf(`id="${id}-profile"`),ranking=html.indexOf(`id="${id}-ranking"`);
+  assert.ok(profile>0&&ranking>profile);assert.match(html.slice(profile,ranking),/ブラウザ|브라우저/);
+ }
+ const html=read('dist/dexterity/guidebook/geoweb/index.html');
+ assert.ok(html.indexOf('<h2>사람이 모여 사는 곳')<html.indexOf('<h2>게임 모드에서'));
+ assert.ok(html.indexOf('<h2>게임 모드에서')<html.indexOf('<h2>혼자 풀어 보고'));
+ for(const id of ['geoweb','spell-drill','satury'])assert.equal((read(`dist/dexterity/guidebook/${id}/index.html`).match(/class="guide-carousel"/g)||[]).length,1);
+});

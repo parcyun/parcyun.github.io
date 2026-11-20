@@ -26,7 +26,7 @@ const structuredData = {
 <link rel="alternate" type="application/rss+xml" title="parcyun dexterity" href="/dexterity/feed.xml" />
 <link rel="icon" href="/favicon.svg" />
 <link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;500;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/dexterity.css?v=20261116-1" />
+<link rel="stylesheet" href="/dexterity.css?v=20261120-reading-1" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 </head>
 <body class="dexterity-home">
@@ -40,6 +40,7 @@ const structuredData = {
 <a href={post.href} class="entry" data-category={category} data-visit-path={post.href}>
 <img src={post.image} alt="" width="1086" height="1448" />
 <h3>{post.title}</h3>
+{category === '가이드북' && <p class="entry-description">{post.description}</p>}
 <span class="entry-views" role="img" aria-label="누적 조회수 불러오는 중"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span data-card-view-value>—</span></span>
 </a>
 ))}
@@ -110,6 +111,8 @@ section+section{margin-top:64px;border-top:1px solid rgba(255,255,255,.18);paddi
 .entry::after{content:"";position:absolute;inset:30% 0 0;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.3) 40%,rgba(0,0,0,.88) 100%);pointer-events:none;z-index:1}
 h3{position:absolute;left:24px;right:24px;bottom:56px;margin:0;z-index:2;font-size:28px;font-weight:800;line-height:1.25;letter-spacing:-.04em}
 .entry-views{position:absolute;right:24px;bottom:20px;z-index:2;display:inline-flex;align-items:center;gap:6px;color:#eee;font-size:12px;line-height:16px;font-variant-numeric:tabular-nums}.entry-views svg{flex:none}
+.entry[data-category="가이드북"] h3{bottom:84px}
+.entry-description{position:absolute;left:24px;right:24px;bottom:52px;z-index:2;margin:0;color:#eee;font-size:14px;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .entry[data-category="가이드북"]{border-radius:24px;border:1px solid rgba(255,255,255,.18)}.entry[data-category="가이드북"] img{object-fit:cover;object-position:center;background:#000}.entry:focus-visible{outline:3px solid #FFB11A;outline-offset:5px}
 @media(hover:hover){.entry:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(255,177,26,.14)}.entry:hover img{transform:scale(1.035)}}
 @media(prefers-reduced-motion:reduce){.entry,.entry img{transition:none}.entry:hover,.entry:hover img{transform:none}}

@@ -1,4 +1,5 @@
 /* Dexterity: article/gallery identity, preserving editorial photography. */
+.article-back{max-width:640px;margin:24px auto 0}.article-back a{display:inline-flex;align-items:center;min-height:44px;color:var(--ps-text,#fff);font-size:14px;text-underline-offset:5px}.article-back a:hover{color:var(--ps-primary,#FFB11A)}
 .dexterity-logo,.brand.dexterity-logo{font-family:'Covered By Your Grace',cursive;font-size:30px;font-weight:400;color:#FFB11A;line-height:1.2;text-decoration:none;transition:opacity .18s ease}
 .dexterity-logo:hover{opacity:.75}
 .dexterity-header{max-width:1200px;margin:auto;padding:24px 32px 0}

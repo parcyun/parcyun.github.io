@@ -6,6 +6,7 @@ export interface Props {
   showReview?: boolean;
   reviewLabel?: string;
   reviewService?: string;
+  contactLabel?: '커피 사주기' | '협업 문의';
 }
 const {
   showFeedback = true,
@@ -13,6 +14,7 @@ const {
   showReview = true,
   reviewLabel = '리뷰 남기기',
   reviewService = '',
+  contactLabel = '커피 사주기',
 } = Astro.props;
 ---
 <div
@@ -22,9 +24,10 @@ const {
   data-show-review={String(showReview)}
   data-review-label={reviewLabel}
   data-review-service={reviewService}
+  data-contact-label={contactLabel}
 ></div>
 <script is:inline src="/modal-motion.js?v=20261030-2" defer></script>
 <script is:inline src="/service-context.js?v=20261118-contact-1" defer></script>
-<script is:inline src="/ps-footer.js?v=20261119-guides-1" defer></script>
+<script is:inline src="/ps-footer.js?v=20261120-contact-1" defer></script>
 <script is:inline src="/ps-track.js" defer></script>
 <script is:inline src="/site-content.js?v=20260714.1" defer></script>

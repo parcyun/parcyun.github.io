@@ -81,6 +81,7 @@
   var showFeedback = contextConfig ? contextConfig.showFeedback : host.getAttribute('data-show-feedback') !== 'false';
   var showReview = contextConfig ? contextConfig.showReview : host.getAttribute('data-show-review') !== 'false';
   var showLinks = contextConfig ? contextConfig.showLinks : host.getAttribute('data-show-links') !== 'false';
+  var collaboration = host.getAttribute('data-contact-label') === '협업 문의';
   var reviewLabel = host.getAttribute('data-review-label') || '리뷰 남기기';
   var reviewService = host.getAttribute('data-review-service') || '';
   var servicePath = host.getAttribute('data-service-path') || location.pathname;
@@ -112,7 +113,7 @@
 
   host.innerHTML = (showLinks ? footerLinks : '')
     + '<div class="ps-brand-fixed">'
-    + '<button type="button" class="ps-brand-coffee" id="ps-coffee"><span class="ico">' + coffeeIcon + '</span><span id="foot-coffee-label">커피 사주기</span></button>'
+    + '<button type="button" class="ps-brand-coffee" id="ps-coffee"><span class="ico">' + coffeeIcon + '</span><span id="' + (collaboration ? 'foot-contact-label' : 'foot-coffee-label') + '">' + (collaboration ? '협업 문의' : '커피 사주기') + '</span></button>'
     + (showFeedback ? '<button type="button" class="ps-brand-feedback" id="foot-report" data-feedback-open>기능 개선 요청</button>' : '')
     + (showReview ? '<a class="ps-brand-review" href="' + reviewHref + '">' + reviewLabel + '</a>' : '')
     + (guideService ? '<button type="button" class="ps-brand-guide" id="foot-guidebook" data-guidebook-href="/dexterity/guidebook/' + guideService + '/" data-guidebook-title="' + guideNames[guideService] + ' 가이드북" aria-haspopup="dialog" aria-expanded="false">가이드북 보기</button>' : '')

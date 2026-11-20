@@ -1,0 +1,1042 @@
+{
+  "checkedAt": "2026-11-20T04:01:01.807Z",
+  "scope": "Built HTML, sitemap, robots, static links/assets; optional public HTTP GET. No JS app flow or authenticated state.",
+  "counts": {
+    "html": 38,
+    "sitemap": 26
+  },
+  "pages": [
+    {
+      "path": "/404.html",
+      "title": "404 · 페이지를 찾을 수 없어요 | parcyun studio",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/academica/",
+      "title": "ACADEMICA · 강의 자료 · parcyun studio",
+      "canonical": "https://parcyun.github.io/academica/",
+      "description": true,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/academica-parcyun-studio/",
+      "title": "온라인 연수 녹화본 · parcyun studio",
+      "canonical": "https://parcyun.github.io/academica-parcyun-studio/",
+      "description": true,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/admin/components/",
+      "title": "Design Studio · parcyun studio",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex,nofollow",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/admin/",
+      "title": "관리자 · parcyun studio",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex,nofollow",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/atlas-gears/",
+      "title": "ATLAS GEARS · 교육 활동 자료 · parcyun studio",
+      "canonical": "https://parcyun.github.io/atlas-gears/",
+      "description": true,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/dashboard.html",
+      "title": "parcyun studio · 업무 대시보드",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex,nofollow",
+      "blocked": true,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/dexterity/guidebook/geoweb/",
+      "title": "지오웹 사용법: 세계 인구 지도·지리 퀴즈·대항전 가이드 | parcyun dexterity",
+      "canonical": "https://parcyun.github.io/dexterity/guidebook/geoweb/",
+      "description": true,
+      "robots": "max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/dexterity/guidebook/satury/",
+      "title": "사투리 검색 사용법: 지역별 방언과 표준국어대사전 가이드 | parcyun dexterity",
+      "canonical": "https://parcyun.github.io/dexterity/guidebook/satury/",
+      "description": true,
+      "robots": "max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/dexterity/guidebook/spell-drill/",
+      "title": "스펠드릴 사용법: 맞춤법·띄어쓰기 연습과 우리 반 대항전 | parcyun dexterity",
+      "canonical": "https://parcyun.github.io/dexterity/guidebook/spell-drill/",
+      "description": true,
+      "robots": "max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/dexterity/hyangmisa/",
+      "title": "경주 카페 향미사 — 경주체육관 간판 아래 | parcyun dexterity",
+      "canonical": "https://parcyun.github.io/dexterity/hyangmisa/",
+      "description": true,
+      "robots": "max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/dexterity/",
+      "title": "parcyun dexterity | 박윤의 기록과 서비스 가이드북",
+      "canonical": "https://parcyun.github.io/dexterity/",
+      "description": true,
+      "robots": "max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/feedback-admin/",
+      "title": "Redirecting to: /admin/components/?mode=feedback",
+      "canonical": "https://parcyun.github.io/admin/components/?mode=feedback",
+      "description": false,
+      "robots": "noindex",
+      "blocked": false,
+      "redirect": "2;url=/admin/components/?mode=feedback",
+      "listed": false
+    },
+    {
+      "path": "/footer-preview.html",
+      "title": "공용 푸터 미리보기",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/geoweb-battle/music-credits.html",
+      "title": "지오웹 배경음악 출처",
+      "canonical": null,
+      "description": false,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/googled418117a4754216f.html",
+      "title": "",
+      "canonical": null,
+      "description": false,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/",
+      "title": "parcyun studio | parcyun(박윤)",
+      "canonical": "https://parcyun.github.io/",
+      "description": true,
+      "robots": "max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/korean-spell-drill-parcyun/",
+      "title": "Spell Drill로 이동합니다 · parcyun studio",
+      "canonical": "https://parcyun.github.io/spell-drill/",
+      "description": false,
+      "robots": "noindex,follow",
+      "blocked": false,
+      "redirect": "0; url=/spell-drill/",
+      "listed": false
+    },
+    {
+      "path": "/lab/globe/",
+      "title": "지구본 Lab · WebGL 개발자 뷰 — parcyun studio",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex, nofollow",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/llm-fundamentals/",
+      "title": "하네스 에이전트를 위한 생성형 AI 기본 이해 · parcyun studio",
+      "canonical": "https://parcyun.github.io/llm-fundamentals/",
+      "description": true,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/math-solid-volume/",
+      "title": "쌓기나무 공장 — 부피 검수 미션 (6학년)",
+      "canonical": "https://parcyun.github.io/math-solid-volume/",
+      "description": true,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/mongdang-production-schedule.html",
+      "title": "몽당프로덕션 · 8.1 상영회 일정 안내",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex,nofollow",
+      "blocked": true,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/privacy/",
+      "title": "개인정보처리방침 · parcyun studio",
+      "canonical": "https://parcyun.github.io/privacy/",
+      "description": true,
+      "robots": "max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/reviews/",
+      "title": "리뷰 · parcyun studio",
+      "canonical": "https://parcyun.github.io/reviews/",
+      "description": true,
+      "robots": "max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/satury/about/",
+      "title": "표준국어대사전·방언 사전 검색 안내 | satury",
+      "canonical": "https://parcyun.github.io/satury/about/",
+      "description": true,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/satury/",
+      "title": "표준국어대사전 · 방언 사전 검색 | satury",
+      "canonical": "https://parcyun.github.io/satury/",
+      "description": true,
+      "robots": "index,follow,max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/spell-drill/about/",
+      "title": "스펠 드릴 Spell Drill 소개·사용 방법 | parcyun studio",
+      "canonical": "https://parcyun.github.io/spell-drill/about/",
+      "description": true,
+      "robots": "max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/spell-drill/",
+      "title": "스펠 드릴 Spell Drill — 무료 한글 맞춤법·영어 문법 게임 | parcyun studio",
+      "canonical": "https://parcyun.github.io/spell-drill/",
+      "description": true,
+      "robots": "index,follow,max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/spell-drill/music-credits.html",
+      "title": "배경음악 출처 · 스펠 드릴",
+      "canonical": "https://parcyun.github.io/spell-drill/music-credits.html",
+      "description": true,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/studio/",
+      "title": "parcyun studio — 웹사이트 디자인 & 제작",
+      "canonical": "https://parcyun.github.io/studio/",
+      "description": true,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/terms/",
+      "title": "이용약관 · parcyun studio",
+      "canonical": "https://parcyun.github.io/terms/",
+      "description": true,
+      "robots": "max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/web-learning/",
+      "title": "웹 개발 공부하기 · parcyun studio",
+      "canonical": null,
+      "description": true,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/works/002-i-am-serif/",
+      "title": "I am Serif — Independent Type-led Design Studio",
+      "canonical": "https://parcyun.github.io/works/002-i-am-serif/",
+      "description": true,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/works/",
+      "title": "parcyun studio · Works",
+      "canonical": "https://parcyun.github.io/works/",
+      "description": true,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/works/masterclass/",
+      "title": "the Masterclass · Web Standard — parcyun studio Works",
+      "canonical": "https://parcyun.github.io/works/masterclass/",
+      "description": true,
+      "robots": "max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/works/mdbf/",
+      "title": "MDBF · Web Standard — parcyun studio Works",
+      "canonical": "https://parcyun.github.io/works/mdbf/",
+      "description": true,
+      "robots": "max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/world-map/about/",
+      "title": "지오웹 GeoWeb 소개·사용 방법 | parcyun studio",
+      "canonical": "https://parcyun.github.io/world-map/about/",
+      "description": true,
+      "robots": "max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    },
+    {
+      "path": "/world-map/",
+      "title": "지오웹 GeoWeb — 세계지도·기후·지형 탐색과 지리 퀴즈 게임 | parcyun studio",
+      "canonical": "https://parcyun.github.io/world-map/",
+      "description": true,
+      "robots": "index,follow,max-image-preview:large",
+      "blocked": false,
+      "redirect": null,
+      "listed": true
+    }
+  ],
+  "sitemapChecks": [
+    {
+      "url": "https://parcyun.github.io/satury/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/satury/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/satury/about/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/satury/about/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/dexterity/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/dexterity/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/dexterity/hyangmisa/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/dexterity/hyangmisa/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/academica/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/academica/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/atlas-gears/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/atlas-gears/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/works/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/works/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/world-map/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/world-map/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/llm-fundamentals/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/llm-fundamentals/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/math-solid-volume/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/math-solid-volume/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/academica-parcyun-studio/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/academica-parcyun-studio/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/spell-drill/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/spell-drill/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/spell-drill/about/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/spell-drill/about/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/world-map/about/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/world-map/about/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/works/002-i-am-serif/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/works/002-i-am-serif/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/studio/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/studio/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/works/mdbf/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/works/mdbf/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/works/masterclass/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/works/masterclass/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/reviews/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/reviews/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/privacy/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/privacy/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/terms/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/terms/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/spell-drill/music-credits.html",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/spell-drill/music-credits.html",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/dexterity/guidebook/geoweb/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/dexterity/guidebook/geoweb/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/dexterity/guidebook/spell-drill/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/dexterity/guidebook/spell-drill/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    },
+    {
+      "url": "https://parcyun.github.io/dexterity/guidebook/satury/",
+      "exists": true,
+      "canonical": "https://parcyun.github.io/dexterity/guidebook/satury/",
+      "canonicalMatches": true,
+      "noindex": false,
+      "blocked": false
+    }
+  ],
+  "notListed": [
+    {
+      "path": "/404.html",
+      "title": "404 · 페이지를 찾을 수 없어요 | parcyun studio",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/admin/components/",
+      "title": "Design Studio · parcyun studio",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex,nofollow",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/admin/",
+      "title": "관리자 · parcyun studio",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex,nofollow",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/dashboard.html",
+      "title": "parcyun studio · 업무 대시보드",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex,nofollow",
+      "blocked": true,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/feedback-admin/",
+      "title": "Redirecting to: /admin/components/?mode=feedback",
+      "canonical": "https://parcyun.github.io/admin/components/?mode=feedback",
+      "description": false,
+      "robots": "noindex",
+      "blocked": false,
+      "redirect": "2;url=/admin/components/?mode=feedback",
+      "listed": false
+    },
+    {
+      "path": "/footer-preview.html",
+      "title": "공용 푸터 미리보기",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/geoweb-battle/music-credits.html",
+      "title": "지오웹 배경음악 출처",
+      "canonical": null,
+      "description": false,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/googled418117a4754216f.html",
+      "title": "",
+      "canonical": null,
+      "description": false,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/korean-spell-drill-parcyun/",
+      "title": "Spell Drill로 이동합니다 · parcyun studio",
+      "canonical": "https://parcyun.github.io/spell-drill/",
+      "description": false,
+      "robots": "noindex,follow",
+      "blocked": false,
+      "redirect": "0; url=/spell-drill/",
+      "listed": false
+    },
+    {
+      "path": "/lab/globe/",
+      "title": "지구본 Lab · WebGL 개발자 뷰 — parcyun studio",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex, nofollow",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/mongdang-production-schedule.html",
+      "title": "몽당프로덕션 · 8.1 상영회 일정 안내",
+      "canonical": null,
+      "description": false,
+      "robots": "noindex,nofollow",
+      "blocked": true,
+      "redirect": null,
+      "listed": false
+    },
+    {
+      "path": "/web-learning/",
+      "title": "웹 개발 공부하기 · parcyun studio",
+      "canonical": null,
+      "description": true,
+      "robots": "",
+      "blocked": false,
+      "redirect": null,
+      "listed": false
+    }
+  ],
+  "missingCanonical": [
+    "/404.html",
+    "/admin/components/",
+    "/admin/",
+    "/dashboard.html",
+    "/footer-preview.html",
+    "/geoweb-battle/music-credits.html",
+    "/googled418117a4754216f.html",
+    "/lab/globe/",
+    "/mongdang-production-schedule.html",
+    "/web-learning/"
+  ],
+  "missingDescription": [
+    "/404.html",
+    "/admin/components/",
+    "/admin/",
+    "/dashboard.html",
+    "/feedback-admin/",
+    "/footer-preview.html",
+    "/geoweb-battle/music-credits.html",
+    "/googled418117a4754216f.html",
+    "/korean-spell-drill-parcyun/",
+    "/lab/globe/",
+    "/mongdang-production-schedule.html"
+  ],
+  "duplicateTitles": [],
+  "duplicateCanonicals": [
+    {
+      "url": "https://parcyun.github.io/spell-drill/",
+      "paths": [
+        "/korean-spell-drill-parcyun/",
+        "/spell-drill/"
+      ]
+    }
+  ],
+  "brokenLinks": [],
+  "missingFragments": [],
+  "missingAssets": [],
+  "http": [
+    {
+      "url": "https://parcyun.github.io/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/404.html",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/404.html",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/academica-parcyun-studio/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/academica-parcyun-studio/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/academica/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/academica/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/admin/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/admin/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/admin/components/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/admin/components/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/atlas-gears/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/atlas-gears/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/dashboard.html",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/dashboard.html",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/dexterity/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/dexterity/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/dexterity/guidebook/geoweb/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/dexterity/guidebook/geoweb/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/dexterity/guidebook/satury/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/dexterity/guidebook/satury/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/dexterity/guidebook/spell-drill/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/dexterity/guidebook/spell-drill/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/dexterity/hyangmisa/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/dexterity/hyangmisa/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/feedback-admin/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/feedback-admin/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/footer-preview.html",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/footer-preview.html",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/geoweb-battle/music-credits.html",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/geoweb-battle/music-credits.html",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/googled418117a4754216f.html",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/googled418117a4754216f.html",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/korean-spell-drill-parcyun/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/korean-spell-drill-parcyun/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/lab/globe/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/lab/globe/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/llm-fundamentals/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/llm-fundamentals/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/math-solid-volume/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/math-solid-volume/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/mongdang-production-schedule.html",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/mongdang-production-schedule.html",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/privacy/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/privacy/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/reviews/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/reviews/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/robots.txt",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/robots.txt",
+      "contentType": "text/plain; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/satury/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/satury/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/satury/about/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/satury/about/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/sitemap.xml",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/sitemap.xml",
+      "contentType": "application/xml",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/spell-drill/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/spell-drill/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/spell-drill/about/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/spell-drill/about/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/spell-drill/music-credits.html",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/spell-drill/music-credits.html",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/studio/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/studio/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/terms/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/terms/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/web-learning/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/web-learning/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/works/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/works/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/works/002-i-am-serif/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/works/002-i-am-serif/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/works/masterclass/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/works/masterclass/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/works/mdbf/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/works/mdbf/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/world-map/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/world-map/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    },
+    {
+      "url": "https://parcyun.github.io/world-map/about/",
+      "status": 200,
+      "finalUrl": "https://parcyun.github.io/world-map/about/",
+      "contentType": "text/html; charset=utf-8",
+      "xRobots": null
+    }
+  ]
+}

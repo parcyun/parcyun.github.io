@@ -181,6 +181,9 @@ const jsonLd = {
 <link rel="stylesheet" href="/home-scenes.css?v=20261029-3" />
 
 <style is:global>
+body:has(#home-scenes) #ps-footer-root .ps-footer{position:fixed;left:50%;bottom:max(8px,env(safe-area-inset-bottom));transform:translateX(-50%);width:max-content;max-width:calc(100vw - 32px);z-index:9990;border:0;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none}
+body:has(#home-scenes) #ps-footer-root .ps-footer-inner{padding:8px 0;justify-content:center}
+body:has(#home-scenes) #ps-footer-root .ps-flinks{justify-content:center}
   .collections-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:6px}
   @media(min-width:768px){.collections-grid{grid-template-columns:1fr 1fr}}
   .collection-card{position:relative;display:flex;flex-direction:column;gap:2px;padding:30px 28px;border-radius:10px;

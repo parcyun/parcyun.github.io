@@ -44,6 +44,7 @@ const structuredData = {
 <link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style is:global>
+.article-header-links{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0}.article-top-back{display:inline-flex;align-items:center;min-height:44px;color:var(--ps-text-secondary);font-size:13px;text-decoration:none}.article-top-back:hover{color:var(--ps-primary)}
 /* Adapted from parcyun studio webpage_base.html: reading-focused preview. */
 :root{--ps-primary:#FFB11A;--ps-bg:#FAFAF7;--ps-text:#0F1419;--ps-text-secondary:#5A6478;--ps-border:#E5E8ED}
 [data-theme=dark]{--ps-bg:#000000;--ps-text:#FFFFFF;--ps-text-secondary:#8C8C8C;--ps-border:#333333}
@@ -56,7 +57,7 @@ main{padding:64px 24px 120px;max-width:1000px;margin:auto}.heading,.prose,.notes
 </head>
 <body class="dexterity-article">
 <StudioMusicPlayer/>
-<header class="dexterity-article-header"><a class="brand dexterity-logo" href="/dexterity/">parcyun dexterity</a><button id="theme" type="button" aria-label="밝은 화면" aria-pressed="false">밝은 화면</button></header>
+<header class="dexterity-article-header"><div class="article-header-links"><a class="brand dexterity-logo" href="/dexterity/">parcyun dexterity</a><a class="article-top-back" href="/dexterity/#category-3">← 목록으로 돌아가기</a></div><button id="theme" type="button" aria-label="밝은 화면" aria-pressed="false">밝은 화면</button></header>
 <main><article>
 <div class="heading"><p class="eyebrow">GYEONGJU · COFFEE</p><h1>경주체육관 간판 아래,<br>향미사</h1><div class="meta"><a href="/#parcyun" rel="author">글 · parcyun(박윤)</a><time datetime={post.datePublished}>2026.11.15</time><span>사진 9장</span></div></div>
 <figure><a href="/images/dexterity/hyangmisa/hyangmisa-exterior.png" aria-label="경주체육관 외관 사진 크게 보기"><img class="photo-square" style="object-position:50% 75%" src="/images/dexterity/hyangmisa/hyangmisa-exterior.png" fetchpriority="high" width="1086" height="1448" alt="밝은 타일 외벽에 경주체육관 간판이 남아 있는 향미사 입구."></a></figure>

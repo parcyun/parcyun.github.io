@@ -1,6 +1,7 @@
 ---
 import { icon } from '../lib/icons';
 import PsFooter from '../components/PsFooter.astro';
+import StudioMusicPlayer from '../components/StudioMusicPlayer.astro';
 import LectureShelf from '../components/LectureShelf.tsx';
 ---
 <!DOCTYPE html>
@@ -175,6 +176,7 @@ section.in-view, .hero.in-view {
 <noscript><style>section,.hero{opacity:1!important;transform:none!important}</style></noscript>
 </head>
 <body>
+<StudioMusicPlayer/>
 
 <button data-ps-edit-id="ps-academica-001" data-ps-design-id="ps-academica-001" type="button" class="ps-back" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}"><span data-ps-edit-id="ps-academica-002" data-ps-design-id="ps-academica-002" class="ico" set:html={icon('arrowLeft', 20)}></span></button>
 

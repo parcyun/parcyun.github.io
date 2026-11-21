@@ -1,0 +1,16 @@
+<div class="studio-music-player" data-studio-music aria-label="스튜디오 음악 플레이어">
+  <button type="button" data-music-toggle aria-label="음악 재생" aria-pressed="false">
+    <svg data-music-play width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m7 3 15 9-15 9Z"/></svg>
+    <svg data-music-pause width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" hidden><path d="M6 3h4v18H6zm8 0h4v18h-4z"/></svg>
+  </button>
+  <span data-music-title title="I love this Christmas city">I love this Christmas city</span>
+  <audio data-music-audio preload="none"></audio>
+</div>
+<script is:inline src="/studio-music.js?v=20261122-1" defer></script>
+<style>
+  .studio-music-player{position:fixed;top:max(14px,env(safe-area-inset-top));left:calc(100vw - max(20px,env(safe-area-inset-right)));transform:translateX(-100%);z-index:92;display:flex;align-items:center;gap:4px;width:max-content;max-width:calc(100vw - 84px);height:44px;color:#ccc;font:300 12px/1.4 Montserrat,'Pretendard Variable',sans-serif;letter-spacing:0}
+  .studio-music-player button{display:grid;place-items:center;flex:none;width:44px;height:44px;min-height:44px;margin:0;padding:0;border:0;border-radius:50%;background:transparent;color:inherit;cursor:pointer;box-shadow:none;transition:color .18s}
+  .studio-music-player button:hover{color:#FFB11A}.studio-music-player button:focus-visible{outline:2px solid #FFB11A;outline-offset:2px}
+  .studio-music-player svg[hidden]{display:none}.studio-music-player [data-music-title]{min-width:0;max-width:210px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  @media(prefers-reduced-motion:reduce){.studio-music-player button{transition:none}}
+</style>

@@ -3,6 +3,11 @@ import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
 import vm from 'node:vm';
 const source=readFileSync('public/studio-music.js','utf8');
+test('icons show the next action: play when stopped, pause while playing',()=>{
+ const component=readFileSync('src/components/StudioMusicPlayer.astro','utf8');
+ assert.match(component,/data-playing="true"\] \[data-music-pause\]/);
+ assert.match(component,/:not\(\[data-playing="true"\]\) \[data-music-play\]/);
+});
 function setup(saved=null,blocked=false){
  const events={},windowEvents={},attrs={},storage=new Map(saved?[['ps-studio-music-v1',JSON.stringify(saved)]]:[]);
  let now=0,frames=[];

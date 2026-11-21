@@ -3,6 +3,11 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const read=p=>readFileSync(p,'utf8');
+test('theme colors ease over 300ms and respect reduced motion',()=>{
+ const controls=read('src/components/DexterityControls.astro');
+ assert.match(controls,/transition:background-color \.3s ease,color \.3s ease,border-color \.3s ease/);
+ assert.match(controls,/@media\(prefers-reduced-motion:reduce\)\{body:has\(\[data-dexterity-theme\]\)/);
+});
 test('article theme controls are shared, positioned before counts and remembered safely',()=>{
  const source=read('public/dexterity-theme.js');
  const storage=new Map(),events={},attrs={},root={dataset:{}},window={};

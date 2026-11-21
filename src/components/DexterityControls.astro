@@ -38,6 +38,8 @@ if((window as any).psPageLifecycle)(window as any).psPageLifecycle.register('dex
 </script>
 <script is:inline src="/visitor-counter.js?v=20261122-music-2" defer></script>
 <style is:global>
+body:has([data-dexterity-theme]),body:has([data-dexterity-theme]) :is(.heading,.meta,.eyebrow,.prose,.notes,.article-top-back,figcaption,.game-guide,.game-guide-back,.game-guide-summary,.game-guide-note,.game-guide-link,.game-guide-toc,.guide-carousel-track>a,.guide-carousel-track p){transition:background-color .3s ease,color .3s ease,border-color .3s ease}
+@media(prefers-reduced-motion:reduce){body:has([data-dexterity-theme]),body:has([data-dexterity-theme]) :is(.heading,.meta,.eyebrow,.prose,.notes,.article-top-back,figcaption,.game-guide,.game-guide-back,.game-guide-summary,.game-guide-note,.game-guide-link,.game-guide-toc,.guide-carousel-track>a,.guide-carousel-track p){transition:none}}
 html:has(.dexterity-dock),body:has(.dexterity-dock),body:has(.dexterity-dock) *{scrollbar-width:none}
 body:has(.dexterity-dock)::-webkit-scrollbar,html:has(.dexterity-dock)::-webkit-scrollbar,body:has(.dexterity-dock) *::-webkit-scrollbar{display:none}
 body:has(.dexterity-dock){padding-bottom:144px;--dexterity-gutter:clamp(20px,4vw,48px)}

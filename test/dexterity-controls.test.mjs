@@ -31,6 +31,8 @@ test('Dexterity opts into collaboration copy and responsive horizontal gutters',
 });
 test('homepage footer reserves actual tool height and docks the same element at the boundary',()=>{
  assert.match(readFileSync('src/pages/dexterity/hyangmisa.astro','utf8'),/class="article-top-back" href="\/dexterity\/#category-3">← 목록으로 돌아가기/);
+ assert.match(readFileSync('src/pages/dexterity/hyangmisa.astro','utf8'),/<main><a class="article-top-back"[^>]*>← 목록으로 돌아가기<\/a><article>/);
+ assert.doesNotMatch(readFileSync('src/pages/dexterity/hyangmisa.astro','utf8').match(/<header class="dexterity-article-header">[\s\S]*?<\/header>/)[0],/article-top-back/);
  assert.match(readFileSync('public/share-widget.js','utf8'),/if\(\/\^\\\/dexterity\(\?:\\\/\|\$\)\/.test\(location.pathname\)\)return/);
  assert.match(readFileSync('src/components/StudioMusicPlayer.astro','utf8'),/aria-label="parcyun studio 메인홈으로 이동"/);
  assert.doesNotMatch(gallery,/class="dexterity-home-link"/);

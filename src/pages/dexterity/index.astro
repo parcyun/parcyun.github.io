@@ -40,7 +40,7 @@ const structuredData = {
 </head>
 <body class="dexterity-home">
 <StudioMusicPlayer/>
-<header class="dexterity-header"><h1 style="margin:0;font:inherit"><a class="dexterity-logo" href="/dexterity/">parcyun dexterity</a></h1><a class="dexterity-home-link" href="/" aria-label="parcyun studio 메인홈으로 이동" title="parcyun studio 메인홈"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3Z"/><path d="M9 20v-7h6v7"/></svg></a></header>
+<header class="dexterity-header"><h1 style="margin:0;font:inherit"><a class="dexterity-logo" href="/dexterity/">parcyun dexterity</a></h1></header>
 <main aria-label="parcyun dexterity">
 {categories.filter(category => posts.some(post => post.category === category)).map(category => (
 <section aria-label={category} id={category==='가이드북'?'guidebooks':`category-${categories.indexOf(category)}`} data-category-section>
@@ -119,10 +119,7 @@ return ()=>{abort.abort();countLayout.disconnect();};
 <style is:global>
 html{scrollbar-width:none;scroll-behavior:smooth}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
 .dexterity-home .dexterity-header{display:flex;align-items:center;justify-content:space-between;gap:16px}
-.dexterity-home-link{display:grid;place-items:center;flex:none;width:48px;height:48px;border:1px solid #ffffff40;border-radius:50%;background:#111;color:#fff;transition:color .18s,border-color .18s}
-.dexterity-home-link:hover{color:#FFB11A;border-color:#FFB11A}.dexterity-home-link:focus-visible{outline:2px solid #FFB11A;outline-offset:4px}
-.dexterity-home .dexterity-home-link{margin-right:260px}
-@media(max-width:640px){.dexterity-home .studio-music-player{top:80px}.dexterity-home .dexterity-header{padding-bottom:48px}.dexterity-home .dexterity-home-link{margin-right:0}}
+@media(max-width:640px){.dexterity-home .studio-music-player{top:80px}.dexterity-home .dexterity-header{padding-bottom:64px}}
 .dexterity-home-footer{border-top:1px solid #ffffff26;margin-top:32px;padding:48px max(var(--dexterity-gutter),env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(var(--dexterity-gutter),env(safe-area-inset-left))}
 .dexterity-footer-inner{max-width:1136px;margin:0 auto 40px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:24px}
 .dexterity-footer-inner nav{display:flex;flex-wrap:wrap;gap:24px}.dexterity-footer-inner nav a{color:#aaa;font-size:14px;text-decoration:none}.dexterity-footer-inner nav a:hover{color:#FFB11A}

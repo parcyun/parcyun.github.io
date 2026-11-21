@@ -78,6 +78,7 @@ function listen(target,type,fn,options){target.addEventListener(type,fn,options)
     + '<path d="M5.5 5.5h2v2h-2zM16.5 5.5h2v2h-2zM5.5 16.5h2v2h-2z"/></svg>';
 
   function build() {
+    if(/^\/dexterity(?:\/|$)/.test(location.pathname))return;
     var style = document.createElement('style');
     style.textContent = css;
     document.head.appendChild(style);

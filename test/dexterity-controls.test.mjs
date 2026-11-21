@@ -30,7 +30,9 @@ test('Dexterity opts into collaboration copy and responsive horizontal gutters',
  assert.match(readFileSync('src/components/PsFooter.astro','utf8'),/contactLabel = '커피 사주기'/);
 });
 test('homepage footer reserves actual tool height and docks the same element at the boundary',()=>{
- assert.match(gallery,/aria-label="parcyun studio 메인홈으로 이동"/);
+ assert.match(readFileSync('public/share-widget.js','utf8'),/if\(\/\^\\\/dexterity\(\?:\\\/\|\$\)\/.test\(location.pathname\)\)return/);
+ assert.match(readFileSync('src/components/StudioMusicPlayer.astro','utf8'),/aria-label="parcyun studio 메인홈으로 이동"/);
+ assert.doesNotMatch(gallery,/class="dexterity-home-link"/);
  assert.match(gallery,/aria-label="Dexterity 하단 푸터"/);
  assert.match(gallery,/data-dexterity-footer-slot><DexterityControls\/>/);
  assert.match(controls,/slot.style.height=dock.offsetHeight/);

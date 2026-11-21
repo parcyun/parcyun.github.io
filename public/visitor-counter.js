@@ -1,3 +1,8 @@
+(function(){
+function init(){
+window.__psVisitorCounter=false;
+const removers=[];
+function listen(target,type,fn,options){target.addEventListener(type,fn,options);removers.push(()=>target.removeEventListener(type,fn,options));}
 /* parcyun studio · 방문자 카운터 (Supabase)
    같은 브라우저에서는 페이지별·방문일별 한 번만 방문을 집계하고,
    - 메인 페이지(/)  : 사이트 전역 토탈 표시 (오늘=오늘 전역, 전체=전 기간 전역)
@@ -133,6 +138,11 @@
       .catch(function () { /* 네트워크/설정 오류는 조용히 무시 — 사이트에 영향 없음 */ });
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  if (document.readyState === 'loading') listen(document,'DOMContentLoaded', run);
   else run();
+})();
+
+return ()=>removers.forEach(remove=>remove());
+}
+if(window.psPageLifecycle)window.psPageLifecycle.register("visitor-counter.js",init);else if(!window.__native_visitor_counter_js){window.__native_visitor_counter_js=true;init();}
 })();

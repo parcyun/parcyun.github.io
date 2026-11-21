@@ -1,3 +1,8 @@
+(function(){
+function init(){
+window.__psContent=false;
+const removers=[];
+function listen(target,type,fn,options){target.addEventListener(type,fn,options);removers.push(()=>target.removeEventListener(type,fn,options));}
 /* parcyun studio · public text/design overrides + administrator inline editor.
    Static HTML is always the fallback. Only administrators can write through RPCs. */
 (function () {
@@ -244,7 +249,7 @@
     selectedTarget = el; el.setAttribute('data-ps-studio-selected', ''); positionBadge(el);
     window.parent.postMessage({ type: 'ps-content-studio-selected', element: descriptor(el) }, location.origin);
   }
-  window.addEventListener('message', function (event) {
+  listen(window,'message', function (event) {
     if (event.origin !== location.origin || !event.data) return;
     if (event.data.type === 'ps-content-studio-inspect') {
       inspect = !!event.data.enabled;
@@ -252,21 +257,21 @@
       else clearInspection();
     }
   });
-  document.addEventListener('pointerover', function (event) {
+  listen(document,'pointerover', function (event) {
     if (!inspect) return; var el = event.target.closest('[data-ps-edit]'); if (!el || el === hoveredTarget) return;
     if (hoveredTarget) hoveredTarget.removeAttribute('data-ps-studio-hovered'); hoveredTarget = el; el.setAttribute('data-ps-studio-hovered', '');
   }, true);
-  document.addEventListener('pointerout', function (event) {
+  listen(document,'pointerout', function (event) {
     if (!inspect || !hoveredTarget || hoveredTarget.contains(event.relatedTarget)) return;
     hoveredTarget.removeAttribute('data-ps-studio-hovered'); hoveredTarget = null;
   }, true);
-  document.addEventListener('click', function (event) {
+  listen(document,'click', function (event) {
     if (!inspect) return;
     var el = event.target.closest('[data-ps-edit]');
     if (!el) return;
     event.preventDefault(); event.stopPropagation(); selectForStudio(el);
   }, true);
-  document.addEventListener('keydown', function (event) {
+  listen(document,'keydown', function (event) {
     if (!inspect || (event.key !== 'Enter' && event.key !== ' ')) return;
     var el = event.target.closest('[data-ps-edit]'); if (!el) return;
     event.preventDefault(); event.stopPropagation(); selectForStudio(el);
@@ -307,4 +312,9 @@
   var button = document.createElement('button'); button.textContent = '✏️ 편집 켜기';
   button.addEventListener('click', function () { setMode(!on); say(on ? '편집 모드 · 문구 클릭해 수정, 밖 클릭 시 저장' : '편집 종료'); });
   bar.appendChild(button); document.body.appendChild(bar);
+})();
+
+return ()=>removers.forEach(remove=>remove());
+}
+if(window.psPageLifecycle)window.psPageLifecycle.register("site-content.js",init);else if(!window.__native_site_content_js){window.__native_site_content_js=true;init();}
 })();

@@ -13,12 +13,14 @@ export interface Props {
 }
 import { icon } from '../lib/icons';
 import PsFooter from '../components/PsFooter.astro';
+import StudioNavigation from '../components/StudioNavigation.astro';
 import SeoHead from '../components/SeoHead.astro';
 const { title, description = '', ogTitle = '', ogDescription = '', ogUrl = '', ogImage = 'https://parcyun.github.io/images/og-card.png', lang = 'ko', showFeedback = true, showReview = true } = Astro.props;
 ---
 <!doctype html>
 <html lang={lang}>
 <head>
+{Astro.url.pathname==='/' && <StudioNavigation/>}
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -216,8 +218,8 @@ section.in-view, .hero.in-view {
 })();
 </script>
 
-<script is:inline src="/share-widget.js" defer></script>
-<script is:inline src="/visitor-counter.js?v=20261116-hierarchy-1" defer></script>
-<script is:inline src="/site-content.js?v=20260714.1" defer></script>
+<script is:inline src="/share-widget.js?v=20261122-music-2" defer></script>
+<script is:inline src="/visitor-counter.js?v=20261122-music-2" defer></script>
+<script is:inline src="/site-content.js?v=20261122-music-2" defer></script>
 </body>
 </html>

@@ -1,3 +1,8 @@
+(function(){
+function init(){
+
+const removers=[];
+function listen(target,type,fn,options){target.addEventListener(type,fn,options);removers.push(()=>target.removeEventListener(type,fn,options));}
 (function () {
   const viewer = document.createElement('dialog');
   viewer.className = 'photo-viewer';
@@ -79,5 +84,11 @@
       field.select();
     }
   });
+})();
+
+
+return ()=>removers.forEach(remove=>remove());
+}
+if(window.psPageLifecycle)window.psPageLifecycle.register("dexterity-actions.js",init);else if(!window.__native_dexterity_actions_js){window.__native_dexterity_actions_js=true;init();}
 })();
 

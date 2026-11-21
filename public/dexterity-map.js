@@ -1,3 +1,10 @@
+(function(){
+function init(){
+
+const removers=[],observers=[];
+function watchResize(fn){const o=new ResizeObserver(fn);observers.push(o);return o;}
+function watchIntersection(fn,options){const o=new IntersectionObserver(fn,options);observers.push(o);return o;}
+function listen(target,type,fn,options){target.addEventListener(type,fn,options);removers.push(()=>target.removeEventListener(type,fn,options));}
 /* Client ID is public and restricted to the registered website origins.
    Never add the NCP Client Secret to this file. */
 (function () {
@@ -36,9 +43,9 @@
           const info = new maps.InfoWindow({ content: '<div style="padding:12px 16px;color:#111;font:14px sans-serif"><strong>향미사</strong><br>경주시 태종로 734</div>' });
           info.open(map, marker);
           maps.Event.addListener(marker, 'click', () => info.getMap() ? info.close() : info.open(map, marker));
-          const resize = new ResizeObserver(() => map.setSize(new maps.Size(host.clientWidth, host.clientHeight)));
+          const resize = watchResize(() => map.setSize(new maps.Size(host.clientWidth, host.clientHeight)));
           resize.observe(host);
-          window.addEventListener('pagehide', () => resize.disconnect(), { once: true });
+          listen(window,'pagehide', () => resize.disconnect(), { once: true });
           finished = true;
           clearTimeout(timer);
           host.dataset.state = 'ready';
@@ -55,9 +62,14 @@
   }
   // Do not consume a map/geocoding request before the article's location is read.
   if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver(entries => {
+    const observer = watchIntersection(entries => {
       if (entries.some(entry => entry.isIntersecting)) { observer.disconnect(); start(); }
     }, { rootMargin: '240px' });
     observer.observe(host);
   } else start();
+})();
+
+return ()=>{removers.forEach(remove=>remove());observers.forEach(o=>o.disconnect());};
+}
+if(window.psPageLifecycle)window.psPageLifecycle.register("dexterity-map.js",init);else if(!window.__native_dexterity_map_js){window.__native_dexterity_map_js=true;init();}
 })();

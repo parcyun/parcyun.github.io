@@ -7,7 +7,7 @@ test('one gesture advances one scene; collections scroll stays inside until top 
  const sections=[0,1,2].map(i=>({tagName:'SECTION',offsetTop:i*800,clientHeight:800,scrollHeight:i===2?2400:800,scrollTop:0}));
  const root={children:sections,scrollTo:o=>moves.push(o.top),addEventListener:(k,fn)=>listeners[k]=fn};
  const document={querySelector:s=>s==='#home-scenes'?root:null,querySelectorAll:()=>[],addEventListener:()=>{}};
- runInNewContext(readFileSync(new URL('../public/home-scenes.js',import.meta.url),'utf8'),{document,matchMedia:()=>({matches:false}),performance:{now:()=>now},clearTimeout:()=>{},setTimeout:()=>1,ResizeObserver:class{observe(){}}});
+ runInNewContext(readFileSync(new URL('../public/home-scenes.js',import.meta.url),'utf8'),{window:{},document,matchMedia:()=>({matches:false}),performance:{now:()=>now},clearTimeout:()=>{},setTimeout:()=>1,ResizeObserver:class{observe(){}}});
  const wheel=deltaY=>{let prevented=false;listeners.wheel({deltaY,preventDefault(){prevented=true}});return prevented};
  wheel(100);now+=20;wheel(90);now+=20;wheel(60);assert.deepEqual(moves,[800]);
  now+=1000;wheel(100);assert.deepEqual(moves,[800,1600]);

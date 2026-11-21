@@ -1,3 +1,8 @@
+(function(){
+function init(){
+window.__psCareerTimeline=false;
+const removers=[];
+function listen(target,type,fn,options){target.addEventListener(type,fn,options);removers.push(()=>target.removeEventListener(type,fn,options));}
 /* parcyun studio · database-backed home career timeline.
    The static Astro timeline stays visible if the request fails. */
 (function () {
@@ -26,4 +31,9 @@
     list.replaceChildren(fragment);
   }
   request().then(render).catch(function () {});
+})();
+
+return ()=>removers.forEach(remove=>remove());
+}
+if(window.psPageLifecycle)window.psPageLifecycle.register("career-timeline.js",init);else if(!window.__native_career_timeline_js){window.__native_career_timeline_js=true;init();}
 })();

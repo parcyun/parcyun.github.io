@@ -60,6 +60,11 @@
   }, true);
 })();
 
+(function(){
+function init(){
+window.__psFooter=false;
+const removers=[];
+function listen(target,type,fn,options){target.addEventListener(type,fn,options);removers.push(()=>target.removeEventListener(type,fn,options));}
 /* parcyun studio · single shared footer for Astro pages and static tools */
 (function () {
   if (window.__psFooter) return;
@@ -86,7 +91,7 @@
   var reviewService = host.getAttribute('data-review-service') || '';
   var servicePath = host.getAttribute('data-service-path') || location.pathname;
   var siteUrl = host.getAttribute('data-site-url') || location.origin;
-  var ASSET_VERSION = '20261116-footer-1';
+  var ASSET_VERSION = '20261122-music-2';
   var guideService = /^\/world-map\/?$/.test(servicePath) ? 'geoweb' : /^\/spell-drill\/?$/.test(servicePath) ? 'spell-drill' : /^\/satury\/?$/.test(servicePath) ? 'satury' : '';
   var guideNames = {geoweb:'지오웹','spell-drill':'스펠드릴',satury:'사투리'};
   var submissionServiceKey = window.PSServiceContext
@@ -220,7 +225,7 @@
   });
   document.getElementById('coffee-close').addEventListener('click', close);
   modal.addEventListener('click', function (event) { if (event.target.hasAttribute('data-coffee-close')) close(); });
-  document.addEventListener('keydown', function (event) {
+  listen(document,'keydown', function (event) {
     if (modal.hidden) return;
     if (event.key === 'Escape') { event.preventDefault();event.stopPropagation();close(); }
     if (event.key === 'Tab') {
@@ -247,7 +252,7 @@
     document.documentElement.style.setProperty('--ps-brand-h', rect.height + 'px');
   }
   setVars();
-  window.addEventListener('resize', setVars);
+  listen(window,'resize', setVars);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(setVars);
 
   function applyComponentDesign(rows) {
@@ -263,7 +268,7 @@
   function isTrustedPreviewMessage(event) {
     return event.source === window.parent && event.origin === location.origin && event.data && event.data.type === 'ps-footer-preview-design';
   }
-  if (previewConfig && previewConfig.enabled) window.addEventListener('message', function (event) {
+  if (previewConfig && previewConfig.enabled) listen(window,'message', function (event) {
     if (!isTrustedPreviewMessage(event)) return;
     ['--ps-footer-primary','--ps-footer-color','--ps-footer-muted','--ps-footer-bg','--ps-footer-font-family','--ps-footer-font-size','--ps-footer-font-weight','--ps-footer-line-height','--ps-footer-letter-spacing','--ps-footer-padding','--ps-footer-margin','--ps-footer-radius','--ps-footer-border','--ps-footer-border-width','--ps-footer-opacity','--ps-footer-display'].forEach(function (property) { host.style.removeProperty(property); });
     applyComponentDesign(Object.entries(event.data.values || {}).map(function (entry) { return { property: entry[0], value: entry[1] }; }));
@@ -282,4 +287,9 @@
   feedback.defer = true;
   if (!previewConfig) document.body.appendChild(feedback);
   document.dispatchEvent(new CustomEvent('ps-footer-ready'));
+})();
+
+return ()=>removers.forEach(remove=>remove());
+}
+if(window.psPageLifecycle)window.psPageLifecycle.register("ps-footer.js",init);else if(!window.__native_ps_footer_js){window.__native_ps_footer_js=true;init();}
 })();

@@ -11,6 +11,7 @@ import PsFooter from './PsFooter.astro';
   <PsFooter showLinks={false} showFeedback={false} showReview={false} contactLabel="협업 문의"/>
 </aside>
 <script>
+function initDexterityControls(){
 const dock=document.querySelector<HTMLElement>('.dexterity-dock');
 dock?.querySelector('.dexterity-to-top')?.addEventListener('click',()=>{
   window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
@@ -28,9 +29,12 @@ if(dock&&slot){
   window.addEventListener('scroll',schedule,{passive:true});
   window.addEventListener('resize',schedule);
   const observer=new ResizeObserver(schedule);observer.observe(dock);sync();
+return ()=>{observer.disconnect();cancelAnimationFrame(frame);window.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule);};
 }
+}
+if((window as any).psPageLifecycle)(window as any).psPageLifecycle.register('dexterity-controls',initDexterityControls);else initDexterityControls();
 </script>
-<script is:inline src="/visitor-counter.js?v=20261120-dexterity-1" defer></script>
+<script is:inline src="/visitor-counter.js?v=20261122-music-2" defer></script>
 <style is:global>
 html:has(.dexterity-dock),body:has(.dexterity-dock),body:has(.dexterity-dock) *{scrollbar-width:none}
 body:has(.dexterity-dock)::-webkit-scrollbar,html:has(.dexterity-dock)::-webkit-scrollbar,body:has(.dexterity-dock) *::-webkit-scrollbar{display:none}

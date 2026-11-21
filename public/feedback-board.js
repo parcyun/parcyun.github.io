@@ -1,3 +1,8 @@
+(function(){
+function init(){
+window.__psFeedbackBoard=false;
+const removers=[];
+function listen(target,type,fn,options){target.addEventListener(type,fn,options);removers.push(()=>target.removeEventListener(type,fn,options));}
 /* parcyun studio · 기능 개선 요청 게시판 (공개 글은 관리자 승인 후에만 표시) */
 (function () {
   if (window.__psFeedbackBoard) return;
@@ -159,7 +164,7 @@
     if(window.psModalMotion)window.psModalMotion.exit(modal,done);else done();
   }
 
-  document.addEventListener('click', function (event) {
+  listen(document,'click', function (event) {
     var trigger = event.target.closest('[data-feedback-open]');
     if (trigger) { event.preventDefault(); open(trigger); }
   });
@@ -169,7 +174,7 @@
     open(document.querySelector('[data-feedback-open]'));
   }
   modal.addEventListener('click', function (event) { if (event.target.hasAttribute('data-feedback-close')) close(); });
-  document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !modal.hidden) close(); });
+  listen(document,'keydown', function (event) { if (event.key === 'Escape' && !modal.hidden) close(); });
 
   form.addEventListener('submit', function (event) {
     event.preventDefault();
@@ -201,4 +206,9 @@
     + '.ps-feedback-service-tag{display:inline-flex;margin-bottom:8px;border:1px solid rgba(255,177,26,.35);border-radius:999px;padding:3px 8px;color:#FFB11A;font:600 10px Montserrat,Pretendard,sans-serif;letter-spacing:.04em}'
     + '@media(max-width:520px){.ps-feedback-modal{padding:12px}.ps-feedback-card{max-height:92vh;padding:24px 20px}.ps-feedback-form-row{align-items:flex-end}.ps-feedback-form button{padding:9px 13px}}';
   document.head.appendChild(style);
+})();
+
+return ()=>removers.forEach(remove=>remove());
+}
+if(window.psPageLifecycle)window.psPageLifecycle.register("feedback-board.js",init);else if(!window.__native_feedback_board_js){window.__native_feedback_board_js=true;init();}
 })();

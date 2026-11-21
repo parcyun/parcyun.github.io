@@ -49,7 +49,7 @@ export function createStudioMenu({ aboutHref, baseUrl = new URL('.', import.meta
   const actions = document.createElement('div'); actions.className = 'ps-studio-actions'; studio.append(actions);
   function action(label, fn) { const button = document.createElement('button'); button.type = 'button'; button.className = 'ps-menu-action'; button.textContent = label; button.onclick = () => { studio.close(); fn(); }; actions.append(button); return button; }
   const feedback = action('기능 개선 요청', () => document.querySelector('#foot-report')?.click());
-  const review = action('리뷰 남기기', () => { const link = document.querySelector('#ps-footer-root a[href*="/reviews/"]'); location.href = link ? new URL(link.getAttribute('href'), baseUrl).href : new URL('reviews/?service=all&source=other', baseUrl).href; });
+  const review = action('리뷰 남기기', () => { const link = document.querySelector('#ps-footer-root a[href*="/reviews/"]'); const url = link ? new URL(link.getAttribute('href'), baseUrl).href : new URL('reviews/?service=all&source=other', baseUrl).href; if(window.psStudioMusic)window.psStudioMusic.leave(url);else location.href=url; });
   const about = document.createElement('a'); about.className = 'ps-menu-action ps-studio-about'; about.href = aboutHref || new URL(location.pathname.startsWith('/spell-drill') ? 'spell-drill/about/' : 'world-map/about/', baseUrl).href; about.textContent = '서비스 소개 · 사용 방법'; studio.append(about);
   const support = document.createElement('div'); support.className = 'ps-studio-support'; studio.append(support);
   const library = document.createElement('a'); library.className = 'ps-studio-library'; library.href = new URL('atlas-gears/', baseUrl).href; library.textContent = '교육 활동 자료 더보기'; studio.append(library);
@@ -73,8 +73,9 @@ export function createStudioMenu({ aboutHref, baseUrl = new URL('.', import.meta
       home.addEventListener('keydown', event => { if (event.key === ' ' && home.tagName !== 'BUTTON') { event.preventDefault(); studio.showModal(); } });
     }
   }
-  new MutationObserver(install).observe(document.body, { childList: true, subtree: true });
-  install();
+  const observer=new MutationObserver(install);
+  function mount(){observer.disconnect();support.replaceChildren();observer.observe(document.body,{childList:true,subtree:true});install();}
+  document.addEventListener('astro:page-load',mount);mount();
   window.__psStudioMenu = studio;
   return studio;
 }

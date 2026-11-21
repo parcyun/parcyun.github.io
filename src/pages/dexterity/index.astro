@@ -1,4 +1,5 @@
 ---
+import StudioNavigation from '../../components/StudioNavigation.astro';
 import DexterityControls from "../../components/DexterityControls.astro";
 import SeoHead from '../../components/SeoHead.astro';
 import StudioMusicPlayer from '../../components/StudioMusicPlayer.astro';
@@ -25,6 +26,7 @@ const structuredData = {
 <!doctype html>
 <html lang="ko">
 <head>
+<StudioNavigation/>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <SeoHead title="parcyun dexterity | 박윤의 기록과 서비스 가이드북" description={description}
@@ -64,6 +66,9 @@ return (
 </nav>
 <script>
 import {sbRpc} from '../../lib/supabase';
+function initDexterityGallery(){
+if(!document.body.classList.contains('dexterity-home'))return;
+const abort=new AbortController();
 const viewCards=Array.from(document.querySelectorAll<HTMLAnchorElement>('.entry[data-visit-path]'));
 const visitPaths=[...new Set(viewCards.map(card=>card.dataset.visitPath!))];
 function alignViewCounts(){
@@ -100,7 +105,10 @@ function updateCategory(){
   scheduled=false;
 }
 function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(updateCategory);}}
-window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule);updateCategory();
+window.addEventListener('scroll',schedule,{passive:true,signal:abort.signal});window.addEventListener('resize',schedule,{signal:abort.signal});updateCategory();
+return ()=>{abort.abort();countLayout.disconnect();};
+}
+(window as any).psPageLifecycle.register('dexterity-gallery',initDexterityGallery);
 </script>
 <footer class="dexterity-home-footer" aria-label="Dexterity 하단 푸터">
  <div class="dexterity-footer-inner"><a class="dexterity-logo" href="/">parcyun studio</a><nav aria-label="스튜디오 바로가기"><a href="/">메인홈</a><a href="/atlas-gears/">아틀라스 기어즈</a><a href="/academica/">아카데미카</a></nav></div>

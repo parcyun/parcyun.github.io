@@ -206,7 +206,7 @@ test('mobile footer keeps editable sizing tokens and preview switches preserve t
 
 test('preview design messages are rejected outside the trusted parent preview channel', async () => {
   const footer = await read('public/ps-footer.js');
-  assert.match(footer, /if\s*\(previewConfig\s*&&\s*previewConfig\.enabled\)\s*window\.addEventListener\('message'/);
+  assert.match(footer, /if\s*\(previewConfig\s*&&\s*previewConfig\.enabled\)\s*listen\(window,'message'/);
   assert.match(footer, /event\.source\s*===\s*window\.parent/);
   assert.match(footer, /event\.origin\s*===\s*location\.origin/);
   const guard = footer.match(/function isTrustedPreviewMessage\(event\)\s*\{[\s\S]*?\n\s*\}/)?.[0] || '';

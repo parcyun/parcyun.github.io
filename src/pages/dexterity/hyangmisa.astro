@@ -1,4 +1,6 @@
 ---
+import StudioNavigation from '../../components/StudioNavigation.astro';
+import StudioMusicPlayer from '../../components/StudioMusicPlayer.astro';
 import DexterityControls from "../../components/DexterityControls.astro";
 import SeoHead from '../../components/SeoHead.astro';
 import { dexterityPosts, dexterityAuthor } from '../../data/dexterity';
@@ -26,6 +28,7 @@ const structuredData = {
 <!doctype html>
 <html lang="ko" data-theme="dark">
 <head>
+<StudioNavigation/>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <SeoHead title="경주 카페 향미사 — 경주체육관 간판 아래 | parcyun dexterity"
   description={post.description} canonical={url} image={image} imageAlt={post.imageAlt}
@@ -51,8 +54,9 @@ main{padding:64px 24px 120px;max-width:1000px;margin:auto}.heading,.prose,.notes
 </style>
 <link rel="stylesheet" href="/dexterity.css?v=20261120-reading-1">
 </head>
-<body>
-<header><a class="brand dexterity-logo" href="/dexterity/">parcyun dexterity</a><button id="theme" type="button" aria-label="밝은 화면" aria-pressed="false">밝은 화면</button></header>
+<body class="dexterity-article">
+<StudioMusicPlayer/>
+<header class="dexterity-article-header"><a class="brand dexterity-logo" href="/dexterity/">parcyun dexterity</a><button id="theme" type="button" aria-label="밝은 화면" aria-pressed="false">밝은 화면</button></header>
 <main><article>
 <div class="heading"><p class="eyebrow">GYEONGJU · COFFEE</p><h1>경주체육관 간판 아래,<br>향미사</h1><div class="meta"><a href="/#parcyun" rel="author">글 · parcyun(박윤)</a><time datetime={post.datePublished}>2026.11.15</time><span>사진 9장</span></div></div>
 <figure><a href="/images/dexterity/hyangmisa/hyangmisa-exterior.png" aria-label="경주체육관 외관 사진 크게 보기"><img class="photo-square" style="object-position:50% 75%" src="/images/dexterity/hyangmisa/hyangmisa-exterior.png" fetchpriority="high" width="1086" height="1448" alt="밝은 타일 외벽에 경주체육관 간판이 남아 있는 향미사 입구."></a></figure>
@@ -91,7 +95,7 @@ main{padding:64px 24px 120px;max-width:1000px;margin:auto}.heading,.prose,.notes
 </section><nav class="article-back" aria-label="글 목록으로 돌아가기"><a href="/dexterity/#category-3">카페 기록</a></nav></main>
 <DexterityControls/>
 <script is:inline>document.getElementById('theme').addEventListener('click',function(){const light=document.documentElement.dataset.theme!=='light';document.documentElement.dataset.theme=light?'light':'dark';this.setAttribute('aria-pressed',String(light));});</script>
-<script is:inline src="/dexterity-actions.js?v=20261116-3" defer></script>
-<script is:inline src="/dexterity-map.js?v=20261116-1" defer></script>
-<script is:inline src="/dexterity-place.js?v=20261116-1" defer></script>
+<script is:inline src="/dexterity-actions.js?v=20261122-music-2" defer></script>
+<script is:inline src="/dexterity-map.js?v=20261122-music-2" defer></script>
+<script is:inline src="/dexterity-place.js?v=20261122-music-2" defer></script>
 </body></html>

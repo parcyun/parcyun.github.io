@@ -1,4 +1,5 @@
 ---
+import StudioNavigation from '../components/StudioNavigation.astro';
 import { icon } from '../lib/icons';
 import PsFooter from '../components/PsFooter.astro';
 import StudioMusicPlayer from '../components/StudioMusicPlayer.astro';
@@ -7,6 +8,7 @@ import LectureShelf from '../components/LectureShelf.tsx';
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<StudioNavigation/>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -181,7 +183,7 @@ section.in-view, .hero.in-view {
 <button data-ps-edit-id="ps-academica-001" data-ps-design-id="ps-academica-001" type="button" class="ps-back" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}"><span data-ps-edit-id="ps-academica-002" data-ps-design-id="ps-academica-002" class="ico" set:html={icon('arrowLeft', 20)}></span></button>
 
 <style>.ps-back{width:44px;height:44px}.ps-back .ico{display:none}</style>
-<script is:inline type="module" src="/game-account.js?v=20261119-auth-ready"></script>
+<script is:inline type="module" src="/game-account.js?v=20261122-music-2"></script>
 
 <!-- ===== HERO ===== -->
 <section class="hero aca-hero">
@@ -221,7 +223,7 @@ section.in-view, .hero.in-view {
   document.querySelectorAll('section').forEach(function(el){ io.observe(el); });
 })();
 </script>
-<script is:inline src="/share-widget.js" defer></script>
-<script is:inline src="/visitor-counter.js?v=20261116-hierarchy-1" defer></script>
+<script is:inline src="/share-widget.js?v=20261122-music-2" defer></script>
+<script is:inline src="/visitor-counter.js?v=20261122-music-2" defer></script>
 </body>
 </html>

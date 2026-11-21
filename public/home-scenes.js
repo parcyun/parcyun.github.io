@@ -1,3 +1,10 @@
+(function(){
+function init(){
+
+const removers=[],observers=[];
+function watchResize(fn){const o=new ResizeObserver(fn);observers.push(o);return o;}
+function watchIntersection(fn,options){const o=new IntersectionObserver(fn,options);observers.push(o);return o;}
+function listen(target,type,fn,options){target.addEventListener(type,fn,options);removers.push(()=>target.removeEventListener(type,fn,options));}
 /* One scroll owner; each input gesture advances at most one scene. */
 (()=>{
  const root=document.querySelector('#home-scenes');if(!root)return;
@@ -17,11 +24,16 @@
   if(canScroll(dir)){locked=false;return}
   e.preventDefault();if(!fresh&&gap<150){release();return}move(dir);
  },{passive:false});
- document.addEventListener('keydown',e=>{if(e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey||e.target.closest('input,textarea,select,[contenteditable],dialog'))return;const dir=['ArrowDown','PageDown'].includes(e.key)?1:['ArrowUp','PageUp'].includes(e.key)?-1:0;if(!dir||locked)return;if(canScroll(dir))return;e.preventDefault();move(dir)});
+ listen(document,'keydown',e=>{if(e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey||e.target.closest('input,textarea,select,[contenteditable],dialog'))return;const dir=['ArrowDown','PageDown'].includes(e.key)?1:['ArrowUp','PageUp'].includes(e.key)?-1:0;if(!dir||locked)return;if(canScroll(dir))return;e.preventDefault();move(dir)});
  let touchY=0,touchDown=false,touchUp=false;
  root.addEventListener('touchstart',e=>{touchY=e.touches[0].clientY;touchDown=canScroll(1);touchUp=canScroll(-1)},{passive:true});
  root.addEventListener('touchend',e=>{const delta=touchY-e.changedTouches[0].clientY;if(Math.abs(delta)<65||locked||(delta>0?touchDown:touchUp)||document.querySelector('dialog[open]'))return;move(Math.sign(delta))},{passive:true});
  const nav=document.querySelectorAll('.float-nav button');nav.forEach((button,i)=>{button.removeAttribute('onclick');button.setAttribute('aria-label',i?'다음 섹션':'이전 섹션');button.addEventListener('click',()=>{if(!locked)move(i?1:-1)})});
- new ResizeObserver(()=>root.scrollTo({top:sections[index].offsetTop,behavior:'instant'})).observe(root);
+ watchResize(()=>root.scrollTo({top:sections[index].offsetTop,behavior:'instant'})).observe(root);
  sections.forEach((s,i)=>s.inert=i!==0);
+})();
+
+return ()=>{removers.forEach(remove=>remove());observers.forEach(o=>o.disconnect());};
+}
+if(window.psPageLifecycle)window.psPageLifecycle.register("home-scenes.js",init);else if(!window.__native_home_scenes_js){window.__native_home_scenes_js=true;init();}
 })();

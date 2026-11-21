@@ -1,3 +1,8 @@
+(function(){
+function init(){
+window.__psShareWidget=false;
+const removers=[];
+function listen(target,type,fn,options){target.addEventListener(type,fn,options);removers.push(()=>target.removeEventListener(type,fn,options));}
 /* parcyun studio · 공용 공유 위젯
    모든 페이지 우측 하단에 "쌤 동료에게 공유하기" 플로팅 버튼을 띄우고,
    클릭 시 기기의 네이티브 공유 시트(Web Share API)를 연다.
@@ -191,7 +196,7 @@
       }
       enableHandle(dragHandle, false);
       enableHandle(resizeHandle, true);
-      window.addEventListener('resize', function () {
+      listen(window,'resize', function () {
         if (!popover.hidden && popover.style.left) { var rect = popover.getBoundingClientRect(); place(rect.left, rect.top, rect.width, rect.height); saveWindow(); }
       });
       var closeButton = popover.querySelector('.ps-qr-close');
@@ -256,8 +261,8 @@
         openQr(event.detail === 0);
       });
       closeButton.addEventListener('click', function () { closeQr(true); });
-      document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !popover.hidden && !pinned) closeQr(true); });
-      document.addEventListener('pointerdown', function (event) {
+      listen(document,'keydown', function (event) { if (event.key === 'Escape' && !popover.hidden && !pinned) closeQr(true); });
+      listen(document,'pointerdown', function (event) {
         if (!popover.hidden && !pinned && !popover.contains(event.target) && !qrButton.contains(event.target)) closeQr(false);
       });
       if (savedWindow.open === true) openQr(false);
@@ -300,8 +305,13 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', build);
+    listen(document,'DOMContentLoaded', build);
   } else {
     build();
   }
+})();
+
+return ()=>removers.forEach(remove=>remove());
+}
+if(window.psPageLifecycle)window.psPageLifecycle.register("share-widget.js",init);else if(!window.__native_share_widget_js){window.__native_share_widget_js=true;init();}
 })();

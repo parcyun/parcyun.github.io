@@ -38,3 +38,25 @@ test('local learning and battle music attribution remain accessible but excluded
   assert.doesNotMatch(sitemap,new RegExp(path.replace('index.html','').replaceAll('.','\\.')));
  }
 });
+
+test('Hyangmisa preserves its editorial body, crops and captions in the built article',()=>{
+ const html=read('dist/dexterity/hyangmisa/index.html');
+ const source=read('src/pages/dexterity/hyangmisa.astro');
+ assert.match(source,/\.prose\{font-size:15px;line-height:2;/);
+ assert.equal((source.match(/\.prose\{font-size:/g)||[]).length,1,'body size is identical on desktop and mobile');
+ assert.match(source,/\.prose p\{margin:0 0 30px\}/);
+ assert.match(source,/figcaption\{font-size:13px;color:var\(--ps-text-secondary\)/);
+ const figures=[...html.matchAll(/<figure><a [^>]+><img ([^>]+)>/g)].map(m=>m[1]);
+ assert.equal(figures.length,9);
+ assert.equal((html.match(/<figcaption>/g)||[]).length,2);
+ const crops=[75,45,55,80,70,null,85,null,65];
+ for(const [i,crop] of crops.entries()){
+  if(crop!==null){
+   assert.match(figures[i],/class="photo-square"/);
+   assert.ok(figures[i].includes('object-position:50% '+crop+'%'));
+  }else{
+   assert.doesNotMatch(figures[i],/photo-square|object-position/);
+   assert.match(figures[i],/width="2880" height="3840"/);
+  }
+ }
+});

@@ -23,7 +23,7 @@ test('page tools retain native scrolling, safe-area spacing and reduced-motion b
 test('Dexterity opts into collaboration copy and responsive horizontal gutters',()=>{
  assert.match(controls,/contactLabel="협업 문의"/);
  assert.match(controls,/--dexterity-gutter:clamp\(20px,4vw,48px\)/);
- assert.match(controls,/padding-inline:16px/);
+ assert.doesNotMatch(controls,/padding:8px 24px|padding-inline:16px/);
  for(const path of ['','hyangmisa/','guidebook/geoweb/','guidebook/spell-drill/','guidebook/satury/']){
   assert.match(readFileSync('dist/dexterity/'+path+'index.html','utf8'),/data-contact-label="협업 문의"/);
  }

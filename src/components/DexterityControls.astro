@@ -1,8 +1,10 @@
 ---
 import PsFooter from './PsFooter.astro';
+const {showTheme=false}=Astro.props;
 ---
 <aside class="dexterity-dock" aria-label="페이지 도구">
   <div class="dexterity-dock-row">
+    {showTheme && <button type="button" class="dexterity-theme" data-dexterity-theme aria-label="라이트 모드로 전환" title="라이트 모드로 전환"><svg class="theme-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg><svg class="theme-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M21 13a9 9 0 0 1-10-10 9 9 0 1 0 10 10Z"/></svg></button>}
     <div id="visitor-stats" class="ps-visits dexterity-dock-visits" aria-live="polite"></div>
     <button type="button" class="dexterity-to-top" aria-label="상단으로 이동" title="상단으로 이동">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>
@@ -44,15 +46,17 @@ body:has(.dexterity-dock){padding-bottom:144px;--dexterity-gutter:clamp(20px,4vw
 .dexterity-home:has(.dexterity-dock){padding-bottom:0}
 .dexterity-dock.is-docked{position:absolute;right:0;bottom:0}
 .dexterity-dock-row{display:flex;align-items:center;justify-content:flex-end;gap:12px;max-width:100%}
+.dexterity-dock .dexterity-theme{display:grid;place-items:center;flex:none;width:44px;height:44px;min-height:44px;margin:0;padding:0;border:1px solid #ffffff40;border-radius:50%;background:#111;color:#FFB11A;cursor:pointer}
+.dexterity-theme .theme-moon,html[data-theme=light] .dexterity-theme .theme-sun{display:none}html[data-theme=light] .dexterity-theme .theme-moon{display:block}
+.dexterity-theme:hover{border-color:#FFB11A}.dexterity-theme:focus-visible{outline:2px solid #FFB11A;outline-offset:4px}
 .dexterity-dock #visitor-stats{display:inline-flex;flex-wrap:wrap;gap:16px;margin:0;padding:8px 12px;border:1px solid #ffffff26;border-radius:999px;background:#000c;color:#aaa;font-size:11px;line-height:1.5;min-height:0}
 .dexterity-dock #visitor-stats:empty{display:none}
 .dexterity-dock .dexterity-to-top{display:grid;place-items:center;flex:none;width:48px;height:48px;min-height:48px;padding:0;border:1px solid #ffffff40;border-radius:50%;background:#111;color:#FFB11A;cursor:pointer;transition:background .18s,border-color .18s}
 .dexterity-to-top svg{display:block}
 .dexterity-dock .dexterity-to-top:hover{background:#222;border-color:#FFB11A}
 .dexterity-dock .dexterity-to-top:focus-visible{outline:2px solid #FFB11A;outline-offset:4px}
-.dexterity-dock #ps-footer-root .ps-brand-fixed{position:static;left:auto;right:auto;bottom:auto;max-width:100%;margin:0;box-sizing:border-box;padding:8px 24px}
+.dexterity-dock #ps-footer-root .ps-brand-fixed{position:static;left:auto;right:auto;bottom:auto;max-width:100%;margin:0;box-sizing:border-box}
 .dexterity-dock #ps-footer-root{max-width:100%;min-width:0}
 .dexterity-dock #ps-footer-root .ps-brand-text{flex-wrap:wrap;justify-content:flex-end}
-@media(max-width:640px){.dexterity-dock #ps-footer-root .ps-brand-fixed{padding-inline:16px}}
 @media(prefers-reduced-motion:reduce){html:has(.dexterity-dock){scroll-behavior:auto}.dexterity-dock .dexterity-to-top{transition:none}}
 </style>

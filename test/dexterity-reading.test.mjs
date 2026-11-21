@@ -3,18 +3,25 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const read=p=>readFileSync(p,'utf8');
-test('all article theme toggles keep a stable name and reflect light mode',()=>{
+test('article theme controls are shared, positioned before counts and remembered safely',()=>{
+ const source=read('public/dexterity-theme.js');
+ const storage=new Map(),events={},attrs={},root={dataset:{}},window={};
+ const button={setAttribute:(key,value)=>attrs[key]=value};
+ const document={documentElement:root,querySelectorAll:()=>[button],querySelector:()=>button,addEventListener:(name,fn)=>events[name]=fn};
+ const context={window,document,localStorage:{getItem:key=>storage.get(key),setItem:(key,value)=>storage.set(key,value)}};
+ vm.runInNewContext(source,context);
+ assert.equal(root.dataset.theme,'dark');
+ events.click({target:{closest:()=>button}});
+ assert.equal(root.dataset.theme,'light');assert.equal(attrs['aria-label'],'다크 모드로 전환');
+ root.dataset.theme='dark';vm.runInNewContext(source,context);assert.equal(root.dataset.theme,'light');
+ events.click({target:{closest:()=>button}});assert.equal(root.dataset.theme,'dark');
+ assert.equal(storage.get('ps-dexterity-theme-v1'),'dark');
+ assert.doesNotThrow(()=>vm.runInNewContext(source,{window:{},document,localStorage:{getItem(){throw Error('blocked');},setItem(){throw Error('blocked');}}}));
  for(const path of ['hyangmisa/','guidebook/geoweb/','guidebook/spell-drill/','guidebook/satury/']){
   const html=read('dist/dexterity/'+path+'index.html');
-  assert.match(html,/aria-label="밝은 화면" aria-pressed="false"/);
-  const script=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>s.includes("const light=document.documentElement.dataset.theme"));
-  let click;const attrs={};const root={dataset:{theme:'dark'}};
-  const button={setAttribute:(key,value)=>attrs[key]=value,addEventListener:(_,fn)=>click=fn};
-  vm.runInNewContext(script,{document:{documentElement:root,getElementById:()=>button,querySelector:()=>button}});
-  for(const [theme,pressed] of [['light','true'],['dark','false'],['light','true']]){
-   click.call(button);assert.equal(root.dataset.theme,theme,path);assert.equal(attrs['aria-pressed'],pressed,path);
-  }
-  assert.equal(attrs['aria-label'],undefined,'accessible name remains stable');
+  assert.match(html,/dexterity-theme.js/);
+  assert.ok(html.indexOf('data-dexterity-theme')<html.indexOf('id="visitor-stats"'));
+  assert.doesNotMatch(html.match(/<header class="dexterity-(?:article-)?header">[\s\S]*?<\/header>/)[0],/id="theme"|game-guide-theme/);
   assert.match(html,/class="article-back"[^>]*>[\s\S]*?href="\/dexterity\/#(?:category-3|guidebooks)"/);
  }
 });

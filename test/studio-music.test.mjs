@@ -9,18 +9,29 @@ test('icons show the next action: play when stopped, pause while playing',()=>{
  assert.match(component,/:not\(\[data-playing="true"\]\) \[data-music-play\]/);
 });
 function setup(saved=null,blocked=false){
- const events={},windowEvents={},attrs={},storage=new Map(saved?[['ps-studio-music-v1',JSON.stringify(saved)]]:[]);
+ const events={},windowEvents={},documentEvents={},attrs={},storage=new Map(saved?[['ps-studio-music-v1',JSON.stringify(saved)]]:[]);
  let now=0,frames=[];
  const audio={volume:1,paused:true,ended:false,currentTime:0,duration:180,src:'',listeners:{},getAttribute:()=>audio.src,removeAttribute:()=>audio.src='',addEventListener:(name,fn)=>audio.listeners[name]=fn,
-  play:async()=>{if(blocked)throw Error('blocked');audio.paused=false;audio.listeners.play?.();},pause:()=>{audio.paused=true;audio.listeners.pause?.();}};
- const button={setAttribute:(k,v)=>attrs[k]=v,removeAttribute:k=>delete attrs[k],addEventListener:(n,fn)=>events[n]=fn};
+  play:async()=>{if(blocked){const error=Error('blocked');error.name='NotAllowedError';throw error;}audio.paused=false;audio.listeners.play?.();},pause:()=>{audio.paused=true;audio.listeners.pause?.();}};
+ const button={contains:target=>target===button,setAttribute:(k,v)=>attrs[k]=v,removeAttribute:k=>delete attrs[k],addEventListener:(n,fn)=>events[n]=fn};
  const title={},play={},pause={},host={dataset:{},querySelector:s=>({'[data-music-audio]':audio,'[data-music-toggle]':button,'[data-music-title]':title,'[data-music-play]':play,'[data-music-pause]':pause})[s]};
- vm.runInNewContext(source,{URL,location:{href:'https://example.com/'},performance:{now:()=>now},requestAnimationFrame:fn=>frames.push(fn),document:{querySelector:()=>host,addEventListener:()=>{}},sessionStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},window:{addEventListener:(n,fn)=>windowEvents[n]=fn}});
- return {audio,button,title,attrs,events,windowEvents,storage,advance:async(ms=300)=>{now+=ms;const pending=frames;frames=[];pending.forEach(fn=>fn(now));await new Promise(r=>setImmediate(r));}};
+ vm.runInNewContext(source,{URL,location:{href:'https://example.com/'},performance:{now:()=>now},requestAnimationFrame:fn=>frames.push(fn),document:{querySelector:()=>host,addEventListener:(name,fn,capture)=>{if(!capture)documentEvents[name]=fn;}},sessionStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},window:{addEventListener:(n,fn)=>windowEvents[n]=fn}});
+ return {audio,button,title,attrs,events,documentEvents,unblock:()=>blocked=false,windowEvents,storage,advance:async(ms=300)=>{now+=ms;const pending=frames;frames=[];pending.forEach(fn=>fn(now));await new Promise(r=>setImmediate(r));}};
 }
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
+for(const type of ['click','keydown'])test('blocked autoplay resumes with a fade on first trusted '+type,async()=>{
+ const s=setup(null,true);await tick();s.unblock();
+ s.documentEvents[type]({type,isTrusted:false,key:'a'});await tick();assert.equal(s.audio.paused,true);
+ s.documentEvents[type]({type,isTrusted:true,key:'a',target:{}});await tick();assert.equal(s.audio.paused,false);assert.equal(s.audio.volume,0);
+ await s.advance(750);assert.equal(s.audio.volume,.5);await s.advance(750);assert.equal(s.audio.volume,1);
+ s.events.click();await s.advance();s.documentEvents[type]({type,isTrusted:true,key:'a',target:{}});await tick();assert.equal(s.audio.paused,true);
+});
+test('first input never restarts saved manual pause or double-toggles the music button',async()=>{
+ const saved=setup({index:0,time:12,playing:false});saved.documentEvents.click({type:'click',isTrusted:true,target:{}});await tick();assert.equal(saved.audio.src,'');
+ const blocked=setup(null,true);await tick();blocked.unblock();blocked.documentEvents.click({type:'click',isTrusted:true,target:blocked.button});await tick();assert.equal(blocked.audio.paused,true);
+});
 test('autoplay fades in, pause fades out, and both tracks alternate',async()=>{
- const s=setup();await tick();assert.equal(s.audio.volume,0);await s.advance(150);assert.equal(s.audio.volume,.5);await s.advance(150);assert.equal(s.audio.volume,1);
+ const s=setup();await tick();assert.equal(s.audio.volume,0);await s.advance(750);assert.equal(s.audio.volume,.5);await s.advance(750);assert.equal(s.audio.volume,1);
  assert.equal(s.audio.paused,false);assert.match(s.audio.src,/christmas/);
  s.events.click();assert.equal(s.audio.paused,false);await s.advance();assert.equal(s.audio.paused,true);assert.equal(s.audio.volume,0);
  s.events.click();await tick();

@@ -8,7 +8,7 @@
   ];
   const audio=host.querySelector('[data-music-audio]'),button=host.querySelector('[data-music-toggle]'),title=host.querySelector('[data-music-title]');
   const key='ps-studio-music-v1';
-  let index=0,resumeTime=0,wantsPlay=true,action=0,fadeSerial=0,finishFade;
+  let index=0,resumeTime=0,wantsPlay=true,action=0,fadeSerial=0,finishFade,autoplayBlocked=false;
   try{
     const saved=JSON.parse(sessionStorage.getItem(key)||'null');
     if(saved&&Number.isInteger(saved.index)&&saved.index>=0&&saved.index<tracks.length){
@@ -23,14 +23,14 @@
     button.setAttribute('aria-label',playing?'음악 일시정지':'음악 재생');
     title.textContent=tracks[index].title;title.title=tracks[index].title;
   }
-  function fadeTo(target){
+  function fadeTo(target,duration=300){
     const serial=++fadeSerial;
     finishFade?.(false);
     return new Promise(resolve=>{
       finishFade=resolve;const start=performance.now(),from=audio.volume;
       function step(now){
         if(serial!==fadeSerial)return;
-        const progress=Math.min(1,(now-start)/300);
+        const progress=Math.min(1,(now-start)/duration);
         audio.volume=from+(target-from)*progress;
         if(progress<1)requestAnimationFrame(step);
         else{finishFade=null;resolve(true);}
@@ -40,29 +40,38 @@
   }
   function load(){audio.src=tracks[index].src;render();}
   async function play(){
-    const request=++action;wantsPlay=true;
+    const request=++action;wantsPlay=true;autoplayBlocked=false;
     if(!audio.getAttribute('src'))load();
     if(audio.paused)audio.volume=0;
     try{
       await audio.play();
       if(request!==action)return;
-      render();save();await fadeTo(1);
-    }catch{
+      button.removeAttribute('title');render();save();await fadeTo(1,1500);
+    }catch(error){
       if(request!==action)return;
-      button.title='브라우저가 자동재생을 제한했어요. 재생 버튼을 눌러 주세요.';
+      autoplayBlocked=error.name==='NotAllowedError';
+      button.title=autoplayBlocked?'화면을 클릭·터치하거나 키를 누르면 음악이 시작돼요.':'음악 재생 버튼을 다시 눌러 주세요.';
       render();save();
     }
   }
   function pause(){
-    const request=++action;wantsPlay=false;save();render();
+    const request=++action;wantsPlay=false;autoplayBlocked=false;save();render();
     fadeTo(0).then(done=>{if(done&&request===action){audio.pause();save();render();}});
   }
   async function leave(url){
-    const request=++action;save();
+    const request=++action;autoplayBlocked=false;save();
     const done=await fadeTo(0);
     if(done&&request===action){audio.pause();location.assign(url);}
   }
   window.psStudioMusic={leave};
+  function retryOnInput(event){
+    if(!autoplayBlocked||!wantsPlay||!event.isTrusted)return;
+    if(button.contains(event.target))return;
+    if(event.type==='keydown'&&(event.repeat||event.ctrlKey||event.metaKey||event.altKey||['Tab','Escape','Shift','Control','Alt','Meta'].includes(event.key)))return;
+    play();
+  }
+  document.addEventListener('click',retryOnInput);
+  document.addEventListener('keydown',retryOnInput);
   button.addEventListener('click',()=>{
     button.removeAttribute('title');
     if(!wantsPlay||audio.paused)play();else pause();

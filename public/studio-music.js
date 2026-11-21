@@ -67,11 +67,11 @@
   function retryOnInput(event){
     if(!autoplayBlocked||!wantsPlay||!event.isTrusted)return;
     if(button.contains(event.target))return;
-    if(event.type==='keydown'&&(event.repeat||event.ctrlKey||event.metaKey||event.altKey||['Tab','Escape','Shift','Control','Alt','Meta'].includes(event.key)))return;
     play();
   }
-  document.addEventListener('click',retryOnInput);
-  document.addEventListener('keydown',retryOnInput);
+  for(const type of ['pointerdown','pointerup','touchstart','touchend','click','keydown','keyup','input','wheel','scroll']){
+    document.addEventListener(type,retryOnInput,{passive:true,capture:type==='scroll'});
+  }
   button.addEventListener('click',()=>{
     button.removeAttribute('title');
     if(!wantsPlay||audio.paused)play();else pause();

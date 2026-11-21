@@ -15,11 +15,11 @@ function setup(saved=null,blocked=false){
   play:async()=>{if(blocked){const error=Error('blocked');error.name='NotAllowedError';throw error;}audio.paused=false;audio.listeners.play?.();},pause:()=>{audio.paused=true;audio.listeners.pause?.();}};
  const button={contains:target=>target===button,setAttribute:(k,v)=>attrs[k]=v,removeAttribute:k=>delete attrs[k],addEventListener:(n,fn)=>events[n]=fn};
  const title={},play={},pause={},host={dataset:{},querySelector:s=>({'[data-music-audio]':audio,'[data-music-toggle]':button,'[data-music-title]':title,'[data-music-play]':play,'[data-music-pause]':pause})[s]};
- vm.runInNewContext(source,{URL,location:{href:'https://example.com/'},performance:{now:()=>now},requestAnimationFrame:fn=>frames.push(fn),document:{querySelector:()=>host,addEventListener:(name,fn,capture)=>{if(!capture)documentEvents[name]=fn;}},sessionStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},window:{addEventListener:(n,fn)=>windowEvents[n]=fn}});
+ vm.runInNewContext(source,{URL,location:{href:'https://example.com/'},performance:{now:()=>now},requestAnimationFrame:fn=>frames.push(fn),document:{querySelector:()=>host,addEventListener:(name,fn,capture)=>{if(capture!==true)documentEvents[name]=fn;}},sessionStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},window:{addEventListener:(n,fn)=>windowEvents[n]=fn}});
  return {audio,button,title,attrs,events,documentEvents,unblock:()=>blocked=false,windowEvents,storage,advance:async(ms=300)=>{now+=ms;const pending=frames;frames=[];pending.forEach(fn=>fn(now));await new Promise(r=>setImmediate(r));}};
 }
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
-for(const type of ['click','keydown'])test('blocked autoplay resumes with a fade on first trusted '+type,async()=>{
+for(const type of ['click','keydown','pointerdown','pointerup','touchstart','touchend','input','wheel','scroll'])test('blocked autoplay resumes with a fade on first trusted '+type,async()=>{
  const s=setup(null,true);await tick();s.unblock();
  s.documentEvents[type]({type,isTrusted:false,key:'a'});await tick();assert.equal(s.audio.paused,true);
  s.documentEvents[type]({type,isTrusted:true,key:'a',target:{}});await tick();assert.equal(s.audio.paused,false);assert.equal(s.audio.volume,0);

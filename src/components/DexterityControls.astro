@@ -37,7 +37,13 @@ return ()=>{observer.disconnect();cancelAnimationFrame(frame);window.removeEvent
 if((window as any).psPageLifecycle)(window as any).psPageLifecycle.register('dexterity-controls',initDexterityControls);else initDexterityControls();
 </script>
 <script is:inline src="/visitor-counter.js?v=20261122-music-2" defer></script>
+<script is:inline src="/dexterity-refresh.js?v=20261123-1" defer></script>
 <style is:global>
+@media(pointer:coarse){html.dexterity-refresh-enabled{overscroll-behavior-y:contain}}
+.dexterity-refresh{position:fixed;top:env(safe-area-inset-top,0px);left:calc(50% - 20px);z-index:9990;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--ps-bg,#000);color:#FFB11A;border:1px solid var(--ps-border,#333);opacity:0;pointer-events:none;transform:translateY(calc(var(--pull,0px) - 44px));transition:opacity .15s}
+.dexterity-refresh.is-visible{opacity:1}.dexterity-refresh.is-ready svg{transform:rotate(180deg)}.dexterity-refresh.is-refreshing svg{animation:dexterity-refresh-spin .8s linear infinite}
+@keyframes dexterity-refresh-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.dexterity-refresh{transition:none}.dexterity-refresh.is-refreshing svg{animation:none}}
 body:has([data-dexterity-theme]),body:has([data-dexterity-theme]) :is(.heading,.meta,.eyebrow,.prose,.notes,.article-top-back,figcaption,.game-guide,.game-guide-back,.game-guide-summary,.game-guide-note,.game-guide-link,.game-guide-toc,.guide-carousel-track>a,.guide-carousel-track p){transition:background-color .3s ease,color .3s ease,border-color .3s ease}
 @media(prefers-reduced-motion:reduce){body:has([data-dexterity-theme]),body:has([data-dexterity-theme]) :is(.heading,.meta,.eyebrow,.prose,.notes,.article-top-back,figcaption,.game-guide,.game-guide-back,.game-guide-summary,.game-guide-note,.game-guide-link,.game-guide-toc,.guide-carousel-track>a,.guide-carousel-track p){transition:none}}
 html:has(.dexterity-dock),body:has(.dexterity-dock),body:has(.dexterity-dock) *{scrollbar-width:none}

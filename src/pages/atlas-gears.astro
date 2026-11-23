@@ -1,15 +1,12 @@
 ---
-import StudioNavigation from '../components/StudioNavigation.astro';
 import ActivityBrowser from '../components/ActivityBrowser.tsx';
 import { ACTIVITY_TYPES } from '../data/resources';
 import { icon } from '../lib/icons';
 import PsFooter from '../components/PsFooter.astro';
-import StudioMusicPlayer from '../components/StudioMusicPlayer.astro';
 ---
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<StudioNavigation/>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -208,7 +205,6 @@ section.in-view, .hero.in-view {
 <noscript><style>section,.hero{opacity:1!important;transform:none!important}</style></noscript>
 </head>
 <body>
-<StudioMusicPlayer/>
 
 <button data-ps-edit-id="ps-atlas-001" data-ps-design-id="ps-atlas-001" type="button" class="ps-back" aria-label="뒤로 가기" onclick="if(history.length>1){history.back()}else{location.href='/'}"><span data-ps-edit-id="ps-atlas-002" data-ps-design-id="ps-atlas-002" class="ico" set:html={icon('arrowLeft', 20)}></span></button>
 

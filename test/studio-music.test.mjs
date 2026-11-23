@@ -49,7 +49,7 @@ test('page navigation preserves state and bfcache restores the intended playback
  s.windowEvents.pageshow({persisted:true});await tick();assert.equal(s.audio.paused,false);
 });
 test('eligible roots and non-guidebook articles include exactly one shared player and real local audio',()=>{
- for(const path of ['','dexterity/','dexterity/hyangmisa/','atlas-gears/','academica/']){
+ for(const path of ['','dexterity/','dexterity/hyangmisa/','academica/']){
   const html=readFileSync('dist/'+path+'index.html','utf8');
   assert.equal((html.match(/data-studio-music\s/g)||[]).length,1,path);
   assert.match(html,/data-astro-transition-persist="studio-music"/);assert.match(html,/preload="none"/);assert.doesNotMatch(html,/<audio[^>]*autoplay/);
@@ -64,6 +64,8 @@ test('page lifecycle remounts once per body and excludes guides and other origin
  const api=window.psPageLifecycle;let mounts=0,cleanups=0;
  api.register('example',()=>{mounts++;return ()=>cleanups++;});listeners['astro:page-load']();assert.equal(mounts,1);
  document.body={};listeners['astro:page-load']();assert.equal(mounts,2);assert.equal(cleanups,1);
- for(const path of ['/','/dexterity/','/dexterity/hyangmisa/','/academica/','/atlas-gears/'])assert.equal(api.eligible(path),true);
- for(const path of ['/dexterity/guidebook/geoweb/','/world-map/','/spell-drill/','https://other.example/'])assert.equal(api.eligible(path),false);
+ for(const path of ['/','/dexterity/','/dexterity/hyangmisa/','/academica/'])assert.equal(api.eligible(path),true);
+ for(const path of ['/atlas-gears/','/dexterity/guidebook/geoweb/','/world-map/','/spell-drill/','https://other.example/'])assert.equal(api.eligible(path),false);
 });
+
+test('Atlas Gears contains no music or music router',()=>{assert.doesNotMatch(readFileSync('dist/atlas-gears/index.html','utf8'),/data-studio-music|studio-navigation.js/);});

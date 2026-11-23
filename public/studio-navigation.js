@@ -11,7 +11,7 @@
       const target = new URL(url,location.href);
       if(target.origin!==location.origin)return false;
       const path = target.pathname.replace(/index\.html$/,'');
-      return ['/', '/dexterity/', '/atlas-gears/', '/academica/'].includes(path) ||
+      return ['/', '/dexterity/', '/academica/'].includes(path) ||
         (path.startsWith('/dexterity/') && !path.startsWith('/dexterity/guidebook/') && !path.endsWith('.xml'));
     },
     register(name,init) { if (entries.has(name)) return; const entry={init};entries.set(name,entry);run(entry); },

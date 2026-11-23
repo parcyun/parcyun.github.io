@@ -7,11 +7,11 @@ export const dexterityAuthor = {
 };
 export const dexterityPosts = [{
   slug: 'berri-estates-shiraz-2025', title: '베리 에스테이트 쉬라즈 2025', category: '와이너리',
-  description: '호주 South Eastern Australia의 Berri Estates Shiraz 2025. 스크루캡을 사용한 1만원 이하 와인의 시음 전 기록.',
+  description: '베리 에스테이트 쉬라즈 2025 시음 기록. 가벼운 단맛과 부드러운 질감, 약한 타닌과 짧은 여운. 1만원 이하 호주 와인의 맛과 균형을 담았다.',
   href: '/dexterity/berri-estates-shiraz-2025/', image: '/images/dexterity/winery/berri-estates-shiraz-2025-corrected.png',
   imageAlt: '베리 에스테이트 쉬라즈 2025 와인병과 라벨',
   tags: ['호주', '쉬라즈', '스크루캡', '저가 · 1만원 이하'],
-  datePublished: '2026-11-23T18:44:00+09:00', dateModified: '2026-11-23T18:44:00+09:00',
+  datePublished: '2026-11-23T18:44:00+09:00', dateModified: '2026-11-23T21:56:03+09:00',
 }, {
   slug: 'hyangmisa', title: '경주체육관 간판 아래, 향미사', category: '카페',
   description: '경주 카페 향미사에서 따뜻한 아메리카노를 테이크아웃하고 케냐 캄완기 AA TOP 워시드 원두를 구매한 기록. 경주체육관 간판과 매대 앞 바 좌석, 방문 당시 메뉴를 사진 9장과 함께 담았습니다.',

@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const controls=readFileSync('src/components/DexterityControls.astro','utf8');
 const gallery=readFileSync('src/pages/dexterity/index.astro','utf8');
-test('all five rendered Dexterity pages have exactly one counter, shared footer and top button',()=>{
- for(const path of ['','hyangmisa/','guidebook/geoweb/','guidebook/spell-drill/','guidebook/satury/']){
+test('all rendered Dexterity pages have exactly one counter, shared footer and top button',()=>{
+ for(const path of ['','hyangmisa/','berri-estates-shiraz-2025/','guidebook/geoweb/','guidebook/spell-drill/','guidebook/satury/']){
   const html=readFileSync('dist/dexterity/'+path+'index.html','utf8');
   assert.equal((html.match(/id="visitor-stats"/g)||[]).length,1,path);
   assert.equal((html.match(/class="dexterity-to-top"/g)||[]).length,1,path);

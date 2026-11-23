@@ -1,0 +1,82 @@
+---
+import StudioNavigation from '../../components/StudioNavigation.astro';
+import StudioMusicPlayer from '../../components/StudioMusicPlayer.astro';
+import DexterityControls from "../../components/DexterityControls.astro";
+import SeoHead from '../../components/SeoHead.astro';
+import { dexterityPosts, dexterityAuthor } from '../../data/dexterity';
+const post = dexterityPosts.find(post => post.slug === 'berri-estates-shiraz-2025')!;
+const url = new URL(post.href, 'https://parcyun.github.io').href;
+const image = new URL(post.image, 'https://parcyun.github.io').href;
+const structuredData = {
+  '@context': 'https://schema.org', '@graph': [{
+    '@type': 'BlogPosting', '@id': `${url}#article`, mainEntityOfPage: url, url,
+    headline: post.title, description: post.description, image: [image],
+    author: dexterityAuthor, publisher: { '@id': 'https://parcyun.github.io/#organization' },
+    datePublished: post.datePublished, dateModified: post.dateModified,
+    articleSection: post.category, inLanguage: 'ko-KR',
+    isPartOf: { '@id': 'https://parcyun.github.io/dexterity/#blog' },
+    keywords: post.tags?.join(', '),
+  }, {
+    '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'parcyun studio', item: 'https://parcyun.github.io/' },
+      { '@type': 'ListItem', position: 2, name: 'parcyun dexterity', item: 'https://parcyun.github.io/dexterity/' },
+      { '@type': 'ListItem', position: 3, name: post.title, item: url },
+    ],
+  }],
+};
+---
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+<StudioNavigation/>
+<script is:inline src="/dexterity-theme.js?v=20261122-1"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<SeoHead title={`${post.title} · 호주 와인 기록 | parcyun dexterity`}
+  description={post.description} canonical={url} image={image} imageAlt={post.imageAlt}
+  siteName="parcyun dexterity" type="article" structuredData={structuredData} />
+<meta name="author" content="parcyun(박윤)" />
+<meta property="article:published_time" content={post.datePublished} />
+<meta property="article:modified_time" content={post.dateModified} />
+<meta property="article:section" content={post.category} />
+<meta property="article:author" content="https://parcyun.github.io/#parcyun" />
+<link rel="alternate" type="application/rss+xml" title="parcyun dexterity" href="/dexterity/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style is:global>
+.article-top-back{display:flex;align-items:center;max-width:640px;min-height:44px;margin:0 auto 24px;color:var(--ps-text-secondary);font-size:13px;text-decoration:none}.article-top-back:hover{color:var(--ps-primary)}
+/* Adapted from parcyun studio webpage_base.html: reading-focused preview. */
+:root{--ps-primary:#FFB11A;--ps-bg:#FAFAF7;--ps-text:#0F1419;--ps-text-secondary:#5A6478;--ps-border:#E5E8ED}
+[data-theme=dark]{--ps-bg:#000000;--ps-text:#FFFFFF;--ps-text-secondary:#8C8C8C;--ps-border:#333333}
+*{box-sizing:border-box}body{margin:0;background:var(--ps-bg);color:var(--ps-text);font-family:'Montserrat','Pretendard Variable',sans-serif;font-weight:300;word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+a{color:inherit}header{max-width:1120px;margin:auto;padding:25px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ps-border)}.brand{text-decoration:none;font-size:18px;letter-spacing:-.6px}.brand span{color:var(--ps-primary)}main button{font:inherit;border:1px solid var(--ps-border);background:transparent;color:inherit;border-radius:999px;padding:10px 16px;cursor:pointer;min-height:44px}button:focus-visible,a:focus-visible{outline:2px solid var(--ps-primary);outline-offset:4px}
+main{padding:64px 24px 120px;max-width:1000px;margin:auto}.heading,.prose,.notes{max-width:640px;margin:auto}.eyebrow{font-size:11px;font-weight:500;letter-spacing:2px;color:var(--ps-text-secondary);margin:0 0 20px}h1{font-size:clamp(32px,5vw,52px);line-height:1.2;font-weight:500;letter-spacing:-2px;margin:0 0 24px}.meta{flex-wrap:wrap;font-size:13px;color:var(--ps-text-secondary);display:flex;gap:16px}.status{margin:24px 0 0;font-size:12px;line-height:1.7;color:var(--ps-text-secondary)}figure{margin:48px auto;max-width:760px}img{display:block;width:100%;height:auto;border-radius:3px}figcaption{font-size:13px;color:var(--ps-text-secondary);margin-top:12px}.prose{font-size:15px;line-height:2;letter-spacing:-.25px}.prose p{margin:0 0 30px}.prose .pause{margin:46px 0;font-size:21px}.notes{border-top:1px solid var(--ps-border);margin-top:56px;padding-top:24px;color:var(--ps-text-secondary);font-size:14px;line-height:1.8}.notes h2{font-size:16px;font-weight:500;color:var(--ps-text)}.notes dt{font-weight:500;margin-top:18px}.notes dd{margin:4px 0 0}
+@media(max-width:639px){main{padding-top:40px}figure{margin:32px -24px}img{border-radius:0}figcaption{padding:0 24px}h1{letter-spacing:-1.2px}}@media(min-width:1024px){main{padding-top:88px}}@media(min-width:1280px){main{max-width:1100px}}
+.wine-tags{display:flex;flex-wrap:wrap;gap:8px 16px;list-style:none;padding:0;margin:24px 0 0;color:var(--ps-text-secondary);font-size:13px;line-height:1.8}.wine-photo{max-width:640px}.wine-photo img{width:100%;height:auto}
+</style>
+<link rel="stylesheet" href="/dexterity.css?v=20261120-reading-1">
+</head>
+<body class="dexterity-article">
+<StudioMusicPlayer/>
+<header class="dexterity-article-header"><a class="brand dexterity-logo" href="/dexterity/">parcyun dexterity</a></header>
+<main><a class="article-top-back" href="/dexterity/#category-10">← 목록으로 돌아가기</a><article>
+<div class="heading"><p class="eyebrow">WINERY · AUSTRALIA</p><h1>{post.title}</h1><div class="meta"><a href="/#parcyun" rel="author">글 · parcyun(박윤)</a><time datetime={post.datePublished}>2026.11.23</time></div>
+<ul class="wine-tags" aria-label="글 태그">{post.tags?.map(tag => <li>#{tag}</li>)}</ul></div>
+<figure class="wine-photo"><a href={post.image} aria-label="베리 에스테이트 쉬라즈 2025 사진 크게 보기"><img src={post.image} width="1086" height="1448" fetchpriority="high" alt={post.imageAlt}/></a></figure>
+<div class="prose">
+<p>베리 에스테이트 쉬라즈 2025.<br/>호주에서 온 1만원 이하의 와인.</p>
+<p>마개는 돌려 여는 스크루캡이다. 라벨에는 쉬라즈와 빈티지 2025, 산지 South Eastern Australia가 적혀 있다.</p>
+<p>아직 마셔보지는 않았다.<br/>오늘은 사진과 이름부터 남겨둔다.</p>
+</div>
+</article>
+<section class="article-actions" aria-label="글 반응과 공유">
+<div class="article-actions-buttons">
+<button type="button" id="article-like" aria-label="좋아요" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></button>
+<button type="button" id="article-share" aria-label="공유"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M5 13v7h14v-7"/></svg></button>
+</div>
+<p id="article-action-status" role="status" aria-live="polite"></p>
+</section><nav class="article-back" aria-label="글 목록으로 돌아가기"><a href="/dexterity/#category-10">와이너리 기록</a></nav></main>
+<DexterityControls showTheme/>
+
+<script is:inline src="/dexterity-actions.js?v=20261122-music-2" defer></script>
+</body></html>

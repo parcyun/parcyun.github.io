@@ -869,9 +869,9 @@ export default function GlobeLab(){
         if(selectedPopulation!==comparisonName){comparisonName=selectedPopulation;comparisonIndex.value=countryIndices.get(selectedPopulation)??-1;comparisonMorph.value=0;comparisonAlpha.value=0;}
         const compareWant=selectedPopulation?1:0;comparisonMorph.value=motionPreference.matches?compareWant:comparisonMorph.value+(compareWant-comparisonMorph.value)*fade;comparisonAlpha.value=motionPreference.matches?compareWant:comparisonAlpha.value+(compareWant-comparisonAlpha.value)*fade;
         populationOverlays.forEach((mesh,i)=>mesh.visible=comparisonAlpha.value>.001&&(i===0||uCloneAmt.value>.004));U.uPopulation.value=motionPreference.matches?populationTarget:U.uPopulation.value+(populationTarget-U.uPopulation.value)*(1-Math.exp(-dt*5));if(Math.abs(U.uPopulation.value-populationTarget)<.001)U.uPopulation.value=populationTarget;
-        const satWant=(st.sat&&satReady&&!st.population&&!st.density)?1:0;uSat.value+=(satWant-uSat.value)*fade;fillOpacity.value=1-uSat.value; // 위성 크로스페이드(#2)
+        const satWant=(st.sat&&satReady&&!st.density)?1:0;uSat.value+=(satWant-uSat.value)*fade;fillOpacity.value=1-uSat.value*(1-U.uPopulation.value); // 위성 크로스페이드(#2)
         const isFlat=st.view==='flat'&&!tr;tileL.visible=tileR.visible=uCloneAmt.value>0.004;gridFlat.visible=isFlat;
-        const satShown=uSat.value>.999; // 위성 모드 절반 이상: 솔리드 대륙 채움 숨겨 실사 위성 육지 노출(#2). 국경·라벨·선택 강조는 유지.
+        const satShown=uSat.value>.999&&U.uPopulation.value<.001; // 위성 모드 절반 이상: 솔리드 대륙 채움 숨겨 실사 위성 육지 노출(#2). 국경·라벨·선택 강조는 유지.
         if(borderClones)borderClones.blsL.visible=borderClones.blsR.visible=tileL.visible;
         if(fillMain)fillMain.visible=!satShown;
         if(fillClones){fillClones.fmeshL.visible=fillClones.fmeshR.visible=tileL.visible&&!satShown;}
@@ -962,7 +962,7 @@ export default function GlobeLab(){
           <label className="tg"><input type="checkbox" checked={climate} onChange={e=>setClimate(e.target.checked)} /><span>{T.climate}</span></label>
           <label className="tg"><input type="checkbox" checked={terrain} onChange={e=>setTerrain(e.target.checked)} /><span>{T.terrain}</span></label>
         </div>
-        <div className="layer-toggle-row population-toggle-row"><label className="tg"><input type="checkbox" checked={population} disabled={!populationReady} onChange={e=>{setPopulation(e.target.checked);setPopulationCompare(false);setSel(null);if(e.target.checked){setSat(false);setTrueSize(false);setCountry(true);}}} /><span>{EN?'World population':'세계의 인구'}</span></label><label className="tg"><input type="checkbox" checked={density} disabled={!densityReady} onChange={e=>{setDensity(e.target.checked);if(e.target.checked){setSat(false);setTrueSize(false);setLegendCollapsed(false);}}}/><span>{EN?'Density':'인구 밀도'}</span></label></div>
+        <div className="layer-toggle-row population-toggle-row"><label className="tg"><input type="checkbox" checked={population} disabled={!populationReady} onChange={e=>{setPopulation(e.target.checked);setPopulationCompare(false);setSel(null);if(e.target.checked){setTrueSize(false);setCountry(true);}}} /><span>{EN?'World population':'세계의 인구'}</span></label><label className="tg"><input type="checkbox" checked={density} disabled={!densityReady} onChange={e=>{setDensity(e.target.checked);if(e.target.checked){setSat(false);setTrueSize(false);setLegendCollapsed(false);}}}/><span>{EN?'Density':'인구 밀도'}</span></label></div>
 
         {climate && <div className="climate-legend" role="region" aria-label={T.climateLegend}>
           <div className="climate-legend-title">{T.climateLegend}</div>
@@ -984,7 +984,7 @@ export default function GlobeLab(){
             </label>;
           })}</div>
         </div>}
-        <label className="tg tg-sep"><input type="checkbox" checked={sat} disabled={population||density} onChange={e=>setSat(e.target.checked)} /><span>{T.sat}</span></label>
+        <label className="tg tg-sep"><input type="checkbox" checked={sat} disabled={density} onChange={e=>setSat(e.target.checked)} /><span>{T.sat}</span></label>
         <label className="tg"><input type="checkbox" checked={dayNight} onChange={e=>setDayNight(e.target.checked)} /><span>{T.dayNight}</span></label>
         <div className="lang-seg tg-sep"><span className="lang-lbl">{T.langLabel}</span><div className="lang-btns"><button className={lang==='ko'?'on':''} onClick={()=>setLang('ko')}>한국어</button><button className={lang==='en'?'on':''} onClick={()=>setLang('en')}>ENG</button></div></div>
         <a className="earth-link tg-sep" href="https://earth.google.com/web/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18"/></svg><span>{T.earth}</span><span className="earth-ext">↗</span></a>

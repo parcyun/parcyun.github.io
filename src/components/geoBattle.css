@@ -575,3 +575,11 @@ body:has(.gb-backdrop) #ps-footer-root { visibility: hidden; }
 .gb-modal .gb-board-team .gb-team-scores{align-content:start;overflow:auto;min-height:0}
 .gb-modal[data-phase=finished] .gb-board-team li{grid-template-rows:minmax(0,1fr)}
 @media(max-width:700px){.gb-modal[data-phase=finished] .gb-board-team li{grid-template-rows:auto minmax(0,1fr)}}
+
+/* Playing team rows: score first, then horizontally scrollable member chips. */
+.gb-modal[data-phase=playing] .gb-board-team li{grid-template-columns:24px minmax(80px,1fr) auto minmax(0,2fr);grid-template-rows:1fr;align-items:center;gap:12px}
+.gb-modal[data-phase=playing] .gb-board-team .gb-team-scores{grid-column:4;display:flex;align-items:center;gap:10px;overflow-x:auto;overflow-y:hidden;max-height:100%;scrollbar-width:none;min-width:0;touch-action:pan-x}
+.gb-modal[data-phase=playing] .gb-team-scores::-webkit-scrollbar{display:none}
+.gb-modal[data-phase=playing] .gb-team-scores>div{flex:0 0 auto;white-space:nowrap;padding:8px 10px;background:#ffffff08;border-radius:10px}
+.gb-modal[data-phase=playing] .gb-team-scores:focus-visible{outline:1px solid #ffb11a;outline-offset:2px}
+@media(max-width:600px){.gb-modal[data-phase=playing] .gb-board-team li{grid-template-columns:20px minmax(60px,1fr) auto minmax(0,1.3fr);gap:6px}.gb-modal[data-phase=playing] .gb-team-scores img{width:24px;height:24px}}

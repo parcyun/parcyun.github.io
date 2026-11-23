@@ -151,7 +151,7 @@ function BattleLeaderboard({ room }) {
             <span>{ranked.findIndex(entry => entry.score === score) + 1}위</span>
             <span>{room.mode==="individual"&&(<img src={photo||"/images/dexter-base-character-01.png"} alt="" referrerPolicy="no-referrer"/>)}{name}{connected===false&&<small> · 연결 끊김</small>}</span>
             <strong>{score.toLocaleString()}<small>점</small></strong>
-            {room.mode==="team"&&<div className="gb-team-scores">{room.players.filter(p=>p.team===id).sort((a,b)=>b.score-a.score).map(p=><div key={p.id}>{<img src={p.photo||"/images/dexter-base-character-01.png"} alt="" referrerPolicy="no-referrer"/>}<span>{p.name}</span><b>{p.score.toLocaleString()}점</b></div>)}</div>}
+            {room.mode==="team"&&<div className="gb-team-scores" tabIndex={0} aria-label={`${name} 팀원 점수`} onWheel={event=>{const list=event.currentTarget;if(list.scrollWidth<=list.clientWidth)return;event.preventDefault();list.scrollLeft+=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;}}>{room.players.filter(p=>p.team===id).sort((a,b)=>b.score-a.score).map(p=><div key={p.id}>{<img src={p.photo||"/images/dexter-base-character-01.png"} alt="" referrerPolicy="no-referrer"/>}<span>{p.name}</span><b>{p.score.toLocaleString()}점</b></div>)}</div>}
             {room.mode==="team"&&<small className="gb-member-count">{room.players.filter(p=>!p.isHost&&!p.left&&p.team===id).length}명</small>}
           </li>
         ))}

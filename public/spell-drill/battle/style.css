@@ -81,3 +81,10 @@ body:has(#battle-launch):has(#home.active) .stage{padding-top:74px}body:has(#pla
 .battle-teams.leaderboard{flex:1;min-height:0;grid-auto-rows:minmax(0,1fr);overflow:auto;align-content:stretch}
 #battle .leaderboard .battle-team,#battle .leaderboard .battle-team.first-place{min-height:0;height:100%;display:flex;flex-direction:column;overflow:hidden}
 .leaderboard .battle-team>header,.leaderboard .battle-team>footer{flex:none}.leaderboard .battle-players{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:none}
+
+#battle-body[data-phase=playing] .leaderboard .battle-team{display:grid;grid-template-columns:minmax(100px,1fr) minmax(0,2fr);align-items:center;gap:12px}
+#battle-body[data-phase=playing] .leaderboard .battle-team>header{min-width:0}
+#battle-body[data-phase=playing] .leaderboard .battle-players{display:flex;align-items:center;gap:10px;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;touch-action:pan-x}
+#battle-body[data-phase=playing] .leaderboard .battle-players::-webkit-scrollbar{display:none}
+#battle-body[data-phase=playing] .leaderboard .battle-player{flex:0 0 auto;white-space:nowrap;gap:12px}
+#battle-body[data-phase=playing] .leaderboard .battle-team>footer{grid-column:1/-1}

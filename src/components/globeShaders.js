@@ -46,8 +46,8 @@ void main(){ float lon=(vUv.x-0.5)*360.0, lat=(vUv.y-0.5)*180.0;
   if(uSat>0.001){ vec3 sc=texture2D(satTex,vUv).rgb; base=mix(base, mix(sc*0.32, sc, t), uSat); } // 위성: 표면 전체를 실사 위성사진으로(밤엔 어둡게), uSat로 크로스페이드
   // The moving vector surface replaces the identical raster at the first morph frame.
   // Never cross-fade a stationary coastline behind moving country vertices.
-  float rasterVisible=1.0-step(0.000001,max(uPopulation,uDensity));base=mix(ocean,base,rasterVisible);
-  if(uDensity>0.000001&&uPopulation<0.000001&&vUv.y<0.16)base=mix(ocean,vec3(0.847,0.863,0.882),dc.a);
+  float rasterVisible=(1.0-step(0.000001,uPopulation))*mix(1.0-step(0.000001,uDensity),1.0,uSat);base=mix(ocean,base,rasterVisible);
+  if(uDensity>0.000001&&uPopulation<0.000001&&vUv.y<0.16)base=mix(base,vec3(0.847,0.863,0.882),dc.a*(1.0-uSat));
   vec4 ov=texture2D(overlayTex,vUv);ov.a*=uOverlayOpacity*rasterVisible;
   gl_FragColor=vec4(mix(base,ov.rgb,ov.a),1.0);} `;
 export const cloneFrag=OCEANGRAD+`uniform sampler2D dayTex,nightTex,overlayTex,satTex; uniform float uOverlayOpacity,uPopulation,uDensity; uniform float sunLon,sunLat,nightBoost,dayNightOn,uCloneAmt,uSat; uniform vec2 uScreen; varying vec2 vUv;
@@ -59,8 +59,8 @@ void main(){ float rl=radians((vUv.y-0.5)*180.0),ro=radians((vUv.x-0.5)*360.0),s
   if(uSat>0.001){ vec3 sc=texture2D(satTex,vUv).rgb; base=mix(base, mix(sc*0.32, sc, t), uSat); }
   // The moving vector surface replaces the identical raster at the first morph frame.
   // Never cross-fade a stationary coastline behind moving country vertices.
-  float rasterVisible=1.0-step(0.000001,max(uPopulation,uDensity));base=mix(ocean,base,rasterVisible);
-  if(uDensity>0.000001&&uPopulation<0.000001&&vUv.y<0.16)base=mix(ocean,vec3(0.847,0.863,0.882),dc.a);
+  float rasterVisible=(1.0-step(0.000001,uPopulation))*mix(1.0-step(0.000001,uDensity),1.0,uSat);base=mix(ocean,base,rasterVisible);
+  if(uDensity>0.000001&&uPopulation<0.000001&&vUv.y<0.16)base=mix(base,vec3(0.847,0.863,0.882),dc.a*(1.0-uSat));
   vec4 ov=texture2D(overlayTex,vUv);ov.a*=uOverlayOpacity*rasterVisible;
   gl_FragColor=vec4(mix(base,ov.rgb,ov.a), clamp(uCloneAmt,0.0,1.0));} `;
 export const lineVert=GLSL+`attribute vec2 aGeo; attribute vec2 aGeoB;attribute vec2 aPopGeo,aPopGeoB;uniform float uPopulation; uniform float morph,lens,uRotY,uRotX,uLon0,uLat0,uLonC,uOffsetX; varying float vCosc,vFrontZ,vSphereW;
@@ -108,5 +108,5 @@ void main(){ if(vSphereW>0.5&&vFrontZ<-0.02) discard; if(lens>0.5&&vCosc<-0.985)
   float lat=(vUv.y-0.5)*180.0,lon=(vUv.x-0.5)*360.0;
   float rl=radians(lat),ro=radians(lon),sa=radians(sunLat),so=radians(sunLon);
   float cz=sin(rl)*sin(sa)+cos(rl)*cos(sa)*cos(ro-so); float t=mix(1.0,smoothstep(-0.10,0.12,cz),dayNightOn);
-  vec3 base=mix(vCol*0.4,vCol,mix(t,1.0,uDensity)); vec4 heat=texture2D(densityTex,vUv);base=mix(base,heat.rgb,heat.a*uDensity);vec4 ov=texture2D(overlayTex,vUv);ov.a*=uOverlayOpacity;
-  gl_FragColor=vec4(mix(base,ov.rgb,ov.a),uFillOpacity);}`;
+  vec3 base=mix(vCol*0.4,vCol,mix(t,1.0,uDensity)); vec4 heat=texture2D(densityTex,vUv);float heatAlpha=heat.a*uDensity;float alpha=uFillOpacity+(1.0-uFillOpacity)*heatAlpha;base=mix(base,heat.rgb,heatAlpha/max(alpha,0.000001));vec4 ov=texture2D(overlayTex,vUv);ov.a*=uOverlayOpacity;
+  gl_FragColor=vec4(mix(base,ov.rgb,ov.a),alpha);}`;

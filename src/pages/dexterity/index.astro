@@ -4,8 +4,9 @@ import DexterityControls from "../../components/DexterityControls.astro";
 import SeoHead from '../../components/SeoHead.astro';
 import StudioMusicPlayer from '../../components/StudioMusicPlayer.astro';
 import { dexterityPosts, dexterityAuthor } from '../../data/dexterity';
-const categories = ['가이드북', '일상', '여행', '카페', '생각', '인사이트', 'AI', '디지털', '디자인', '건축', '와이너리'];
+const categories = ['가이드북', '일상', '여행', '카페', '생각', '인사이트', 'AI', '디지털', '디자인', '건축', '와이너리', '요리'];
 const posts = dexterityPosts;
+const coverPost = posts.find(post => post.slug === 'berri-estates-shiraz-2025') ?? posts[0];
 const cardTitles: Record<string,string> = {
   'hyangmisa': '경주 향미사 · 커피와 원두',
   'guidebook/geoweb': '지오웹 · 세계 지도와 지리 퀴즈',
@@ -30,8 +31,8 @@ const structuredData = {
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <SeoHead title="parcyun dexterity | 박윤의 기록과 서비스 가이드북" description={description}
-  siteName="parcyun dexterity" image={new URL(posts[0].image, 'https://parcyun.github.io').href}
-  imageAlt={posts[0].imageAlt} structuredData={structuredData} />
+  siteName="parcyun dexterity" image={new URL(coverPost.image, 'https://parcyun.github.io').href}
+  imageAlt={coverPost.imageAlt} structuredData={structuredData} />
 <link rel="alternate" type="application/rss+xml" title="parcyun dexterity" href="/dexterity/feed.xml" />
 <link rel="icon" href="/favicon.svg" />
 <link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Montserrat:wght@300;500;600&display=swap" rel="stylesheet" />

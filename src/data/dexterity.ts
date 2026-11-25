@@ -6,6 +6,12 @@ export const dexterityAuthor = {
   name: '박윤', alternateName: 'parcyun', url: 'https://parcyun.github.io/',
 };
 export const dexterityPosts = [{
+  slug: 'oyster-sauce-pork-shoulder', title: '굴소스에 볶은 돼지 앞다리살', category: '요리',
+  description: '얇게 썬 앞다리살과 애호박 또는 양파. 굴소스, 멸치액젓, 케첩, 발사믹 식초를 5:1:3:1로 섞어 마지막 2~3분에 버무린 볶음 기록.',
+  href: '/dexterity/oyster-sauce-pork-shoulder/', image: '/images/dexterity/cooking/oyster-sauce-pork-shoulder.svg',
+  imageAlt: '둥근 접시와 양념 비율을 그린 일러스트',
+  datePublished: '2026-11-25T20:43:53+09:00', dateModified: '2026-11-25T20:43:53+09:00',
+}, {
   slug: 'berri-estates-shiraz-2025', title: '베리 에스테이트 쉬라즈 2025', category: '와이너리',
   description: '베리 에스테이트 쉬라즈 2025 시음 기록. 가벼운 단맛과 부드러운 질감, 약한 타닌과 짧은 여운. 1만원 이하 호주 와인의 맛과 균형을 담았다.',
   href: '/dexterity/berri-estates-shiraz-2025/', image: '/images/dexterity/winery/berri-estates-shiraz-2025-corrected.png',

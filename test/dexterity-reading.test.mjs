@@ -34,12 +34,12 @@ test('gallery omits descriptions and aligns the compact view count beside the ti
  const html=read('dist/dexterity/index.html');
  assert.doesNotMatch(html,/class="entry-description"/);
  const cards=[...html.matchAll(/<a\b[^>]*class="entry"[^>]*>([\s\S]*?)<\/a>/g)];
- assert.equal(cards.length,5);
+ assert.equal(cards.length,6);
  assert.doesNotMatch(cards.at(-1)[1],/entry-description/);
- assert.equal((html.match(/class="entry-caption"/g)||[]).length,5);
+ assert.equal((html.match(/class="entry-caption"/g)||[]).length,6);
  assert.match(read('src/pages/dexterity/index.astro'),/h3\{display:inline/);
  for(const title of ['지오웹 · 세계 지도와 지리 퀴즈','스펠 드릴 · 맞춤법 퀴즈','사투리 · 지역별 방언 찾기','경주 향미사 · 커피와 원두']) assert.ok(html.replace(/<[^>]*>/g,'').replace(/\s+/g,' ').includes(title));
- assert.equal((html.match(/class="entry-tail"/g)||[]).length,5);
+ assert.equal((html.match(/class="entry-tail"/g)||[]).length,6);
  assert.match(read('src/pages/dexterity/index.astro'),/ResizeObserver\(alignViewCounts\)/);
  assert.match(read('src/pages/dexterity/index.astro'),/translateX\(var\(--views-shift,0px\)\)/);
 });
@@ -71,4 +71,18 @@ test('Hyangmisa preserves its editorial body, crops and captions in the built ar
    assert.match(figures[i],/width="2880" height="3840"/);
   }
  }
+});
+
+test('cooking links the recipe and its card art from the gallery and feeds',()=>{
+ const url='/dexterity/oyster-sauce-pork-shoulder/';
+ const gallery=read('dist/dexterity/index.html');
+ assert.ok(gallery.match(/<section[^>]+aria-label="요리"[^>]*>[\s\S]*?<\/section>/)?.[0].includes('href="'+url+'"'));
+ const article=read('dist'+url+'index.html');
+ assert.ok(article.includes('href="/dexterity/#category-11"'));
+ assert.ok(article.includes('굴소스 5 : 멸치액젓 1 : 케첩 3 : 발사믹 식초 1.'));
+ assert.ok(article.includes('마지막 2~3분'));
+ assert.ok(article.includes('깨를 뿌린다'));
+ assert.ok(read('dist/dexterity/feed.xml').includes(url));
+ assert.ok(read('dist/sitemap.xml').includes(url));
+ assert.match(read('dist/images/dexterity/cooking/oyster-sauce-pork-shoulder.svg'),/<svg /);
 });

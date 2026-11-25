@@ -3,7 +3,7 @@ import sharp from 'sharp';
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
-const pages = ['spell-drill', 'world-map'];
+const pages = ['spell-drill', 'world-map', 'lecture-survey'];
 const margin = 4;
 const cutoutSize = 9;
 const mascot = await sharp(fileURLToPath(new URL('../public/images/dexter-base-character-01.png', import.meta.url)))
@@ -13,7 +13,8 @@ const mascot = await sharp(fileURLToPath(new URL('../public/images/dexter-base-c
 const mascotData = mascot.toString('base64');
 
 for (const page of pages) {
-  const qr = QRCode.create(`https://parcyun.github.io/${page}/`, { errorCorrectionLevel: 'H' });
+  const url=page==='lecture-survey'?'https://parcyun.notion.site/7e93f99a8223825ab6a801a866374d58?pvs=105':`https://parcyun.github.io/${page}/`;
+  const qr = QRCode.create(url, { errorCorrectionLevel: 'H' });
   const size = qr.modules.size;
   const cutoutStart = Math.floor((size - cutoutSize) / 2);
   const dimension = size + margin * 2;

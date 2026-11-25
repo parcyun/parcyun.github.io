@@ -33,6 +33,12 @@ export default function AdminLogin() {
           </div>
           <div className="al-tools">
             <span className="al-tools-label">관리자 도구</span>
+            <details className="al-survey">
+              <summary>설문 관리 · 강의 만족도</summary>
+              <a className="al-go" href="https://parcyun.notion.site/7e93f99a8223825ab6a801a866374d58?pvs=105" target="_blank" rel="noopener noreferrer">강의 만족도 설문 열기 ↗</a>
+              <img src="/qr/lecture-survey.svg" width="280" height="280" alt="강의 만족도 설문 QR 코드 · 중앙 덱스터 캐릭터" />
+              <a className="al-tool" href="/qr/lecture-survey.svg" download="강의-만족도-설문-QR.svg">QR 다운로드 ↓</a>
+            </details>
             <a className="al-tool" href="/dashboard.html">업무 대시보드 ↗</a>
           </div>
           <button type="button" className="al-out" onClick={logout}>로그아웃</button>
@@ -48,6 +54,7 @@ export default function AdminLogin() {
 
       <style>{`
         .al{width:100%;max-width:360px}
+        .al-survey{border:1px solid #333;border-radius:16px;padding:16px}.al-survey summary{cursor:pointer;color:#FFB11A;font-size:14px;min-height:32px}.al-survey[open]{display:flex;flex-direction:column;gap:12px}.al-survey img{display:block;max-width:100%;height:auto;margin:16px auto;background:#fff;border-radius:12px}.al-survey .al-go{display:block;margin-top:12px}
         .al-form{display:flex;flex-direction:column;gap:10px}
         .al-label{font-family:var(--ps-font-en);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ps-text-cinematic-secondary)}
         .al-input{font-family:var(--ps-font-body);font-size:15px;color:#fff;background:var(--ps-surface-cinematic-1);border:1px solid var(--ps-surface-cinematic-3);border-radius:10px;padding:13px 14px;outline:none;transition:border-color .18s}

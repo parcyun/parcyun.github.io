@@ -47,7 +47,7 @@ def normalize_detail(data):
         senses = []
         for pattern in many(pos.get("comm_pattern_info")):
             for sense in many(pattern.get("sense_info")):
-                senses.append({"definition": sense.get("definition", ""), "links": [{"word": r.get("word", ""), "code": str(r.get("target_code", "")), "type": r.get("type", "")} for r in many(sense.get("relation_info")) if r.get("word") and str(r.get("target_code", "")).isdigit()], "examples": [
+                senses.append({"definition": sense.get("definition_original") or sense.get("definition", ""), "links": [{"word": r.get("word", ""), "code": str(r.get("link_target_code") or r.get("target_code", "")), "type": r.get("type", "")} for r in many(sense.get("relation_info")) if r.get("word") and str(r.get("link_target_code") or r.get("target_code", "")).isdigit()], "examples": [
                     example["example"] for example in many(sense.get("example_info"))
                     if example.get("example") and not example.get("source")]})
         groups.append({"pos": pos.get("pos", ""), "senses": senses})

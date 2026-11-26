@@ -4,6 +4,7 @@ const sheet=document.querySelector('#stdict-detail');
 const body=document.querySelector('#stdict-detail-body');
 const closeButton=document.querySelector('#stdict-close');
 let searchNumber=0,detailNumber=0,searchRequest,detailRequest,returnFocus,closingAnimation;
+const detailHistory=[];let currentDetail;const backButton=document.createElement('button');backButton.type='button';backButton.className='stdict-back';backButton.textContent='↶';backButton.setAttribute('aria-label','이전 단어로 돌아가기');backButton.hidden=true;sheet.append(backButton);
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
 let resizeFrame;
 function fitPanel(){
@@ -54,7 +55,10 @@ panel.addEventListener('keydown',event=>{if(event.key==='Escape'&&!sheet.hidden)
 const apiBase=location.hostname==='127.0.0.1'?'':'https://satury-dictionary-api-1093702239224.asia-northeast3.run.app';
 async function read(url,signal){const res=await fetch(apiBase+url,{signal});const data=await res.json();if(!res.ok)throw Error(data.message||'사전을 불러오지 못했어요. 잠시 후 다시 검색해 주세요.');return data;}
 function officialLink(parent,code){const a=add(parent,'a','국립국어원 원문 보기 ↗');a.href='https://stdict.korean.go.kr/search/searchView.do?word_no='+encodeURIComponent(code)+'&searchKeywordTo=3';a.target='_blank';a.rel='noopener';}
-async function openDetail(item,button){
+async function openDetail(item,button,navigate=false){
+ if(navigate&&currentDetail)detailHistory.push({item:currentDetail,html:body.innerHTML,scroll:body.scrollTop});else if(!navigate)detailHistory.length=0;
+ currentDetail=item;backButton.hidden=!detailHistory.length;
+ if(navigate&&!reduced.matches)await body.animate([{transform:"translateX(0)",opacity:1},{transform:"translateX(-40px)",opacity:0}],{duration:160,easing:"ease-in"}).finished;
  closeDetail(false,false);returnFocus=button;const number=++detailNumber;
  detailRequest=new AbortController();sheet.hidden=false;list.inert=true;
  alignMobileDetail();
@@ -70,11 +74,11 @@ async function openDetail(item,button){
   for(const group of data.groups){
    if(group.pos)add(body,'h4',group.pos);
    const ol=add(body,'ol','');
-   for(const sense of group.senses){const li=add(ol,'li',sense.definition);for(const example of sense.examples)add(li,'p',example,'stdict-example');}
+   for(const sense of group.senses){const li=add(ol,'li','');renderDefinition(li,sense);for(const example of sense.examples)add(li,'p',example,'stdict-example');}
   }
   officialLink(body,item.code);
  }catch(error){if(number!==detailNumber)return;body.replaceChildren();add(body,'h3',item.word);add(body,'p',error.message,'stdict-message');officialLink(body,item.code);}
- finally{if(number===detailNumber)body.removeAttribute('aria-busy');}
+ finally{if(number===detailNumber){body.removeAttribute('aria-busy');if(navigate&&!reduced.matches)body.animate([{transform:"translateX(40px)",opacity:0},{transform:"none",opacity:1}],{duration:220,easing:"ease-out"});}}
 }
 window.addEventListener('satury-search',async event=>{
  const q=event.detail.query,number=++searchNumber;
@@ -97,3 +101,14 @@ window.addEventListener('satury-search',async event=>{
  }catch(error){if(number!==searchNumber)return;list.replaceChildren();add(list,'p',error.message,'stdict-message');}
  finally{if(number===searchNumber)list.removeAttribute('aria-busy');}
 });
+
+function linkedWord(parent,word,code){const link=add(parent,'a',word+' ↗','stdict-word-link');link.href='https://stdict.korean.go.kr/search/searchView.do?word_no='+encodeURIComponent(code);link.dataset.word=word;link.dataset.code=code;return link;}
+function renderDefinition(parent,sense){
+ const links=(sense.links||[]).filter(l=>/^\d+$/.test(l.code));let text=sense.definition||'';
+ const template=document.createElement('template');template.innerHTML=text;
+ if(template.content.querySelector('a')){for(const node of template.content.childNodes){if(node.nodeType===3)parent.append(document.createTextNode(node.textContent));else if(node.nodeName==='A'){const url=new URL(node.getAttribute('href')||'', 'https://stdict.korean.go.kr');const code=url.searchParams.get('word_no')||url.searchParams.get('target_code');if(/^\d+$/.test(code||''))linkedWord(parent,node.textContent,code);else parent.append(document.createTextNode(node.textContent));}else parent.append(document.createTextNode(node.textContent));}return;}
+ for(const link of links){const word=link.word.replace(/[-^]/g,'').replace(/\d+$/,'');const index=text.indexOf(word);if(index<0)continue;parent.append(document.createTextNode(text.slice(0,index)));linkedWord(parent,word,link.code);text=text.slice(index+word.length);}
+ parent.append(document.createTextNode(text));for(const link of links)if(!parent.querySelector('[data-code="'+link.code+'"]')){const line=add(parent,'p','');linkedWord(line,link.word,link.code);}
+}
+body.addEventListener('click',event=>{const link=event.target.closest('.stdict-word-link');if(!link)return;event.preventDefault();openDetail({word:link.dataset.word,code:link.dataset.code},returnFocus,true);});
+backButton.onclick=()=>{const previous=detailHistory.pop();if(!previous)return;detailNumber++;detailRequest?.abort();currentDetail=previous.item;body.innerHTML=previous.html;body.scrollTop=previous.scroll;body.removeAttribute('aria-busy');backButton.hidden=!detailHistory.length;if(!reduced.matches)body.animate([{transform:'translateX(-40px)',opacity:0},{transform:'none',opacity:1}],{duration:220});};

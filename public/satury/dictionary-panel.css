@@ -47,3 +47,5 @@
  .stdict-detail{inset:52px 0 0}
  .stdict-scroll{padding:8px 20px 16px}
 }
+
+.stdict-word-link{color:#ffb11a;text-decoration:underline;text-underline-offset:4px;cursor:pointer}.stdict-back{position:absolute;right:16px;bottom:16px;width:48px;height:48px;border:1px solid #ffb11a80;border-radius:16px;background:#202127;color:#ffb11a;font-size:28px;cursor:pointer;z-index:5}.stdict-back[hidden]{display:none}#stdict-detail-body{padding-bottom:80px}

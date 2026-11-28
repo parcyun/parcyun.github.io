@@ -117,6 +117,8 @@ body:has(.game-active) .ps-service-actions{display:none!important}
 @media(max-width:760px){.gg-ranking-dialog{padding:22px 14px 12px;gap:8px}.gg-ranking-dialog .gg-ranking-header{gap:5px}.gg-ranking-help{flex-basis:100%;max-width:100%;text-align:left;display:flex;gap:4px 12px;flex-wrap:wrap}.gg-ranking-help p{max-width:100%}.gg-ranking-title-row{margin-top:1px}.gg-ranking-kicker .gg-ranking-note{font-size:8px}}
 @media(prefers-reduced-motion:reduce){.gg-ranking-award-word{animation:none}}
 
-.geo-game>.gg-sound{position:absolute;top:28px;right:24px;z-index:12;pointer-events:auto;min-height:36px;padding:8px 12px;border:1px solid #ffffff30;border-radius:999px;background:#171a20bb;backdrop-filter:blur(20px);color:#ffcb73;font:600 10px Montserrat,sans-serif;cursor:pointer}
-.geo-game:not(.gg-playing)>.gg-sound{right:180px}
-@media(max-width:760px){.geo-game>.gg-sound,.geo-game:not(.gg-playing)>.gg-sound{top:calc(64px + env(safe-area-inset-top,0px));right:120px;min-height:36px}}
+/* Keep utility actions in one flow so labels cannot overlap. */
+.gg-game-actions{position:absolute;top:28px;right:24px;z-index:12;display:flex;align-items:center;gap:10px;pointer-events:auto}
+.geo-game .gg-game-actions .gg-mode-exit{position:static;white-space:nowrap}
+.gg-game-actions .gg-sound{min-height:36px;padding:8px 12px;border:1px solid #ffffff30;border-radius:999px;background:#171a20bb;backdrop-filter:blur(20px);color:#ffcb73;font:600 10px Montserrat,sans-serif;cursor:pointer;white-space:nowrap}
+@media(max-width:760px){.gg-game-actions{top:calc(64px + env(safe-area-inset-top,0px));right:120px;gap:6px}.geo-game .gg-game-actions .gg-mode-exit{padding:8px;font-size:10px}}

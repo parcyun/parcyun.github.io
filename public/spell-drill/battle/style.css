@@ -88,3 +88,6 @@ body:has(#battle-launch):has(#home.active) .stage{padding-top:74px}body:has(#pla
 #battle-body[data-phase=playing] .leaderboard .battle-players::-webkit-scrollbar{display:none}
 #battle-body[data-phase=playing] .leaderboard .battle-player{flex:0 0 auto;white-space:nowrap;gap:12px}
 #battle-body[data-phase=playing] .leaderboard .battle-team>footer{grid-column:1/-1}
+
+
+@media(min-width:701px) and (max-height:500px) and (max-width:1000px){body:has(#battle-launch) .ps-service-actions{top:64px!important;bottom:auto!important;position:fixed!important}}

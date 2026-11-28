@@ -122,3 +122,7 @@ body:has(.game-active) .ps-service-actions{display:none!important}
 .geo-game .gg-game-actions .gg-mode-exit{position:static;white-space:nowrap}
 .gg-game-actions .gg-sound{min-height:36px;padding:8px 12px;border:1px solid #ffffff30;border-radius:999px;background:#171a20bb;backdrop-filter:blur(20px);color:#ffcb73;font:600 10px Montserrat,sans-serif;cursor:pointer;white-space:nowrap}
 @media(max-width:760px){.gg-game-actions{top:calc(64px + env(safe-area-inset-top,0px));right:120px;gap:6px}.geo-game .gg-game-actions .gg-mode-exit{padding:8px;font-size:10px}}
+
+.geo-game .gg-game-actions .gg-finish{position:static;white-space:nowrap}
+@media(max-width:760px),(min-width:600px) and (max-height:500px) and (max-width:1000px){body .gl-app .geo-game:not(.gg-playing) .gg-menu{top:120px;bottom:calc(var(--geo-dock-bottom) + 130px);padding:16px;max-height:none;display:flex;flex-direction:column;overflow:hidden}body .gl-app .geo-game:not(.gg-playing) .gg-menu nav{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}body .geo-game .gg-game-actions .gg-finish{display:none!important}}
+@media(min-width:600px) and (max-height:500px) and (max-width:1000px){body .gl-app .geo-game:not(.gg-playing) .gg-menu{top:12px}}
